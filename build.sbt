@@ -1,19 +1,20 @@
 Global / excludeLintKeys += logManager
 Global / excludeLintKeys += scalaJSUseMainModuleInitializer
 Global / excludeLintKeys += scalaJSLinkerConfig
+Global / onChangedBuildSource := ReloadOnSourceChanges
 
 inThisBuild(
   List(
-    scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.5.0",
-    semanticdbEnabled := true,
-    semanticdbVersion := scalafixSemanticdb.revision,
+    scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0",
+    semanticdbEnabled          := true,
+    semanticdbVersion          := scalafixSemanticdb.revision,
     scalafixScalaBinaryVersion := scalaBinaryVersion.value,
-    organization := "com.indoorvivants",
-    organizationName := "Anton Sviridov",
+    organization               := "com.indoorvivants",
+    organizationName           := "Anton Sviridov",
     homepage := Some(
       url("https://github.com/indoorvivants/scala-library-template")
     ),
-    startYear := Some(2020),
+    startYear := Some(2022),
     licenses := List(
       "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")
     ),
@@ -28,42 +29,23 @@ inThisBuild(
   )
 )
 
-// https://github.com/cb372/sbt-explicit-dependencies/issues/27
-lazy val disableDependencyChecks = Seq(
-  unusedCompileDependenciesTest := {},
-  missinglinkCheck := {},
-  undeclaredCompileDependenciesTest := {}
-)
+val Scala3        = "3.1.3"
+val scalaVersions = List(Scala3)
 
-val Scala213       = "2.13.5"
-val Scala212       = "2.12.13"
-val Scala3         = "3.0.0"
-val scala2Versions = Seq(Scala213, Scala212)
-val scalaVersions = scala2Versions :+ Scala3
-
-lazy val munitSettings = Seq(
-  libraryDependencies += {
-    "org.scalameta" %%% "munit" % "0.7.26" % Test
-  },
-  testFrameworks += new TestFramework("munit.Framework")
-)
-
-
-lazy val root = projectMatrix
-  .aggregate(core)
+lazy val root = project
+  .aggregate(core.projectRefs: _*)
 
 lazy val core = projectMatrix
   .in(file("modules/core"))
   .settings(
-    name := "core",
-    Test / scalacOptions ~= filterConsoleScalacOptions
+    name := "core"
   )
-  .settings(munitSettings)
   .jvmPlatform(scalaVersions)
-  .jsPlatform(scalaVersions, disableDependencyChecks)
-  .nativePlatform(scala2Versions, disableDependencyChecks)
+  .jsPlatform(scalaVersions)
+  .nativePlatform(scalaVersions)
   .enablePlugins(BuildInfoPlugin)
   .settings(
+    libraryDependencies += "com.lihaoyi" %%% "upickle" % "2.0.0",
     buildInfoPackage := "com.indoorvivants.library.internal",
     buildInfoKeys := Seq[BuildInfoKey](
       version,
@@ -74,16 +56,15 @@ lazy val core = projectMatrix
     scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule))
   )
 
-lazy val docs = project
+lazy val docs = projectMatrix
   .in(file("myproject-docs"))
+  .jvmPlatform(scalaVersions)
   .settings(
-    scalaVersion := Scala213,
     mdocVariables := Map(
       "VERSION" -> version.value
     )
   )
-  .settings(disableDependencyChecks)
-  .dependsOn(core.jvm(Scala213))
+  .dependsOn(core)
   .enablePlugins(MdocPlugin)
 
 val scalafixRules = Seq(
@@ -101,10 +82,7 @@ val CICommands = Seq(
   "docs/mdoc",
   "core/scalafmtCheckAll",
   s"core/scalafix --check $scalafixRules",
-  "core/headerCheck",
-  "undeclaredCompileDependenciesTest",
-  "unusedCompileDependenciesTest",
-  "core/missinglinkCheck"
+  "core/headerCheck"
 ).mkString(";")
 
 val PrepareCICommands = Seq(
@@ -113,8 +91,7 @@ val PrepareCICommands = Seq(
   "core/test:scalafmtAll",
   "core/compile:scalafmtAll",
   "core/scalafmtSbt",
-  "core/headerCreate",
-  "undeclaredCompileDependenciesTest"
+  "core/headerCreate"
 ).mkString(";")
 
 addCommandAlias("ci", CICommands)
