@@ -1,220 +1,121 @@
-/*
- * Copyright 2020 Anton Sviridov
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package langoustine
 
-import java.io.File
+import scala.util.Try.apply
+import scala.util.Try
+import scala.util.Success
 
-opaque type StructureName = String
-object StructureName extends OpaqueString[StructureName]
+import upickle.default.{Reader, Writer}
+import cats.syntax.all._
 
-opaque type PropertyName = String
-object PropertyName extends OpaqueString[PropertyName]
+enum LSPError:
+  case NotImplementedError
 
-opaque type IsOptional = Boolean
-object IsOptional extends YesNo[IsOptional]
+opaque type ReqHandler[F[_], I, O] = I => F[O | LSPError]
+object ReqHandler:
+  def apply[F[_], I, O](f: I => F[O | LSPError]): ReqHandler[F, I, O] = f
 
-opaque type RequestMethod = String
-object RequestMethod extends OpaqueString[RequestMethod]
+sealed abstract class Req(val requestMethod: String):
+  type In
+  type Out
 
-opaque type EnumerationName = String
-object EnumerationName extends OpaqueString[EnumerationName]
+  given reader: Reader[In]
+  given writer: Writer[Out] = upickle.default.writer[String].comap(_.toString)
 
-opaque type EnumerationItemName = String
-object EnumerationItemName extends OpaqueString[EnumerationItemName]
+trait Definition
+trait DefinitionLink
+case class ImplementationParams(h: String)
+case class DocumentParams(dp: Int)
 
-enum ParamsType:
-  case Single(t: Type)
-  case Many(v: Vector[Type])
-  case None
+object textDocument:
+  object implementation extends Req("textDocument/implementation"):
+    type Out = Definition | Vector[DefinitionLink] | BaseTypes.NULL.type
+    object Out:
+      def apply(d: Definition): Out             = d
+      def apply(d: Vector[DefinitionLink]): Out = d
+      def NULL: Out                             = BaseTypes.NULL
 
-case class Request(
-    params: ParamsType = ParamsType.None,
-    method: RequestMethod,
-    result: Type
-)
+    export Out.apply as respondWith
+    export Out.NULL as respondWithNull
 
-case class Notification(
-    method: RequestMethod
-)
+    type In = ImplementationParams
 
-case class EnumerationType(
-    kind: "base",
-    name: EnumerationTypeName
-)
+    given reader: Reader[In] = Pickle.macroR
 
-enum EnumerationTypeName:
-  case string, integer, uinteger
+  object definition extends Req("textDocument/definition"):
+    opaque type Out = Definition | Vector[DefinitionLink] | BaseTypes.NULL.type
+    object Out:
+      def apply(d: Definition): Out             = d
+      def apply(d: Vector[DefinitionLink]): Out = d
+      def NULL: Out                             = BaseTypes.NULL
 
-case class Enumeration(
-    name: EnumerationName,
-    `type`: EnumerationType,
-    values: Vector[EnumerationEntry]
-)
+    opaque type In = DocumentParams
 
-opaque type EnumerationItem = Int | String
-object EnumerationItem:
-  def apply(i: Int): EnumerationItem    = i
-  def apply(s: String): EnumerationItem = s
+    given reader: Reader[In] = Pickle.macroR
 
-  extension (t: EnumerationItem)
-    def intValue    = t.asInstanceOf[Int]
-    def stringValue = t.asInstanceOf[String]
+trait LSPBuilder[F[_]]:
+  def handler[X <: Req](t: X)(
+      f: (t.In, X) => F[t.Out | LSPError]
+  ): LSPBuilder[F]
 
-case class EnumerationEntry(name: EnumerationItemName, value: EnumerationItem)
+  def build: JSONRPC.RequestMessage => F[JSONRPC.ResponseMessage]
 
-case class Property(
-    name: PropertyName,
-    optional: IsOptional = IsOptional.No,
-    `type`: Type
-)
+import cats.MonadThrow
 
-case class Structure(
-    `extends`: Vector[Type] = Vector.empty,
-    mixins: Vector[Type] = Vector.empty,
-    name: StructureName,
-    properties: Vector[Property] = Vector.empty
-):
-  inline def extendz = `extends`
+case class ImmutableLSPBuilder[F[_]: MonadThrow] private (
+    mp: Map[String, JSONRPC.Handler[F]]
+) extends LSPBuilder[F]:
 
-opaque type TypeAliasName = String
-object TypeAliasName extends OpaqueString[TypeAliasName]
+  val F = MonadThrow[F]
 
-case class TypeAlias(name: TypeAliasName, `type`: Type)
+  def handler[X <: Req](t: X)(
+      f: (t.In, X) => F[t.Out | LSPError]
+  ) = copy(
+    mp.updated(
+      t.requestMethod,
+      { (msg: JSONRPC.RequestMessage) =>
+        val inBytes = msg.params
+        F.catchNonFatal(
+          upickle.default.read[t.In](msg.params)(using t.reader)
+        ).flatMap(f(_, t))
+          .map {
+            case e: LSPError => Left(JSONRPC.error(0, e.toString))
+            case s =>
+              Right(
+                upickle.default.write[t.Out](s.asInstanceOf[t.Out])(using
+                  t.writer
+                )
+              )
+          }
+          .map(JSONRPC.response(msg.id, _))
+      }
+    )
+  )
 
-case class StructureLiteral(
-    properties: Vector[Property]
-)
+  def build = rqm =>
+    mp.get(rqm.method) match
+      case Some(handler) => handler(rqm)
+      case None          => ???
 
-enum BaseTypes:
-  case Uri, DocumentUri,
-    integer,
-    uinteger, decimal, RegExp, string, boolean,
-    NULL
+object ImmutableLSPBuilder:
+  def create[F[_]: MonadThrow]: LSPBuilder[F] =
+    new ImmutableLSPBuilder[F](Map.empty)
 
-opaque type TypeName = String
-object TypeName extends OpaqueString[TypeName]
-
-enum Type:
-  case BaseType(kind: "base", name: BaseTypes)
-  case ReferenceType(kind: "reference", name: TypeName)
-  case AndType(kind: "and", items: Vector[Type])
-  case OrType(kind: "or", items: Vector[Type])
-  case ArrayType(kind: "array", element: Type)
-  case BooleanLiteralType(kind: "booleanLiteral", value: Boolean)
-  case MapType(kind: "map", key: Type, value: Type)
-  case StructureLiteralType(kind: "literal", value: StructureLiteral)
-  case StringLiteralType(kind: "stringLiteral", value: String)
-  case TupleType(kind: "tuple", items: Vector[Type])
-
-case class MetaModel(
-    structures: Vector[Structure],
-    enumerations: Vector[Enumeration],
-    requests: Vector[Request],
-    notifications: Vector[Notification],
-    typeAliases: Vector[TypeAlias]
-)
-
-object json:
-  import upickle.default.*
-  given [Raw, Opaque](using
-      bts: BasicallyTheSame[Raw, Opaque],
-      rw: ReadWriter[Raw]
-  ): ReadWriter[Opaque] =
-    rw.bimap[Opaque](bts.reverse, bts.apply)
-
-  import Type.*
-
-  given [T <: String](using rw: ReadWriter[String]): ReadWriter[T] =
-    rw.bimap(identity, _.asInstanceOf[T])
-
-  given Reader[BaseTypes] = summon[Reader[String]].map {
-    case "DocumentUri" => BaseTypes.DocumentUri
-    case "Uri"         => BaseTypes.Uri
-    case "integer"     => BaseTypes.integer
-    case "uinteger"    => BaseTypes.uinteger
-    case "decimal"     => BaseTypes.decimal
-    case "RegExp"      => BaseTypes.RegExp
-    case "string"      => BaseTypes.string
-    case "boolean"     => BaseTypes.boolean
-    case "null"        => BaseTypes.NULL
-  }
-
-  extension [X <: ujson.Value](js: X)
-    def as[T](using cr: Reader[T]) = read[T](js)
-
-  given Reader[ParamsType] = reader[ujson.Value].map { js =>
-    js.objOpt match
-      case None    => ParamsType.Many(read[Vector[Type]](js))
-      case Some(o) => ParamsType.Single(read[Type](js))
-  }
-
-  given Reader[Property]         = macroR
-  given Reader[Structure]        = macroR
-  given Reader[StructureLiteral] = macroR
-  given Reader[Request]          = macroR
-  given Reader[Notification]     = macroR
-
-  given Reader[BaseType]             = Pickle.macroR
-  given Reader[ReferenceType]        = Pickle.macroR
-  given Reader[ArrayType]            = Pickle.macroR
-  given Reader[OrType]               = Pickle.macroR
-  given Reader[AndType]              = Pickle.macroR
-  given Reader[MapType]              = Pickle.macroR
-  given Reader[StructureLiteralType] = Pickle.macroR
-  given Reader[StringLiteralType]    = Pickle.macroR
-  given Reader[TupleType]            = Pickle.macroR
-  given Reader[EnumerationTypeName] =
-    reader[String].map {
-      case "string"   => EnumerationTypeName.string
-      case "integer"  => EnumerationTypeName.integer
-      case "uinteger" => EnumerationTypeName.uinteger
+@main def yep =
+  val builder = ImmutableLSPBuilder
+    .create[Try]
+    .handler(textDocument.implementation) { (in, req) =>
+      Success(req.respondWithNull)
     }
-  given Reader[EnumerationEntry] = Pickle.macroR
-  given Reader[EnumerationType]  = Pickle.macroR
-  given Reader[Enumeration]      = Pickle.macroR
-  given Reader[TypeAlias]        = Pickle.macroR
-  given Reader[MetaModel]        = Pickle.macroR
+    .handler(textDocument.definition) { (in, req) =>
+      Success(req.Out(Vector.empty))
+    }
+    .build
 
-  given Reader[EnumerationItem] = reader[ujson.Value].map { v =>
-    (v.strOpt.map(EnumerationItem.apply) orElse
-      v.numOpt.map(t => EnumerationItem.apply(t.toInt))).get
-  }
+  val req =
+    JSONRPC.request(25, "textDocument/implementation", """{"h": "bla!"}""")
 
-  given Reader[Type] = reader[ujson.Obj].map { obj =>
-    val kind = obj("kind").str
+  val req1 =
+    JSONRPC.request(26, "textDocument/definition", """{"dp": 152}""")
 
-    kind match
-      case "reference"     => read[ReferenceType](obj)
-      case "base"          => read[BaseType](obj)
-      case "array"         => read[ArrayType](obj)
-      case "or"            => read[OrType](obj)
-      case "map"           => read[MapType](obj)
-      case "literal"       => read[StructureLiteralType](obj)
-      case "stringLiteral" => read[StringLiteralType](obj)
-      case "tuple"         => read[TupleType](obj)
-      case "and"           => read[AndType](obj)
-  }
-
-  import ujson.*
-
-@main def hello =
-  import upickle.default._
-  import json.{*, given}
-  val mm = ujson.read(new File("metaModel.json"))
-  val m = read[MetaModel](mm, trace = true)
-
-  println(m.requests.take(5).foreach(println))
+  println(builder(req).map(_.result))
+  println(builder(req1).map(_.result))

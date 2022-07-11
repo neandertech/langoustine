@@ -72,8 +72,9 @@ case class Structure(
     mixins: Vector[Type] = Vector.empty,
     name: StructureName,
     properties: Vector[Property] = Vector.empty
-):
+) {
   inline def extendz = `extends`
+}
 
 opaque type TypeAliasName = String
 object TypeAliasName extends OpaqueString[TypeAliasName]
@@ -110,3 +111,4 @@ enum Type:
   case StructureLiteralType(kind: "literal", value: StructureLiteral)
   case StringLiteralType(kind: "stringLiteral", value: String)
   case TupleType(kind: "tuple", items: Vector[Type])
+

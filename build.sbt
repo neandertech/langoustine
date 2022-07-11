@@ -38,7 +38,7 @@ lazy val root = project
 lazy val core = projectMatrix
   .in(file("modules/core"))
   .settings(
-    name := "core"
+    name := "core",
   )
   .jvmPlatform(scalaVersions)
   .jsPlatform(scalaVersions)
@@ -46,6 +46,7 @@ lazy val core = projectMatrix
   .enablePlugins(BuildInfoPlugin)
   .settings(
     libraryDependencies += "com.lihaoyi" %%% "upickle" % "2.0.0",
+    libraryDependencies += "org.typelevel" %%% "cats-core" % "2.8.0",
     buildInfoPackage := "com.indoorvivants.library.internal",
     buildInfoKeys := Seq[BuildInfoKey](
       version,
