@@ -112,3 +112,27 @@ enum Type:
   case StringLiteralType(kind: "stringLiteral", value: String)
   case TupleType(kind: "tuple", items: Vector[Type])
 
+  def traverse(f: Type => TypeTraversal) = 
+    TypeTraversal(this)(f)
+
+enum TypeTraversal:
+  case Skip
+  case Replace(other: Type)
+
+object TypeTraversal:
+  def apply(t: Type)(decider: Type => TypeTraversal): Type =
+    val f = (t: Type) =>
+      decider(t) match {
+        case TypeTraversal.Skip           => t
+        case TypeTraversal.Replace(other) => other
+      }
+
+    val app = (t: Type) => apply(t)(decider)
+    import Type.*
+    t match
+      case tt: TupleType => f(TupleType(tt.kind, tt.items.map(app).map(f)))
+      case at: AndType   => f(AndType(at.kind, at.items.map(app).map(f)))
+      case at: OrType    => f(OrType(at.kind, at.items.map(app).map(f)))
+      case at: ArrayType => f(ArrayType(at.kind, f(app(at.element))))
+      case at: MapType => f(MapType(at.kind, f(app(at.key)), f(app(at.value))))
+      case other       => f(other)

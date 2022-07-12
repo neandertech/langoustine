@@ -5,10 +5,10 @@ trait BasicallyTheSame[A, T]:
   def reverse(t: T): A
 
 trait TotalWrapper[Newtype, Impl](using ev: Newtype =:= Impl):
-  def raw(a: Newtype): Impl = ev.apply(a)
+  def raw(a: Newtype): Impl   = ev.apply(a)
   def apply(s: Impl): Newtype = ev.flip.apply(s)
-  given BasicallyTheSame[Impl, Newtype] with 
-    def apply(a: Impl) = ev.flip(a)
+  given BasicallyTheSame[Impl, Newtype] with
+    def apply(a: Impl)      = ev.flip(a)
     def reverse(a: Newtype) = ev(a)
 
   extension (a: Newtype)
@@ -25,15 +25,16 @@ inline given [A, T](using
   Ordering.by(bts.apply)
 
 trait OpaqueString[A](using A =:= String) extends TotalWrapper[A, String]
+trait OpaqueInt[A](using A =:= Int)       extends TotalWrapper[A, Int]
 
 abstract class OpaqueNum[A](using A =:= Int) extends TotalWrapper[A, Int]
 
 abstract class YesNo[A](using ev: Boolean =:= A):
   val Yes: A = ev.apply(true)
-  val No: A = ev.apply(false)
-  given BasicallyTheSame[Boolean, A] with 
+  val No: A  = ev.apply(false)
+  given BasicallyTheSame[Boolean, A] with
     def apply(a: Boolean) = if a then Yes else No
-    def reverse(a: A) = a == Yes
+    def reverse(a: A)     = a == Yes
 
   inline def apply(inline b: Boolean): A = ev.apply(b)
 

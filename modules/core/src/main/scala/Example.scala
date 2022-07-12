@@ -7,14 +7,7 @@ import scala.util.Success
 import upickle.default.{Reader, Writer}
 import cats.syntax.all._
 
-enum LSPError:
-  case NotImplementedError
-
-opaque type ReqHandler[F[_], I, O] = I => F[O | LSPError]
-object ReqHandler:
-  def apply[F[_], I, O](f: I => F[O | LSPError]): ReqHandler[F, I, O] = f
-
-sealed abstract class Req(val requestMethod: String):
+sealed abstract class LSPRequest(val requestMethod: String):
   type In
   type Out
 
@@ -26,9 +19,25 @@ trait DefinitionLink
 case class ImplementationParams(h: String)
 case class DocumentParams(dp: Int)
 
+extension [T](r: Reader[T]) def widen[K >: T] = r.map(_.asInstanceOf[K])
+
+def badMerge[T](r1: Reader[T], rest: Reader[T]*): Reader[T] =
+  upickle.default.reader[ujson.Value].map { json =>
+    var t: T | Null = null
+    (r1 +: rest).foreach { reader =>
+      if t == null then
+        try t = upickle.default.read[T](json)(using reader)
+        catch case exc => ()
+
+    }
+    if t != null then t.nn else throw new LSPError.FailureParsing(json)
+  }
+
 object textDocument:
-  object implementation extends Req("textDocument/implementation"):
+  object implementation extends LSPRequest("textDocument/implementation"):
+    type In  = ImplementationParams | DocumentParams
     type Out = Definition | Vector[DefinitionLink] | BaseTypes.NULL.type
+
     object Out:
       def apply(d: Definition): Out             = d
       def apply(d: Vector[DefinitionLink]): Out = d
@@ -37,11 +46,12 @@ object textDocument:
     export Out.apply as respondWith
     export Out.NULL as respondWithNull
 
-    type In = ImplementationParams
+    given reader: Reader[In] = badMerge(
+      Pickle.macroR[ImplementationParams].widen[In],
+      Pickle.macroR[DocumentParams].widen[In]
+    )
 
-    given reader: Reader[In] = Pickle.macroR
-
-  object definition extends Req("textDocument/definition"):
+  object definition extends LSPRequest("textDocument/definition"):
     opaque type Out = Definition | Vector[DefinitionLink] | BaseTypes.NULL.type
     object Out:
       def apply(d: Definition): Out             = d
@@ -52,53 +62,7 @@ object textDocument:
 
     given reader: Reader[In] = Pickle.macroR
 
-trait LSPBuilder[F[_]]:
-  def handler[X <: Req](t: X)(
-      f: (t.In, X) => F[t.Out | LSPError]
-  ): LSPBuilder[F]
-
-  def build: JSONRPC.RequestMessage => F[JSONRPC.ResponseMessage]
-
 import cats.MonadThrow
-
-case class ImmutableLSPBuilder[F[_]: MonadThrow] private (
-    mp: Map[String, JSONRPC.Handler[F]]
-) extends LSPBuilder[F]:
-
-  val F = MonadThrow[F]
-
-  def handler[X <: Req](t: X)(
-      f: (t.In, X) => F[t.Out | LSPError]
-  ) = copy(
-    mp.updated(
-      t.requestMethod,
-      { (msg: JSONRPC.RequestMessage) =>
-        val inBytes = msg.params
-        F.catchNonFatal(
-          upickle.default.read[t.In](msg.params)(using t.reader)
-        ).flatMap(f(_, t))
-          .map {
-            case e: LSPError => Left(JSONRPC.error(0, e.toString))
-            case s =>
-              Right(
-                upickle.default.write[t.Out](s.asInstanceOf[t.Out])(using
-                  t.writer
-                )
-              )
-          }
-          .map(JSONRPC.response(msg.id, _))
-      }
-    )
-  )
-
-  def build = rqm =>
-    mp.get(rqm.method) match
-      case Some(handler) => handler(rqm)
-      case None          => ???
-
-object ImmutableLSPBuilder:
-  def create[F[_]: MonadThrow]: LSPBuilder[F] =
-    new ImmutableLSPBuilder[F](Map.empty)
 
 @main def yep =
   val builder = ImmutableLSPBuilder
@@ -112,7 +76,7 @@ object ImmutableLSPBuilder:
     .build
 
   val req =
-    JSONRPC.request(25, "textDocument/implementation", """{"h": "bla!"}""")
+    JSONRPC.request(25, "textDocument/implementation", """{"dp": "bla!"}""")
 
   val req1 =
     JSONRPC.request(26, "textDocument/definition", """{"dp": 152}""")
