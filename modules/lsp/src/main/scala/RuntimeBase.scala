@@ -1,4 +1,6 @@
-package langoustine
+package langoustine.lsp
+
+import langoustine.*
 
 object RuntimeBase:
   opaque type DocumentUri = String

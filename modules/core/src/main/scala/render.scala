@@ -10,6 +10,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
       case BaseTypes.string      => "String"
       case BaseTypes.boolean     => "Boolean"
       case BaseTypes.integer     => "Int"
+      case BaseTypes.decimal     => "Float"
       case BaseTypes.uinteger    => "RuntimeBase.uinteger"
       case _                     => s"Any /*Base: ${bt.name}*/"
 
@@ -35,7 +36,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
       tpe: Type
   )(using ctx: Context): String =
     import Type.*
-    tpe match
+    tpe match {
       case bt: BaseType => renderBase(bt)
       case rt: ReferenceType =>
         ctx
@@ -46,12 +47,33 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         "(" + rt.items.map(renderType).mkString(" | ") + ")"
       case tt: TupleType =>
         tt.items.map(renderType(_)).mkString("(", ", ", ")")
+      case mt: MapType =>
+        s"Map[${renderType(mt.key)}, ${renderType(mt.value)}]"
+
+      case stl: StringLiteralType =>
+        s""" "${stl.value}" """.trim
       case other => s"Any /*$other*/"
+    }
 
   def property(p: Property)(using Context) =
     import p.*
     val typeName = renderType(tpe)
-    s"$name: $typeName"
+    s"${sanitise(name.value)}: $typeName"
+
+  def sanitise(name: String) =
+    val prohibited =
+      Set(
+        "type",
+        "class",
+        "enum",
+        "abstract",
+        "def",
+        "import",
+        "export",
+        "macro"
+      )
+
+    if (prohibited(name)) s"`$name`" else name
 
   def structures(builder: LineBuilder, subPackage: String = "structures")(using
       Config
@@ -59,6 +81,8 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     inline def line: Config ?=> Appender = to(builder)
     line(s"package $packageName")
     line(s"package $subPackage")
+    line("")
+    line("import langoustine.*")
     line("")
 
     manager.structures.foreach { s =>
@@ -77,7 +101,26 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
 
     var inlineAnonymousStructures = 0
 
-    s.properties.foreach { p =>
+    def refProperties(t: Type): Vector[Property] =
+      t match
+        case rt: Type.ReferenceType =>
+          manager
+            .get(rt.name.value)
+            .toVector
+            .collect { case s: Structure =>
+              s.properties
+            }
+            .flatten
+        case _ => Vector.empty
+
+    val allProperties =
+      s.properties ++
+      s.`extends`.flatMap(refProperties) ++
+      s.mixins.flatMap(
+        refProperties
+      )
+
+    allProperties.foreach { p =>
       p.tpe match
         case stl: Type.StructureLiteralType =>
           val newTypeName = p.name.value.capitalize
@@ -132,6 +175,82 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         )
 
         this.structure(struct, builder)
+      }
+    }
+  def aliases(out: LineBuilder, subPackage: String = "aliases")(using Config) =
+    inline def line: Config ?=> Appender = to(out)
+
+    line(s"package $packageName")
+    line("")
+    line("import langoustine.*")
+    line("")
+
+    given ctx: Context = Context.global
+
+    line(s"object $subPackage: ")
+    nest {
+      manager.aliases.foreach { a =>
+        line(s"type ${a.name} = ${renderType(a.`type`)}")
+      }
+    }
+
+  def enumerations(out: LineBuilder, subPackage: String = "enumerations")(using
+      Config
+  ) =
+    inline def line: Config ?=> Appender = to(out)
+
+    line(s"package $packageName")
+    line("")
+    line("import langoustine.*")
+    line("")
+
+    given ctx: Context = Context.global
+
+    line(s"object $subPackage: ")
+    nest {
+      line(s"private val stringCodec = upickle.default.readwriter[String]")
+      line(s"private val intCodec = upickle.default.readwriter[Int]")
+      line("import upickle.{default => up}")
+
+      manager.enumerations.foreach { a =>
+        val base = a.`type`.name
+        import EnumerationTypeName as ET
+        val underlying =
+          base match
+            case ET.string   => "String"
+            case ET.integer  => "Int"
+            case ET.uinteger => "RuntimeBase.uinteger"
+        line(s"opaque type ${a.name} = $underlying")
+        if a.values.nonEmpty then
+          line(s"object ${a.name}:")
+          nest {
+            if base == ET.string then
+              line(
+                s"given up.ReadWriter[${a.name}] = stringCodec.asInstanceOf[up.ReadWriter[${a.name}]]"
+              )
+            else
+              line(
+                s"given up.ReadWriter[${a.name}] = intCodec.asInstanceOf[up.ReadWriter[${a.name}]]"
+              )
+
+            a.values.foreach { entry =>
+              val value =
+                base match
+                  case ET.string => s""" "${entry.value.stringValue}" """.trim
+                  case _         => entry.value.intValue.toString
+              line(s"inline val ${sanitise(entry.name.value)} = entry($value)")
+            }
+
+            line("")
+
+            if base == ET.uinteger then
+              line(
+                s"private inline def entry(n: Int): ${a.name} = RuntimeBase.uinteger(n)"
+              )
+            else
+              line(s"private inline def entry(v: $underlying): ${a.name} = v")
+          }
+        line("")
       }
     }
 

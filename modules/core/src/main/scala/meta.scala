@@ -100,7 +100,7 @@ case class Enumeration(
     values: Vector[EnumerationEntry]
 )
 
-enum Type:
+enum Type {
   case BaseType(kind: "base", name: BaseTypes)
   case ReferenceType(kind: "reference", name: TypeName)
   case AndType(kind: "and", items: Vector[Type])
@@ -112,8 +112,9 @@ enum Type:
   case StringLiteralType(kind: "stringLiteral", value: String)
   case TupleType(kind: "tuple", items: Vector[Type])
 
-  def traverse(f: Type => TypeTraversal) = 
+  def traverse(f: Type => TypeTraversal) =
     TypeTraversal(this)(f)
+}
 
 enum TypeTraversal:
   case Skip
