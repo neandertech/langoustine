@@ -2,6 +2,8 @@ package langoustine.lsp
 package structures
 
 import langoustine.*
+import upickle.default.*
+import langoustine.lsp.json.{*, given}
 
 case class ImplementationParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -10,21 +12,28 @@ case class ImplementationParams(
   partialResultToken: aliases.ProgressToken
 )
 object ImplementationParams:
-  given upickle.default.Reader[ImplementationParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ImplementationParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class Location(
   uri: RuntimeBase.DocumentUri,
   range: structures.Range
 )
 object Location:
-  given upickle.default.Reader[Location] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[Location] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ImplementationRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null),
   id: String
 )
 object ImplementationRegistrationOptions:
-  given upickle.default.Reader[ImplementationRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[ImplementationRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class TypeDefinitionParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -33,39 +42,52 @@ case class TypeDefinitionParams(
   partialResultToken: aliases.ProgressToken
 )
 object TypeDefinitionParams:
-  given upickle.default.Reader[TypeDefinitionParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[TypeDefinitionParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class TypeDefinitionRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null),
   id: String
 )
 object TypeDefinitionRegistrationOptions:
-  given upickle.default.Reader[TypeDefinitionRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[TypeDefinitionRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class WorkspaceFolder(
   uri: aliases.URI,
   name: String
 )
 object WorkspaceFolder:
-  given upickle.default.Reader[WorkspaceFolder] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[WorkspaceFolder] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DidChangeWorkspaceFoldersParams(
   event: structures.WorkspaceFoldersChangeEvent
 )
 object DidChangeWorkspaceFoldersParams:
-  given upickle.default.Reader[DidChangeWorkspaceFoldersParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DidChangeWorkspaceFoldersParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ConfigurationParams(
   items: Vector[structures.ConfigurationItem]
 )
 object ConfigurationParams:
-  given upickle.default.Reader[ConfigurationParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ConfigurationParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class PartialResultParams(
   partialResultToken: aliases.ProgressToken
 )
 object PartialResultParams:
-  given upickle.default.Reader[PartialResultParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[PartialResultParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentColorParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -73,21 +95,28 @@ case class DocumentColorParams(
   partialResultToken: aliases.ProgressToken
 )
 object DocumentColorParams:
-  given upickle.default.Reader[DocumentColorParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DocumentColorParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ColorInformation(
   range: structures.Range,
   color: structures.Color
 )
 object ColorInformation:
-  given upickle.default.Reader[ColorInformation] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ColorInformation] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentColorRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null),
   id: String
 )
 object DocumentColorRegistrationOptions:
-  given upickle.default.Reader[DocumentColorRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[DocumentColorRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ColorPresentationParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -97,7 +126,9 @@ case class ColorPresentationParams(
   partialResultToken: aliases.ProgressToken
 )
 object ColorPresentationParams:
-  given upickle.default.Reader[ColorPresentationParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ColorPresentationParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ColorPresentation(
   label: String,
@@ -105,19 +136,26 @@ case class ColorPresentation(
   additionalTextEdits: Vector[structures.TextEdit]
 )
 object ColorPresentation:
-  given upickle.default.Reader[ColorPresentation] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ColorPresentation] = Pickle.macroR
+  export codecs.{*, given}
 
 case class WorkDoneProgressOptions(
   workDoneProgress: Boolean
 )
 object WorkDoneProgressOptions:
-  given upickle.default.Reader[WorkDoneProgressOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[WorkDoneProgressOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class TextDocumentRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null)
 )
 object TextDocumentRegistrationOptions:
-  given upickle.default.Reader[TextDocumentRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[TextDocumentRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class FoldingRangeParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -125,7 +163,9 @@ case class FoldingRangeParams(
   partialResultToken: aliases.ProgressToken
 )
 object FoldingRangeParams:
-  given upickle.default.Reader[FoldingRangeParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[FoldingRangeParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class FoldingRange(
   startLine: RuntimeBase.uinteger,
@@ -136,14 +176,19 @@ case class FoldingRange(
   collapsedText: String
 )
 object FoldingRange:
-  given upickle.default.Reader[FoldingRange] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[FoldingRange] = Pickle.macroR
+  export codecs.{*, given}
 
 case class FoldingRangeRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null),
   id: String
 )
 object FoldingRangeRegistrationOptions:
-  given upickle.default.Reader[FoldingRangeRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[FoldingRangeRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DeclarationParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -152,14 +197,19 @@ case class DeclarationParams(
   partialResultToken: aliases.ProgressToken
 )
 object DeclarationParams:
-  given upickle.default.Reader[DeclarationParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DeclarationParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DeclarationRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null),
   id: String
 )
 object DeclarationRegistrationOptions:
-  given upickle.default.Reader[DeclarationRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[DeclarationRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class SelectionRangeParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -168,33 +218,44 @@ case class SelectionRangeParams(
   partialResultToken: aliases.ProgressToken
 )
 object SelectionRangeParams:
-  given upickle.default.Reader[SelectionRangeParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[SelectionRangeParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class SelectionRange(
   range: structures.Range,
   parent: structures.SelectionRange
 )
 object SelectionRange:
-  given upickle.default.Reader[SelectionRange] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[SelectionRange] = Pickle.macroR
+  export codecs.{*, given}
 
 case class SelectionRangeRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null),
   id: String
 )
 object SelectionRangeRegistrationOptions:
-  given upickle.default.Reader[SelectionRangeRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[SelectionRangeRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class WorkDoneProgressCreateParams(
   token: aliases.ProgressToken
 )
 object WorkDoneProgressCreateParams:
-  given upickle.default.Reader[WorkDoneProgressCreateParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[WorkDoneProgressCreateParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class WorkDoneProgressCancelParams(
   token: aliases.ProgressToken
 )
 object WorkDoneProgressCancelParams:
-  given upickle.default.Reader[WorkDoneProgressCancelParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[WorkDoneProgressCancelParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CallHierarchyPrepareParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -202,7 +263,9 @@ case class CallHierarchyPrepareParams(
   workDoneToken: aliases.ProgressToken
 )
 object CallHierarchyPrepareParams:
-  given upickle.default.Reader[CallHierarchyPrepareParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CallHierarchyPrepareParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CallHierarchyItem(
   name: String,
@@ -215,14 +278,19 @@ case class CallHierarchyItem(
   data: aliases.LSPAny
 )
 object CallHierarchyItem:
-  given upickle.default.Reader[CallHierarchyItem] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CallHierarchyItem] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CallHierarchyRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null),
   id: String
 )
 object CallHierarchyRegistrationOptions:
-  given upickle.default.Reader[CallHierarchyRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[CallHierarchyRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CallHierarchyIncomingCallsParams(
   item: structures.CallHierarchyItem,
@@ -230,14 +298,18 @@ case class CallHierarchyIncomingCallsParams(
   partialResultToken: aliases.ProgressToken
 )
 object CallHierarchyIncomingCallsParams:
-  given upickle.default.Reader[CallHierarchyIncomingCallsParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CallHierarchyIncomingCallsParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CallHierarchyIncomingCall(
   from: structures.CallHierarchyItem,
   fromRanges: Vector[structures.Range]
 )
 object CallHierarchyIncomingCall:
-  given upickle.default.Reader[CallHierarchyIncomingCall] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CallHierarchyIncomingCall] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CallHierarchyOutgoingCallsParams(
   item: structures.CallHierarchyItem,
@@ -245,14 +317,18 @@ case class CallHierarchyOutgoingCallsParams(
   partialResultToken: aliases.ProgressToken
 )
 object CallHierarchyOutgoingCallsParams:
-  given upickle.default.Reader[CallHierarchyOutgoingCallsParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CallHierarchyOutgoingCallsParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CallHierarchyOutgoingCall(
   to: structures.CallHierarchyItem,
   fromRanges: Vector[structures.Range]
 )
 object CallHierarchyOutgoingCall:
-  given upickle.default.Reader[CallHierarchyOutgoingCall] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CallHierarchyOutgoingCall] = Pickle.macroR
+  export codecs.{*, given}
 
 case class SemanticTokensParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -260,20 +336,26 @@ case class SemanticTokensParams(
   partialResultToken: aliases.ProgressToken
 )
 object SemanticTokensParams:
-  given upickle.default.Reader[SemanticTokensParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[SemanticTokensParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class SemanticTokens(
   resultId: String,
   data: Vector[RuntimeBase.uinteger]
 )
 object SemanticTokens:
-  given upickle.default.Reader[SemanticTokens] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[SemanticTokens] = Pickle.macroR
+  export codecs.{*, given}
 
 case class SemanticTokensPartialResult(
   data: Vector[RuntimeBase.uinteger]
 )
 object SemanticTokensPartialResult:
-  given upickle.default.Reader[SemanticTokensPartialResult] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[SemanticTokensPartialResult] = Pickle.macroR
+  export codecs.{*, given}
 
 case class SemanticTokensRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null),
@@ -283,16 +365,25 @@ case class SemanticTokensRegistrationOptions(
   id: String
 )
 object SemanticTokensRegistrationOptions:
-  given upickle.default.Reader[SemanticTokensRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given rd1: Reader[(Boolean | SemanticTokensRegistrationOptions.S0)] = {type T = (Boolean | SemanticTokensRegistrationOptions.S0); badMerge(reader[Boolean].widen[T], reader[SemanticTokensRegistrationOptions.S0].widen[T])}
+    given rd2: Reader[(Boolean | SemanticTokensRegistrationOptions.S1)] = {type T = (Boolean | SemanticTokensRegistrationOptions.S1); badMerge(reader[Boolean].widen[T], reader[SemanticTokensRegistrationOptions.S1].widen[T])}
+    given upickle.default.Reader[SemanticTokensRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
   case class S0(
   )
   object S0:
-    given upickle.default.Reader[S0] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[S0] = Pickle.macroR
+    export codecs.{*, given}
   case class S1(
     delta: Boolean
   )
   object S1:
-    given upickle.default.Reader[S1] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[S1] = Pickle.macroR
+    export codecs.{*, given}
 
 case class SemanticTokensDeltaParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -301,20 +392,26 @@ case class SemanticTokensDeltaParams(
   partialResultToken: aliases.ProgressToken
 )
 object SemanticTokensDeltaParams:
-  given upickle.default.Reader[SemanticTokensDeltaParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[SemanticTokensDeltaParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class SemanticTokensDelta(
   resultId: String,
   edits: Vector[structures.SemanticTokensEdit]
 )
 object SemanticTokensDelta:
-  given upickle.default.Reader[SemanticTokensDelta] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[SemanticTokensDelta] = Pickle.macroR
+  export codecs.{*, given}
 
 case class SemanticTokensDeltaPartialResult(
   edits: Vector[structures.SemanticTokensEdit]
 )
 object SemanticTokensDeltaPartialResult:
-  given upickle.default.Reader[SemanticTokensDeltaPartialResult] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[SemanticTokensDeltaPartialResult] = Pickle.macroR
+  export codecs.{*, given}
 
 case class SemanticTokensRangeParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -323,7 +420,9 @@ case class SemanticTokensRangeParams(
   partialResultToken: aliases.ProgressToken
 )
 object SemanticTokensRangeParams:
-  given upickle.default.Reader[SemanticTokensRangeParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[SemanticTokensRangeParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ShowDocumentParams(
   uri: aliases.URI,
@@ -332,13 +431,17 @@ case class ShowDocumentParams(
   selection: structures.Range
 )
 object ShowDocumentParams:
-  given upickle.default.Reader[ShowDocumentParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ShowDocumentParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ShowDocumentResult(
   success: Boolean
 )
 object ShowDocumentResult:
-  given upickle.default.Reader[ShowDocumentResult] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ShowDocumentResult] = Pickle.macroR
+  export codecs.{*, given}
 
 case class LinkedEditingRangeParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -346,27 +449,36 @@ case class LinkedEditingRangeParams(
   workDoneToken: aliases.ProgressToken
 )
 object LinkedEditingRangeParams:
-  given upickle.default.Reader[LinkedEditingRangeParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[LinkedEditingRangeParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class LinkedEditingRanges(
   ranges: Vector[structures.Range],
   wordPattern: String
 )
 object LinkedEditingRanges:
-  given upickle.default.Reader[LinkedEditingRanges] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[LinkedEditingRanges] = Pickle.macroR
+  export codecs.{*, given}
 
 case class LinkedEditingRangeRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null),
   id: String
 )
 object LinkedEditingRangeRegistrationOptions:
-  given upickle.default.Reader[LinkedEditingRangeRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[LinkedEditingRangeRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CreateFilesParams(
   files: Vector[structures.FileCreate]
 )
 object CreateFilesParams:
-  given upickle.default.Reader[CreateFilesParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CreateFilesParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class WorkspaceEdit(
   changes: Map[RuntimeBase.DocumentUri, Vector[structures.TextEdit]],
@@ -374,25 +486,34 @@ case class WorkspaceEdit(
   changeAnnotations: Map[aliases.ChangeAnnotationIdentifier, structures.ChangeAnnotation]
 )
 object WorkspaceEdit:
-  given upickle.default.Reader[WorkspaceEdit] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(structures.TextDocumentEdit | structures.CreateFile | structures.RenameFile | structures.DeleteFile)] = {type T = (structures.TextDocumentEdit | structures.CreateFile | structures.RenameFile | structures.DeleteFile); badMerge(reader[structures.TextDocumentEdit].widen[T], reader[structures.CreateFile].widen[T], reader[structures.RenameFile].widen[T], reader[structures.DeleteFile].widen[T])}
+    given upickle.default.Reader[WorkspaceEdit] = Pickle.macroR
+  export codecs.{*, given}
 
 case class FileOperationRegistrationOptions(
   filters: Vector[structures.FileOperationFilter]
 )
 object FileOperationRegistrationOptions:
-  given upickle.default.Reader[FileOperationRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[FileOperationRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class RenameFilesParams(
   files: Vector[structures.FileRename]
 )
 object RenameFilesParams:
-  given upickle.default.Reader[RenameFilesParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[RenameFilesParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DeleteFilesParams(
   files: Vector[structures.FileDelete]
 )
 object DeleteFilesParams:
-  given upickle.default.Reader[DeleteFilesParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DeleteFilesParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class MonikerParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -401,7 +522,9 @@ case class MonikerParams(
   partialResultToken: aliases.ProgressToken
 )
 object MonikerParams:
-  given upickle.default.Reader[MonikerParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[MonikerParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class Moniker(
   scheme: String,
@@ -410,13 +533,18 @@ case class Moniker(
   kind: enumerations.MonikerKind
 )
 object Moniker:
-  given upickle.default.Reader[Moniker] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[Moniker] = Pickle.macroR
+  export codecs.{*, given}
 
 case class MonikerRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null)
 )
 object MonikerRegistrationOptions:
-  given upickle.default.Reader[MonikerRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[MonikerRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class TypeHierarchyPrepareParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -424,7 +552,9 @@ case class TypeHierarchyPrepareParams(
   workDoneToken: aliases.ProgressToken
 )
 object TypeHierarchyPrepareParams:
-  given upickle.default.Reader[TypeHierarchyPrepareParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[TypeHierarchyPrepareParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class TypeHierarchyItem(
   name: String,
@@ -437,14 +567,19 @@ case class TypeHierarchyItem(
   data: aliases.LSPAny
 )
 object TypeHierarchyItem:
-  given upickle.default.Reader[TypeHierarchyItem] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[TypeHierarchyItem] = Pickle.macroR
+  export codecs.{*, given}
 
 case class TypeHierarchyRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null),
   id: String
 )
 object TypeHierarchyRegistrationOptions:
-  given upickle.default.Reader[TypeHierarchyRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[TypeHierarchyRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class TypeHierarchySupertypesParams(
   item: structures.TypeHierarchyItem,
@@ -452,7 +587,9 @@ case class TypeHierarchySupertypesParams(
   partialResultToken: aliases.ProgressToken
 )
 object TypeHierarchySupertypesParams:
-  given upickle.default.Reader[TypeHierarchySupertypesParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[TypeHierarchySupertypesParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class TypeHierarchySubtypesParams(
   item: structures.TypeHierarchyItem,
@@ -460,7 +597,9 @@ case class TypeHierarchySubtypesParams(
   partialResultToken: aliases.ProgressToken
 )
 object TypeHierarchySubtypesParams:
-  given upickle.default.Reader[TypeHierarchySubtypesParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[TypeHierarchySubtypesParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class InlineValueParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -469,14 +608,19 @@ case class InlineValueParams(
   workDoneToken: aliases.ProgressToken
 )
 object InlineValueParams:
-  given upickle.default.Reader[InlineValueParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[InlineValueParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class InlineValueRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null),
   id: String
 )
 object InlineValueRegistrationOptions:
-  given upickle.default.Reader[InlineValueRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[InlineValueRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class InlayHintParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -484,7 +628,9 @@ case class InlayHintParams(
   workDoneToken: aliases.ProgressToken
 )
 object InlayHintParams:
-  given upickle.default.Reader[InlayHintParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[InlayHintParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class InlayHint(
   position: structures.Position,
@@ -497,7 +643,11 @@ case class InlayHint(
   data: aliases.LSPAny
 )
 object InlayHint:
-  given upickle.default.Reader[InlayHint] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(String | Vector[structures.InlayHintLabelPart])] = {type T = (String | Vector[structures.InlayHintLabelPart]); badMerge(reader[String].widen[T], reader[Vector[structures.InlayHintLabelPart]].widen[T])}
+    given rd1: Reader[(String | structures.MarkupContent)] = {type T = (String | structures.MarkupContent); badMerge(reader[String].widen[T], reader[structures.MarkupContent].widen[T])}
+    given upickle.default.Reader[InlayHint] = Pickle.macroR
+  export codecs.{*, given}
 
 case class InlayHintRegistrationOptions(
   resolveProvider: Boolean,
@@ -505,7 +655,10 @@ case class InlayHintRegistrationOptions(
   id: String
 )
 object InlayHintRegistrationOptions:
-  given upickle.default.Reader[InlayHintRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[InlayHintRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentDiagnosticParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -515,19 +668,26 @@ case class DocumentDiagnosticParams(
   partialResultToken: aliases.ProgressToken
 )
 object DocumentDiagnosticParams:
-  given upickle.default.Reader[DocumentDiagnosticParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DocumentDiagnosticParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentDiagnosticReportPartialResult(
   relatedDocuments: Map[RuntimeBase.DocumentUri, (structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)]
 )
 object DocumentDiagnosticReportPartialResult:
-  given upickle.default.Reader[DocumentDiagnosticReportPartialResult] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)] = {type T = (structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport); badMerge(reader[structures.FullDocumentDiagnosticReport].widen[T], reader[structures.UnchangedDocumentDiagnosticReport].widen[T])}
+    given upickle.default.Reader[DocumentDiagnosticReportPartialResult] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DiagnosticServerCancellationData(
   retriggerRequest: Boolean
 )
 object DiagnosticServerCancellationData:
-  given upickle.default.Reader[DiagnosticServerCancellationData] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DiagnosticServerCancellationData] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DiagnosticRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null),
@@ -537,7 +697,10 @@ case class DiagnosticRegistrationOptions(
   id: String
 )
 object DiagnosticRegistrationOptions:
-  given upickle.default.Reader[DiagnosticRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[DiagnosticRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class WorkspaceDiagnosticParams(
   identifier: String,
@@ -546,58 +709,76 @@ case class WorkspaceDiagnosticParams(
   partialResultToken: aliases.ProgressToken
 )
 object WorkspaceDiagnosticParams:
-  given upickle.default.Reader[WorkspaceDiagnosticParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[WorkspaceDiagnosticParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class WorkspaceDiagnosticReport(
   items: Vector[aliases.WorkspaceDocumentDiagnosticReport]
 )
 object WorkspaceDiagnosticReport:
-  given upickle.default.Reader[WorkspaceDiagnosticReport] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[WorkspaceDiagnosticReport] = Pickle.macroR
+  export codecs.{*, given}
 
 case class WorkspaceDiagnosticReportPartialResult(
   items: Vector[aliases.WorkspaceDocumentDiagnosticReport]
 )
 object WorkspaceDiagnosticReportPartialResult:
-  given upickle.default.Reader[WorkspaceDiagnosticReportPartialResult] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[WorkspaceDiagnosticReportPartialResult] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DidOpenNotebookDocumentParams(
   notebookDocument: structures.NotebookDocument,
   cellTextDocuments: Vector[structures.TextDocumentItem]
 )
 object DidOpenNotebookDocumentParams:
-  given upickle.default.Reader[DidOpenNotebookDocumentParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DidOpenNotebookDocumentParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DidChangeNotebookDocumentParams(
   notebookDocument: structures.VersionedNotebookDocumentIdentifier,
   change: structures.NotebookDocumentChangeEvent
 )
 object DidChangeNotebookDocumentParams:
-  given upickle.default.Reader[DidChangeNotebookDocumentParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DidChangeNotebookDocumentParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DidSaveNotebookDocumentParams(
   notebookDocument: structures.NotebookDocumentIdentifier
 )
 object DidSaveNotebookDocumentParams:
-  given upickle.default.Reader[DidSaveNotebookDocumentParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DidSaveNotebookDocumentParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DidCloseNotebookDocumentParams(
   notebookDocument: structures.NotebookDocumentIdentifier,
   cellTextDocuments: Vector[structures.TextDocumentIdentifier]
 )
 object DidCloseNotebookDocumentParams:
-  given upickle.default.Reader[DidCloseNotebookDocumentParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DidCloseNotebookDocumentParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class RegistrationParams(
   registrations: Vector[structures.Registration]
 )
 object RegistrationParams:
-  given upickle.default.Reader[RegistrationParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[RegistrationParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class UnregistrationParams(
   unregisterations: Vector[structures.Unregistration]
 )
 object UnregistrationParams:
-  given upickle.default.Reader[UnregistrationParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[UnregistrationParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class InitializeParams(
   processId: (Int | Null),
@@ -611,56 +792,80 @@ case class InitializeParams(
   workspaceFolders: (Vector[structures.WorkspaceFolder] | Null)
 )
 object InitializeParams:
-  given upickle.default.Reader[InitializeParams] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(Int | Null)] = {type T = (Int | Null); badMerge(reader[Int].widen[T], nullReadWriter.widen[T])}
+    given rd1: Reader[(String | Null)] = {type T = (String | Null); badMerge(reader[String].widen[T], nullReadWriter.widen[T])}
+    given rd2: Reader[(RuntimeBase.DocumentUri | Null)] = {type T = (RuntimeBase.DocumentUri | Null); badMerge(reader[RuntimeBase.DocumentUri].widen[T], nullReadWriter.widen[T])}
+    given rd3: Reader[("off" | "messages" | "compact" | "verbose")] = {type T = ("off" | "messages" | "compact" | "verbose"); badMerge(reader["off"].widen[T], reader["messages"].widen[T], reader["compact"].widen[T], reader["verbose"].widen[T])}
+    given rd4: Reader[(Vector[structures.WorkspaceFolder] | Null)] = {type T = (Vector[structures.WorkspaceFolder] | Null); badMerge(reader[Vector[structures.WorkspaceFolder]].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[InitializeParams] = Pickle.macroR
+  export codecs.{*, given}
   case class ClientInfo(
     name: String,
     version: String
   )
   object ClientInfo:
-    given upickle.default.Reader[ClientInfo] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[ClientInfo] = Pickle.macroR
+    export codecs.{*, given}
 
 case class InitializeResult(
   capabilities: structures.ServerCapabilities,
   serverInfo: InitializeResult.ServerInfo
 )
 object InitializeResult:
-  given upickle.default.Reader[InitializeResult] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[InitializeResult] = Pickle.macroR
+  export codecs.{*, given}
   case class ServerInfo(
     name: String,
     version: String
   )
   object ServerInfo:
-    given upickle.default.Reader[ServerInfo] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[ServerInfo] = Pickle.macroR
+    export codecs.{*, given}
 
 case class InitializeError(
   retry: Boolean
 )
 object InitializeError:
-  given upickle.default.Reader[InitializeError] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[InitializeError] = Pickle.macroR
+  export codecs.{*, given}
 
 case class InitializedParams(
 )
 object InitializedParams:
-  given upickle.default.Reader[InitializedParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[InitializedParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DidChangeConfigurationParams(
   settings: aliases.LSPAny
 )
 object DidChangeConfigurationParams:
-  given upickle.default.Reader[DidChangeConfigurationParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DidChangeConfigurationParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DidChangeConfigurationRegistrationOptions(
   section: (String | Vector[String])
 )
 object DidChangeConfigurationRegistrationOptions:
-  given upickle.default.Reader[DidChangeConfigurationRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(String | Vector[String])] = {type T = (String | Vector[String]); badMerge(reader[String].widen[T], reader[Vector[String]].widen[T])}
+    given upickle.default.Reader[DidChangeConfigurationRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ShowMessageParams(
   `type`: enumerations.MessageType,
   message: String
 )
 object ShowMessageParams:
-  given upickle.default.Reader[ShowMessageParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ShowMessageParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ShowMessageRequestParams(
   `type`: enumerations.MessageType,
@@ -668,86 +873,114 @@ case class ShowMessageRequestParams(
   actions: Vector[structures.MessageActionItem]
 )
 object ShowMessageRequestParams:
-  given upickle.default.Reader[ShowMessageRequestParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ShowMessageRequestParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class MessageActionItem(
   title: String
 )
 object MessageActionItem:
-  given upickle.default.Reader[MessageActionItem] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[MessageActionItem] = Pickle.macroR
+  export codecs.{*, given}
 
 case class LogMessageParams(
   `type`: enumerations.MessageType,
   message: String
 )
 object LogMessageParams:
-  given upickle.default.Reader[LogMessageParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[LogMessageParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DidOpenTextDocumentParams(
   textDocument: structures.TextDocumentItem
 )
 object DidOpenTextDocumentParams:
-  given upickle.default.Reader[DidOpenTextDocumentParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DidOpenTextDocumentParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DidChangeTextDocumentParams(
   textDocument: structures.VersionedTextDocumentIdentifier,
   contentChanges: Vector[aliases.TextDocumentContentChangeEvent]
 )
 object DidChangeTextDocumentParams:
-  given upickle.default.Reader[DidChangeTextDocumentParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DidChangeTextDocumentParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class TextDocumentChangeRegistrationOptions(
   syncKind: enumerations.TextDocumentSyncKind,
   documentSelector: (aliases.DocumentSelector | Null)
 )
 object TextDocumentChangeRegistrationOptions:
-  given upickle.default.Reader[TextDocumentChangeRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[TextDocumentChangeRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DidCloseTextDocumentParams(
   textDocument: structures.TextDocumentIdentifier
 )
 object DidCloseTextDocumentParams:
-  given upickle.default.Reader[DidCloseTextDocumentParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DidCloseTextDocumentParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DidSaveTextDocumentParams(
   textDocument: structures.TextDocumentIdentifier,
   text: String
 )
 object DidSaveTextDocumentParams:
-  given upickle.default.Reader[DidSaveTextDocumentParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DidSaveTextDocumentParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class TextDocumentSaveRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null),
   includeText: Boolean
 )
 object TextDocumentSaveRegistrationOptions:
-  given upickle.default.Reader[TextDocumentSaveRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[TextDocumentSaveRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class WillSaveTextDocumentParams(
   textDocument: structures.TextDocumentIdentifier,
   reason: enumerations.TextDocumentSaveReason
 )
 object WillSaveTextDocumentParams:
-  given upickle.default.Reader[WillSaveTextDocumentParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[WillSaveTextDocumentParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class TextEdit(
   range: structures.Range,
   newText: String
 )
 object TextEdit:
-  given upickle.default.Reader[TextEdit] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[TextEdit] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DidChangeWatchedFilesParams(
   changes: Vector[structures.FileEvent]
 )
 object DidChangeWatchedFilesParams:
-  given upickle.default.Reader[DidChangeWatchedFilesParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DidChangeWatchedFilesParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DidChangeWatchedFilesRegistrationOptions(
   watchers: Vector[structures.FileSystemWatcher]
 )
 object DidChangeWatchedFilesRegistrationOptions:
-  given upickle.default.Reader[DidChangeWatchedFilesRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DidChangeWatchedFilesRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class PublishDiagnosticsParams(
   uri: RuntimeBase.DocumentUri,
@@ -755,7 +988,9 @@ case class PublishDiagnosticsParams(
   diagnostics: Vector[structures.Diagnostic]
 )
 object PublishDiagnosticsParams:
-  given upickle.default.Reader[PublishDiagnosticsParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[PublishDiagnosticsParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CompletionParams(
   context: structures.CompletionContext,
@@ -765,7 +1000,9 @@ case class CompletionParams(
   partialResultToken: aliases.ProgressToken
 )
 object CompletionParams:
-  given upickle.default.Reader[CompletionParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CompletionParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CompletionItem(
   label: String,
@@ -789,7 +1026,11 @@ case class CompletionItem(
   data: aliases.LSPAny
 )
 object CompletionItem:
-  given upickle.default.Reader[CompletionItem] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(String | structures.MarkupContent)] = {type T = (String | structures.MarkupContent); badMerge(reader[String].widen[T], reader[structures.MarkupContent].widen[T])}
+    given rd1: Reader[(structures.TextEdit | structures.InsertReplaceEdit)] = {type T = (structures.TextEdit | structures.InsertReplaceEdit); badMerge(reader[structures.TextEdit].widen[T], reader[structures.InsertReplaceEdit].widen[T])}
+    given upickle.default.Reader[CompletionItem] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CompletionList(
   isIncomplete: Boolean,
@@ -797,7 +1038,9 @@ case class CompletionList(
   items: Vector[structures.CompletionItem]
 )
 object CompletionList:
-  given upickle.default.Reader[CompletionList] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CompletionList] = Pickle.macroR
+  export codecs.{*, given}
   case class ItemDefaults(
     commitCharacters: Vector[String],
     editRange: (structures.Range | ItemDefaults.S0),
@@ -806,13 +1049,18 @@ object CompletionList:
     data: aliases.LSPAny
   )
   object ItemDefaults:
-    given upickle.default.Reader[ItemDefaults] = Pickle.macroR
+    object codecs:
+      given rd0: Reader[(structures.Range | ItemDefaults.S0)] = {type T = (structures.Range | ItemDefaults.S0); badMerge(reader[structures.Range].widen[T], reader[ItemDefaults.S0].widen[T])}
+      given upickle.default.Reader[ItemDefaults] = Pickle.macroR
+    export codecs.{*, given}
     case class S0(
       insert: structures.Range,
       replace: structures.Range
     )
     object S0:
-      given upickle.default.Reader[S0] = Pickle.macroR
+      object codecs:
+        given upickle.default.Reader[S0] = Pickle.macroR
+      export codecs.{*, given}
 
 case class CompletionRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null),
@@ -822,12 +1070,17 @@ case class CompletionRegistrationOptions(
   completionItem: CompletionRegistrationOptions.CompletionItem
 )
 object CompletionRegistrationOptions:
-  given upickle.default.Reader[CompletionRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[CompletionRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
   case class CompletionItem(
     labelDetailsSupport: Boolean
   )
   object CompletionItem:
-    given upickle.default.Reader[CompletionItem] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[CompletionItem] = Pickle.macroR
+    export codecs.{*, given}
 
 case class HoverParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -835,20 +1088,28 @@ case class HoverParams(
   workDoneToken: aliases.ProgressToken
 )
 object HoverParams:
-  given upickle.default.Reader[HoverParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[HoverParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class Hover(
   contents: (structures.MarkupContent | aliases.MarkedString | Vector[aliases.MarkedString]),
   range: structures.Range
 )
 object Hover:
-  given upickle.default.Reader[Hover] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(structures.MarkupContent | aliases.MarkedString | Vector[aliases.MarkedString])] = {type T = (structures.MarkupContent | aliases.MarkedString | Vector[aliases.MarkedString]); badMerge(reader[structures.MarkupContent].widen[T], reader[aliases.MarkedString].widen[T], reader[Vector[aliases.MarkedString]].widen[T])}
+    given upickle.default.Reader[Hover] = Pickle.macroR
+  export codecs.{*, given}
 
 case class HoverRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null)
 )
 object HoverRegistrationOptions:
-  given upickle.default.Reader[HoverRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[HoverRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class SignatureHelpParams(
   context: structures.SignatureHelpContext,
@@ -857,7 +1118,9 @@ case class SignatureHelpParams(
   workDoneToken: aliases.ProgressToken
 )
 object SignatureHelpParams:
-  given upickle.default.Reader[SignatureHelpParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[SignatureHelpParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class SignatureHelp(
   signatures: Vector[structures.SignatureInformation],
@@ -865,7 +1128,9 @@ case class SignatureHelp(
   activeParameter: RuntimeBase.uinteger
 )
 object SignatureHelp:
-  given upickle.default.Reader[SignatureHelp] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[SignatureHelp] = Pickle.macroR
+  export codecs.{*, given}
 
 case class SignatureHelpRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null),
@@ -873,7 +1138,10 @@ case class SignatureHelpRegistrationOptions(
   retriggerCharacters: Vector[String]
 )
 object SignatureHelpRegistrationOptions:
-  given upickle.default.Reader[SignatureHelpRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[SignatureHelpRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DefinitionParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -882,13 +1150,18 @@ case class DefinitionParams(
   partialResultToken: aliases.ProgressToken
 )
 object DefinitionParams:
-  given upickle.default.Reader[DefinitionParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DefinitionParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DefinitionRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null)
 )
 object DefinitionRegistrationOptions:
-  given upickle.default.Reader[DefinitionRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[DefinitionRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ReferenceParams(
   context: structures.ReferenceContext,
@@ -898,13 +1171,18 @@ case class ReferenceParams(
   partialResultToken: aliases.ProgressToken
 )
 object ReferenceParams:
-  given upickle.default.Reader[ReferenceParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ReferenceParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ReferenceRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null)
 )
 object ReferenceRegistrationOptions:
-  given upickle.default.Reader[ReferenceRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[ReferenceRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentHighlightParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -913,20 +1191,27 @@ case class DocumentHighlightParams(
   partialResultToken: aliases.ProgressToken
 )
 object DocumentHighlightParams:
-  given upickle.default.Reader[DocumentHighlightParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DocumentHighlightParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentHighlight(
   range: structures.Range,
   kind: enumerations.DocumentHighlightKind
 )
 object DocumentHighlight:
-  given upickle.default.Reader[DocumentHighlight] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DocumentHighlight] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentHighlightRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null)
 )
 object DocumentHighlightRegistrationOptions:
-  given upickle.default.Reader[DocumentHighlightRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[DocumentHighlightRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentSymbolParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -934,7 +1219,9 @@ case class DocumentSymbolParams(
   partialResultToken: aliases.ProgressToken
 )
 object DocumentSymbolParams:
-  given upickle.default.Reader[DocumentSymbolParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DocumentSymbolParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class SymbolInformation(
   deprecated: Boolean,
@@ -945,7 +1232,9 @@ case class SymbolInformation(
   containerName: String
 )
 object SymbolInformation:
-  given upickle.default.Reader[SymbolInformation] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[SymbolInformation] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentSymbol(
   name: String,
@@ -958,14 +1247,19 @@ case class DocumentSymbol(
   children: Vector[structures.DocumentSymbol]
 )
 object DocumentSymbol:
-  given upickle.default.Reader[DocumentSymbol] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DocumentSymbol] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentSymbolRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null),
   label: String
 )
 object DocumentSymbolRegistrationOptions:
-  given upickle.default.Reader[DocumentSymbolRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[DocumentSymbolRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CodeActionParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -975,7 +1269,9 @@ case class CodeActionParams(
   partialResultToken: aliases.ProgressToken
 )
 object CodeActionParams:
-  given upickle.default.Reader[CodeActionParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CodeActionParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class Command(
   title: String,
@@ -983,7 +1279,9 @@ case class Command(
   arguments: Vector[aliases.LSPAny]
 )
 object Command:
-  given upickle.default.Reader[Command] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[Command] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CodeAction(
   title: String,
@@ -996,12 +1294,16 @@ case class CodeAction(
   data: aliases.LSPAny
 )
 object CodeAction:
-  given upickle.default.Reader[CodeAction] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CodeAction] = Pickle.macroR
+  export codecs.{*, given}
   case class Disabled(
     reason: String
   )
   object Disabled:
-    given upickle.default.Reader[Disabled] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[Disabled] = Pickle.macroR
+    export codecs.{*, given}
 
 case class CodeActionRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null),
@@ -1009,7 +1311,10 @@ case class CodeActionRegistrationOptions(
   resolveProvider: Boolean
 )
 object CodeActionRegistrationOptions:
-  given upickle.default.Reader[CodeActionRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[CodeActionRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class WorkspaceSymbolParams(
   query: String,
@@ -1017,7 +1322,9 @@ case class WorkspaceSymbolParams(
   partialResultToken: aliases.ProgressToken
 )
 object WorkspaceSymbolParams:
-  given upickle.default.Reader[WorkspaceSymbolParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[WorkspaceSymbolParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class WorkspaceSymbol(
   location: (structures.Location | WorkspaceSymbol.S0),
@@ -1028,18 +1335,25 @@ case class WorkspaceSymbol(
   containerName: String
 )
 object WorkspaceSymbol:
-  given upickle.default.Reader[WorkspaceSymbol] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(structures.Location | WorkspaceSymbol.S0)] = {type T = (structures.Location | WorkspaceSymbol.S0); badMerge(reader[structures.Location].widen[T], reader[WorkspaceSymbol.S0].widen[T])}
+    given upickle.default.Reader[WorkspaceSymbol] = Pickle.macroR
+  export codecs.{*, given}
   case class S0(
     uri: RuntimeBase.DocumentUri
   )
   object S0:
-    given upickle.default.Reader[S0] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[S0] = Pickle.macroR
+    export codecs.{*, given}
 
 case class WorkspaceSymbolRegistrationOptions(
   resolveProvider: Boolean
 )
 object WorkspaceSymbolRegistrationOptions:
-  given upickle.default.Reader[WorkspaceSymbolRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[WorkspaceSymbolRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CodeLensParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -1047,7 +1361,9 @@ case class CodeLensParams(
   partialResultToken: aliases.ProgressToken
 )
 object CodeLensParams:
-  given upickle.default.Reader[CodeLensParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CodeLensParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CodeLens(
   range: structures.Range,
@@ -1055,14 +1371,19 @@ case class CodeLens(
   data: aliases.LSPAny
 )
 object CodeLens:
-  given upickle.default.Reader[CodeLens] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CodeLens] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CodeLensRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null),
   resolveProvider: Boolean
 )
 object CodeLensRegistrationOptions:
-  given upickle.default.Reader[CodeLensRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[CodeLensRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentLinkParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -1070,7 +1391,9 @@ case class DocumentLinkParams(
   partialResultToken: aliases.ProgressToken
 )
 object DocumentLinkParams:
-  given upickle.default.Reader[DocumentLinkParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DocumentLinkParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentLink(
   range: structures.Range,
@@ -1079,14 +1402,19 @@ case class DocumentLink(
   data: aliases.LSPAny
 )
 object DocumentLink:
-  given upickle.default.Reader[DocumentLink] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DocumentLink] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentLinkRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null),
   resolveProvider: Boolean
 )
 object DocumentLinkRegistrationOptions:
-  given upickle.default.Reader[DocumentLinkRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[DocumentLinkRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentFormattingParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -1094,13 +1422,18 @@ case class DocumentFormattingParams(
   workDoneToken: aliases.ProgressToken
 )
 object DocumentFormattingParams:
-  given upickle.default.Reader[DocumentFormattingParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DocumentFormattingParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentFormattingRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null)
 )
 object DocumentFormattingRegistrationOptions:
-  given upickle.default.Reader[DocumentFormattingRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[DocumentFormattingRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentRangeFormattingParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -1109,13 +1442,18 @@ case class DocumentRangeFormattingParams(
   workDoneToken: aliases.ProgressToken
 )
 object DocumentRangeFormattingParams:
-  given upickle.default.Reader[DocumentRangeFormattingParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DocumentRangeFormattingParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentRangeFormattingRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null)
 )
 object DocumentRangeFormattingRegistrationOptions:
-  given upickle.default.Reader[DocumentRangeFormattingRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[DocumentRangeFormattingRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentOnTypeFormattingParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -1124,7 +1462,9 @@ case class DocumentOnTypeFormattingParams(
   options: structures.FormattingOptions
 )
 object DocumentOnTypeFormattingParams:
-  given upickle.default.Reader[DocumentOnTypeFormattingParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DocumentOnTypeFormattingParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentOnTypeFormattingRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null),
@@ -1132,7 +1472,10 @@ case class DocumentOnTypeFormattingRegistrationOptions(
   moreTriggerCharacter: Vector[String]
 )
 object DocumentOnTypeFormattingRegistrationOptions:
-  given upickle.default.Reader[DocumentOnTypeFormattingRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[DocumentOnTypeFormattingRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class RenameParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -1141,14 +1484,19 @@ case class RenameParams(
   workDoneToken: aliases.ProgressToken
 )
 object RenameParams:
-  given upickle.default.Reader[RenameParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[RenameParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class RenameRegistrationOptions(
   documentSelector: (aliases.DocumentSelector | Null),
   prepareProvider: Boolean
 )
 object RenameRegistrationOptions:
-  given upickle.default.Reader[RenameRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(aliases.DocumentSelector | Null)] = {type T = (aliases.DocumentSelector | Null); badMerge(reader[aliases.DocumentSelector].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[RenameRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class PrepareRenameParams(
   textDocument: structures.TextDocumentIdentifier,
@@ -1156,7 +1504,9 @@ case class PrepareRenameParams(
   workDoneToken: aliases.ProgressToken
 )
 object PrepareRenameParams:
-  given upickle.default.Reader[PrepareRenameParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[PrepareRenameParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ExecuteCommandParams(
   command: String,
@@ -1164,20 +1514,26 @@ case class ExecuteCommandParams(
   workDoneToken: aliases.ProgressToken
 )
 object ExecuteCommandParams:
-  given upickle.default.Reader[ExecuteCommandParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ExecuteCommandParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ExecuteCommandRegistrationOptions(
   commands: Vector[String]
 )
 object ExecuteCommandRegistrationOptions:
-  given upickle.default.Reader[ExecuteCommandRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ExecuteCommandRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ApplyWorkspaceEditParams(
   label: String,
   edit: structures.WorkspaceEdit
 )
 object ApplyWorkspaceEditParams:
-  given upickle.default.Reader[ApplyWorkspaceEditParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ApplyWorkspaceEditParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ApplyWorkspaceEditResult(
   applied: Boolean,
@@ -1185,7 +1541,9 @@ case class ApplyWorkspaceEditResult(
   failedChange: RuntimeBase.uinteger
 )
 object ApplyWorkspaceEditResult:
-  given upickle.default.Reader[ApplyWorkspaceEditResult] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ApplyWorkspaceEditResult] = Pickle.macroR
+  export codecs.{*, given}
 
 case class WorkDoneProgressBegin(
   kind: "begin",
@@ -1195,7 +1553,9 @@ case class WorkDoneProgressBegin(
   percentage: RuntimeBase.uinteger
 )
 object WorkDoneProgressBegin:
-  given upickle.default.Reader[WorkDoneProgressBegin] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[WorkDoneProgressBegin] = Pickle.macroR
+  export codecs.{*, given}
 
 case class WorkDoneProgressReport(
   kind: "report",
@@ -1204,53 +1564,70 @@ case class WorkDoneProgressReport(
   percentage: RuntimeBase.uinteger
 )
 object WorkDoneProgressReport:
-  given upickle.default.Reader[WorkDoneProgressReport] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[WorkDoneProgressReport] = Pickle.macroR
+  export codecs.{*, given}
 
 case class WorkDoneProgressEnd(
   kind: "end",
   message: String
 )
 object WorkDoneProgressEnd:
-  given upickle.default.Reader[WorkDoneProgressEnd] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[WorkDoneProgressEnd] = Pickle.macroR
+  export codecs.{*, given}
 
 case class SetTraceParams(
   value: enumerations.TraceValues
 )
 object SetTraceParams:
-  given upickle.default.Reader[SetTraceParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[SetTraceParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class LogTraceParams(
   message: String,
   verbose: String
 )
 object LogTraceParams:
-  given upickle.default.Reader[LogTraceParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[LogTraceParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CancelParams(
   id: (Int | String)
 )
 object CancelParams:
-  given upickle.default.Reader[CancelParams] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(Int | String)] = {type T = (Int | String); badMerge(reader[Int].widen[T], reader[String].widen[T])}
+    given upickle.default.Reader[CancelParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ProgressParams(
   token: aliases.ProgressToken,
   value: aliases.LSPAny
 )
 object ProgressParams:
-  given upickle.default.Reader[ProgressParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ProgressParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class TextDocumentPositionParams(
   textDocument: structures.TextDocumentIdentifier,
   position: structures.Position
 )
 object TextDocumentPositionParams:
-  given upickle.default.Reader[TextDocumentPositionParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[TextDocumentPositionParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class WorkDoneProgressParams(
   workDoneToken: aliases.ProgressToken
 )
 object WorkDoneProgressParams:
-  given upickle.default.Reader[WorkDoneProgressParams] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[WorkDoneProgressParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class LocationLink(
   originSelectionRange: structures.Range,
@@ -1259,52 +1636,68 @@ case class LocationLink(
   targetSelectionRange: structures.Range
 )
 object LocationLink:
-  given upickle.default.Reader[LocationLink] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[LocationLink] = Pickle.macroR
+  export codecs.{*, given}
 
 case class Range(
   start: structures.Position,
   end: structures.Position
 )
 object Range:
-  given upickle.default.Reader[Range] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[Range] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ImplementationOptions(
   workDoneProgress: Boolean
 )
 object ImplementationOptions:
-  given upickle.default.Reader[ImplementationOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ImplementationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class StaticRegistrationOptions(
   id: String
 )
 object StaticRegistrationOptions:
-  given upickle.default.Reader[StaticRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[StaticRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class TypeDefinitionOptions(
   workDoneProgress: Boolean
 )
 object TypeDefinitionOptions:
-  given upickle.default.Reader[TypeDefinitionOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[TypeDefinitionOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class WorkspaceFoldersChangeEvent(
   added: Vector[structures.WorkspaceFolder],
   removed: Vector[structures.WorkspaceFolder]
 )
 object WorkspaceFoldersChangeEvent:
-  given upickle.default.Reader[WorkspaceFoldersChangeEvent] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[WorkspaceFoldersChangeEvent] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ConfigurationItem(
   scopeUri: String,
   section: String
 )
 object ConfigurationItem:
-  given upickle.default.Reader[ConfigurationItem] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ConfigurationItem] = Pickle.macroR
+  export codecs.{*, given}
 
 case class TextDocumentIdentifier(
   uri: RuntimeBase.DocumentUri
 )
 object TextDocumentIdentifier:
-  given upickle.default.Reader[TextDocumentIdentifier] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[TextDocumentIdentifier] = Pickle.macroR
+  export codecs.{*, given}
 
 case class Color(
   red: Float,
@@ -1313,44 +1706,58 @@ case class Color(
   alpha: Float
 )
 object Color:
-  given upickle.default.Reader[Color] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[Color] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentColorOptions(
   workDoneProgress: Boolean
 )
 object DocumentColorOptions:
-  given upickle.default.Reader[DocumentColorOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DocumentColorOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class FoldingRangeOptions(
   workDoneProgress: Boolean
 )
 object FoldingRangeOptions:
-  given upickle.default.Reader[FoldingRangeOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[FoldingRangeOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DeclarationOptions(
   workDoneProgress: Boolean
 )
 object DeclarationOptions:
-  given upickle.default.Reader[DeclarationOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DeclarationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class Position(
   line: RuntimeBase.uinteger,
   character: RuntimeBase.uinteger
 )
 object Position:
-  given upickle.default.Reader[Position] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[Position] = Pickle.macroR
+  export codecs.{*, given}
 
 case class SelectionRangeOptions(
   workDoneProgress: Boolean
 )
 object SelectionRangeOptions:
-  given upickle.default.Reader[SelectionRangeOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[SelectionRangeOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CallHierarchyOptions(
   workDoneProgress: Boolean
 )
 object CallHierarchyOptions:
-  given upickle.default.Reader[CallHierarchyOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CallHierarchyOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class SemanticTokensOptions(
   legend: structures.SemanticTokensLegend,
@@ -1359,16 +1766,24 @@ case class SemanticTokensOptions(
   workDoneProgress: Boolean
 )
 object SemanticTokensOptions:
-  given upickle.default.Reader[SemanticTokensOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(Boolean | SemanticTokensOptions.S0)] = {type T = (Boolean | SemanticTokensOptions.S0); badMerge(reader[Boolean].widen[T], reader[SemanticTokensOptions.S0].widen[T])}
+    given rd1: Reader[(Boolean | SemanticTokensOptions.S1)] = {type T = (Boolean | SemanticTokensOptions.S1); badMerge(reader[Boolean].widen[T], reader[SemanticTokensOptions.S1].widen[T])}
+    given upickle.default.Reader[SemanticTokensOptions] = Pickle.macroR
+  export codecs.{*, given}
   case class S0(
   )
   object S0:
-    given upickle.default.Reader[S0] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[S0] = Pickle.macroR
+    export codecs.{*, given}
   case class S1(
     delta: Boolean
   )
   object S1:
-    given upickle.default.Reader[S1] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[S1] = Pickle.macroR
+    export codecs.{*, given}
 
 case class SemanticTokensEdit(
   start: RuntimeBase.uinteger,
@@ -1376,57 +1791,69 @@ case class SemanticTokensEdit(
   data: Vector[RuntimeBase.uinteger]
 )
 object SemanticTokensEdit:
-  given upickle.default.Reader[SemanticTokensEdit] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[SemanticTokensEdit] = Pickle.macroR
+  export codecs.{*, given}
 
 case class LinkedEditingRangeOptions(
   workDoneProgress: Boolean
 )
 object LinkedEditingRangeOptions:
-  given upickle.default.Reader[LinkedEditingRangeOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[LinkedEditingRangeOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class FileCreate(
   uri: String
 )
 object FileCreate:
-  given upickle.default.Reader[FileCreate] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[FileCreate] = Pickle.macroR
+  export codecs.{*, given}
 
 case class TextDocumentEdit(
   textDocument: structures.OptionalVersionedTextDocumentIdentifier,
   edits: Vector[(structures.TextEdit | structures.AnnotatedTextEdit)]
 )
 object TextDocumentEdit:
-  given upickle.default.Reader[TextDocumentEdit] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(structures.TextEdit | structures.AnnotatedTextEdit)] = {type T = (structures.TextEdit | structures.AnnotatedTextEdit); badMerge(reader[structures.TextEdit].widen[T], reader[structures.AnnotatedTextEdit].widen[T])}
+    given upickle.default.Reader[TextDocumentEdit] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CreateFile(
   kind: "create",
   uri: RuntimeBase.DocumentUri,
   options: structures.CreateFileOptions,
-  kind: String,
   annotationId: aliases.ChangeAnnotationIdentifier
 )
 object CreateFile:
-  given upickle.default.Reader[CreateFile] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CreateFile] = Pickle.macroR
+  export codecs.{*, given}
 
 case class RenameFile(
   kind: "rename",
   oldUri: RuntimeBase.DocumentUri,
   newUri: RuntimeBase.DocumentUri,
   options: structures.RenameFileOptions,
-  kind: String,
   annotationId: aliases.ChangeAnnotationIdentifier
 )
 object RenameFile:
-  given upickle.default.Reader[RenameFile] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[RenameFile] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DeleteFile(
   kind: "delete",
   uri: RuntimeBase.DocumentUri,
   options: structures.DeleteFileOptions,
-  kind: String,
   annotationId: aliases.ChangeAnnotationIdentifier
 )
 object DeleteFile:
-  given upickle.default.Reader[DeleteFile] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DeleteFile] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ChangeAnnotation(
   label: String,
@@ -1434,53 +1861,69 @@ case class ChangeAnnotation(
   description: String
 )
 object ChangeAnnotation:
-  given upickle.default.Reader[ChangeAnnotation] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ChangeAnnotation] = Pickle.macroR
+  export codecs.{*, given}
 
 case class FileOperationFilter(
   scheme: String,
   pattern: structures.FileOperationPattern
 )
 object FileOperationFilter:
-  given upickle.default.Reader[FileOperationFilter] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[FileOperationFilter] = Pickle.macroR
+  export codecs.{*, given}
 
 case class FileRename(
   oldUri: String,
   newUri: String
 )
 object FileRename:
-  given upickle.default.Reader[FileRename] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[FileRename] = Pickle.macroR
+  export codecs.{*, given}
 
 case class FileDelete(
   uri: String
 )
 object FileDelete:
-  given upickle.default.Reader[FileDelete] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[FileDelete] = Pickle.macroR
+  export codecs.{*, given}
 
 case class MonikerOptions(
   workDoneProgress: Boolean
 )
 object MonikerOptions:
-  given upickle.default.Reader[MonikerOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[MonikerOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class TypeHierarchyOptions(
   workDoneProgress: Boolean
 )
 object TypeHierarchyOptions:
-  given upickle.default.Reader[TypeHierarchyOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[TypeHierarchyOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class InlineValueContext(
   frameId: Int,
   stoppedLocation: structures.Range
 )
 object InlineValueContext:
-  given upickle.default.Reader[InlineValueContext] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[InlineValueContext] = Pickle.macroR
+  export codecs.{*, given}
 
 case class InlineValueText(
   range: structures.Range,
   text: String
 )
 object InlineValueText:
-  given upickle.default.Reader[InlineValueText] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[InlineValueText] = Pickle.macroR
+  export codecs.{*, given}
 
 case class InlineValueVariableLookup(
   range: structures.Range,
@@ -1488,20 +1931,26 @@ case class InlineValueVariableLookup(
   caseSensitiveLookup: Boolean
 )
 object InlineValueVariableLookup:
-  given upickle.default.Reader[InlineValueVariableLookup] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[InlineValueVariableLookup] = Pickle.macroR
+  export codecs.{*, given}
 
 case class InlineValueEvaluatableExpression(
   range: structures.Range,
   expression: String
 )
 object InlineValueEvaluatableExpression:
-  given upickle.default.Reader[InlineValueEvaluatableExpression] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[InlineValueEvaluatableExpression] = Pickle.macroR
+  export codecs.{*, given}
 
 case class InlineValueOptions(
   workDoneProgress: Boolean
 )
 object InlineValueOptions:
-  given upickle.default.Reader[InlineValueOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[InlineValueOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class InlayHintLabelPart(
   value: String,
@@ -1510,21 +1959,28 @@ case class InlayHintLabelPart(
   command: structures.Command
 )
 object InlayHintLabelPart:
-  given upickle.default.Reader[InlayHintLabelPart] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(String | structures.MarkupContent)] = {type T = (String | structures.MarkupContent); badMerge(reader[String].widen[T], reader[structures.MarkupContent].widen[T])}
+    given upickle.default.Reader[InlayHintLabelPart] = Pickle.macroR
+  export codecs.{*, given}
 
 case class MarkupContent(
   kind: enumerations.MarkupKind,
   value: String
 )
 object MarkupContent:
-  given upickle.default.Reader[MarkupContent] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[MarkupContent] = Pickle.macroR
+  export codecs.{*, given}
 
 case class InlayHintOptions(
   resolveProvider: Boolean,
   workDoneProgress: Boolean
 )
 object InlayHintOptions:
-  given upickle.default.Reader[InlayHintOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[InlayHintOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class RelatedFullDocumentDiagnosticReport(
   relatedDocuments: Map[RuntimeBase.DocumentUri, (structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)],
@@ -1533,7 +1989,10 @@ case class RelatedFullDocumentDiagnosticReport(
   items: Vector[structures.Diagnostic]
 )
 object RelatedFullDocumentDiagnosticReport:
-  given upickle.default.Reader[RelatedFullDocumentDiagnosticReport] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)] = {type T = (structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport); badMerge(reader[structures.FullDocumentDiagnosticReport].widen[T], reader[structures.UnchangedDocumentDiagnosticReport].widen[T])}
+    given upickle.default.Reader[RelatedFullDocumentDiagnosticReport] = Pickle.macroR
+  export codecs.{*, given}
 
 case class RelatedUnchangedDocumentDiagnosticReport(
   relatedDocuments: Map[RuntimeBase.DocumentUri, (structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)],
@@ -1541,7 +2000,10 @@ case class RelatedUnchangedDocumentDiagnosticReport(
   resultId: String
 )
 object RelatedUnchangedDocumentDiagnosticReport:
-  given upickle.default.Reader[RelatedUnchangedDocumentDiagnosticReport] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)] = {type T = (structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport); badMerge(reader[structures.FullDocumentDiagnosticReport].widen[T], reader[structures.UnchangedDocumentDiagnosticReport].widen[T])}
+    given upickle.default.Reader[RelatedUnchangedDocumentDiagnosticReport] = Pickle.macroR
+  export codecs.{*, given}
 
 case class FullDocumentDiagnosticReport(
   kind: "full",
@@ -1549,14 +2011,18 @@ case class FullDocumentDiagnosticReport(
   items: Vector[structures.Diagnostic]
 )
 object FullDocumentDiagnosticReport:
-  given upickle.default.Reader[FullDocumentDiagnosticReport] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[FullDocumentDiagnosticReport] = Pickle.macroR
+  export codecs.{*, given}
 
 case class UnchangedDocumentDiagnosticReport(
   kind: "unchanged",
   resultId: String
 )
 object UnchangedDocumentDiagnosticReport:
-  given upickle.default.Reader[UnchangedDocumentDiagnosticReport] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[UnchangedDocumentDiagnosticReport] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DiagnosticOptions(
   identifier: String,
@@ -1565,14 +2031,18 @@ case class DiagnosticOptions(
   workDoneProgress: Boolean
 )
 object DiagnosticOptions:
-  given upickle.default.Reader[DiagnosticOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DiagnosticOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class PreviousResultId(
   uri: RuntimeBase.DocumentUri,
   value: String
 )
 object PreviousResultId:
-  given upickle.default.Reader[PreviousResultId] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[PreviousResultId] = Pickle.macroR
+  export codecs.{*, given}
 
 case class NotebookDocument(
   uri: aliases.URI,
@@ -1582,7 +2052,9 @@ case class NotebookDocument(
   cells: Vector[structures.NotebookCell]
 )
 object NotebookDocument:
-  given upickle.default.Reader[NotebookDocument] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[NotebookDocument] = Pickle.macroR
+  export codecs.{*, given}
 
 case class TextDocumentItem(
   uri: RuntimeBase.DocumentUri,
@@ -1591,47 +2063,61 @@ case class TextDocumentItem(
   text: String
 )
 object TextDocumentItem:
-  given upickle.default.Reader[TextDocumentItem] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[TextDocumentItem] = Pickle.macroR
+  export codecs.{*, given}
 
 case class VersionedNotebookDocumentIdentifier(
   version: Int,
   uri: aliases.URI
 )
 object VersionedNotebookDocumentIdentifier:
-  given upickle.default.Reader[VersionedNotebookDocumentIdentifier] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[VersionedNotebookDocumentIdentifier] = Pickle.macroR
+  export codecs.{*, given}
 
 case class NotebookDocumentChangeEvent(
   metadata: structures.LSPObject,
   cells: NotebookDocumentChangeEvent.Cells
 )
 object NotebookDocumentChangeEvent:
-  given upickle.default.Reader[NotebookDocumentChangeEvent] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[NotebookDocumentChangeEvent] = Pickle.macroR
+  export codecs.{*, given}
   case class Cells(
     structure: Cells.Structure,
     data: Vector[structures.NotebookCell],
     textContent: Vector[Cells.S0]
   )
   object Cells:
-    given upickle.default.Reader[Cells] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[Cells] = Pickle.macroR
+    export codecs.{*, given}
     case class Structure(
       array: structures.NotebookCellArrayChange,
       didOpen: Vector[structures.TextDocumentItem],
       didClose: Vector[structures.TextDocumentIdentifier]
     )
     object Structure:
-      given upickle.default.Reader[Structure] = Pickle.macroR
+      object codecs:
+        given upickle.default.Reader[Structure] = Pickle.macroR
+      export codecs.{*, given}
     case class S0(
       document: structures.VersionedTextDocumentIdentifier,
       changes: Vector[aliases.TextDocumentContentChangeEvent]
     )
     object S0:
-      given upickle.default.Reader[S0] = Pickle.macroR
+      object codecs:
+        given upickle.default.Reader[S0] = Pickle.macroR
+      export codecs.{*, given}
 
 case class NotebookDocumentIdentifier(
   uri: aliases.URI
 )
 object NotebookDocumentIdentifier:
-  given upickle.default.Reader[NotebookDocumentIdentifier] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[NotebookDocumentIdentifier] = Pickle.macroR
+  export codecs.{*, given}
 
 case class Registration(
   id: String,
@@ -1639,14 +2125,18 @@ case class Registration(
   registerOptions: aliases.LSPAny
 )
 object Registration:
-  given upickle.default.Reader[Registration] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[Registration] = Pickle.macroR
+  export codecs.{*, given}
 
 case class Unregistration(
   id: String,
   method: String
 )
 object Unregistration:
-  given upickle.default.Reader[Unregistration] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[Unregistration] = Pickle.macroR
+  export codecs.{*, given}
 
 case class _InitializeParams(
   processId: (Int | Null),
@@ -1660,19 +2150,30 @@ case class _InitializeParams(
   workDoneToken: aliases.ProgressToken
 )
 object _InitializeParams:
-  given upickle.default.Reader[_InitializeParams] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(Int | Null)] = {type T = (Int | Null); badMerge(reader[Int].widen[T], nullReadWriter.widen[T])}
+    given rd1: Reader[(String | Null)] = {type T = (String | Null); badMerge(reader[String].widen[T], nullReadWriter.widen[T])}
+    given rd2: Reader[(RuntimeBase.DocumentUri | Null)] = {type T = (RuntimeBase.DocumentUri | Null); badMerge(reader[RuntimeBase.DocumentUri].widen[T], nullReadWriter.widen[T])}
+    given rd3: Reader[("off" | "messages" | "compact" | "verbose")] = {type T = ("off" | "messages" | "compact" | "verbose"); badMerge(reader["off"].widen[T], reader["messages"].widen[T], reader["compact"].widen[T], reader["verbose"].widen[T])}
+    given upickle.default.Reader[_InitializeParams] = Pickle.macroR
+  export codecs.{*, given}
   case class ClientInfo(
     name: String,
     version: String
   )
   object ClientInfo:
-    given upickle.default.Reader[ClientInfo] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[ClientInfo] = Pickle.macroR
+    export codecs.{*, given}
 
 case class WorkspaceFoldersInitializeParams(
   workspaceFolders: (Vector[structures.WorkspaceFolder] | Null)
 )
 object WorkspaceFoldersInitializeParams:
-  given upickle.default.Reader[WorkspaceFoldersInitializeParams] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(Vector[structures.WorkspaceFolder] | Null)] = {type T = (Vector[structures.WorkspaceFolder] | Null); badMerge(reader[Vector[structures.WorkspaceFolder]].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[WorkspaceFoldersInitializeParams] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ServerCapabilities(
   positionEncoding: enumerations.PositionEncodingKind,
@@ -1712,40 +2213,78 @@ case class ServerCapabilities(
   experimental: structures.T
 )
 object ServerCapabilities:
-  given upickle.default.Reader[ServerCapabilities] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(structures.TextDocumentSyncOptions | enumerations.TextDocumentSyncKind)] = {type T = (structures.TextDocumentSyncOptions | enumerations.TextDocumentSyncKind); badMerge(reader[structures.TextDocumentSyncOptions].widen[T], reader[enumerations.TextDocumentSyncKind].widen[T])}
+    given rd1: Reader[(structures.NotebookDocumentSyncOptions | structures.NotebookDocumentSyncRegistrationOptions)] = {type T = (structures.NotebookDocumentSyncOptions | structures.NotebookDocumentSyncRegistrationOptions); badMerge(reader[structures.NotebookDocumentSyncOptions].widen[T], reader[structures.NotebookDocumentSyncRegistrationOptions].widen[T])}
+    given rd2: Reader[(Boolean | structures.HoverOptions)] = {type T = (Boolean | structures.HoverOptions); badMerge(reader[Boolean].widen[T], reader[structures.HoverOptions].widen[T])}
+    given rd3: Reader[(Boolean | structures.DeclarationOptions | structures.DeclarationRegistrationOptions)] = {type T = (Boolean | structures.DeclarationOptions | structures.DeclarationRegistrationOptions); badMerge(reader[Boolean].widen[T], reader[structures.DeclarationOptions].widen[T], reader[structures.DeclarationRegistrationOptions].widen[T])}
+    given rd4: Reader[(Boolean | structures.DefinitionOptions)] = {type T = (Boolean | structures.DefinitionOptions); badMerge(reader[Boolean].widen[T], reader[structures.DefinitionOptions].widen[T])}
+    given rd5: Reader[(Boolean | structures.TypeDefinitionOptions | structures.TypeDefinitionRegistrationOptions)] = {type T = (Boolean | structures.TypeDefinitionOptions | structures.TypeDefinitionRegistrationOptions); badMerge(reader[Boolean].widen[T], reader[structures.TypeDefinitionOptions].widen[T], reader[structures.TypeDefinitionRegistrationOptions].widen[T])}
+    given rd6: Reader[(Boolean | structures.ImplementationOptions | structures.ImplementationRegistrationOptions)] = {type T = (Boolean | structures.ImplementationOptions | structures.ImplementationRegistrationOptions); badMerge(reader[Boolean].widen[T], reader[structures.ImplementationOptions].widen[T], reader[structures.ImplementationRegistrationOptions].widen[T])}
+    given rd7: Reader[(Boolean | structures.ReferenceOptions)] = {type T = (Boolean | structures.ReferenceOptions); badMerge(reader[Boolean].widen[T], reader[structures.ReferenceOptions].widen[T])}
+    given rd8: Reader[(Boolean | structures.DocumentHighlightOptions)] = {type T = (Boolean | structures.DocumentHighlightOptions); badMerge(reader[Boolean].widen[T], reader[structures.DocumentHighlightOptions].widen[T])}
+    given rd9: Reader[(Boolean | structures.DocumentSymbolOptions)] = {type T = (Boolean | structures.DocumentSymbolOptions); badMerge(reader[Boolean].widen[T], reader[structures.DocumentSymbolOptions].widen[T])}
+    given rd10: Reader[(Boolean | structures.CodeActionOptions)] = {type T = (Boolean | structures.CodeActionOptions); badMerge(reader[Boolean].widen[T], reader[structures.CodeActionOptions].widen[T])}
+    given rd11: Reader[(Boolean | structures.DocumentColorOptions | structures.DocumentColorRegistrationOptions)] = {type T = (Boolean | structures.DocumentColorOptions | structures.DocumentColorRegistrationOptions); badMerge(reader[Boolean].widen[T], reader[structures.DocumentColorOptions].widen[T], reader[structures.DocumentColorRegistrationOptions].widen[T])}
+    given rd12: Reader[(Boolean | structures.WorkspaceSymbolOptions)] = {type T = (Boolean | structures.WorkspaceSymbolOptions); badMerge(reader[Boolean].widen[T], reader[structures.WorkspaceSymbolOptions].widen[T])}
+    given rd13: Reader[(Boolean | structures.DocumentFormattingOptions)] = {type T = (Boolean | structures.DocumentFormattingOptions); badMerge(reader[Boolean].widen[T], reader[structures.DocumentFormattingOptions].widen[T])}
+    given rd14: Reader[(Boolean | structures.DocumentRangeFormattingOptions)] = {type T = (Boolean | structures.DocumentRangeFormattingOptions); badMerge(reader[Boolean].widen[T], reader[structures.DocumentRangeFormattingOptions].widen[T])}
+    given rd15: Reader[(Boolean | structures.RenameOptions)] = {type T = (Boolean | structures.RenameOptions); badMerge(reader[Boolean].widen[T], reader[structures.RenameOptions].widen[T])}
+    given rd16: Reader[(Boolean | structures.FoldingRangeOptions | structures.FoldingRangeRegistrationOptions)] = {type T = (Boolean | structures.FoldingRangeOptions | structures.FoldingRangeRegistrationOptions); badMerge(reader[Boolean].widen[T], reader[structures.FoldingRangeOptions].widen[T], reader[structures.FoldingRangeRegistrationOptions].widen[T])}
+    given rd17: Reader[(Boolean | structures.SelectionRangeOptions | structures.SelectionRangeRegistrationOptions)] = {type T = (Boolean | structures.SelectionRangeOptions | structures.SelectionRangeRegistrationOptions); badMerge(reader[Boolean].widen[T], reader[structures.SelectionRangeOptions].widen[T], reader[structures.SelectionRangeRegistrationOptions].widen[T])}
+    given rd18: Reader[(Boolean | structures.CallHierarchyOptions | structures.CallHierarchyRegistrationOptions)] = {type T = (Boolean | structures.CallHierarchyOptions | structures.CallHierarchyRegistrationOptions); badMerge(reader[Boolean].widen[T], reader[structures.CallHierarchyOptions].widen[T], reader[structures.CallHierarchyRegistrationOptions].widen[T])}
+    given rd19: Reader[(Boolean | structures.LinkedEditingRangeOptions | structures.LinkedEditingRangeRegistrationOptions)] = {type T = (Boolean | structures.LinkedEditingRangeOptions | structures.LinkedEditingRangeRegistrationOptions); badMerge(reader[Boolean].widen[T], reader[structures.LinkedEditingRangeOptions].widen[T], reader[structures.LinkedEditingRangeRegistrationOptions].widen[T])}
+    given rd20: Reader[(structures.SemanticTokensOptions | structures.SemanticTokensRegistrationOptions)] = {type T = (structures.SemanticTokensOptions | structures.SemanticTokensRegistrationOptions); badMerge(reader[structures.SemanticTokensOptions].widen[T], reader[structures.SemanticTokensRegistrationOptions].widen[T])}
+    given rd21: Reader[(Boolean | structures.MonikerOptions | structures.MonikerRegistrationOptions)] = {type T = (Boolean | structures.MonikerOptions | structures.MonikerRegistrationOptions); badMerge(reader[Boolean].widen[T], reader[structures.MonikerOptions].widen[T], reader[structures.MonikerRegistrationOptions].widen[T])}
+    given rd22: Reader[(Boolean | structures.TypeHierarchyOptions | structures.TypeHierarchyRegistrationOptions)] = {type T = (Boolean | structures.TypeHierarchyOptions | structures.TypeHierarchyRegistrationOptions); badMerge(reader[Boolean].widen[T], reader[structures.TypeHierarchyOptions].widen[T], reader[structures.TypeHierarchyRegistrationOptions].widen[T])}
+    given rd23: Reader[(Boolean | structures.InlineValueOptions | structures.InlineValueRegistrationOptions)] = {type T = (Boolean | structures.InlineValueOptions | structures.InlineValueRegistrationOptions); badMerge(reader[Boolean].widen[T], reader[structures.InlineValueOptions].widen[T], reader[structures.InlineValueRegistrationOptions].widen[T])}
+    given rd24: Reader[(Boolean | structures.InlayHintOptions | structures.InlayHintRegistrationOptions)] = {type T = (Boolean | structures.InlayHintOptions | structures.InlayHintRegistrationOptions); badMerge(reader[Boolean].widen[T], reader[structures.InlayHintOptions].widen[T], reader[structures.InlayHintRegistrationOptions].widen[T])}
+    given rd25: Reader[(structures.DiagnosticOptions | structures.DiagnosticRegistrationOptions)] = {type T = (structures.DiagnosticOptions | structures.DiagnosticRegistrationOptions); badMerge(reader[structures.DiagnosticOptions].widen[T], reader[structures.DiagnosticRegistrationOptions].widen[T])}
+    given upickle.default.Reader[ServerCapabilities] = Pickle.macroR
+  export codecs.{*, given}
   case class Workspace(
     workspaceFolders: structures.WorkspaceFoldersServerCapabilities,
     fileOperations: structures.FileOperationOptions
   )
   object Workspace:
-    given upickle.default.Reader[Workspace] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[Workspace] = Pickle.macroR
+    export codecs.{*, given}
 
 case class VersionedTextDocumentIdentifier(
   version: Int,
   uri: RuntimeBase.DocumentUri
 )
 object VersionedTextDocumentIdentifier:
-  given upickle.default.Reader[VersionedTextDocumentIdentifier] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[VersionedTextDocumentIdentifier] = Pickle.macroR
+  export codecs.{*, given}
 
 case class SaveOptions(
   includeText: Boolean
 )
 object SaveOptions:
-  given upickle.default.Reader[SaveOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[SaveOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class FileEvent(
   uri: RuntimeBase.DocumentUri,
   `type`: enumerations.FileChangeType
 )
 object FileEvent:
-  given upickle.default.Reader[FileEvent] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[FileEvent] = Pickle.macroR
+  export codecs.{*, given}
 
 case class FileSystemWatcher(
   globPattern: aliases.GlobPattern,
   kind: enumerations.WatchKind
 )
 object FileSystemWatcher:
-  given upickle.default.Reader[FileSystemWatcher] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[FileSystemWatcher] = Pickle.macroR
+  export codecs.{*, given}
 
 case class Diagnostic(
   range: structures.Range,
@@ -1759,21 +2298,28 @@ case class Diagnostic(
   data: aliases.LSPAny
 )
 object Diagnostic:
-  given upickle.default.Reader[Diagnostic] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(Int | String)] = {type T = (Int | String); badMerge(reader[Int].widen[T], reader[String].widen[T])}
+    given upickle.default.Reader[Diagnostic] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CompletionContext(
   triggerKind: enumerations.CompletionTriggerKind,
   triggerCharacter: String
 )
 object CompletionContext:
-  given upickle.default.Reader[CompletionContext] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CompletionContext] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CompletionItemLabelDetails(
   detail: String,
   description: String
 )
 object CompletionItemLabelDetails:
-  given upickle.default.Reader[CompletionItemLabelDetails] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CompletionItemLabelDetails] = Pickle.macroR
+  export codecs.{*, given}
 
 case class InsertReplaceEdit(
   newText: String,
@@ -1781,7 +2327,9 @@ case class InsertReplaceEdit(
   replace: structures.Range
 )
 object InsertReplaceEdit:
-  given upickle.default.Reader[InsertReplaceEdit] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[InsertReplaceEdit] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CompletionOptions(
   triggerCharacters: Vector[String],
@@ -1791,18 +2339,24 @@ case class CompletionOptions(
   workDoneProgress: Boolean
 )
 object CompletionOptions:
-  given upickle.default.Reader[CompletionOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CompletionOptions] = Pickle.macroR
+  export codecs.{*, given}
   case class CompletionItem(
     labelDetailsSupport: Boolean
   )
   object CompletionItem:
-    given upickle.default.Reader[CompletionItem] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[CompletionItem] = Pickle.macroR
+    export codecs.{*, given}
 
 case class HoverOptions(
   workDoneProgress: Boolean
 )
 object HoverOptions:
-  given upickle.default.Reader[HoverOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[HoverOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class SignatureHelpContext(
   triggerKind: enumerations.SignatureHelpTriggerKind,
@@ -1811,7 +2365,9 @@ case class SignatureHelpContext(
   activeSignatureHelp: structures.SignatureHelp
 )
 object SignatureHelpContext:
-  given upickle.default.Reader[SignatureHelpContext] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[SignatureHelpContext] = Pickle.macroR
+  export codecs.{*, given}
 
 case class SignatureInformation(
   label: String,
@@ -1820,7 +2376,10 @@ case class SignatureInformation(
   activeParameter: RuntimeBase.uinteger
 )
 object SignatureInformation:
-  given upickle.default.Reader[SignatureInformation] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(String | structures.MarkupContent)] = {type T = (String | structures.MarkupContent); badMerge(reader[String].widen[T], reader[structures.MarkupContent].widen[T])}
+    given upickle.default.Reader[SignatureInformation] = Pickle.macroR
+  export codecs.{*, given}
 
 case class SignatureHelpOptions(
   triggerCharacters: Vector[String],
@@ -1828,31 +2387,41 @@ case class SignatureHelpOptions(
   workDoneProgress: Boolean
 )
 object SignatureHelpOptions:
-  given upickle.default.Reader[SignatureHelpOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[SignatureHelpOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DefinitionOptions(
   workDoneProgress: Boolean
 )
 object DefinitionOptions:
-  given upickle.default.Reader[DefinitionOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DefinitionOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ReferenceContext(
   includeDeclaration: Boolean
 )
 object ReferenceContext:
-  given upickle.default.Reader[ReferenceContext] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ReferenceContext] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ReferenceOptions(
   workDoneProgress: Boolean
 )
 object ReferenceOptions:
-  given upickle.default.Reader[ReferenceOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ReferenceOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentHighlightOptions(
   workDoneProgress: Boolean
 )
 object DocumentHighlightOptions:
-  given upickle.default.Reader[DocumentHighlightOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DocumentHighlightOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class BaseSymbolInformation(
   name: String,
@@ -1861,14 +2430,18 @@ case class BaseSymbolInformation(
   containerName: String
 )
 object BaseSymbolInformation:
-  given upickle.default.Reader[BaseSymbolInformation] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[BaseSymbolInformation] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentSymbolOptions(
   label: String,
   workDoneProgress: Boolean
 )
 object DocumentSymbolOptions:
-  given upickle.default.Reader[DocumentSymbolOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DocumentSymbolOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CodeActionContext(
   diagnostics: Vector[structures.Diagnostic],
@@ -1876,7 +2449,9 @@ case class CodeActionContext(
   triggerKind: enumerations.CodeActionTriggerKind
 )
 object CodeActionContext:
-  given upickle.default.Reader[CodeActionContext] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CodeActionContext] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CodeActionOptions(
   codeActionKinds: Vector[enumerations.CodeActionKind],
@@ -1884,28 +2459,36 @@ case class CodeActionOptions(
   workDoneProgress: Boolean
 )
 object CodeActionOptions:
-  given upickle.default.Reader[CodeActionOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CodeActionOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class WorkspaceSymbolOptions(
   resolveProvider: Boolean,
   workDoneProgress: Boolean
 )
 object WorkspaceSymbolOptions:
-  given upickle.default.Reader[WorkspaceSymbolOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[WorkspaceSymbolOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CodeLensOptions(
   resolveProvider: Boolean,
   workDoneProgress: Boolean
 )
 object CodeLensOptions:
-  given upickle.default.Reader[CodeLensOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CodeLensOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentLinkOptions(
   resolveProvider: Boolean,
   workDoneProgress: Boolean
 )
 object DocumentLinkOptions:
-  given upickle.default.Reader[DocumentLinkOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DocumentLinkOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class FormattingOptions(
   tabSize: RuntimeBase.uinteger,
@@ -1915,54 +2498,71 @@ case class FormattingOptions(
   trimFinalNewlines: Boolean
 )
 object FormattingOptions:
-  given upickle.default.Reader[FormattingOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[FormattingOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentFormattingOptions(
   workDoneProgress: Boolean
 )
 object DocumentFormattingOptions:
-  given upickle.default.Reader[DocumentFormattingOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DocumentFormattingOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentRangeFormattingOptions(
   workDoneProgress: Boolean
 )
 object DocumentRangeFormattingOptions:
-  given upickle.default.Reader[DocumentRangeFormattingOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DocumentRangeFormattingOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentOnTypeFormattingOptions(
   firstTriggerCharacter: String,
   moreTriggerCharacter: Vector[String]
 )
 object DocumentOnTypeFormattingOptions:
-  given upickle.default.Reader[DocumentOnTypeFormattingOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DocumentOnTypeFormattingOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class RenameOptions(
   prepareProvider: Boolean,
   workDoneProgress: Boolean
 )
 object RenameOptions:
-  given upickle.default.Reader[RenameOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[RenameOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ExecuteCommandOptions(
   commands: Vector[String],
   workDoneProgress: Boolean
 )
 object ExecuteCommandOptions:
-  given upickle.default.Reader[ExecuteCommandOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ExecuteCommandOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class SemanticTokensLegend(
   tokenTypes: Vector[String],
   tokenModifiers: Vector[String]
 )
 object SemanticTokensLegend:
-  given upickle.default.Reader[SemanticTokensLegend] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[SemanticTokensLegend] = Pickle.macroR
+  export codecs.{*, given}
 
 case class OptionalVersionedTextDocumentIdentifier(
   version: (Int | Null),
   uri: RuntimeBase.DocumentUri
 )
 object OptionalVersionedTextDocumentIdentifier:
-  given upickle.default.Reader[OptionalVersionedTextDocumentIdentifier] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(Int | Null)] = {type T = (Int | Null); badMerge(reader[Int].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[OptionalVersionedTextDocumentIdentifier] = Pickle.macroR
+  export codecs.{*, given}
 
 case class AnnotatedTextEdit(
   annotationId: aliases.ChangeAnnotationIdentifier,
@@ -1970,35 +2570,45 @@ case class AnnotatedTextEdit(
   newText: String
 )
 object AnnotatedTextEdit:
-  given upickle.default.Reader[AnnotatedTextEdit] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[AnnotatedTextEdit] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ResourceOperation(
   kind: String,
   annotationId: aliases.ChangeAnnotationIdentifier
 )
 object ResourceOperation:
-  given upickle.default.Reader[ResourceOperation] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ResourceOperation] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CreateFileOptions(
   overwrite: Boolean,
   ignoreIfExists: Boolean
 )
 object CreateFileOptions:
-  given upickle.default.Reader[CreateFileOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CreateFileOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class RenameFileOptions(
   overwrite: Boolean,
   ignoreIfExists: Boolean
 )
 object RenameFileOptions:
-  given upickle.default.Reader[RenameFileOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[RenameFileOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DeleteFileOptions(
   recursive: Boolean,
   ignoreIfNotExists: Boolean
 )
 object DeleteFileOptions:
-  given upickle.default.Reader[DeleteFileOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DeleteFileOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class FileOperationPattern(
   glob: String,
@@ -2006,7 +2616,9 @@ case class FileOperationPattern(
   options: structures.FileOperationPatternOptions
 )
 object FileOperationPattern:
-  given upickle.default.Reader[FileOperationPattern] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[FileOperationPattern] = Pickle.macroR
+  export codecs.{*, given}
 
 case class WorkspaceFullDocumentDiagnosticReport(
   uri: RuntimeBase.DocumentUri,
@@ -2016,7 +2628,10 @@ case class WorkspaceFullDocumentDiagnosticReport(
   items: Vector[structures.Diagnostic]
 )
 object WorkspaceFullDocumentDiagnosticReport:
-  given upickle.default.Reader[WorkspaceFullDocumentDiagnosticReport] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(Int | Null)] = {type T = (Int | Null); badMerge(reader[Int].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[WorkspaceFullDocumentDiagnosticReport] = Pickle.macroR
+  export codecs.{*, given}
 
 case class WorkspaceUnchangedDocumentDiagnosticReport(
   uri: RuntimeBase.DocumentUri,
@@ -2025,12 +2640,17 @@ case class WorkspaceUnchangedDocumentDiagnosticReport(
   resultId: String
 )
 object WorkspaceUnchangedDocumentDiagnosticReport:
-  given upickle.default.Reader[WorkspaceUnchangedDocumentDiagnosticReport] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(Int | Null)] = {type T = (Int | Null); badMerge(reader[Int].widen[T], nullReadWriter.widen[T])}
+    given upickle.default.Reader[WorkspaceUnchangedDocumentDiagnosticReport] = Pickle.macroR
+  export codecs.{*, given}
 
 case class LSPObject(
 )
 object LSPObject:
-  given upickle.default.Reader[LSPObject] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[LSPObject] = Pickle.macroR
+  export codecs.{*, given}
 
 case class NotebookCell(
   kind: enumerations.NotebookCellKind,
@@ -2039,7 +2659,9 @@ case class NotebookCell(
   executionSummary: structures.ExecutionSummary
 )
 object NotebookCell:
-  given upickle.default.Reader[NotebookCell] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[NotebookCell] = Pickle.macroR
+  export codecs.{*, given}
 
 case class NotebookCellArrayChange(
   start: RuntimeBase.uinteger,
@@ -2047,7 +2669,9 @@ case class NotebookCellArrayChange(
   cells: Vector[structures.NotebookCell]
 )
 object NotebookCellArrayChange:
-  given upickle.default.Reader[NotebookCellArrayChange] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[NotebookCellArrayChange] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ClientCapabilities(
   workspace: structures.WorkspaceClientCapabilities,
@@ -2058,7 +2682,9 @@ case class ClientCapabilities(
   experimental: aliases.LSPAny
 )
 object ClientCapabilities:
-  given upickle.default.Reader[ClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class TextDocumentSyncOptions(
   openClose: Boolean,
@@ -2068,36 +2694,52 @@ case class TextDocumentSyncOptions(
   save: (Boolean | structures.SaveOptions)
 )
 object TextDocumentSyncOptions:
-  given upickle.default.Reader[TextDocumentSyncOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(Boolean | structures.SaveOptions)] = {type T = (Boolean | structures.SaveOptions); badMerge(reader[Boolean].widen[T], reader[structures.SaveOptions].widen[T])}
+    given upickle.default.Reader[TextDocumentSyncOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class NotebookDocumentSyncOptions(
   notebookSelector: Vector[(NotebookDocumentSyncOptions.S0 | NotebookDocumentSyncOptions.S1)],
   save: Boolean
 )
 object NotebookDocumentSyncOptions:
-  given upickle.default.Reader[NotebookDocumentSyncOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(NotebookDocumentSyncOptions.S0 | NotebookDocumentSyncOptions.S1)] = {type T = (NotebookDocumentSyncOptions.S0 | NotebookDocumentSyncOptions.S1); badMerge(reader[NotebookDocumentSyncOptions.S0].widen[T], reader[NotebookDocumentSyncOptions.S1].widen[T])}
+    given upickle.default.Reader[NotebookDocumentSyncOptions] = Pickle.macroR
+  export codecs.{*, given}
   case class S0(
     notebook: (String | aliases.NotebookDocumentFilter),
     cells: Vector[S0.S0]
   )
   object S0:
-    given upickle.default.Reader[S0] = Pickle.macroR
+    object codecs:
+      given rd0: Reader[(String | aliases.NotebookDocumentFilter)] = {type T = (String | aliases.NotebookDocumentFilter); badMerge(reader[String].widen[T], reader[aliases.NotebookDocumentFilter].widen[T])}
+      given upickle.default.Reader[NotebookDocumentSyncOptions.S0] = Pickle.macroR
+    export codecs.{*, given}
     case class S0(
       language: String
     )
     object S0:
-      given upickle.default.Reader[S0] = Pickle.macroR
+      object codecs:
+        given upickle.default.Reader[S0] = Pickle.macroR
+      export codecs.{*, given}
   case class S1(
     notebook: (String | aliases.NotebookDocumentFilter),
     cells: Vector[S1.S0]
   )
   object S1:
-    given upickle.default.Reader[S1] = Pickle.macroR
+    object codecs:
+      given rd0: Reader[(String | aliases.NotebookDocumentFilter)] = {type T = (String | aliases.NotebookDocumentFilter); badMerge(reader[String].widen[T], reader[aliases.NotebookDocumentFilter].widen[T])}
+      given upickle.default.Reader[NotebookDocumentSyncOptions.S1] = Pickle.macroR
+    export codecs.{*, given}
     case class S0(
       language: String
     )
     object S0:
-      given upickle.default.Reader[S0] = Pickle.macroR
+      object codecs:
+        given upickle.default.Reader[S0] = Pickle.macroR
+      export codecs.{*, given}
 
 case class NotebookDocumentSyncRegistrationOptions(
   notebookSelector: Vector[(NotebookDocumentSyncRegistrationOptions.S0 | NotebookDocumentSyncRegistrationOptions.S1)],
@@ -2105,36 +2747,52 @@ case class NotebookDocumentSyncRegistrationOptions(
   id: String
 )
 object NotebookDocumentSyncRegistrationOptions:
-  given upickle.default.Reader[NotebookDocumentSyncRegistrationOptions] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(NotebookDocumentSyncRegistrationOptions.S0 | NotebookDocumentSyncRegistrationOptions.S1)] = {type T = (NotebookDocumentSyncRegistrationOptions.S0 | NotebookDocumentSyncRegistrationOptions.S1); badMerge(reader[NotebookDocumentSyncRegistrationOptions.S0].widen[T], reader[NotebookDocumentSyncRegistrationOptions.S1].widen[T])}
+    given upickle.default.Reader[NotebookDocumentSyncRegistrationOptions] = Pickle.macroR
+  export codecs.{*, given}
   case class S0(
     notebook: (String | aliases.NotebookDocumentFilter),
     cells: Vector[S0.S0]
   )
   object S0:
-    given upickle.default.Reader[S0] = Pickle.macroR
+    object codecs:
+      given rd0: Reader[(String | aliases.NotebookDocumentFilter)] = {type T = (String | aliases.NotebookDocumentFilter); badMerge(reader[String].widen[T], reader[aliases.NotebookDocumentFilter].widen[T])}
+      given upickle.default.Reader[NotebookDocumentSyncRegistrationOptions.S0] = Pickle.macroR
+    export codecs.{*, given}
     case class S0(
       language: String
     )
     object S0:
-      given upickle.default.Reader[S0] = Pickle.macroR
+      object codecs:
+        given upickle.default.Reader[S0] = Pickle.macroR
+      export codecs.{*, given}
   case class S1(
     notebook: (String | aliases.NotebookDocumentFilter),
     cells: Vector[S1.S0]
   )
   object S1:
-    given upickle.default.Reader[S1] = Pickle.macroR
+    object codecs:
+      given rd0: Reader[(String | aliases.NotebookDocumentFilter)] = {type T = (String | aliases.NotebookDocumentFilter); badMerge(reader[String].widen[T], reader[aliases.NotebookDocumentFilter].widen[T])}
+      given upickle.default.Reader[NotebookDocumentSyncRegistrationOptions.S1] = Pickle.macroR
+    export codecs.{*, given}
     case class S0(
       language: String
     )
     object S0:
-      given upickle.default.Reader[S0] = Pickle.macroR
+      object codecs:
+        given upickle.default.Reader[S0] = Pickle.macroR
+      export codecs.{*, given}
 
 case class WorkspaceFoldersServerCapabilities(
   supported: Boolean,
   changeNotifications: (String | Boolean)
 )
 object WorkspaceFoldersServerCapabilities:
-  given upickle.default.Reader[WorkspaceFoldersServerCapabilities] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(String | Boolean)] = {type T = (String | Boolean); badMerge(reader[String].widen[T], reader[Boolean].widen[T])}
+    given upickle.default.Reader[WorkspaceFoldersServerCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class FileOperationOptions(
   didCreate: structures.FileOperationRegistrationOptions,
@@ -2145,52 +2803,71 @@ case class FileOperationOptions(
   willDelete: structures.FileOperationRegistrationOptions
 )
 object FileOperationOptions:
-  given upickle.default.Reader[FileOperationOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[FileOperationOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class T(
 )
 object T:
-  given upickle.default.Reader[T] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[T] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CodeDescription(
   href: aliases.URI
 )
 object CodeDescription:
-  given upickle.default.Reader[CodeDescription] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CodeDescription] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DiagnosticRelatedInformation(
   location: structures.Location,
   message: String
 )
 object DiagnosticRelatedInformation:
-  given upickle.default.Reader[DiagnosticRelatedInformation] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DiagnosticRelatedInformation] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ParameterInformation(
   label: (String | (RuntimeBase.uinteger, RuntimeBase.uinteger)),
   documentation: (String | structures.MarkupContent)
 )
 object ParameterInformation:
-  given upickle.default.Reader[ParameterInformation] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(String | (RuntimeBase.uinteger, RuntimeBase.uinteger))] = {type T = (String | (RuntimeBase.uinteger, RuntimeBase.uinteger)); badMerge(reader[String].widen[T], reader[(RuntimeBase.uinteger, RuntimeBase.uinteger)].widen[T])}
+    given rd1: Reader[(String | structures.MarkupContent)] = {type T = (String | structures.MarkupContent); badMerge(reader[String].widen[T], reader[structures.MarkupContent].widen[T])}
+    given upickle.default.Reader[ParameterInformation] = Pickle.macroR
+  export codecs.{*, given}
 
 case class NotebookCellTextDocumentFilter(
   notebook: (String | aliases.NotebookDocumentFilter),
   language: String
 )
 object NotebookCellTextDocumentFilter:
-  given upickle.default.Reader[NotebookCellTextDocumentFilter] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(String | aliases.NotebookDocumentFilter)] = {type T = (String | aliases.NotebookDocumentFilter); badMerge(reader[String].widen[T], reader[aliases.NotebookDocumentFilter].widen[T])}
+    given upickle.default.Reader[NotebookCellTextDocumentFilter] = Pickle.macroR
+  export codecs.{*, given}
 
 case class FileOperationPatternOptions(
   ignoreCase: Boolean
 )
 object FileOperationPatternOptions:
-  given upickle.default.Reader[FileOperationPatternOptions] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[FileOperationPatternOptions] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ExecutionSummary(
   executionOrder: RuntimeBase.uinteger,
   success: Boolean
 )
 object ExecutionSummary:
-  given upickle.default.Reader[ExecutionSummary] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ExecutionSummary] = Pickle.macroR
+  export codecs.{*, given}
 
 case class WorkspaceClientCapabilities(
   applyEdit: Boolean,
@@ -2209,7 +2886,9 @@ case class WorkspaceClientCapabilities(
   diagnostics: structures.DiagnosticWorkspaceClientCapabilities
 )
 object WorkspaceClientCapabilities:
-  given upickle.default.Reader[WorkspaceClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[WorkspaceClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class TextDocumentClientCapabilities(
   synchronization: structures.TextDocumentSyncClientCapabilities,
@@ -2244,13 +2923,17 @@ case class TextDocumentClientCapabilities(
   diagnostic: structures.DiagnosticClientCapabilities
 )
 object TextDocumentClientCapabilities:
-  given upickle.default.Reader[TextDocumentClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[TextDocumentClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class NotebookDocumentClientCapabilities(
   synchronization: structures.NotebookDocumentSyncClientCapabilities
 )
 object NotebookDocumentClientCapabilities:
-  given upickle.default.Reader[NotebookDocumentClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[NotebookDocumentClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class WindowClientCapabilities(
   workDoneProgress: Boolean,
@@ -2258,7 +2941,9 @@ case class WindowClientCapabilities(
   showDocument: structures.ShowDocumentClientCapabilities
 )
 object WindowClientCapabilities:
-  given upickle.default.Reader[WindowClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[WindowClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class GeneralClientCapabilities(
   staleRequestSupport: GeneralClientCapabilities.StaleRequestSupport,
@@ -2267,20 +2952,27 @@ case class GeneralClientCapabilities(
   positionEncodings: Vector[enumerations.PositionEncodingKind]
 )
 object GeneralClientCapabilities:
-  given upickle.default.Reader[GeneralClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[GeneralClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
   case class StaleRequestSupport(
     cancel: Boolean,
     retryOnContentModified: Vector[String]
   )
   object StaleRequestSupport:
-    given upickle.default.Reader[StaleRequestSupport] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[StaleRequestSupport] = Pickle.macroR
+    export codecs.{*, given}
 
 case class RelativePattern(
   baseUri: (structures.WorkspaceFolder | aliases.URI),
   pattern: aliases.Pattern
 )
 object RelativePattern:
-  given upickle.default.Reader[RelativePattern] = Pickle.macroR
+  object codecs:
+    given rd0: Reader[(structures.WorkspaceFolder | aliases.URI)] = {type T = (structures.WorkspaceFolder | aliases.URI); badMerge(reader[structures.WorkspaceFolder].widen[T], reader[aliases.URI].widen[T])}
+    given upickle.default.Reader[RelativePattern] = Pickle.macroR
+  export codecs.{*, given}
 
 case class WorkspaceEditClientCapabilities(
   documentChanges: Boolean,
@@ -2290,25 +2982,33 @@ case class WorkspaceEditClientCapabilities(
   changeAnnotationSupport: WorkspaceEditClientCapabilities.ChangeAnnotationSupport
 )
 object WorkspaceEditClientCapabilities:
-  given upickle.default.Reader[WorkspaceEditClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[WorkspaceEditClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
   case class ChangeAnnotationSupport(
     groupsOnLabel: Boolean
   )
   object ChangeAnnotationSupport:
-    given upickle.default.Reader[ChangeAnnotationSupport] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[ChangeAnnotationSupport] = Pickle.macroR
+    export codecs.{*, given}
 
 case class DidChangeConfigurationClientCapabilities(
   dynamicRegistration: Boolean
 )
 object DidChangeConfigurationClientCapabilities:
-  given upickle.default.Reader[DidChangeConfigurationClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DidChangeConfigurationClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DidChangeWatchedFilesClientCapabilities(
   dynamicRegistration: Boolean,
   relativePatternSupport: Boolean
 )
 object DidChangeWatchedFilesClientCapabilities:
-  given upickle.default.Reader[DidChangeWatchedFilesClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DidChangeWatchedFilesClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class WorkspaceSymbolClientCapabilities(
   dynamicRegistration: Boolean,
@@ -2317,40 +3017,54 @@ case class WorkspaceSymbolClientCapabilities(
   resolveSupport: WorkspaceSymbolClientCapabilities.ResolveSupport
 )
 object WorkspaceSymbolClientCapabilities:
-  given upickle.default.Reader[WorkspaceSymbolClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[WorkspaceSymbolClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
   case class SymbolKind(
     valueSet: Vector[enumerations.SymbolKind]
   )
   object SymbolKind:
-    given upickle.default.Reader[SymbolKind] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[SymbolKind] = Pickle.macroR
+    export codecs.{*, given}
   case class TagSupport(
     valueSet: Vector[enumerations.SymbolTag]
   )
   object TagSupport:
-    given upickle.default.Reader[TagSupport] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[TagSupport] = Pickle.macroR
+    export codecs.{*, given}
   case class ResolveSupport(
     properties: Vector[String]
   )
   object ResolveSupport:
-    given upickle.default.Reader[ResolveSupport] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[ResolveSupport] = Pickle.macroR
+    export codecs.{*, given}
 
 case class ExecuteCommandClientCapabilities(
   dynamicRegistration: Boolean
 )
 object ExecuteCommandClientCapabilities:
-  given upickle.default.Reader[ExecuteCommandClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ExecuteCommandClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class SemanticTokensWorkspaceClientCapabilities(
   refreshSupport: Boolean
 )
 object SemanticTokensWorkspaceClientCapabilities:
-  given upickle.default.Reader[SemanticTokensWorkspaceClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[SemanticTokensWorkspaceClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CodeLensWorkspaceClientCapabilities(
   refreshSupport: Boolean
 )
 object CodeLensWorkspaceClientCapabilities:
-  given upickle.default.Reader[CodeLensWorkspaceClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CodeLensWorkspaceClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class FileOperationClientCapabilities(
   dynamicRegistration: Boolean,
@@ -2362,25 +3076,33 @@ case class FileOperationClientCapabilities(
   willDelete: Boolean
 )
 object FileOperationClientCapabilities:
-  given upickle.default.Reader[FileOperationClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[FileOperationClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class InlineValueWorkspaceClientCapabilities(
   refreshSupport: Boolean
 )
 object InlineValueWorkspaceClientCapabilities:
-  given upickle.default.Reader[InlineValueWorkspaceClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[InlineValueWorkspaceClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class InlayHintWorkspaceClientCapabilities(
   refreshSupport: Boolean
 )
 object InlayHintWorkspaceClientCapabilities:
-  given upickle.default.Reader[InlayHintWorkspaceClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[InlayHintWorkspaceClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DiagnosticWorkspaceClientCapabilities(
   refreshSupport: Boolean
 )
 object DiagnosticWorkspaceClientCapabilities:
-  given upickle.default.Reader[DiagnosticWorkspaceClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DiagnosticWorkspaceClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class TextDocumentSyncClientCapabilities(
   dynamicRegistration: Boolean,
@@ -2389,7 +3111,9 @@ case class TextDocumentSyncClientCapabilities(
   didSave: Boolean
 )
 object TextDocumentSyncClientCapabilities:
-  given upickle.default.Reader[TextDocumentSyncClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[TextDocumentSyncClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class CompletionClientCapabilities(
   dynamicRegistration: Boolean,
@@ -2400,7 +3124,9 @@ case class CompletionClientCapabilities(
   completionList: CompletionClientCapabilities.CompletionList
 )
 object CompletionClientCapabilities:
-  given upickle.default.Reader[CompletionClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CompletionClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
   case class CompletionItem(
     snippetSupport: Boolean,
     commitCharactersSupport: Boolean,
@@ -2414,39 +3140,53 @@ object CompletionClientCapabilities:
     labelDetailsSupport: Boolean
   )
   object CompletionItem:
-    given upickle.default.Reader[CompletionItem] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[CompletionItem] = Pickle.macroR
+    export codecs.{*, given}
     case class TagSupport(
       valueSet: Vector[enumerations.CompletionItemTag]
     )
     object TagSupport:
-      given upickle.default.Reader[TagSupport] = Pickle.macroR
+      object codecs:
+        given upickle.default.Reader[TagSupport] = Pickle.macroR
+      export codecs.{*, given}
     case class ResolveSupport(
       properties: Vector[String]
     )
     object ResolveSupport:
-      given upickle.default.Reader[ResolveSupport] = Pickle.macroR
+      object codecs:
+        given upickle.default.Reader[ResolveSupport] = Pickle.macroR
+      export codecs.{*, given}
     case class InsertTextModeSupport(
       valueSet: Vector[enumerations.InsertTextMode]
     )
     object InsertTextModeSupport:
-      given upickle.default.Reader[InsertTextModeSupport] = Pickle.macroR
+      object codecs:
+        given upickle.default.Reader[InsertTextModeSupport] = Pickle.macroR
+      export codecs.{*, given}
   case class CompletionItemKind(
     valueSet: Vector[enumerations.CompletionItemKind]
   )
   object CompletionItemKind:
-    given upickle.default.Reader[CompletionItemKind] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[CompletionItemKind] = Pickle.macroR
+    export codecs.{*, given}
   case class CompletionList(
     itemDefaults: Vector[String]
   )
   object CompletionList:
-    given upickle.default.Reader[CompletionList] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[CompletionList] = Pickle.macroR
+    export codecs.{*, given}
 
 case class HoverClientCapabilities(
   dynamicRegistration: Boolean,
   contentFormat: Vector[enumerations.MarkupKind]
 )
 object HoverClientCapabilities:
-  given upickle.default.Reader[HoverClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[HoverClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class SignatureHelpClientCapabilities(
   dynamicRegistration: Boolean,
@@ -2454,59 +3194,77 @@ case class SignatureHelpClientCapabilities(
   contextSupport: Boolean
 )
 object SignatureHelpClientCapabilities:
-  given upickle.default.Reader[SignatureHelpClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[SignatureHelpClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
   case class SignatureInformation(
     documentationFormat: Vector[enumerations.MarkupKind],
     parameterInformation: SignatureInformation.ParameterInformation,
     activeParameterSupport: Boolean
   )
   object SignatureInformation:
-    given upickle.default.Reader[SignatureInformation] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[SignatureInformation] = Pickle.macroR
+    export codecs.{*, given}
     case class ParameterInformation(
       labelOffsetSupport: Boolean
     )
     object ParameterInformation:
-      given upickle.default.Reader[ParameterInformation] = Pickle.macroR
+      object codecs:
+        given upickle.default.Reader[ParameterInformation] = Pickle.macroR
+      export codecs.{*, given}
 
 case class DeclarationClientCapabilities(
   dynamicRegistration: Boolean,
   linkSupport: Boolean
 )
 object DeclarationClientCapabilities:
-  given upickle.default.Reader[DeclarationClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DeclarationClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DefinitionClientCapabilities(
   dynamicRegistration: Boolean,
   linkSupport: Boolean
 )
 object DefinitionClientCapabilities:
-  given upickle.default.Reader[DefinitionClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DefinitionClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class TypeDefinitionClientCapabilities(
   dynamicRegistration: Boolean,
   linkSupport: Boolean
 )
 object TypeDefinitionClientCapabilities:
-  given upickle.default.Reader[TypeDefinitionClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[TypeDefinitionClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ImplementationClientCapabilities(
   dynamicRegistration: Boolean,
   linkSupport: Boolean
 )
 object ImplementationClientCapabilities:
-  given upickle.default.Reader[ImplementationClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ImplementationClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ReferenceClientCapabilities(
   dynamicRegistration: Boolean
 )
 object ReferenceClientCapabilities:
-  given upickle.default.Reader[ReferenceClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ReferenceClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentHighlightClientCapabilities(
   dynamicRegistration: Boolean
 )
 object DocumentHighlightClientCapabilities:
-  given upickle.default.Reader[DocumentHighlightClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DocumentHighlightClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentSymbolClientCapabilities(
   dynamicRegistration: Boolean,
@@ -2516,17 +3274,23 @@ case class DocumentSymbolClientCapabilities(
   labelSupport: Boolean
 )
 object DocumentSymbolClientCapabilities:
-  given upickle.default.Reader[DocumentSymbolClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DocumentSymbolClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
   case class SymbolKind(
     valueSet: Vector[enumerations.SymbolKind]
   )
   object SymbolKind:
-    given upickle.default.Reader[SymbolKind] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[SymbolKind] = Pickle.macroR
+    export codecs.{*, given}
   case class TagSupport(
     valueSet: Vector[enumerations.SymbolTag]
   )
   object TagSupport:
-    given upickle.default.Reader[TagSupport] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[TagSupport] = Pickle.macroR
+    export codecs.{*, given}
 
 case class CodeActionClientCapabilities(
   dynamicRegistration: Boolean,
@@ -2538,59 +3302,79 @@ case class CodeActionClientCapabilities(
   honorsChangeAnnotations: Boolean
 )
 object CodeActionClientCapabilities:
-  given upickle.default.Reader[CodeActionClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CodeActionClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
   case class CodeActionLiteralSupport(
     codeActionKind: CodeActionLiteralSupport.CodeActionKind
   )
   object CodeActionLiteralSupport:
-    given upickle.default.Reader[CodeActionLiteralSupport] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[CodeActionLiteralSupport] = Pickle.macroR
+    export codecs.{*, given}
     case class CodeActionKind(
       valueSet: Vector[enumerations.CodeActionKind]
     )
     object CodeActionKind:
-      given upickle.default.Reader[CodeActionKind] = Pickle.macroR
+      object codecs:
+        given upickle.default.Reader[CodeActionKind] = Pickle.macroR
+      export codecs.{*, given}
   case class ResolveSupport(
     properties: Vector[String]
   )
   object ResolveSupport:
-    given upickle.default.Reader[ResolveSupport] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[ResolveSupport] = Pickle.macroR
+    export codecs.{*, given}
 
 case class CodeLensClientCapabilities(
   dynamicRegistration: Boolean
 )
 object CodeLensClientCapabilities:
-  given upickle.default.Reader[CodeLensClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CodeLensClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentLinkClientCapabilities(
   dynamicRegistration: Boolean,
   tooltipSupport: Boolean
 )
 object DocumentLinkClientCapabilities:
-  given upickle.default.Reader[DocumentLinkClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DocumentLinkClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentColorClientCapabilities(
   dynamicRegistration: Boolean
 )
 object DocumentColorClientCapabilities:
-  given upickle.default.Reader[DocumentColorClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DocumentColorClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentFormattingClientCapabilities(
   dynamicRegistration: Boolean
 )
 object DocumentFormattingClientCapabilities:
-  given upickle.default.Reader[DocumentFormattingClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DocumentFormattingClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentRangeFormattingClientCapabilities(
   dynamicRegistration: Boolean
 )
 object DocumentRangeFormattingClientCapabilities:
-  given upickle.default.Reader[DocumentRangeFormattingClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DocumentRangeFormattingClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class DocumentOnTypeFormattingClientCapabilities(
   dynamicRegistration: Boolean
 )
 object DocumentOnTypeFormattingClientCapabilities:
-  given upickle.default.Reader[DocumentOnTypeFormattingClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DocumentOnTypeFormattingClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class RenameClientCapabilities(
   dynamicRegistration: Boolean,
@@ -2599,7 +3383,9 @@ case class RenameClientCapabilities(
   honorsChangeAnnotations: Boolean
 )
 object RenameClientCapabilities:
-  given upickle.default.Reader[RenameClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[RenameClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class FoldingRangeClientCapabilities(
   dynamicRegistration: Boolean,
@@ -2609,23 +3395,31 @@ case class FoldingRangeClientCapabilities(
   foldingRange: FoldingRangeClientCapabilities.FoldingRange
 )
 object FoldingRangeClientCapabilities:
-  given upickle.default.Reader[FoldingRangeClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[FoldingRangeClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
   case class FoldingRangeKind(
     valueSet: Vector[enumerations.FoldingRangeKind]
   )
   object FoldingRangeKind:
-    given upickle.default.Reader[FoldingRangeKind] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[FoldingRangeKind] = Pickle.macroR
+    export codecs.{*, given}
   case class FoldingRange(
     collapsedText: Boolean
   )
   object FoldingRange:
-    given upickle.default.Reader[FoldingRange] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[FoldingRange] = Pickle.macroR
+    export codecs.{*, given}
 
 case class SelectionRangeClientCapabilities(
   dynamicRegistration: Boolean
 )
 object SelectionRangeClientCapabilities:
-  given upickle.default.Reader[SelectionRangeClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[SelectionRangeClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class PublishDiagnosticsClientCapabilities(
   relatedInformation: Boolean,
@@ -2635,18 +3429,24 @@ case class PublishDiagnosticsClientCapabilities(
   dataSupport: Boolean
 )
 object PublishDiagnosticsClientCapabilities:
-  given upickle.default.Reader[PublishDiagnosticsClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[PublishDiagnosticsClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
   case class TagSupport(
     valueSet: Vector[enumerations.DiagnosticTag]
   )
   object TagSupport:
-    given upickle.default.Reader[TagSupport] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[TagSupport] = Pickle.macroR
+    export codecs.{*, given}
 
 case class CallHierarchyClientCapabilities(
   dynamicRegistration: Boolean
 )
 object CallHierarchyClientCapabilities:
-  given upickle.default.Reader[CallHierarchyClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[CallHierarchyClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class SemanticTokensClientCapabilities(
   dynamicRegistration: Boolean,
@@ -2660,96 +3460,130 @@ case class SemanticTokensClientCapabilities(
   augmentsSyntaxTokens: Boolean
 )
 object SemanticTokensClientCapabilities:
-  given upickle.default.Reader[SemanticTokensClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[SemanticTokensClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
   case class Requests(
     range: (Boolean | Requests.S0),
     full: (Boolean | Requests.S1)
   )
   object Requests:
-    given upickle.default.Reader[Requests] = Pickle.macroR
+    object codecs:
+      given rd0: Reader[(Boolean | Requests.S0)] = {type T = (Boolean | Requests.S0); badMerge(reader[Boolean].widen[T], reader[Requests.S0].widen[T])}
+      given rd1: Reader[(Boolean | Requests.S1)] = {type T = (Boolean | Requests.S1); badMerge(reader[Boolean].widen[T], reader[Requests.S1].widen[T])}
+      given upickle.default.Reader[Requests] = Pickle.macroR
+    export codecs.{*, given}
     case class S0(
     )
     object S0:
-      given upickle.default.Reader[S0] = Pickle.macroR
+      object codecs:
+        given upickle.default.Reader[S0] = Pickle.macroR
+      export codecs.{*, given}
     case class S1(
       delta: Boolean
     )
     object S1:
-      given upickle.default.Reader[S1] = Pickle.macroR
+      object codecs:
+        given upickle.default.Reader[S1] = Pickle.macroR
+      export codecs.{*, given}
 
 case class LinkedEditingRangeClientCapabilities(
   dynamicRegistration: Boolean
 )
 object LinkedEditingRangeClientCapabilities:
-  given upickle.default.Reader[LinkedEditingRangeClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[LinkedEditingRangeClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class MonikerClientCapabilities(
   dynamicRegistration: Boolean
 )
 object MonikerClientCapabilities:
-  given upickle.default.Reader[MonikerClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[MonikerClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class TypeHierarchyClientCapabilities(
   dynamicRegistration: Boolean
 )
 object TypeHierarchyClientCapabilities:
-  given upickle.default.Reader[TypeHierarchyClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[TypeHierarchyClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class InlineValueClientCapabilities(
   dynamicRegistration: Boolean
 )
 object InlineValueClientCapabilities:
-  given upickle.default.Reader[InlineValueClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[InlineValueClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class InlayHintClientCapabilities(
   dynamicRegistration: Boolean,
   resolveSupport: InlayHintClientCapabilities.ResolveSupport
 )
 object InlayHintClientCapabilities:
-  given upickle.default.Reader[InlayHintClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[InlayHintClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
   case class ResolveSupport(
     properties: Vector[String]
   )
   object ResolveSupport:
-    given upickle.default.Reader[ResolveSupport] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[ResolveSupport] = Pickle.macroR
+    export codecs.{*, given}
 
 case class DiagnosticClientCapabilities(
   dynamicRegistration: Boolean,
   relatedDocumentSupport: Boolean
 )
 object DiagnosticClientCapabilities:
-  given upickle.default.Reader[DiagnosticClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[DiagnosticClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class NotebookDocumentSyncClientCapabilities(
   dynamicRegistration: Boolean,
   executionSummarySupport: Boolean
 )
 object NotebookDocumentSyncClientCapabilities:
-  given upickle.default.Reader[NotebookDocumentSyncClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[NotebookDocumentSyncClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class ShowMessageRequestClientCapabilities(
   messageActionItem: ShowMessageRequestClientCapabilities.MessageActionItem
 )
 object ShowMessageRequestClientCapabilities:
-  given upickle.default.Reader[ShowMessageRequestClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ShowMessageRequestClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
   case class MessageActionItem(
     additionalPropertiesSupport: Boolean
   )
   object MessageActionItem:
-    given upickle.default.Reader[MessageActionItem] = Pickle.macroR
+    object codecs:
+      given upickle.default.Reader[MessageActionItem] = Pickle.macroR
+    export codecs.{*, given}
 
 case class ShowDocumentClientCapabilities(
   support: Boolean
 )
 object ShowDocumentClientCapabilities:
-  given upickle.default.Reader[ShowDocumentClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[ShowDocumentClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class RegularExpressionsClientCapabilities(
   engine: String,
   version: String
 )
 object RegularExpressionsClientCapabilities:
-  given upickle.default.Reader[RegularExpressionsClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[RegularExpressionsClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 
 case class MarkdownClientCapabilities(
   parser: String,
@@ -2757,5 +3591,7 @@ case class MarkdownClientCapabilities(
   allowedTags: Vector[String]
 )
 object MarkdownClientCapabilities:
-  given upickle.default.Reader[MarkdownClientCapabilities] = Pickle.macroR
+  object codecs:
+    given upickle.default.Reader[MarkdownClientCapabilities] = Pickle.macroR
+  export codecs.{*, given}
 

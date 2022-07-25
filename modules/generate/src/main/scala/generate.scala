@@ -8,7 +8,8 @@ import java.nio.file.Paths
 @main def generate(path: String) =
   import upickle.default.*
   import json.{*, given}
-  val mm = Manager(read[MetaModel](new File("metaModel.json")))
+  val metaModel = read[MetaModel](new File("metaModel.json"))
+  val mm = Manager(metaModel)
   val re = Render(mm)
 
   import Render.*
@@ -24,13 +25,16 @@ import java.nio.file.Paths
   println(mm.get("StaticRegistrationOptions"))
   println(mm.get("SemanticTokenOptions"))
 
-  def inFile(s: File)(f: LineBuilder => Unit) = {
+  def inFile(s: File)(f: LineBuilder => Unit) =
     val out = Render.LineBuilder()
     f(out)
     Using.resource(new FileWriter(s)) { fw =>
       fw.write(out.result)
     }
-  }
+
+  // inFile(Paths.get(path, "json.scala").toFile()) { out =>
+  //   re.json(out)
+  // }
 
   inFile(Paths.get(path, "structures.scala").toFile()) { out =>
     re.structures(out)
@@ -43,3 +47,4 @@ import java.nio.file.Paths
   inFile(Paths.get(path, "enumerations.scala").toFile()) { out =>
     re.enumerations(out)
   }
+end generate
