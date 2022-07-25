@@ -19,9 +19,12 @@ object json:
 
   extension [T](r: Reader[T]) def widen[K >: T] = r.map(_.asInstanceOf[K])
 
-  given nullReadWriter: ReadWriter[Null] = readwriter[Null]
+  given nullReadWriter: ReadWriter[Null] = nullCodec
   given constStrReader[T <: String]: Reader[T] = 
-    reader[String].asInstanceOf[Reader[T]]
+    stringCodec.asInstanceOf[Reader[T]]
+  val stringCodec = upickle.default.readwriter[String]
+  val intCodec    = upickle.default.readwriter[Int]
+  val nullCodec    = upickle.default.readwriter[Null]
 end json
 
 import scala.deriving.Mirror

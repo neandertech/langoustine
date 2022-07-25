@@ -5,6 +5,8 @@ import langoustine.*
 import upickle.default.*
 
 object RuntimeBase:
+  import langoustine.lsp.json.*
+
   opaque type DocumentUri = String
   object DocumentUri extends OpaqueString[DocumentUri]:
     given ReadWriter[DocumentUri] =
@@ -18,6 +20,4 @@ object RuntimeBase:
   object uinteger extends OpaqueInt[uinteger]:
     given ReadWriter[uinteger] = intCodec.asInstanceOf[ReadWriter[uinteger]]
 
-  private val stringCodec = upickle.default.readwriter[String]
-  private val intCodec    = upickle.default.readwriter[Int]
 end RuntimeBase

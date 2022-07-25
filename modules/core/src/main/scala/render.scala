@@ -14,10 +14,13 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
       case BaseTypes.uinteger    => "RuntimeBase.uinteger"
       case _                     => s"Any /*Base: ${bt.name}*/"
 
-  case class Context(resolve: Type.ReferenceType => TypeName)
+  case class Context(
+      resolve: Type.ReferenceType => TypeName,
+      definitionScope: String
+  )
 
   object Context:
-    def global =
+    def global(scope: String) =
       val rtFallback = (rt: Type.ReferenceType) =>
         manager
           .get(rt.name.value)
@@ -30,7 +33,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
           .map(TypeName.apply(_))
           .getOrElse(rt.name)
 
-      Context(rtFallback)
+      Context(rtFallback, scope)
     end global
   end Context
 
@@ -92,6 +95,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line("")
 
     manager.structures.foreach { s =>
+      given Context = Context.global("structures")
       structure(s, builder)
       line("")
     }
@@ -136,14 +140,14 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
   opaque type NewTypeName = String
   object NewTypeName extends OpaqueString[NewTypeName]
 
-  def structure(s: Structure, builder: LineBuilder)(using Config): Unit =
+  def structure(s: Structure, builder: LineBuilder)(using Config)(using
+      ctx: Context
+  ): Unit =
     val props = Vector.newBuilder[String]
     val inlineStructures =
       Map.newBuilder[Type.ReferenceType, (String, Type.StructureLiteralType)]
 
     inline def line: Config ?=> Appender = to(builder)
-
-    given ctx: Context = Context.global
 
     var inlineAnonymousStructures = 0
 
@@ -212,27 +216,26 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     val stls = inlineStructures.result()
     line(s"object ${s.name}:")
     nest {
-      line(s"object codecs:")
-      nest {
-        val allUnions = Vector.newBuilder[Type.OrType]
-        propTypes.result().distinct.foreach { tpe =>
-          tpe.traverse {
-            case ot: Type.OrType =>
-              allUnions += ot
-              TypeTraversal.Skip
-            case _ =>
-              TypeTraversal.Skip
-          }
+      val allUnions = Vector.newBuilder[Type.OrType]
+      propTypes.result().distinct.foreach { tpe =>
+        tpe.traverse {
+          case ot: Type.OrType =>
+            allUnions += ot
+            TypeTraversal.Skip
+          case _ =>
+            TypeTraversal.Skip
         }
-        allUnions.result().distinct.zipWithIndex.foreach { case (ot, idx) =>
-          val union = renderType(ot)
-          line(
-            s"given rd$idx: Reader[$union] = ${upickleReader(ot, Some(union))}"
-          )
-        }
-        line(s"given upickle.default.Reader[${s.name}] = Pickle.macroR")
       }
-      line("export codecs.{*, given}")
+      allUnions.result().distinct.zipWithIndex.foreach { case (ot, idx) =>
+        val union = renderType(ot)
+        line(
+          s"private val rd$idx = ${upickleReader(ot, Some(union))}"
+        )
+        line(s"given reader_rd$idx: Reader[$union] = rd$idx")
+      }
+      line(
+        s"given codec: Reader[${ctx.definitionScope}.${s.name}] = Pickle.macroR"
+      )
       stls.foreach { case (rt, (newName, stl)) =>
         val struct = Structure(
           `extends` = Vector.empty,
@@ -240,6 +243,9 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
           properties = stl.value.properties,
           name = StructureName(newName)
         )
+
+        given Context =
+          ctx.copy(definitionScope = ctx.definitionScope + "." + s.name.value)
 
         this.structure(struct, builder)
       }
@@ -252,12 +258,16 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     import Type.*
     t match
       case ot: OrType =>
-        val w            = widen.map(_ => ".widen[T]").getOrElse("")
-        val typeT = widen.map(a => s"type T = $a; ").getOrElse("")
+        val w            = widen.map(a => s".widen[${a}]").getOrElse("")
         val constituents = ot.items.map(upickleReader(_)).map(_ + w)
-        constituents.mkString(s"{${typeT}badMerge(", ", ", ")}")
-      case BaseType(_, BaseTypes.NULL) => "nullReadWriter"
-      case t                           => s"reader[${renderType(t)}]"
+        constituents.mkString(s"badMerge(", ", ", ")")
+      case BaseType(_, BaseTypes.NULL)    => "nullReadWriter"
+      case BaseType(_, BaseTypes.string)  => "stringCodec"
+      case BaseType(_, BaseTypes.integer) => "intCodec"
+      case rt @ ReferenceType(_, ref) =>
+        summon[Context].resolve(rt).value + ".codec"
+      case t => s"reader[${renderType(t)}]"
+    end match
   end upickleReader
 
   def aliases(out: LineBuilder, subPackage: String = "aliases")(using Config) =
@@ -270,7 +280,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line("import upickle.default.*")
     line("")
 
-    given ctx: Context = Context.global
+    given ctx: Context = Context.global("aliases")
 
     line(s"object $subPackage: ")
     nest {
@@ -306,11 +316,11 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         nest {
           if a.name.value == "LSPArray" then
             line(
-              s"given Reader[LSPArray] = reader[${renderType(newType)}].map(LSPArray.apply)"
+              s"given codec: Reader[LSPArray] = reader[${renderType(newType)}].map(LSPArray.apply)"
             )
           else
             line(
-              s"given upickle.default.Reader[${a.name}] = " + upickleReader(
+              s"given codec: Reader[${a.name}] = " + upickleReader(
                 newType,
                 Some(a.name.value)
               )
@@ -322,6 +332,10 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
               mixins = Vector.empty,
               properties = stl.value.properties,
               name = StructureName(newName)
+            )
+
+            given Context = ctx.copy(definitionScope =
+              ctx.definitionScope + "." + a.name.value
             )
 
             this.structure(struct, out)
@@ -341,7 +355,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line("import langoustine.*")
     line("")
 
-    given ctx: Context = Context.global
+    given ctx: Context = Context.global("enumerations")
 
     line(s"object $subPackage: ")
     nest {
@@ -363,11 +377,11 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
           nest {
             if base == ET.string then
               line(
-                s"given up.ReadWriter[${a.name}] = stringCodec.asInstanceOf[up.ReadWriter[${a.name}]]"
+                s"given codec: up.ReadWriter[${a.name}] = stringCodec.asInstanceOf[up.ReadWriter[${a.name}]]"
               )
             else
               line(
-                s"given up.ReadWriter[${a.name}] = intCodec.asInstanceOf[up.ReadWriter[${a.name}]]"
+                s"given codec: up.ReadWriter[${a.name}] = intCodec.asInstanceOf[up.ReadWriter[${a.name}]]"
               )
 
             a.values.foreach { entry =>
@@ -375,7 +389,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
                 base match
                   case ET.string => s""" "${entry.value.stringValue}" """.trim
                   case _         => entry.value.intValue.toString
-              line(s"inline val ${sanitise(entry.name.value)} = entry($value)")
+              line(s"inline def ${sanitise(entry.name.value)} = entry($value)")
             }
 
             line("")
