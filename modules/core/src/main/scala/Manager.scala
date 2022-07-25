@@ -14,42 +14,7 @@ class Manager(mm: MetaModel):
       mm.typeAliases.map(s => s.name.value -> s).toMap ++
       mm.requests.map(r => r.method.value -> r).toMap
 
-  export mm.{structures, enumerations, typeAliases as aliases}
+  export mm.{structures, enumerations, typeAliases as aliases, requests}
 
   def get(s: String) = index.get(s)
 
-// @main def tes(path: String) =
-//   import upickle.default.*
-//   import json.{*, given}
-//   val mm = Manager(read[MetaModel](new File("metaModel.json")))
-//   val re = Render(mm)
-
-//   import Render.*
-
-//   given Render.Config(indents = Indentation(0), indentSize = IndentationSize(2))
-
-//   val filter = Set("Location", "Range", "Position")
-
-//   val structuresPath = Paths.get(path, "structures.scala").toFile()
-
-//   println(mm.get("URI"))
-
-//   def inFile(s: File)(f: LineBuilder => Unit) = {
-//     val out = Render.LineBuilder()
-//     f(out)
-//     Using.resource(new FileWriter(s)) { fw =>
-//       fw.write(out.result)
-//     }
-//   }
-
-//   inFile(Paths.get(path, "structures.scala").toFile()) { out =>
-//     re.structures(out)
-//   }
-
-//   inFile(Paths.get(path, "aliases.scala").toFile()) { out =>
-//     re.aliases(out)
-//   }
-
-//   inFile(Paths.get(path, "enumerations.scala").toFile()) { out =>
-//     re.enumerations(out)
-//   }

@@ -27,7 +27,7 @@ case class ImplementationRegistrationOptions(
 )
 object ImplementationRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.ImplementationRegistrationOptions] = Pickle.macroR
 
 case class TypeDefinitionParams(
@@ -45,7 +45,7 @@ case class TypeDefinitionRegistrationOptions(
 )
 object TypeDefinitionRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.TypeDefinitionRegistrationOptions] = Pickle.macroR
 
 case class WorkspaceFolder(
@@ -94,7 +94,7 @@ case class DocumentColorRegistrationOptions(
 )
 object DocumentColorRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.DocumentColorRegistrationOptions] = Pickle.macroR
 
 case class ColorPresentationParams(
@@ -126,7 +126,7 @@ case class TextDocumentRegistrationOptions(
 )
 object TextDocumentRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.TextDocumentRegistrationOptions] = Pickle.macroR
 
 case class FoldingRangeParams(
@@ -154,7 +154,7 @@ case class FoldingRangeRegistrationOptions(
 )
 object FoldingRangeRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.FoldingRangeRegistrationOptions] = Pickle.macroR
 
 case class DeclarationParams(
@@ -172,7 +172,7 @@ case class DeclarationRegistrationOptions(
 )
 object DeclarationRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.DeclarationRegistrationOptions] = Pickle.macroR
 
 case class SelectionRangeParams(
@@ -197,7 +197,7 @@ case class SelectionRangeRegistrationOptions(
 )
 object SelectionRangeRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.SelectionRangeRegistrationOptions] = Pickle.macroR
 
 case class WorkDoneProgressCreateParams(
@@ -239,7 +239,7 @@ case class CallHierarchyRegistrationOptions(
 )
 object CallHierarchyRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.CallHierarchyRegistrationOptions] = Pickle.macroR
 
 case class CallHierarchyIncomingCallsParams(
@@ -302,11 +302,11 @@ case class SemanticTokensRegistrationOptions(
 )
 object SemanticTokensRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   private val rd1 = badMerge(reader[Boolean].widen[(Boolean | SemanticTokensRegistrationOptions.S0)], SemanticTokensRegistrationOptions.S0.codec.widen[(Boolean | SemanticTokensRegistrationOptions.S0)])
-  given reader_rd1: Reader[(Boolean | SemanticTokensRegistrationOptions.S0)] = rd1
+  private given reader_rd1: Reader[(Boolean | SemanticTokensRegistrationOptions.S0)] = rd1
   private val rd2 = badMerge(reader[Boolean].widen[(Boolean | SemanticTokensRegistrationOptions.S1)], SemanticTokensRegistrationOptions.S1.codec.widen[(Boolean | SemanticTokensRegistrationOptions.S1)])
-  given reader_rd2: Reader[(Boolean | SemanticTokensRegistrationOptions.S1)] = rd2
+  private given reader_rd2: Reader[(Boolean | SemanticTokensRegistrationOptions.S1)] = rd2
   given codec: Reader[structures.SemanticTokensRegistrationOptions] = Pickle.macroR
   case class S0(
   )
@@ -385,7 +385,7 @@ case class LinkedEditingRangeRegistrationOptions(
 )
 object LinkedEditingRangeRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.LinkedEditingRangeRegistrationOptions] = Pickle.macroR
 
 case class CreateFilesParams(
@@ -401,7 +401,7 @@ case class WorkspaceEdit(
 )
 object WorkspaceEdit:
   private val rd0 = badMerge(structures.TextDocumentEdit.codec.widen[(structures.TextDocumentEdit | structures.CreateFile | structures.RenameFile | structures.DeleteFile)], structures.CreateFile.codec.widen[(structures.TextDocumentEdit | structures.CreateFile | structures.RenameFile | structures.DeleteFile)], structures.RenameFile.codec.widen[(structures.TextDocumentEdit | structures.CreateFile | structures.RenameFile | structures.DeleteFile)], structures.DeleteFile.codec.widen[(structures.TextDocumentEdit | structures.CreateFile | structures.RenameFile | structures.DeleteFile)])
-  given reader_rd0: Reader[(structures.TextDocumentEdit | structures.CreateFile | structures.RenameFile | structures.DeleteFile)] = rd0
+  private given reader_rd0: Reader[(structures.TextDocumentEdit | structures.CreateFile | structures.RenameFile | structures.DeleteFile)] = rd0
   given codec: Reader[structures.WorkspaceEdit] = Pickle.macroR
 
 case class FileOperationRegistrationOptions(
@@ -445,7 +445,7 @@ case class MonikerRegistrationOptions(
 )
 object MonikerRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.MonikerRegistrationOptions] = Pickle.macroR
 
 case class TypeHierarchyPrepareParams(
@@ -475,7 +475,7 @@ case class TypeHierarchyRegistrationOptions(
 )
 object TypeHierarchyRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.TypeHierarchyRegistrationOptions] = Pickle.macroR
 
 case class TypeHierarchySupertypesParams(
@@ -509,7 +509,7 @@ case class InlineValueRegistrationOptions(
 )
 object InlineValueRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.InlineValueRegistrationOptions] = Pickle.macroR
 
 case class InlayHintParams(
@@ -532,9 +532,9 @@ case class InlayHint(
 )
 object InlayHint:
   private val rd0 = badMerge(stringCodec.widen[(String | Vector[structures.InlayHintLabelPart])], reader[Vector[structures.InlayHintLabelPart]].widen[(String | Vector[structures.InlayHintLabelPart])])
-  given reader_rd0: Reader[(String | Vector[structures.InlayHintLabelPart])] = rd0
+  private given reader_rd0: Reader[(String | Vector[structures.InlayHintLabelPart])] = rd0
   private val rd1 = badMerge(stringCodec.widen[(String | structures.MarkupContent)], structures.MarkupContent.codec.widen[(String | structures.MarkupContent)])
-  given reader_rd1: Reader[(String | structures.MarkupContent)] = rd1
+  private given reader_rd1: Reader[(String | structures.MarkupContent)] = rd1
   given codec: Reader[structures.InlayHint] = Pickle.macroR
 
 case class InlayHintRegistrationOptions(
@@ -544,7 +544,7 @@ case class InlayHintRegistrationOptions(
 )
 object InlayHintRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.InlayHintRegistrationOptions] = Pickle.macroR
 
 case class DocumentDiagnosticParams(
@@ -562,7 +562,7 @@ case class DocumentDiagnosticReportPartialResult(
 )
 object DocumentDiagnosticReportPartialResult:
   private val rd0 = badMerge(structures.FullDocumentDiagnosticReport.codec.widen[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)], structures.UnchangedDocumentDiagnosticReport.codec.widen[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)])
-  given reader_rd0: Reader[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)] = rd0
+  private given reader_rd0: Reader[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)] = rd0
   given codec: Reader[structures.DocumentDiagnosticReportPartialResult] = Pickle.macroR
 
 case class DiagnosticServerCancellationData(
@@ -580,7 +580,7 @@ case class DiagnosticRegistrationOptions(
 )
 object DiagnosticRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.DiagnosticRegistrationOptions] = Pickle.macroR
 
 case class WorkspaceDiagnosticParams(
@@ -656,15 +656,15 @@ case class InitializeParams(
 )
 object InitializeParams:
   private val rd0 = badMerge(intCodec.widen[(Int | Null)], nullReadWriter.widen[(Int | Null)])
-  given reader_rd0: Reader[(Int | Null)] = rd0
+  private given reader_rd0: Reader[(Int | Null)] = rd0
   private val rd1 = badMerge(stringCodec.widen[(String | Null)], nullReadWriter.widen[(String | Null)])
-  given reader_rd1: Reader[(String | Null)] = rd1
+  private given reader_rd1: Reader[(String | Null)] = rd1
   private val rd2 = badMerge(reader[RuntimeBase.DocumentUri].widen[(RuntimeBase.DocumentUri | Null)], nullReadWriter.widen[(RuntimeBase.DocumentUri | Null)])
-  given reader_rd2: Reader[(RuntimeBase.DocumentUri | Null)] = rd2
+  private given reader_rd2: Reader[(RuntimeBase.DocumentUri | Null)] = rd2
   private val rd3 = badMerge(reader["off"].widen[("off" | "messages" | "compact" | "verbose")], reader["messages"].widen[("off" | "messages" | "compact" | "verbose")], reader["compact"].widen[("off" | "messages" | "compact" | "verbose")], reader["verbose"].widen[("off" | "messages" | "compact" | "verbose")])
-  given reader_rd3: Reader[("off" | "messages" | "compact" | "verbose")] = rd3
+  private given reader_rd3: Reader[("off" | "messages" | "compact" | "verbose")] = rd3
   private val rd4 = badMerge(reader[Vector[structures.WorkspaceFolder]].widen[(Vector[structures.WorkspaceFolder] | Null)], nullReadWriter.widen[(Vector[structures.WorkspaceFolder] | Null)])
-  given reader_rd4: Reader[(Vector[structures.WorkspaceFolder] | Null)] = rd4
+  private given reader_rd4: Reader[(Vector[structures.WorkspaceFolder] | Null)] = rd4
   given codec: Reader[structures.InitializeParams] = Pickle.macroR
   case class ClientInfo(
     name: String,
@@ -708,7 +708,7 @@ case class DidChangeConfigurationRegistrationOptions(
 )
 object DidChangeConfigurationRegistrationOptions:
   private val rd0 = badMerge(stringCodec.widen[(String | Vector[String])], reader[Vector[String]].widen[(String | Vector[String])])
-  given reader_rd0: Reader[(String | Vector[String])] = rd0
+  private given reader_rd0: Reader[(String | Vector[String])] = rd0
   given codec: Reader[structures.DidChangeConfigurationRegistrationOptions] = Pickle.macroR
 
 case class ShowMessageParams(
@@ -758,7 +758,7 @@ case class TextDocumentChangeRegistrationOptions(
 )
 object TextDocumentChangeRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.TextDocumentChangeRegistrationOptions] = Pickle.macroR
 
 case class DidCloseTextDocumentParams(
@@ -780,7 +780,7 @@ case class TextDocumentSaveRegistrationOptions(
 )
 object TextDocumentSaveRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.TextDocumentSaveRegistrationOptions] = Pickle.macroR
 
 case class WillSaveTextDocumentParams(
@@ -850,9 +850,9 @@ case class CompletionItem(
 )
 object CompletionItem:
   private val rd0 = badMerge(stringCodec.widen[(String | structures.MarkupContent)], structures.MarkupContent.codec.widen[(String | structures.MarkupContent)])
-  given reader_rd0: Reader[(String | structures.MarkupContent)] = rd0
+  private given reader_rd0: Reader[(String | structures.MarkupContent)] = rd0
   private val rd1 = badMerge(structures.TextEdit.codec.widen[(structures.TextEdit | structures.InsertReplaceEdit)], structures.InsertReplaceEdit.codec.widen[(structures.TextEdit | structures.InsertReplaceEdit)])
-  given reader_rd1: Reader[(structures.TextEdit | structures.InsertReplaceEdit)] = rd1
+  private given reader_rd1: Reader[(structures.TextEdit | structures.InsertReplaceEdit)] = rd1
   given codec: Reader[structures.CompletionItem] = Pickle.macroR
 
 case class CompletionList(
@@ -871,7 +871,7 @@ object CompletionList:
   )
   object ItemDefaults:
     private val rd0 = badMerge(structures.Range.codec.widen[(structures.Range | ItemDefaults.S0)], ItemDefaults.S0.codec.widen[(structures.Range | ItemDefaults.S0)])
-    given reader_rd0: Reader[(structures.Range | ItemDefaults.S0)] = rd0
+    private given reader_rd0: Reader[(structures.Range | ItemDefaults.S0)] = rd0
     given codec: Reader[structures.CompletionList.ItemDefaults] = Pickle.macroR
     case class S0(
       insert: structures.Range,
@@ -889,7 +889,7 @@ case class CompletionRegistrationOptions(
 )
 object CompletionRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.CompletionRegistrationOptions] = Pickle.macroR
   case class CompletionItem(
     labelDetailsSupport: Boolean
@@ -911,7 +911,7 @@ case class Hover(
 )
 object Hover:
   private val rd0 = badMerge(structures.MarkupContent.codec.widen[(structures.MarkupContent | aliases.MarkedString | Vector[aliases.MarkedString])], aliases.MarkedString.codec.widen[(structures.MarkupContent | aliases.MarkedString | Vector[aliases.MarkedString])], reader[Vector[aliases.MarkedString]].widen[(structures.MarkupContent | aliases.MarkedString | Vector[aliases.MarkedString])])
-  given reader_rd0: Reader[(structures.MarkupContent | aliases.MarkedString | Vector[aliases.MarkedString])] = rd0
+  private given reader_rd0: Reader[(structures.MarkupContent | aliases.MarkedString | Vector[aliases.MarkedString])] = rd0
   given codec: Reader[structures.Hover] = Pickle.macroR
 
 case class HoverRegistrationOptions(
@@ -919,7 +919,7 @@ case class HoverRegistrationOptions(
 )
 object HoverRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.HoverRegistrationOptions] = Pickle.macroR
 
 case class SignatureHelpParams(
@@ -946,7 +946,7 @@ case class SignatureHelpRegistrationOptions(
 )
 object SignatureHelpRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.SignatureHelpRegistrationOptions] = Pickle.macroR
 
 case class DefinitionParams(
@@ -963,7 +963,7 @@ case class DefinitionRegistrationOptions(
 )
 object DefinitionRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.DefinitionRegistrationOptions] = Pickle.macroR
 
 case class ReferenceParams(
@@ -981,7 +981,7 @@ case class ReferenceRegistrationOptions(
 )
 object ReferenceRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.ReferenceRegistrationOptions] = Pickle.macroR
 
 case class DocumentHighlightParams(
@@ -1005,7 +1005,7 @@ case class DocumentHighlightRegistrationOptions(
 )
 object DocumentHighlightRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.DocumentHighlightRegistrationOptions] = Pickle.macroR
 
 case class DocumentSymbolParams(
@@ -1046,7 +1046,7 @@ case class DocumentSymbolRegistrationOptions(
 )
 object DocumentSymbolRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.DocumentSymbolRegistrationOptions] = Pickle.macroR
 
 case class CodeActionParams(
@@ -1092,7 +1092,7 @@ case class CodeActionRegistrationOptions(
 )
 object CodeActionRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.CodeActionRegistrationOptions] = Pickle.macroR
 
 case class WorkspaceSymbolParams(
@@ -1113,7 +1113,7 @@ case class WorkspaceSymbol(
 )
 object WorkspaceSymbol:
   private val rd0 = badMerge(structures.Location.codec.widen[(structures.Location | WorkspaceSymbol.S0)], WorkspaceSymbol.S0.codec.widen[(structures.Location | WorkspaceSymbol.S0)])
-  given reader_rd0: Reader[(structures.Location | WorkspaceSymbol.S0)] = rd0
+  private given reader_rd0: Reader[(structures.Location | WorkspaceSymbol.S0)] = rd0
   given codec: Reader[structures.WorkspaceSymbol] = Pickle.macroR
   case class S0(
     uri: RuntimeBase.DocumentUri
@@ -1149,7 +1149,7 @@ case class CodeLensRegistrationOptions(
 )
 object CodeLensRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.CodeLensRegistrationOptions] = Pickle.macroR
 
 case class DocumentLinkParams(
@@ -1175,7 +1175,7 @@ case class DocumentLinkRegistrationOptions(
 )
 object DocumentLinkRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.DocumentLinkRegistrationOptions] = Pickle.macroR
 
 case class DocumentFormattingParams(
@@ -1191,7 +1191,7 @@ case class DocumentFormattingRegistrationOptions(
 )
 object DocumentFormattingRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.DocumentFormattingRegistrationOptions] = Pickle.macroR
 
 case class DocumentRangeFormattingParams(
@@ -1208,7 +1208,7 @@ case class DocumentRangeFormattingRegistrationOptions(
 )
 object DocumentRangeFormattingRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.DocumentRangeFormattingRegistrationOptions] = Pickle.macroR
 
 case class DocumentOnTypeFormattingParams(
@@ -1227,7 +1227,7 @@ case class DocumentOnTypeFormattingRegistrationOptions(
 )
 object DocumentOnTypeFormattingRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.DocumentOnTypeFormattingRegistrationOptions] = Pickle.macroR
 
 case class RenameParams(
@@ -1245,7 +1245,7 @@ case class RenameRegistrationOptions(
 )
 object RenameRegistrationOptions:
   private val rd0 = badMerge(aliases.DocumentSelector.codec.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
+  private given reader_rd0: Reader[(aliases.DocumentSelector | Null)] = rd0
   given codec: Reader[structures.RenameRegistrationOptions] = Pickle.macroR
 
 case class PrepareRenameParams(
@@ -1329,7 +1329,7 @@ case class CancelParams(
 )
 object CancelParams:
   private val rd0 = badMerge(intCodec.widen[(Int | String)], stringCodec.widen[(Int | String)])
-  given reader_rd0: Reader[(Int | String)] = rd0
+  private given reader_rd0: Reader[(Int | String)] = rd0
   given codec: Reader[structures.CancelParams] = Pickle.macroR
 
 case class ProgressParams(
@@ -1460,9 +1460,9 @@ case class SemanticTokensOptions(
 )
 object SemanticTokensOptions:
   private val rd0 = badMerge(reader[Boolean].widen[(Boolean | SemanticTokensOptions.S0)], SemanticTokensOptions.S0.codec.widen[(Boolean | SemanticTokensOptions.S0)])
-  given reader_rd0: Reader[(Boolean | SemanticTokensOptions.S0)] = rd0
+  private given reader_rd0: Reader[(Boolean | SemanticTokensOptions.S0)] = rd0
   private val rd1 = badMerge(reader[Boolean].widen[(Boolean | SemanticTokensOptions.S1)], SemanticTokensOptions.S1.codec.widen[(Boolean | SemanticTokensOptions.S1)])
-  given reader_rd1: Reader[(Boolean | SemanticTokensOptions.S1)] = rd1
+  private given reader_rd1: Reader[(Boolean | SemanticTokensOptions.S1)] = rd1
   given codec: Reader[structures.SemanticTokensOptions] = Pickle.macroR
   case class S0(
   )
@@ -1500,7 +1500,7 @@ case class TextDocumentEdit(
 )
 object TextDocumentEdit:
   private val rd0 = badMerge(structures.TextEdit.codec.widen[(structures.TextEdit | structures.AnnotatedTextEdit)], structures.AnnotatedTextEdit.codec.widen[(structures.TextEdit | structures.AnnotatedTextEdit)])
-  given reader_rd0: Reader[(structures.TextEdit | structures.AnnotatedTextEdit)] = rd0
+  private given reader_rd0: Reader[(structures.TextEdit | structures.AnnotatedTextEdit)] = rd0
   given codec: Reader[structures.TextDocumentEdit] = Pickle.macroR
 
 case class CreateFile(
@@ -1614,7 +1614,7 @@ case class InlayHintLabelPart(
 )
 object InlayHintLabelPart:
   private val rd0 = badMerge(stringCodec.widen[(String | structures.MarkupContent)], structures.MarkupContent.codec.widen[(String | structures.MarkupContent)])
-  given reader_rd0: Reader[(String | structures.MarkupContent)] = rd0
+  private given reader_rd0: Reader[(String | structures.MarkupContent)] = rd0
   given codec: Reader[structures.InlayHintLabelPart] = Pickle.macroR
 
 case class MarkupContent(
@@ -1639,7 +1639,7 @@ case class RelatedFullDocumentDiagnosticReport(
 )
 object RelatedFullDocumentDiagnosticReport:
   private val rd0 = badMerge(structures.FullDocumentDiagnosticReport.codec.widen[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)], structures.UnchangedDocumentDiagnosticReport.codec.widen[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)])
-  given reader_rd0: Reader[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)] = rd0
+  private given reader_rd0: Reader[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)] = rd0
   given codec: Reader[structures.RelatedFullDocumentDiagnosticReport] = Pickle.macroR
 
 case class RelatedUnchangedDocumentDiagnosticReport(
@@ -1649,7 +1649,7 @@ case class RelatedUnchangedDocumentDiagnosticReport(
 )
 object RelatedUnchangedDocumentDiagnosticReport:
   private val rd0 = badMerge(structures.FullDocumentDiagnosticReport.codec.widen[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)], structures.UnchangedDocumentDiagnosticReport.codec.widen[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)])
-  given reader_rd0: Reader[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)] = rd0
+  private given reader_rd0: Reader[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)] = rd0
   given codec: Reader[structures.RelatedUnchangedDocumentDiagnosticReport] = Pickle.macroR
 
 case class FullDocumentDiagnosticReport(
@@ -1770,13 +1770,13 @@ case class _InitializeParams(
 )
 object _InitializeParams:
   private val rd0 = badMerge(intCodec.widen[(Int | Null)], nullReadWriter.widen[(Int | Null)])
-  given reader_rd0: Reader[(Int | Null)] = rd0
+  private given reader_rd0: Reader[(Int | Null)] = rd0
   private val rd1 = badMerge(stringCodec.widen[(String | Null)], nullReadWriter.widen[(String | Null)])
-  given reader_rd1: Reader[(String | Null)] = rd1
+  private given reader_rd1: Reader[(String | Null)] = rd1
   private val rd2 = badMerge(reader[RuntimeBase.DocumentUri].widen[(RuntimeBase.DocumentUri | Null)], nullReadWriter.widen[(RuntimeBase.DocumentUri | Null)])
-  given reader_rd2: Reader[(RuntimeBase.DocumentUri | Null)] = rd2
+  private given reader_rd2: Reader[(RuntimeBase.DocumentUri | Null)] = rd2
   private val rd3 = badMerge(reader["off"].widen[("off" | "messages" | "compact" | "verbose")], reader["messages"].widen[("off" | "messages" | "compact" | "verbose")], reader["compact"].widen[("off" | "messages" | "compact" | "verbose")], reader["verbose"].widen[("off" | "messages" | "compact" | "verbose")])
-  given reader_rd3: Reader[("off" | "messages" | "compact" | "verbose")] = rd3
+  private given reader_rd3: Reader[("off" | "messages" | "compact" | "verbose")] = rd3
   given codec: Reader[structures._InitializeParams] = Pickle.macroR
   case class ClientInfo(
     name: String,
@@ -1790,7 +1790,7 @@ case class WorkspaceFoldersInitializeParams(
 )
 object WorkspaceFoldersInitializeParams:
   private val rd0 = badMerge(reader[Vector[structures.WorkspaceFolder]].widen[(Vector[structures.WorkspaceFolder] | Null)], nullReadWriter.widen[(Vector[structures.WorkspaceFolder] | Null)])
-  given reader_rd0: Reader[(Vector[structures.WorkspaceFolder] | Null)] = rd0
+  private given reader_rd0: Reader[(Vector[structures.WorkspaceFolder] | Null)] = rd0
   given codec: Reader[structures.WorkspaceFoldersInitializeParams] = Pickle.macroR
 
 case class ServerCapabilities(
@@ -1832,57 +1832,57 @@ case class ServerCapabilities(
 )
 object ServerCapabilities:
   private val rd0 = badMerge(structures.TextDocumentSyncOptions.codec.widen[(structures.TextDocumentSyncOptions | enumerations.TextDocumentSyncKind)], enumerations.TextDocumentSyncKind.codec.widen[(structures.TextDocumentSyncOptions | enumerations.TextDocumentSyncKind)])
-  given reader_rd0: Reader[(structures.TextDocumentSyncOptions | enumerations.TextDocumentSyncKind)] = rd0
+  private given reader_rd0: Reader[(structures.TextDocumentSyncOptions | enumerations.TextDocumentSyncKind)] = rd0
   private val rd1 = badMerge(structures.NotebookDocumentSyncOptions.codec.widen[(structures.NotebookDocumentSyncOptions | structures.NotebookDocumentSyncRegistrationOptions)], structures.NotebookDocumentSyncRegistrationOptions.codec.widen[(structures.NotebookDocumentSyncOptions | structures.NotebookDocumentSyncRegistrationOptions)])
-  given reader_rd1: Reader[(structures.NotebookDocumentSyncOptions | structures.NotebookDocumentSyncRegistrationOptions)] = rd1
+  private given reader_rd1: Reader[(structures.NotebookDocumentSyncOptions | structures.NotebookDocumentSyncRegistrationOptions)] = rd1
   private val rd2 = badMerge(reader[Boolean].widen[(Boolean | structures.HoverOptions)], structures.HoverOptions.codec.widen[(Boolean | structures.HoverOptions)])
-  given reader_rd2: Reader[(Boolean | structures.HoverOptions)] = rd2
+  private given reader_rd2: Reader[(Boolean | structures.HoverOptions)] = rd2
   private val rd3 = badMerge(reader[Boolean].widen[(Boolean | structures.DeclarationOptions | structures.DeclarationRegistrationOptions)], structures.DeclarationOptions.codec.widen[(Boolean | structures.DeclarationOptions | structures.DeclarationRegistrationOptions)], structures.DeclarationRegistrationOptions.codec.widen[(Boolean | structures.DeclarationOptions | structures.DeclarationRegistrationOptions)])
-  given reader_rd3: Reader[(Boolean | structures.DeclarationOptions | structures.DeclarationRegistrationOptions)] = rd3
+  private given reader_rd3: Reader[(Boolean | structures.DeclarationOptions | structures.DeclarationRegistrationOptions)] = rd3
   private val rd4 = badMerge(reader[Boolean].widen[(Boolean | structures.DefinitionOptions)], structures.DefinitionOptions.codec.widen[(Boolean | structures.DefinitionOptions)])
-  given reader_rd4: Reader[(Boolean | structures.DefinitionOptions)] = rd4
+  private given reader_rd4: Reader[(Boolean | structures.DefinitionOptions)] = rd4
   private val rd5 = badMerge(reader[Boolean].widen[(Boolean | structures.TypeDefinitionOptions | structures.TypeDefinitionRegistrationOptions)], structures.TypeDefinitionOptions.codec.widen[(Boolean | structures.TypeDefinitionOptions | structures.TypeDefinitionRegistrationOptions)], structures.TypeDefinitionRegistrationOptions.codec.widen[(Boolean | structures.TypeDefinitionOptions | structures.TypeDefinitionRegistrationOptions)])
-  given reader_rd5: Reader[(Boolean | structures.TypeDefinitionOptions | structures.TypeDefinitionRegistrationOptions)] = rd5
+  private given reader_rd5: Reader[(Boolean | structures.TypeDefinitionOptions | structures.TypeDefinitionRegistrationOptions)] = rd5
   private val rd6 = badMerge(reader[Boolean].widen[(Boolean | structures.ImplementationOptions | structures.ImplementationRegistrationOptions)], structures.ImplementationOptions.codec.widen[(Boolean | structures.ImplementationOptions | structures.ImplementationRegistrationOptions)], structures.ImplementationRegistrationOptions.codec.widen[(Boolean | structures.ImplementationOptions | structures.ImplementationRegistrationOptions)])
-  given reader_rd6: Reader[(Boolean | structures.ImplementationOptions | structures.ImplementationRegistrationOptions)] = rd6
+  private given reader_rd6: Reader[(Boolean | structures.ImplementationOptions | structures.ImplementationRegistrationOptions)] = rd6
   private val rd7 = badMerge(reader[Boolean].widen[(Boolean | structures.ReferenceOptions)], structures.ReferenceOptions.codec.widen[(Boolean | structures.ReferenceOptions)])
-  given reader_rd7: Reader[(Boolean | structures.ReferenceOptions)] = rd7
+  private given reader_rd7: Reader[(Boolean | structures.ReferenceOptions)] = rd7
   private val rd8 = badMerge(reader[Boolean].widen[(Boolean | structures.DocumentHighlightOptions)], structures.DocumentHighlightOptions.codec.widen[(Boolean | structures.DocumentHighlightOptions)])
-  given reader_rd8: Reader[(Boolean | structures.DocumentHighlightOptions)] = rd8
+  private given reader_rd8: Reader[(Boolean | structures.DocumentHighlightOptions)] = rd8
   private val rd9 = badMerge(reader[Boolean].widen[(Boolean | structures.DocumentSymbolOptions)], structures.DocumentSymbolOptions.codec.widen[(Boolean | structures.DocumentSymbolOptions)])
-  given reader_rd9: Reader[(Boolean | structures.DocumentSymbolOptions)] = rd9
+  private given reader_rd9: Reader[(Boolean | structures.DocumentSymbolOptions)] = rd9
   private val rd10 = badMerge(reader[Boolean].widen[(Boolean | structures.CodeActionOptions)], structures.CodeActionOptions.codec.widen[(Boolean | structures.CodeActionOptions)])
-  given reader_rd10: Reader[(Boolean | structures.CodeActionOptions)] = rd10
+  private given reader_rd10: Reader[(Boolean | structures.CodeActionOptions)] = rd10
   private val rd11 = badMerge(reader[Boolean].widen[(Boolean | structures.DocumentColorOptions | structures.DocumentColorRegistrationOptions)], structures.DocumentColorOptions.codec.widen[(Boolean | structures.DocumentColorOptions | structures.DocumentColorRegistrationOptions)], structures.DocumentColorRegistrationOptions.codec.widen[(Boolean | structures.DocumentColorOptions | structures.DocumentColorRegistrationOptions)])
-  given reader_rd11: Reader[(Boolean | structures.DocumentColorOptions | structures.DocumentColorRegistrationOptions)] = rd11
+  private given reader_rd11: Reader[(Boolean | structures.DocumentColorOptions | structures.DocumentColorRegistrationOptions)] = rd11
   private val rd12 = badMerge(reader[Boolean].widen[(Boolean | structures.WorkspaceSymbolOptions)], structures.WorkspaceSymbolOptions.codec.widen[(Boolean | structures.WorkspaceSymbolOptions)])
-  given reader_rd12: Reader[(Boolean | structures.WorkspaceSymbolOptions)] = rd12
+  private given reader_rd12: Reader[(Boolean | structures.WorkspaceSymbolOptions)] = rd12
   private val rd13 = badMerge(reader[Boolean].widen[(Boolean | structures.DocumentFormattingOptions)], structures.DocumentFormattingOptions.codec.widen[(Boolean | structures.DocumentFormattingOptions)])
-  given reader_rd13: Reader[(Boolean | structures.DocumentFormattingOptions)] = rd13
+  private given reader_rd13: Reader[(Boolean | structures.DocumentFormattingOptions)] = rd13
   private val rd14 = badMerge(reader[Boolean].widen[(Boolean | structures.DocumentRangeFormattingOptions)], structures.DocumentRangeFormattingOptions.codec.widen[(Boolean | structures.DocumentRangeFormattingOptions)])
-  given reader_rd14: Reader[(Boolean | structures.DocumentRangeFormattingOptions)] = rd14
+  private given reader_rd14: Reader[(Boolean | structures.DocumentRangeFormattingOptions)] = rd14
   private val rd15 = badMerge(reader[Boolean].widen[(Boolean | structures.RenameOptions)], structures.RenameOptions.codec.widen[(Boolean | structures.RenameOptions)])
-  given reader_rd15: Reader[(Boolean | structures.RenameOptions)] = rd15
+  private given reader_rd15: Reader[(Boolean | structures.RenameOptions)] = rd15
   private val rd16 = badMerge(reader[Boolean].widen[(Boolean | structures.FoldingRangeOptions | structures.FoldingRangeRegistrationOptions)], structures.FoldingRangeOptions.codec.widen[(Boolean | structures.FoldingRangeOptions | structures.FoldingRangeRegistrationOptions)], structures.FoldingRangeRegistrationOptions.codec.widen[(Boolean | structures.FoldingRangeOptions | structures.FoldingRangeRegistrationOptions)])
-  given reader_rd16: Reader[(Boolean | structures.FoldingRangeOptions | structures.FoldingRangeRegistrationOptions)] = rd16
+  private given reader_rd16: Reader[(Boolean | structures.FoldingRangeOptions | structures.FoldingRangeRegistrationOptions)] = rd16
   private val rd17 = badMerge(reader[Boolean].widen[(Boolean | structures.SelectionRangeOptions | structures.SelectionRangeRegistrationOptions)], structures.SelectionRangeOptions.codec.widen[(Boolean | structures.SelectionRangeOptions | structures.SelectionRangeRegistrationOptions)], structures.SelectionRangeRegistrationOptions.codec.widen[(Boolean | structures.SelectionRangeOptions | structures.SelectionRangeRegistrationOptions)])
-  given reader_rd17: Reader[(Boolean | structures.SelectionRangeOptions | structures.SelectionRangeRegistrationOptions)] = rd17
+  private given reader_rd17: Reader[(Boolean | structures.SelectionRangeOptions | structures.SelectionRangeRegistrationOptions)] = rd17
   private val rd18 = badMerge(reader[Boolean].widen[(Boolean | structures.CallHierarchyOptions | structures.CallHierarchyRegistrationOptions)], structures.CallHierarchyOptions.codec.widen[(Boolean | structures.CallHierarchyOptions | structures.CallHierarchyRegistrationOptions)], structures.CallHierarchyRegistrationOptions.codec.widen[(Boolean | structures.CallHierarchyOptions | structures.CallHierarchyRegistrationOptions)])
-  given reader_rd18: Reader[(Boolean | structures.CallHierarchyOptions | structures.CallHierarchyRegistrationOptions)] = rd18
+  private given reader_rd18: Reader[(Boolean | structures.CallHierarchyOptions | structures.CallHierarchyRegistrationOptions)] = rd18
   private val rd19 = badMerge(reader[Boolean].widen[(Boolean | structures.LinkedEditingRangeOptions | structures.LinkedEditingRangeRegistrationOptions)], structures.LinkedEditingRangeOptions.codec.widen[(Boolean | structures.LinkedEditingRangeOptions | structures.LinkedEditingRangeRegistrationOptions)], structures.LinkedEditingRangeRegistrationOptions.codec.widen[(Boolean | structures.LinkedEditingRangeOptions | structures.LinkedEditingRangeRegistrationOptions)])
-  given reader_rd19: Reader[(Boolean | structures.LinkedEditingRangeOptions | structures.LinkedEditingRangeRegistrationOptions)] = rd19
+  private given reader_rd19: Reader[(Boolean | structures.LinkedEditingRangeOptions | structures.LinkedEditingRangeRegistrationOptions)] = rd19
   private val rd20 = badMerge(structures.SemanticTokensOptions.codec.widen[(structures.SemanticTokensOptions | structures.SemanticTokensRegistrationOptions)], structures.SemanticTokensRegistrationOptions.codec.widen[(structures.SemanticTokensOptions | structures.SemanticTokensRegistrationOptions)])
-  given reader_rd20: Reader[(structures.SemanticTokensOptions | structures.SemanticTokensRegistrationOptions)] = rd20
+  private given reader_rd20: Reader[(structures.SemanticTokensOptions | structures.SemanticTokensRegistrationOptions)] = rd20
   private val rd21 = badMerge(reader[Boolean].widen[(Boolean | structures.MonikerOptions | structures.MonikerRegistrationOptions)], structures.MonikerOptions.codec.widen[(Boolean | structures.MonikerOptions | structures.MonikerRegistrationOptions)], structures.MonikerRegistrationOptions.codec.widen[(Boolean | structures.MonikerOptions | structures.MonikerRegistrationOptions)])
-  given reader_rd21: Reader[(Boolean | structures.MonikerOptions | structures.MonikerRegistrationOptions)] = rd21
+  private given reader_rd21: Reader[(Boolean | structures.MonikerOptions | structures.MonikerRegistrationOptions)] = rd21
   private val rd22 = badMerge(reader[Boolean].widen[(Boolean | structures.TypeHierarchyOptions | structures.TypeHierarchyRegistrationOptions)], structures.TypeHierarchyOptions.codec.widen[(Boolean | structures.TypeHierarchyOptions | structures.TypeHierarchyRegistrationOptions)], structures.TypeHierarchyRegistrationOptions.codec.widen[(Boolean | structures.TypeHierarchyOptions | structures.TypeHierarchyRegistrationOptions)])
-  given reader_rd22: Reader[(Boolean | structures.TypeHierarchyOptions | structures.TypeHierarchyRegistrationOptions)] = rd22
+  private given reader_rd22: Reader[(Boolean | structures.TypeHierarchyOptions | structures.TypeHierarchyRegistrationOptions)] = rd22
   private val rd23 = badMerge(reader[Boolean].widen[(Boolean | structures.InlineValueOptions | structures.InlineValueRegistrationOptions)], structures.InlineValueOptions.codec.widen[(Boolean | structures.InlineValueOptions | structures.InlineValueRegistrationOptions)], structures.InlineValueRegistrationOptions.codec.widen[(Boolean | structures.InlineValueOptions | structures.InlineValueRegistrationOptions)])
-  given reader_rd23: Reader[(Boolean | structures.InlineValueOptions | structures.InlineValueRegistrationOptions)] = rd23
+  private given reader_rd23: Reader[(Boolean | structures.InlineValueOptions | structures.InlineValueRegistrationOptions)] = rd23
   private val rd24 = badMerge(reader[Boolean].widen[(Boolean | structures.InlayHintOptions | structures.InlayHintRegistrationOptions)], structures.InlayHintOptions.codec.widen[(Boolean | structures.InlayHintOptions | structures.InlayHintRegistrationOptions)], structures.InlayHintRegistrationOptions.codec.widen[(Boolean | structures.InlayHintOptions | structures.InlayHintRegistrationOptions)])
-  given reader_rd24: Reader[(Boolean | structures.InlayHintOptions | structures.InlayHintRegistrationOptions)] = rd24
+  private given reader_rd24: Reader[(Boolean | structures.InlayHintOptions | structures.InlayHintRegistrationOptions)] = rd24
   private val rd25 = badMerge(structures.DiagnosticOptions.codec.widen[(structures.DiagnosticOptions | structures.DiagnosticRegistrationOptions)], structures.DiagnosticRegistrationOptions.codec.widen[(structures.DiagnosticOptions | structures.DiagnosticRegistrationOptions)])
-  given reader_rd25: Reader[(structures.DiagnosticOptions | structures.DiagnosticRegistrationOptions)] = rd25
+  private given reader_rd25: Reader[(structures.DiagnosticOptions | structures.DiagnosticRegistrationOptions)] = rd25
   given codec: Reader[structures.ServerCapabilities] = Pickle.macroR
   case class Workspace(
     workspaceFolders: structures.WorkspaceFoldersServerCapabilities,
@@ -1931,7 +1931,7 @@ case class Diagnostic(
 )
 object Diagnostic:
   private val rd0 = badMerge(intCodec.widen[(Int | String)], stringCodec.widen[(Int | String)])
-  given reader_rd0: Reader[(Int | String)] = rd0
+  private given reader_rd0: Reader[(Int | String)] = rd0
   given codec: Reader[structures.Diagnostic] = Pickle.macroR
 
 case class CompletionContext(
@@ -1994,7 +1994,7 @@ case class SignatureInformation(
 )
 object SignatureInformation:
   private val rd0 = badMerge(stringCodec.widen[(String | structures.MarkupContent)], structures.MarkupContent.codec.widen[(String | structures.MarkupContent)])
-  given reader_rd0: Reader[(String | structures.MarkupContent)] = rd0
+  private given reader_rd0: Reader[(String | structures.MarkupContent)] = rd0
   given codec: Reader[structures.SignatureInformation] = Pickle.macroR
 
 case class SignatureHelpOptions(
@@ -2138,7 +2138,7 @@ case class OptionalVersionedTextDocumentIdentifier(
 )
 object OptionalVersionedTextDocumentIdentifier:
   private val rd0 = badMerge(intCodec.widen[(Int | Null)], nullReadWriter.widen[(Int | Null)])
-  given reader_rd0: Reader[(Int | Null)] = rd0
+  private given reader_rd0: Reader[(Int | Null)] = rd0
   given codec: Reader[structures.OptionalVersionedTextDocumentIdentifier] = Pickle.macroR
 
 case class AnnotatedTextEdit(
@@ -2194,7 +2194,7 @@ case class WorkspaceFullDocumentDiagnosticReport(
 )
 object WorkspaceFullDocumentDiagnosticReport:
   private val rd0 = badMerge(intCodec.widen[(Int | Null)], nullReadWriter.widen[(Int | Null)])
-  given reader_rd0: Reader[(Int | Null)] = rd0
+  private given reader_rd0: Reader[(Int | Null)] = rd0
   given codec: Reader[structures.WorkspaceFullDocumentDiagnosticReport] = Pickle.macroR
 
 case class WorkspaceUnchangedDocumentDiagnosticReport(
@@ -2205,7 +2205,7 @@ case class WorkspaceUnchangedDocumentDiagnosticReport(
 )
 object WorkspaceUnchangedDocumentDiagnosticReport:
   private val rd0 = badMerge(intCodec.widen[(Int | Null)], nullReadWriter.widen[(Int | Null)])
-  given reader_rd0: Reader[(Int | Null)] = rd0
+  private given reader_rd0: Reader[(Int | Null)] = rd0
   given codec: Reader[structures.WorkspaceUnchangedDocumentDiagnosticReport] = Pickle.macroR
 
 case class LSPObject(
@@ -2250,7 +2250,7 @@ case class TextDocumentSyncOptions(
 )
 object TextDocumentSyncOptions:
   private val rd0 = badMerge(reader[Boolean].widen[(Boolean | structures.SaveOptions)], structures.SaveOptions.codec.widen[(Boolean | structures.SaveOptions)])
-  given reader_rd0: Reader[(Boolean | structures.SaveOptions)] = rd0
+  private given reader_rd0: Reader[(Boolean | structures.SaveOptions)] = rd0
   given codec: Reader[structures.TextDocumentSyncOptions] = Pickle.macroR
 
 case class NotebookDocumentSyncOptions(
@@ -2259,7 +2259,7 @@ case class NotebookDocumentSyncOptions(
 )
 object NotebookDocumentSyncOptions:
   private val rd0 = badMerge(NotebookDocumentSyncOptions.S0.codec.widen[(NotebookDocumentSyncOptions.S0 | NotebookDocumentSyncOptions.S1)], NotebookDocumentSyncOptions.S1.codec.widen[(NotebookDocumentSyncOptions.S0 | NotebookDocumentSyncOptions.S1)])
-  given reader_rd0: Reader[(NotebookDocumentSyncOptions.S0 | NotebookDocumentSyncOptions.S1)] = rd0
+  private given reader_rd0: Reader[(NotebookDocumentSyncOptions.S0 | NotebookDocumentSyncOptions.S1)] = rd0
   given codec: Reader[structures.NotebookDocumentSyncOptions] = Pickle.macroR
   case class S0(
     notebook: (String | aliases.NotebookDocumentFilter),
@@ -2267,7 +2267,7 @@ object NotebookDocumentSyncOptions:
   )
   object S0:
     private val rd0 = badMerge(stringCodec.widen[(String | aliases.NotebookDocumentFilter)], aliases.NotebookDocumentFilter.codec.widen[(String | aliases.NotebookDocumentFilter)])
-    given reader_rd0: Reader[(String | aliases.NotebookDocumentFilter)] = rd0
+    private given reader_rd0: Reader[(String | aliases.NotebookDocumentFilter)] = rd0
     given codec: Reader[structures.NotebookDocumentSyncOptions.S0] = Pickle.macroR
     case class S0(
       language: String
@@ -2280,7 +2280,7 @@ object NotebookDocumentSyncOptions:
   )
   object S1:
     private val rd0 = badMerge(stringCodec.widen[(String | aliases.NotebookDocumentFilter)], aliases.NotebookDocumentFilter.codec.widen[(String | aliases.NotebookDocumentFilter)])
-    given reader_rd0: Reader[(String | aliases.NotebookDocumentFilter)] = rd0
+    private given reader_rd0: Reader[(String | aliases.NotebookDocumentFilter)] = rd0
     given codec: Reader[structures.NotebookDocumentSyncOptions.S1] = Pickle.macroR
     case class S0(
       language: String
@@ -2295,7 +2295,7 @@ case class NotebookDocumentSyncRegistrationOptions(
 )
 object NotebookDocumentSyncRegistrationOptions:
   private val rd0 = badMerge(NotebookDocumentSyncRegistrationOptions.S0.codec.widen[(NotebookDocumentSyncRegistrationOptions.S0 | NotebookDocumentSyncRegistrationOptions.S1)], NotebookDocumentSyncRegistrationOptions.S1.codec.widen[(NotebookDocumentSyncRegistrationOptions.S0 | NotebookDocumentSyncRegistrationOptions.S1)])
-  given reader_rd0: Reader[(NotebookDocumentSyncRegistrationOptions.S0 | NotebookDocumentSyncRegistrationOptions.S1)] = rd0
+  private given reader_rd0: Reader[(NotebookDocumentSyncRegistrationOptions.S0 | NotebookDocumentSyncRegistrationOptions.S1)] = rd0
   given codec: Reader[structures.NotebookDocumentSyncRegistrationOptions] = Pickle.macroR
   case class S0(
     notebook: (String | aliases.NotebookDocumentFilter),
@@ -2303,7 +2303,7 @@ object NotebookDocumentSyncRegistrationOptions:
   )
   object S0:
     private val rd0 = badMerge(stringCodec.widen[(String | aliases.NotebookDocumentFilter)], aliases.NotebookDocumentFilter.codec.widen[(String | aliases.NotebookDocumentFilter)])
-    given reader_rd0: Reader[(String | aliases.NotebookDocumentFilter)] = rd0
+    private given reader_rd0: Reader[(String | aliases.NotebookDocumentFilter)] = rd0
     given codec: Reader[structures.NotebookDocumentSyncRegistrationOptions.S0] = Pickle.macroR
     case class S0(
       language: String
@@ -2316,7 +2316,7 @@ object NotebookDocumentSyncRegistrationOptions:
   )
   object S1:
     private val rd0 = badMerge(stringCodec.widen[(String | aliases.NotebookDocumentFilter)], aliases.NotebookDocumentFilter.codec.widen[(String | aliases.NotebookDocumentFilter)])
-    given reader_rd0: Reader[(String | aliases.NotebookDocumentFilter)] = rd0
+    private given reader_rd0: Reader[(String | aliases.NotebookDocumentFilter)] = rd0
     given codec: Reader[structures.NotebookDocumentSyncRegistrationOptions.S1] = Pickle.macroR
     case class S0(
       language: String
@@ -2330,7 +2330,7 @@ case class WorkspaceFoldersServerCapabilities(
 )
 object WorkspaceFoldersServerCapabilities:
   private val rd0 = badMerge(stringCodec.widen[(String | Boolean)], reader[Boolean].widen[(String | Boolean)])
-  given reader_rd0: Reader[(String | Boolean)] = rd0
+  private given reader_rd0: Reader[(String | Boolean)] = rd0
   given codec: Reader[structures.WorkspaceFoldersServerCapabilities] = Pickle.macroR
 
 case class FileOperationOptions(
@@ -2368,9 +2368,9 @@ case class ParameterInformation(
 )
 object ParameterInformation:
   private val rd0 = badMerge(stringCodec.widen[(String | (RuntimeBase.uinteger, RuntimeBase.uinteger))], reader[(RuntimeBase.uinteger, RuntimeBase.uinteger)].widen[(String | (RuntimeBase.uinteger, RuntimeBase.uinteger))])
-  given reader_rd0: Reader[(String | (RuntimeBase.uinteger, RuntimeBase.uinteger))] = rd0
+  private given reader_rd0: Reader[(String | (RuntimeBase.uinteger, RuntimeBase.uinteger))] = rd0
   private val rd1 = badMerge(stringCodec.widen[(String | structures.MarkupContent)], structures.MarkupContent.codec.widen[(String | structures.MarkupContent)])
-  given reader_rd1: Reader[(String | structures.MarkupContent)] = rd1
+  private given reader_rd1: Reader[(String | structures.MarkupContent)] = rd1
   given codec: Reader[structures.ParameterInformation] = Pickle.macroR
 
 case class NotebookCellTextDocumentFilter(
@@ -2379,7 +2379,7 @@ case class NotebookCellTextDocumentFilter(
 )
 object NotebookCellTextDocumentFilter:
   private val rd0 = badMerge(stringCodec.widen[(String | aliases.NotebookDocumentFilter)], aliases.NotebookDocumentFilter.codec.widen[(String | aliases.NotebookDocumentFilter)])
-  given reader_rd0: Reader[(String | aliases.NotebookDocumentFilter)] = rd0
+  private given reader_rd0: Reader[(String | aliases.NotebookDocumentFilter)] = rd0
   given codec: Reader[structures.NotebookCellTextDocumentFilter] = Pickle.macroR
 
 case class FileOperationPatternOptions(
@@ -2484,7 +2484,7 @@ case class RelativePattern(
 )
 object RelativePattern:
   private val rd0 = badMerge(structures.WorkspaceFolder.codec.widen[(structures.WorkspaceFolder | aliases.URI)], aliases.URI.codec.widen[(structures.WorkspaceFolder | aliases.URI)])
-  given reader_rd0: Reader[(structures.WorkspaceFolder | aliases.URI)] = rd0
+  private given reader_rd0: Reader[(structures.WorkspaceFolder | aliases.URI)] = rd0
   given codec: Reader[structures.RelativePattern] = Pickle.macroR
 
 case class WorkspaceEditClientCapabilities(
@@ -2872,9 +2872,9 @@ object SemanticTokensClientCapabilities:
   )
   object Requests:
     private val rd0 = badMerge(reader[Boolean].widen[(Boolean | Requests.S0)], Requests.S0.codec.widen[(Boolean | Requests.S0)])
-    given reader_rd0: Reader[(Boolean | Requests.S0)] = rd0
+    private given reader_rd0: Reader[(Boolean | Requests.S0)] = rd0
     private val rd1 = badMerge(reader[Boolean].widen[(Boolean | Requests.S1)], Requests.S1.codec.widen[(Boolean | Requests.S1)])
-    given reader_rd1: Reader[(Boolean | Requests.S1)] = rd1
+    private given reader_rd1: Reader[(Boolean | Requests.S1)] = rd1
     given codec: Reader[structures.SemanticTokensClientCapabilities.Requests] = Pickle.macroR
     case class S0(
     )

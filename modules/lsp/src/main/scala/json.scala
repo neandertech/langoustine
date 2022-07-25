@@ -5,13 +5,17 @@ import upickle.default.*
 import scala.util.NotGiven
 
 object json:
+  private val valueReader = upickle.default.readwriter[ujson.Value]
   def badMerge[T](r1: Reader[T], rest: Reader[T]*): Reader[T] =
-    upickle.default.reader[ujson.Value].map { json =>
+    valueReader.map { json =>
       var t: T | Null = null
       (r1 +: rest).foreach { reader =>
+        println(json)
         if t == null then
-          try t = upickle.default.read[T](json)(using reader)
-          catch case exc => ()
+          try t = read[T](json)(using reader)
+          catch
+            case exc =>
+              println(exc)
 
       }
       if t != null then t.nn else throw new LSPError.FailureParsing(json)
@@ -20,11 +24,14 @@ object json:
   extension [T](r: Reader[T]) def widen[K >: T] = r.map(_.asInstanceOf[K])
 
   given nullReadWriter: ReadWriter[Null] = nullCodec
-  given constStrReader[T <: String]: Reader[T] = 
+
+  given constStrReader[T <: String](using NotGiven[T =:= String]): Reader[T] =
     stringCodec.asInstanceOf[Reader[T]]
-  val stringCodec = upickle.default.readwriter[String]
-  val intCodec    = upickle.default.readwriter[Int]
-  val nullCodec    = upickle.default.readwriter[Null]
+
+  val stringCodec = summon[ReadWriter[String]]
+  val intCodec    = summon[ReadWriter[Int]]
+  val nullCodec   = readwriter[Null]
+  val unitReader  = summon[ReadWriter[Unit]]
 end json
 
 import scala.deriving.Mirror

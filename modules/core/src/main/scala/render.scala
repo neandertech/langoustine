@@ -82,6 +82,92 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     if prohibited(name) then s"`$name`" else name
   end sanitise
 
+  def requests(builder: LineBuilder, subPackage: String = "requests")(using
+      Config
+  ): Unit =
+    inline def line: Config ?=> Appender = to(builder)
+    line(s"package $packageName")
+    line(s"package $subPackage")
+    line("")
+    line("import langoustine.*")
+    line("import upickle.default.*")
+    line("import langoustine.lsp.json.{*, given}")
+    line("")
+
+    var currentScope = List.empty[String]
+
+    given Context = Context.global("requests")
+
+    extension (req: Request)
+      inline def segs = req.method.value.split("/").toList
+      inline def name = req.segs.last
+
+    def renderParams(p: ParamsType) =
+      p match
+        case ParamsType.None      => "Unit"
+        case ParamsType.Single(t) => renderType(t)
+        case ParamsType.Many(t)   => t.map(renderType).mkString("(", ", ", ")")
+
+    def renderReq(req: Request)(using Config) =
+      line(s"object ${req.name} extends LSPRequest(\"${req.method.value}\"):")
+      nest {
+        line(s"type In = ${renderParams(req.params)}")
+        line(s"type Out = ${renderType(req.result)}")
+
+        val reader = req.params match
+          case ParamsType.None      => "unitReader"
+          case ParamsType.Single(t) => upickleReader(t, Some("In"))
+          case ParamsType.Many(t)   => "Pickle.macroR"
+
+        line(s"given reader: Reader[In] = $reader")
+        line(s"given writer: Writer[Out] = ???")
+      }
+      line("")
+    end renderReq
+
+    def rec(segments: List[String])(using Config): Unit =
+      segments match
+        case Nil => ()
+        case h :: t =>
+          line(s"object $h:")
+          nest { rec(t) }
+
+    val sorted = manager.requests.sortBy(_.method.value)
+    val names  = sorted.map(_.method.value.split("/").toList).toSet
+
+    sorted.zipWithIndex.foreach { (req, i) =>
+      val segs = req.segs
+
+      val next = if i < sorted.size - 1 then Some(sorted(i + 1)) else None
+
+      if segs.size == 1 then renderReq(req)
+      else
+        val last :: reversedFront = segs.reverse
+        val front                 = reversedFront.reverse
+
+        if front != currentScope then
+          val same =
+            currentScope.zip(front).takeWhile((a, b) => a == b).map(_._1)
+
+          val nein =
+            val prev = segs.dropRight(1)
+            if names.contains(prev) then 1
+            else 0
+
+          deep(same.size) {
+            rec(front.drop(same.size).dropRight(nein))
+          }
+          currentScope = front
+        end if
+
+        deep(currentScope.size) {
+          renderReq(req)
+        }
+      end if
+    }
+
+  end requests
+
   def structures(builder: LineBuilder, subPackage: String = "structures")(using
       Config
   ): Unit =
@@ -231,7 +317,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         line(
           s"private val rd$idx = ${upickleReader(ot, Some(union))}"
         )
-        line(s"given reader_rd$idx: Reader[$union] = rd$idx")
+        line(s"private given reader_rd$idx: Reader[$union] = rd$idx")
       }
       line(
         s"given codec: Reader[${ctx.definitionScope}.${s.name}] = Pickle.macroR"
@@ -314,17 +400,34 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         val stls = inlineStructures.result()
         line(s"object ${a.name}:")
         nest {
+          val allUnions = Vector.newBuilder[Type.OrType]
+          newType.traverse {
+            case ot: Type.OrType =>
+              allUnions += ot
+              TypeTraversal.Skip
+            case _ =>
+              TypeTraversal.Skip
+          }
+          allUnions.result().distinct.zipWithIndex.foreach { case (ot, idx) =>
+            val union = renderType(ot)
+            line(
+              s"private val rd$idx = ${upickleReader(ot, Some(union))}"
+            )
+            line(s"private given reader_rd$idx: Reader[$union] = rd$idx")
+          }
+
           if a.name.value == "LSPArray" then
             line(
               s"given codec: Reader[LSPArray] = reader[${renderType(newType)}].map(LSPArray.apply)"
             )
           else
             line(
-              s"given codec: Reader[${a.name}] = " + upickleReader(
+              s"private val _codec: Reader[${a.name}] = " + upickleReader(
                 newType,
                 Some(a.name.value)
               )
             )
+            line(s"given codec: Reader[${a.name}] = _codec")
           end if
           stls.foreach { case (rt, (newName, stl)) =>
             val struct = Structure(
@@ -435,6 +538,9 @@ object Render:
 
   def nest(f: Config ?=> Unit)(using config: Config) =
     f(using config.copy(indents = config.indents.map(_ + 1)))
+
+  def deep(count: Int)(f: Config ?=> Unit)(using config: Config) =
+    f(using config.copy(indents = config.indents.map(_ + count)))
 
   def to(sb: LineBuilder)(using config: Config): Appender =
     import LineBuilder.*

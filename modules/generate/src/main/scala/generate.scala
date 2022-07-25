@@ -9,21 +9,14 @@ import java.nio.file.Paths
   import upickle.default.*
   import json.{*, given}
   val metaModel = read[MetaModel](new File("metaModel.json"))
-  val mm = Manager(metaModel)
-  val re = Render(mm)
+  val mm        = Manager(metaModel)
+  val re        = Render(mm)
 
   import Render.*
 
   given Render.Config(indents = Indentation(0), indentSize = IndentationSize(2))
 
-  val filter = Set("Location", "Range", "Position")
-
-  val structuresPath = Paths.get(path, "structures.scala").toFile()
-
-  println(mm.get("SemanticTokensRegistrationOptions"))
-  println(mm.get("TextDocumentRegistrationOptions"))
-  println(mm.get("StaticRegistrationOptions"))
-  println(mm.get("SemanticTokenOptions"))
+  // metaModel.requests.foreach(println)
 
   def inFile(s: File)(f: LineBuilder => Unit) =
     val out = Render.LineBuilder()
@@ -32,9 +25,9 @@ import java.nio.file.Paths
       fw.write(out.result)
     }
 
-  // inFile(Paths.get(path, "json.scala").toFile()) { out =>
-  //   re.json(out)
-  // }
+  inFile(Paths.get(path, "requests.scala").toFile()) { out =>
+    re.requests(out)
+  }
 
   inFile(Paths.get(path, "structures.scala").toFile()) { out =>
     re.structures(out)
