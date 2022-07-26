@@ -23,15 +23,18 @@ object json:
 
   extension [T](r: Reader[T]) def widen[K >: T] = r.map(_.asInstanceOf[K])
 
-  given nullReadWriter: ReadWriter[Null] = nullCodec
+  val nullReadWriter: ReadWriter[Null] =
+    readwriter[ujson.Value].bimap[Null](_ => ujson.Null, _ => null)
 
   given constStrReader[T <: String](using NotGiven[T =:= String]): Reader[T] =
     stringCodec.asInstanceOf[Reader[T]]
+  
+  given constStrWriter[T <: String](using NotGiven[T =:= String]): Writer[T] =
+    stringCodec.asInstanceOf[Writer[T]]
 
   val stringCodec = summon[ReadWriter[String]]
   val intCodec    = summon[ReadWriter[Int]]
-  val nullCodec   = readwriter[Null]
-  val unitReader  = summon[ReadWriter[Unit]]
+  val unitReader = summon[ReadWriter[Unit]]
 end json
 
 import scala.deriving.Mirror

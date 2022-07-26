@@ -119,8 +119,12 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
           case ParamsType.Single(t) => upickleReader(t, Some("In"))
           case ParamsType.Many(t)   => "Pickle.macroR"
 
-        line(s"given reader: Reader[In] = $reader")
-        line(s"given writer: Writer[Out] = ???")
+        line(s"private val _reader: Reader[In] = $reader")
+        line(s"given reader: Reader[In] = _reader")
+        line(
+          s"private val _writer: Writer[Out] = ${upickleWriter(req.result, Some("Out"))}"
+        )
+        line(s"given writer: Writer[Out] = _writer")
       }
       line("")
     end renderReq
@@ -318,9 +322,16 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
           s"private val rd$idx = ${upickleReader(ot, Some(union))}"
         )
         line(s"private given reader_rd$idx: Reader[$union] = rd$idx")
+        line(
+          s"private val wt$idx = ${upickleWriter(ot, Some(union))}"
+        )
+        line(s"private given writer_wt$idx: Writer[$union] = wt$idx")
       }
       line(
-        s"given codec: Reader[${ctx.definitionScope}.${s.name}] = Pickle.macroR"
+        s"given reader: Reader[${ctx.definitionScope}.${s.name}] = Pickle.macroR"
+      )
+      line(
+        s"given writer: Writer[${ctx.definitionScope}.${s.name}] = upickle.default.macroW"
       )
       stls.foreach { case (rt, (newName, stl)) =>
         val struct = Structure(
@@ -351,10 +362,43 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
       case BaseType(_, BaseTypes.string)  => "stringCodec"
       case BaseType(_, BaseTypes.integer) => "intCodec"
       case rt @ ReferenceType(_, ref) =>
-        summon[Context].resolve(rt).value + ".codec"
-      case t => s"reader[${renderType(t)}]"
+        summon[Context].resolve(rt).value + ".reader"
+      case t => s"upickle.default.reader[${renderType(t)}]"
     end match
   end upickleReader
+
+  def upickleWriter(t: Type, widen: Option[String] = None)(using
+      Context
+  ): String =
+    import Type.*
+    t match
+      case ot: OrType =>
+        val w            = widen.map(a => s"[$a]").getOrElse("")
+        val constituents = ot.items
+
+        val shouldAddWildcard = 
+          constituents.collectFirst {
+            case BaseType(_, BaseTypes.uinteger | BaseTypes.Uri | BaseTypes.DocumentUri) => true
+          }.isDefined
+
+        s"upickle.default.writer[ujson.Value].comap$w {" + (constituents
+          .map {
+            case BaseType(_, BaseTypes.NULL) =>
+              "case null => ujson.Null"
+            case t =>
+              s"case v: ${renderType(t)} => write(v)(using ${upickleWriter(t)})"
+          }
+          .appended(if shouldAddWildcard then "case _ => ???" else "")
+          .mkString("; ")) +
+          "}"
+      case BaseType(_, BaseTypes.NULL)    => "nullReadWriter"
+      case BaseType(_, BaseTypes.string)  => "stringCodec"
+      case BaseType(_, BaseTypes.integer) => "intCodec"
+      case rt @ ReferenceType(_, ref) =>
+        summon[Context].resolve(rt).value + ".writer"
+      case t => s"upickle.default.writer[${renderType(t)}]"
+    end match
+  end upickleWriter
 
   def aliases(out: LineBuilder, subPackage: String = "aliases")(using Config) =
     inline def line: Config ?=> Appender = to(out)
@@ -414,20 +458,36 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
               s"private val rd$idx = ${upickleReader(ot, Some(union))}"
             )
             line(s"private given reader_rd$idx: Reader[$union] = rd$idx")
+
+            line(
+              s"private val wt$idx = ${upickleWriter(ot, Some(union))}"
+            )
+            line(s"private given writer_wt$idx: Writer[$union] = wt$idx")
           }
 
           if a.name.value == "LSPArray" then
+            line(s"import LSPAny.given")
             line(
-              s"given codec: Reader[LSPArray] = reader[${renderType(newType)}].map(LSPArray.apply)"
+              s"given reader: Reader[LSPArray] = upickle.default.reader[${renderType(newType)}].map(LSPArray.apply)"
+            )
+            line(
+              s"given writer: Writer[LSPArray] = upickle.default.writer[${renderType(newType)}].comap(_.elements)"
             )
           else
             line(
-              s"private val _codec: Reader[${a.name}] = " + upickleReader(
+              s"private val _reader: Reader[${a.name}] = " + upickleReader(
                 newType,
                 Some(a.name.value)
               )
             )
-            line(s"given codec: Reader[${a.name}] = _codec")
+            line(
+              s"private val _writer: Writer[${a.name}] = " + upickleWriter(
+                newType,
+                Some(a.name.value)
+              )
+            )
+            line(s"given reader: Reader[${a.name}] = _reader")
+            line(s"given writer: Writer[${a.name}] = _writer")
           end if
           stls.foreach { case (rt, (newName, stl)) =>
             val struct = Structure(
@@ -444,6 +504,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
             this.structure(struct, out)
           }
         }
+        line("")
       }
     }
   end aliases
@@ -480,12 +541,19 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
           nest {
             if base == ET.string then
               line(
-                s"given codec: up.ReadWriter[${a.name}] = stringCodec.asInstanceOf[up.ReadWriter[${a.name}]]"
+                s"given reader: up.Reader[${a.name}] = stringCodec.asInstanceOf[up.Reader[${a.name}]]"
+              )
+              line(
+                s"given writer: up.Writer[${a.name}] = stringCodec.asInstanceOf[up.Writer[${a.name}]]"
               )
             else
               line(
-                s"given codec: up.ReadWriter[${a.name}] = intCodec.asInstanceOf[up.ReadWriter[${a.name}]]"
+                s"given reader: up.Reader[${a.name}] = intCodec.asInstanceOf[up.Reader[${a.name}]]"
               )
+              line(
+                s"given writer: up.Writer[${a.name}] = intCodec.asInstanceOf[up.Writer[${a.name}]]"
+              )
+            end if
 
             a.values.foreach { entry =>
               val value =
