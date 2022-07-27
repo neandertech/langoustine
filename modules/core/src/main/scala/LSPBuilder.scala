@@ -12,4 +12,6 @@ trait LSPBuilder[F[_]]:
       f: (t.In, X) => F[t.Out | LSPError]
   ): LSPBuilder[F]
 
+  def handleRest(f: [X <: LSPRequest] => X => F[Unit | LSPError]) = ???
+
   def build: JSONRPC.RequestMessage => F[JSONRPC.ResponseMessage]

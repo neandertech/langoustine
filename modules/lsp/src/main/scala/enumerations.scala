@@ -1,6 +1,7 @@
 package langoustine.lsp
 
 import langoustine.*
+import scala.reflect.Typeable
 
 object enumerations: 
   private val stringCodec = upickle.default.readwriter[String]
@@ -10,6 +11,11 @@ object enumerations:
   object SemanticTokenTypes:
     given reader: up.Reader[SemanticTokenTypes] = stringCodec.asInstanceOf[up.Reader[SemanticTokenTypes]]
     given writer: up.Writer[SemanticTokenTypes] = stringCodec.asInstanceOf[up.Writer[SemanticTokenTypes]]
+    given Typeable[SemanticTokenTypes] with
+      def unapply(s: Any): Option[s.type & SemanticTokenTypes] = 
+        s match
+        case c: String => Some(c.asInstanceOf[s.type & String])
+        case _ => Option.empty
     inline def namespace = entry("namespace")
     inline def `type` = entry("type")
     inline def `class` = entry("class")
@@ -40,6 +46,11 @@ object enumerations:
   object SemanticTokenModifiers:
     given reader: up.Reader[SemanticTokenModifiers] = stringCodec.asInstanceOf[up.Reader[SemanticTokenModifiers]]
     given writer: up.Writer[SemanticTokenModifiers] = stringCodec.asInstanceOf[up.Writer[SemanticTokenModifiers]]
+    given Typeable[SemanticTokenModifiers] with
+      def unapply(s: Any): Option[s.type & SemanticTokenModifiers] = 
+        s match
+        case c: String => Some(c.asInstanceOf[s.type & String])
+        case _ => Option.empty
     inline def declaration = entry("declaration")
     inline def definition = entry("definition")
     inline def readonly = entry("readonly")
@@ -57,6 +68,11 @@ object enumerations:
   object ErrorCodes:
     given reader: up.Reader[ErrorCodes] = intCodec.asInstanceOf[up.Reader[ErrorCodes]]
     given writer: up.Writer[ErrorCodes] = intCodec.asInstanceOf[up.Writer[ErrorCodes]]
+    given Typeable[ErrorCodes] with
+      def unapply(s: Any): Option[s.type & ErrorCodes] = 
+        s match
+        case c: Int => Some(c.asInstanceOf[s.type & Int])
+        case _ => Option.empty
     inline def ParseError = entry(-32700)
     inline def InvalidRequest = entry(-32600)
     inline def MethodNotFound = entry(-32601)
@@ -75,6 +91,11 @@ object enumerations:
   object LSPErrorCodes:
     given reader: up.Reader[LSPErrorCodes] = intCodec.asInstanceOf[up.Reader[LSPErrorCodes]]
     given writer: up.Writer[LSPErrorCodes] = intCodec.asInstanceOf[up.Writer[LSPErrorCodes]]
+    given Typeable[LSPErrorCodes] with
+      def unapply(s: Any): Option[s.type & LSPErrorCodes] = 
+        s match
+        case c: Int => Some(c.asInstanceOf[s.type & Int])
+        case _ => Option.empty
     inline def lspReservedErrorRangeStart = entry(-32899)
     inline def RequestFailed = entry(-32803)
     inline def ServerCancelled = entry(-32802)
@@ -88,6 +109,11 @@ object enumerations:
   object FoldingRangeKind:
     given reader: up.Reader[FoldingRangeKind] = stringCodec.asInstanceOf[up.Reader[FoldingRangeKind]]
     given writer: up.Writer[FoldingRangeKind] = stringCodec.asInstanceOf[up.Writer[FoldingRangeKind]]
+    given Typeable[FoldingRangeKind] with
+      def unapply(s: Any): Option[s.type & FoldingRangeKind] = 
+        s match
+        case c: String => Some(c.asInstanceOf[s.type & String])
+        case _ => Option.empty
     inline def Comment = entry("comment")
     inline def Imports = entry("imports")
     inline def Region = entry("region")
@@ -98,6 +124,11 @@ object enumerations:
   object SymbolKind:
     given reader: up.Reader[SymbolKind] = intCodec.asInstanceOf[up.Reader[SymbolKind]]
     given writer: up.Writer[SymbolKind] = intCodec.asInstanceOf[up.Writer[SymbolKind]]
+    given Typeable[SymbolKind] with
+      def unapply(s: Any): Option[s.type & SymbolKind] = 
+        s match
+        case c: RuntimeBase.uinteger => Some(c.asInstanceOf[s.type & RuntimeBase.uinteger])
+        case _ => Option.empty
     inline def File = entry(1)
     inline def Module = entry(2)
     inline def Namespace = entry(3)
@@ -131,6 +162,11 @@ object enumerations:
   object SymbolTag:
     given reader: up.Reader[SymbolTag] = intCodec.asInstanceOf[up.Reader[SymbolTag]]
     given writer: up.Writer[SymbolTag] = intCodec.asInstanceOf[up.Writer[SymbolTag]]
+    given Typeable[SymbolTag] with
+      def unapply(s: Any): Option[s.type & SymbolTag] = 
+        s match
+        case c: RuntimeBase.uinteger => Some(c.asInstanceOf[s.type & RuntimeBase.uinteger])
+        case _ => Option.empty
     inline def Deprecated = entry(1)
     
     private inline def entry(n: Int): SymbolTag = RuntimeBase.uinteger(n)
@@ -139,6 +175,11 @@ object enumerations:
   object UniquenessLevel:
     given reader: up.Reader[UniquenessLevel] = stringCodec.asInstanceOf[up.Reader[UniquenessLevel]]
     given writer: up.Writer[UniquenessLevel] = stringCodec.asInstanceOf[up.Writer[UniquenessLevel]]
+    given Typeable[UniquenessLevel] with
+      def unapply(s: Any): Option[s.type & UniquenessLevel] = 
+        s match
+        case c: String => Some(c.asInstanceOf[s.type & String])
+        case _ => Option.empty
     inline def document = entry("document")
     inline def project = entry("project")
     inline def group = entry("group")
@@ -151,6 +192,11 @@ object enumerations:
   object MonikerKind:
     given reader: up.Reader[MonikerKind] = stringCodec.asInstanceOf[up.Reader[MonikerKind]]
     given writer: up.Writer[MonikerKind] = stringCodec.asInstanceOf[up.Writer[MonikerKind]]
+    given Typeable[MonikerKind] with
+      def unapply(s: Any): Option[s.type & MonikerKind] = 
+        s match
+        case c: String => Some(c.asInstanceOf[s.type & String])
+        case _ => Option.empty
     inline def `import` = entry("import")
     inline def `export` = entry("export")
     inline def local = entry("local")
@@ -161,6 +207,11 @@ object enumerations:
   object InlayHintKind:
     given reader: up.Reader[InlayHintKind] = intCodec.asInstanceOf[up.Reader[InlayHintKind]]
     given writer: up.Writer[InlayHintKind] = intCodec.asInstanceOf[up.Writer[InlayHintKind]]
+    given Typeable[InlayHintKind] with
+      def unapply(s: Any): Option[s.type & InlayHintKind] = 
+        s match
+        case c: RuntimeBase.uinteger => Some(c.asInstanceOf[s.type & RuntimeBase.uinteger])
+        case _ => Option.empty
     inline def Type = entry(1)
     inline def Parameter = entry(2)
     
@@ -170,6 +221,11 @@ object enumerations:
   object MessageType:
     given reader: up.Reader[MessageType] = intCodec.asInstanceOf[up.Reader[MessageType]]
     given writer: up.Writer[MessageType] = intCodec.asInstanceOf[up.Writer[MessageType]]
+    given Typeable[MessageType] with
+      def unapply(s: Any): Option[s.type & MessageType] = 
+        s match
+        case c: RuntimeBase.uinteger => Some(c.asInstanceOf[s.type & RuntimeBase.uinteger])
+        case _ => Option.empty
     inline def Error = entry(1)
     inline def Warning = entry(2)
     inline def Info = entry(3)
@@ -181,6 +237,11 @@ object enumerations:
   object TextDocumentSyncKind:
     given reader: up.Reader[TextDocumentSyncKind] = intCodec.asInstanceOf[up.Reader[TextDocumentSyncKind]]
     given writer: up.Writer[TextDocumentSyncKind] = intCodec.asInstanceOf[up.Writer[TextDocumentSyncKind]]
+    given Typeable[TextDocumentSyncKind] with
+      def unapply(s: Any): Option[s.type & TextDocumentSyncKind] = 
+        s match
+        case c: RuntimeBase.uinteger => Some(c.asInstanceOf[s.type & RuntimeBase.uinteger])
+        case _ => Option.empty
     inline def None = entry(0)
     inline def Full = entry(1)
     inline def Incremental = entry(2)
@@ -191,6 +252,11 @@ object enumerations:
   object TextDocumentSaveReason:
     given reader: up.Reader[TextDocumentSaveReason] = intCodec.asInstanceOf[up.Reader[TextDocumentSaveReason]]
     given writer: up.Writer[TextDocumentSaveReason] = intCodec.asInstanceOf[up.Writer[TextDocumentSaveReason]]
+    given Typeable[TextDocumentSaveReason] with
+      def unapply(s: Any): Option[s.type & TextDocumentSaveReason] = 
+        s match
+        case c: RuntimeBase.uinteger => Some(c.asInstanceOf[s.type & RuntimeBase.uinteger])
+        case _ => Option.empty
     inline def Manual = entry(1)
     inline def AfterDelay = entry(2)
     inline def FocusOut = entry(3)
@@ -201,6 +267,11 @@ object enumerations:
   object CompletionItemKind:
     given reader: up.Reader[CompletionItemKind] = intCodec.asInstanceOf[up.Reader[CompletionItemKind]]
     given writer: up.Writer[CompletionItemKind] = intCodec.asInstanceOf[up.Writer[CompletionItemKind]]
+    given Typeable[CompletionItemKind] with
+      def unapply(s: Any): Option[s.type & CompletionItemKind] = 
+        s match
+        case c: RuntimeBase.uinteger => Some(c.asInstanceOf[s.type & RuntimeBase.uinteger])
+        case _ => Option.empty
     inline def Text = entry(1)
     inline def Method = entry(2)
     inline def Function = entry(3)
@@ -233,6 +304,11 @@ object enumerations:
   object CompletionItemTag:
     given reader: up.Reader[CompletionItemTag] = intCodec.asInstanceOf[up.Reader[CompletionItemTag]]
     given writer: up.Writer[CompletionItemTag] = intCodec.asInstanceOf[up.Writer[CompletionItemTag]]
+    given Typeable[CompletionItemTag] with
+      def unapply(s: Any): Option[s.type & CompletionItemTag] = 
+        s match
+        case c: RuntimeBase.uinteger => Some(c.asInstanceOf[s.type & RuntimeBase.uinteger])
+        case _ => Option.empty
     inline def Deprecated = entry(1)
     
     private inline def entry(n: Int): CompletionItemTag = RuntimeBase.uinteger(n)
@@ -241,6 +317,11 @@ object enumerations:
   object InsertTextFormat:
     given reader: up.Reader[InsertTextFormat] = intCodec.asInstanceOf[up.Reader[InsertTextFormat]]
     given writer: up.Writer[InsertTextFormat] = intCodec.asInstanceOf[up.Writer[InsertTextFormat]]
+    given Typeable[InsertTextFormat] with
+      def unapply(s: Any): Option[s.type & InsertTextFormat] = 
+        s match
+        case c: RuntimeBase.uinteger => Some(c.asInstanceOf[s.type & RuntimeBase.uinteger])
+        case _ => Option.empty
     inline def PlainText = entry(1)
     inline def Snippet = entry(2)
     
@@ -250,6 +331,11 @@ object enumerations:
   object InsertTextMode:
     given reader: up.Reader[InsertTextMode] = intCodec.asInstanceOf[up.Reader[InsertTextMode]]
     given writer: up.Writer[InsertTextMode] = intCodec.asInstanceOf[up.Writer[InsertTextMode]]
+    given Typeable[InsertTextMode] with
+      def unapply(s: Any): Option[s.type & InsertTextMode] = 
+        s match
+        case c: RuntimeBase.uinteger => Some(c.asInstanceOf[s.type & RuntimeBase.uinteger])
+        case _ => Option.empty
     inline def asIs = entry(1)
     inline def adjustIndentation = entry(2)
     
@@ -259,6 +345,11 @@ object enumerations:
   object DocumentHighlightKind:
     given reader: up.Reader[DocumentHighlightKind] = intCodec.asInstanceOf[up.Reader[DocumentHighlightKind]]
     given writer: up.Writer[DocumentHighlightKind] = intCodec.asInstanceOf[up.Writer[DocumentHighlightKind]]
+    given Typeable[DocumentHighlightKind] with
+      def unapply(s: Any): Option[s.type & DocumentHighlightKind] = 
+        s match
+        case c: RuntimeBase.uinteger => Some(c.asInstanceOf[s.type & RuntimeBase.uinteger])
+        case _ => Option.empty
     inline def Text = entry(1)
     inline def Read = entry(2)
     inline def Write = entry(3)
@@ -269,6 +360,11 @@ object enumerations:
   object CodeActionKind:
     given reader: up.Reader[CodeActionKind] = stringCodec.asInstanceOf[up.Reader[CodeActionKind]]
     given writer: up.Writer[CodeActionKind] = stringCodec.asInstanceOf[up.Writer[CodeActionKind]]
+    given Typeable[CodeActionKind] with
+      def unapply(s: Any): Option[s.type & CodeActionKind] = 
+        s match
+        case c: String => Some(c.asInstanceOf[s.type & String])
+        case _ => Option.empty
     inline def Empty = entry("")
     inline def QuickFix = entry("quickfix")
     inline def Refactor = entry("refactor")
@@ -285,6 +381,11 @@ object enumerations:
   object TraceValues:
     given reader: up.Reader[TraceValues] = stringCodec.asInstanceOf[up.Reader[TraceValues]]
     given writer: up.Writer[TraceValues] = stringCodec.asInstanceOf[up.Writer[TraceValues]]
+    given Typeable[TraceValues] with
+      def unapply(s: Any): Option[s.type & TraceValues] = 
+        s match
+        case c: String => Some(c.asInstanceOf[s.type & String])
+        case _ => Option.empty
     inline def Off = entry("off")
     inline def Messages = entry("messages")
     inline def Verbose = entry("verbose")
@@ -295,6 +396,11 @@ object enumerations:
   object MarkupKind:
     given reader: up.Reader[MarkupKind] = stringCodec.asInstanceOf[up.Reader[MarkupKind]]
     given writer: up.Writer[MarkupKind] = stringCodec.asInstanceOf[up.Writer[MarkupKind]]
+    given Typeable[MarkupKind] with
+      def unapply(s: Any): Option[s.type & MarkupKind] = 
+        s match
+        case c: String => Some(c.asInstanceOf[s.type & String])
+        case _ => Option.empty
     inline def PlainText = entry("plaintext")
     inline def Markdown = entry("markdown")
     
@@ -304,6 +410,11 @@ object enumerations:
   object PositionEncodingKind:
     given reader: up.Reader[PositionEncodingKind] = stringCodec.asInstanceOf[up.Reader[PositionEncodingKind]]
     given writer: up.Writer[PositionEncodingKind] = stringCodec.asInstanceOf[up.Writer[PositionEncodingKind]]
+    given Typeable[PositionEncodingKind] with
+      def unapply(s: Any): Option[s.type & PositionEncodingKind] = 
+        s match
+        case c: String => Some(c.asInstanceOf[s.type & String])
+        case _ => Option.empty
     inline def UTF8 = entry("utf-8")
     inline def UTF16 = entry("utf-16")
     inline def UTF32 = entry("utf-32")
@@ -314,6 +425,11 @@ object enumerations:
   object FileChangeType:
     given reader: up.Reader[FileChangeType] = intCodec.asInstanceOf[up.Reader[FileChangeType]]
     given writer: up.Writer[FileChangeType] = intCodec.asInstanceOf[up.Writer[FileChangeType]]
+    given Typeable[FileChangeType] with
+      def unapply(s: Any): Option[s.type & FileChangeType] = 
+        s match
+        case c: RuntimeBase.uinteger => Some(c.asInstanceOf[s.type & RuntimeBase.uinteger])
+        case _ => Option.empty
     inline def Created = entry(1)
     inline def Changed = entry(2)
     inline def Deleted = entry(3)
@@ -324,6 +440,11 @@ object enumerations:
   object WatchKind:
     given reader: up.Reader[WatchKind] = intCodec.asInstanceOf[up.Reader[WatchKind]]
     given writer: up.Writer[WatchKind] = intCodec.asInstanceOf[up.Writer[WatchKind]]
+    given Typeable[WatchKind] with
+      def unapply(s: Any): Option[s.type & WatchKind] = 
+        s match
+        case c: RuntimeBase.uinteger => Some(c.asInstanceOf[s.type & RuntimeBase.uinteger])
+        case _ => Option.empty
     inline def Create = entry(1)
     inline def Change = entry(2)
     inline def Delete = entry(4)
@@ -334,6 +455,11 @@ object enumerations:
   object DiagnosticSeverity:
     given reader: up.Reader[DiagnosticSeverity] = intCodec.asInstanceOf[up.Reader[DiagnosticSeverity]]
     given writer: up.Writer[DiagnosticSeverity] = intCodec.asInstanceOf[up.Writer[DiagnosticSeverity]]
+    given Typeable[DiagnosticSeverity] with
+      def unapply(s: Any): Option[s.type & DiagnosticSeverity] = 
+        s match
+        case c: RuntimeBase.uinteger => Some(c.asInstanceOf[s.type & RuntimeBase.uinteger])
+        case _ => Option.empty
     inline def Error = entry(1)
     inline def Warning = entry(2)
     inline def Information = entry(3)
@@ -345,6 +471,11 @@ object enumerations:
   object DiagnosticTag:
     given reader: up.Reader[DiagnosticTag] = intCodec.asInstanceOf[up.Reader[DiagnosticTag]]
     given writer: up.Writer[DiagnosticTag] = intCodec.asInstanceOf[up.Writer[DiagnosticTag]]
+    given Typeable[DiagnosticTag] with
+      def unapply(s: Any): Option[s.type & DiagnosticTag] = 
+        s match
+        case c: RuntimeBase.uinteger => Some(c.asInstanceOf[s.type & RuntimeBase.uinteger])
+        case _ => Option.empty
     inline def Unnecessary = entry(1)
     inline def Deprecated = entry(2)
     
@@ -354,6 +485,11 @@ object enumerations:
   object CompletionTriggerKind:
     given reader: up.Reader[CompletionTriggerKind] = intCodec.asInstanceOf[up.Reader[CompletionTriggerKind]]
     given writer: up.Writer[CompletionTriggerKind] = intCodec.asInstanceOf[up.Writer[CompletionTriggerKind]]
+    given Typeable[CompletionTriggerKind] with
+      def unapply(s: Any): Option[s.type & CompletionTriggerKind] = 
+        s match
+        case c: RuntimeBase.uinteger => Some(c.asInstanceOf[s.type & RuntimeBase.uinteger])
+        case _ => Option.empty
     inline def Invoked = entry(1)
     inline def TriggerCharacter = entry(2)
     inline def TriggerForIncompleteCompletions = entry(3)
@@ -364,6 +500,11 @@ object enumerations:
   object SignatureHelpTriggerKind:
     given reader: up.Reader[SignatureHelpTriggerKind] = intCodec.asInstanceOf[up.Reader[SignatureHelpTriggerKind]]
     given writer: up.Writer[SignatureHelpTriggerKind] = intCodec.asInstanceOf[up.Writer[SignatureHelpTriggerKind]]
+    given Typeable[SignatureHelpTriggerKind] with
+      def unapply(s: Any): Option[s.type & SignatureHelpTriggerKind] = 
+        s match
+        case c: RuntimeBase.uinteger => Some(c.asInstanceOf[s.type & RuntimeBase.uinteger])
+        case _ => Option.empty
     inline def Invoked = entry(1)
     inline def TriggerCharacter = entry(2)
     inline def ContentChange = entry(3)
@@ -374,6 +515,11 @@ object enumerations:
   object CodeActionTriggerKind:
     given reader: up.Reader[CodeActionTriggerKind] = intCodec.asInstanceOf[up.Reader[CodeActionTriggerKind]]
     given writer: up.Writer[CodeActionTriggerKind] = intCodec.asInstanceOf[up.Writer[CodeActionTriggerKind]]
+    given Typeable[CodeActionTriggerKind] with
+      def unapply(s: Any): Option[s.type & CodeActionTriggerKind] = 
+        s match
+        case c: RuntimeBase.uinteger => Some(c.asInstanceOf[s.type & RuntimeBase.uinteger])
+        case _ => Option.empty
     inline def Invoked = entry(1)
     inline def Automatic = entry(2)
     
@@ -383,6 +529,11 @@ object enumerations:
   object FileOperationPatternKind:
     given reader: up.Reader[FileOperationPatternKind] = stringCodec.asInstanceOf[up.Reader[FileOperationPatternKind]]
     given writer: up.Writer[FileOperationPatternKind] = stringCodec.asInstanceOf[up.Writer[FileOperationPatternKind]]
+    given Typeable[FileOperationPatternKind] with
+      def unapply(s: Any): Option[s.type & FileOperationPatternKind] = 
+        s match
+        case c: String => Some(c.asInstanceOf[s.type & String])
+        case _ => Option.empty
     inline def file = entry("file")
     inline def folder = entry("folder")
     
@@ -392,6 +543,11 @@ object enumerations:
   object NotebookCellKind:
     given reader: up.Reader[NotebookCellKind] = intCodec.asInstanceOf[up.Reader[NotebookCellKind]]
     given writer: up.Writer[NotebookCellKind] = intCodec.asInstanceOf[up.Writer[NotebookCellKind]]
+    given Typeable[NotebookCellKind] with
+      def unapply(s: Any): Option[s.type & NotebookCellKind] = 
+        s match
+        case c: RuntimeBase.uinteger => Some(c.asInstanceOf[s.type & RuntimeBase.uinteger])
+        case _ => Option.empty
     inline def Markup = entry(1)
     inline def Code = entry(2)
     
@@ -401,6 +557,11 @@ object enumerations:
   object ResourceOperationKind:
     given reader: up.Reader[ResourceOperationKind] = stringCodec.asInstanceOf[up.Reader[ResourceOperationKind]]
     given writer: up.Writer[ResourceOperationKind] = stringCodec.asInstanceOf[up.Writer[ResourceOperationKind]]
+    given Typeable[ResourceOperationKind] with
+      def unapply(s: Any): Option[s.type & ResourceOperationKind] = 
+        s match
+        case c: String => Some(c.asInstanceOf[s.type & String])
+        case _ => Option.empty
     inline def Create = entry("create")
     inline def Rename = entry("rename")
     inline def Delete = entry("delete")
@@ -411,6 +572,11 @@ object enumerations:
   object FailureHandlingKind:
     given reader: up.Reader[FailureHandlingKind] = stringCodec.asInstanceOf[up.Reader[FailureHandlingKind]]
     given writer: up.Writer[FailureHandlingKind] = stringCodec.asInstanceOf[up.Writer[FailureHandlingKind]]
+    given Typeable[FailureHandlingKind] with
+      def unapply(s: Any): Option[s.type & FailureHandlingKind] = 
+        s match
+        case c: String => Some(c.asInstanceOf[s.type & String])
+        case _ => Option.empty
     inline def Abort = entry("abort")
     inline def Transactional = entry("transactional")
     inline def TextOnlyTransactional = entry("textOnlyTransactional")
@@ -422,6 +588,11 @@ object enumerations:
   object PrepareSupportDefaultBehavior:
     given reader: up.Reader[PrepareSupportDefaultBehavior] = intCodec.asInstanceOf[up.Reader[PrepareSupportDefaultBehavior]]
     given writer: up.Writer[PrepareSupportDefaultBehavior] = intCodec.asInstanceOf[up.Writer[PrepareSupportDefaultBehavior]]
+    given Typeable[PrepareSupportDefaultBehavior] with
+      def unapply(s: Any): Option[s.type & PrepareSupportDefaultBehavior] = 
+        s match
+        case c: RuntimeBase.uinteger => Some(c.asInstanceOf[s.type & RuntimeBase.uinteger])
+        case _ => Option.empty
     inline def Identifier = entry(1)
     
     private inline def entry(n: Int): PrepareSupportDefaultBehavior = RuntimeBase.uinteger(n)
@@ -430,6 +601,11 @@ object enumerations:
   object TokenFormat:
     given reader: up.Reader[TokenFormat] = stringCodec.asInstanceOf[up.Reader[TokenFormat]]
     given writer: up.Writer[TokenFormat] = stringCodec.asInstanceOf[up.Writer[TokenFormat]]
+    given Typeable[TokenFormat] with
+      def unapply(s: Any): Option[s.type & TokenFormat] = 
+        s match
+        case c: String => Some(c.asInstanceOf[s.type & String])
+        case _ => Option.empty
     inline def Relative = entry("relative")
     
     private inline def entry(v: String): TokenFormat = v

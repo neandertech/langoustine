@@ -7,12 +7,13 @@ import scala.util.NotGiven
 object json:
   private val valueReader = upickle.default.readwriter[ujson.Value]
   def badMerge[T](r1: Reader[T], rest: Reader[T]*): Reader[T] =
+
     valueReader.map { json =>
       var t: T | Null = null
       (r1 +: rest).foreach { reader =>
-        println(json)
         if t == null then
-          try t = read[T](json)(using reader)
+          println(json)
+          try t = read[T](json, trace = true)(using reader)
           catch
             case exc =>
               println(exc)

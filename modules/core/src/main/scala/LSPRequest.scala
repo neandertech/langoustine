@@ -7,4 +7,4 @@ abstract class LSPRequest(val requestMethod: String):
   type Out
 
   given reader: Reader[In]
-  given writer: Writer[Out] //= upickle.default.writer[String].comap(_.toString)
+  given writer: Writer[Out]

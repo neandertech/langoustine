@@ -35,10 +35,6 @@ object Runtime:
     case int: Runtime.uinteger => "bla"
     case other => "hlo"
 
-  println(x(uinteger(25)))
-
-  // metaModel.requests.foreach(println)
-
   def inFile(s: File)(f: LineBuilder => Unit) =
     val out = Render.LineBuilder()
     f(out)

@@ -33,7 +33,7 @@ val Scala3        = "3.1.3"
 val scalaVersions = List(Scala3)
 
 lazy val root = project
-  .aggregate(core.projectRefs: _*)
+  .aggregate(core.projectRefs*)
 
 lazy val core = projectMatrix
   .in(file("modules/core"))
@@ -41,11 +41,12 @@ lazy val core = projectMatrix
     name := "core"
   )
   .jvmPlatform(scalaVersions)
-  .jsPlatform(scalaVersions)
-  .nativePlatform(scalaVersions)
+  /* .jsPlatform(scalaVersions) */
+  /* .nativePlatform(scalaVersions) */
   .settings(
+    libraryDependencies += "com.outr"      %%% "scribe"    % "3.10.1",
     libraryDependencies += "com.lihaoyi"   %%% "upickle"   % "2.0.0",
-    libraryDependencies += "org.typelevel" %%% "cats-core" % "2.8.0",
+    libraryDependencies += "org.typelevel" %%% "cats-core" % "2.8.0"
   )
 
 lazy val lsp = projectMatrix
@@ -56,8 +57,8 @@ lazy val lsp = projectMatrix
     scalacOptions ++= Seq("-Xmax-inlines", "64")
   )
   .jvmPlatform(scalaVersions)
-  .jsPlatform(scalaVersions)
-  .nativePlatform(scalaVersions)
+/* .jsPlatform(scalaVersions) */
+/* .nativePlatform(scalaVersions) */
 
 lazy val generate = projectMatrix
   .in(file("modules/generate"))
@@ -67,7 +68,6 @@ lazy val generate = projectMatrix
     scalacOptions ++= Seq("-Xmax-inlines", "64")
   )
   .jvmPlatform(scalaVersions)
-
 
 lazy val docs = projectMatrix
   .in(file("myproject-docs"))

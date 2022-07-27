@@ -72,9 +72,8 @@ case class Structure(
     mixins: Vector[Type] = Vector.empty,
     name: StructureName,
     properties: Vector[Property] = Vector.empty
-) {
+):
   inline def extendz = `extends`
-}
 
 opaque type TypeAliasName = String
 object TypeAliasName extends OpaqueString[TypeAliasName]
@@ -100,21 +99,24 @@ case class Enumeration(
     values: Vector[EnumerationEntry]
 )
 
-enum Type {
-  case BaseType(kind: "base", name: BaseTypes)
-  case ReferenceType(kind: "reference", name: TypeName)
-  case AndType(kind: "and", items: Vector[Type])
-  case OrType(kind: "or", items: Vector[Type])
-  case ArrayType(kind: "array", element: Type)
-  case BooleanLiteralType(kind: "booleanLiteral", value: Boolean)
-  case MapType(kind: "map", key: Type, value: Type)
-  case StructureLiteralType(kind: "literal", value: StructureLiteral)
-  case StringLiteralType(kind: "stringLiteral", value: String)
-  case TupleType(kind: "tuple", items: Vector[Type])
+enum Type(
+    kind: "base" | "reference" | "and" | "or" | "array" | "booleanLiteral" |
+      "map" | "literal" | "stringLiteral" | "tuple"
+):
+  case BaseType(name: BaseTypes) extends Type("base")
+  case ReferenceType(name: TypeName) extends Type("reference")
+  case AndType(items: Vector[Type]) extends Type("and")
+  case OrType(items: Vector[Type]) extends Type("or")
+  case ArrayType(element: Type) extends Type("array")
+  case BooleanLiteralType(value: Boolean) extends Type("booleanLiteral")
+  case MapType(key: Type, value: Type) extends Type("map")
+  case StructureLiteralType(value: StructureLiteral) extends Type("literal")
+  case StringLiteralType(value: String) extends Type("stringLiteral")
+  case TupleType(items: Vector[Type]) extends Type("tuple")
 
   def traverse(f: Type => TypeTraversal) =
     TypeTraversal(this)(f)
-}
+end Type
 
 enum TypeTraversal:
   case Skip
@@ -123,17 +125,18 @@ enum TypeTraversal:
 object TypeTraversal:
   def apply(t: Type)(decider: Type => TypeTraversal): Type =
     val f = (t: Type) =>
-      decider(t) match {
+      decider(t) match
         case TypeTraversal.Skip           => t
         case TypeTraversal.Replace(other) => other
-      }
 
     val app = (t: Type) => apply(t)(decider)
     import Type.*
     t match
-      case tt: TupleType => f(TupleType(tt.kind, tt.items.map(app).map(f)))
-      case at: AndType   => f(AndType(at.kind, at.items.map(app).map(f)))
-      case at: OrType    => f(OrType(at.kind, at.items.map(app).map(f)))
-      case at: ArrayType => f(ArrayType(at.kind, f(app(at.element))))
-      case at: MapType => f(MapType(at.kind, f(app(at.key)), f(app(at.value))))
+      case tt: TupleType => f(TupleType(tt.items.map(app).map(f)))
+      case at: AndType   => f(AndType(at.items.map(app).map(f)))
+      case at: OrType    => f(OrType(at.items.map(app).map(f)))
+      case at: ArrayType => f(ArrayType(f(app(at.element))))
+      case at: MapType => f(MapType(f(app(at.key)), f(app(at.value))))
       case other       => f(other)
+  end apply
+end TypeTraversal

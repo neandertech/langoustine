@@ -7,12 +7,14 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     bt.name match
       case BaseTypes.NULL        => "Null"
       case BaseTypes.DocumentUri => "RuntimeBase.DocumentUri"
+      case BaseTypes.Uri         => "RuntimeBase.DocumentUri"
+      case BaseTypes.RegExp      => "RuntimeBase.RegExp"
       case BaseTypes.string      => "String"
       case BaseTypes.boolean     => "Boolean"
       case BaseTypes.integer     => "Int"
       case BaseTypes.decimal     => "Float"
       case BaseTypes.uinteger    => "RuntimeBase.uinteger"
-      case _                     => s"Any /*Base: ${bt.name}*/"
+      // case _                     => s"Any /*Base: ${bt.name}*/"
 
   case class Context(
       resolve: Type.ReferenceType => TypeName,
@@ -43,6 +45,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     import Type.*
     tpe match
       case bt: BaseType => renderBase(bt)
+      case ReferenceType(t) if t.value == "LSPAny" => "ujson.Value"
       case rt: ReferenceType =>
         ctx
           .resolve(rt)
@@ -94,6 +97,17 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line("import langoustine.lsp.json.{*, given}")
     line("")
 
+    val prelude = """
+    |abstract class LSPRequest(val requestMethod: String):
+    |  type In
+    |  type Out
+    |
+    |  given reader: Reader[In]
+    |  given writer: Writer[Out] 
+    """.stripMargin.trim
+
+    prelude.linesIterator.foreach(line)
+
     var currentScope = List.empty[String]
 
     given Context = Context.global("requests")
@@ -122,8 +136,11 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         line(s"private val _reader: Reader[In] = $reader")
         line(s"given reader: Reader[In] = _reader")
         line(
-          s"private val _writer: Writer[Out] = ${upickleWriter(req.result, Some("Out"))}"
+          s"private val _writer: Writer[Out] = "
         )
+        nest {
+          upickleWriter(req.result, Some("Out")).write(builder)
+        }
         line(s"given writer: Writer[Out] = _writer")
       }
       line("")
@@ -210,9 +227,9 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         if curType != existingType then
           val newType =
             (curType, existingType) match
-              case (BaseType(_, BaseTypes.string), lit: StringLiteralType) =>
+              case (BaseType(BaseTypes.string), lit: StringLiteralType) =>
                 lit
-              case (lit: StringLiteralType, BaseType(_, BaseTypes.string)) =>
+              case (lit: StringLiteralType, BaseType(BaseTypes.string)) =>
                 lit
               case _ =>
                 throw new Exception(
@@ -229,6 +246,55 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
 
   opaque type NewTypeName = String
   object NewTypeName extends OpaqueString[NewTypeName]
+
+  private def typeTestRender(typeName: TypeName, tpe: Type)(using
+      Config,
+      Context
+  ) = WriterDefinition.Definition { out =>
+    inline def line: Config ?=> Appender = to(out)
+
+    import Type.*
+
+    tpe match
+      case OrType(components) =>
+        line(s"given Typeable[$typeName] with")
+        nest {
+          line(s"def unapply(s: Any): Option[s.type & $typeName] = ")
+          nest {
+            line("s match")
+            components.foreach { tpe =>
+              val (patternCase, varName) =
+                tpe match
+                  case _: ArrayType             => ("c: Vector[?]", "c")
+                  case BaseType(BaseTypes.NULL) => ("null", "null")
+                  case _ => ("c: " + renderType(tpe), "c")
+              line(
+                s"case $patternCase => Some($varName.asInstanceOf[s.type & ${renderType(tpe)}])"
+              )
+            }
+            line("case _ => Option.empty")
+          }
+        }
+      case tpe =>
+        line(s"given Typeable[$typeName] with")
+        nest {
+          line(s"def unapply(s: Any): Option[s.type & $typeName] = ")
+          nest {
+            line("s match")
+            val (patternCase, varName) =
+              tpe match
+                case _: ArrayType             => ("c: Vector[?]", "c")
+                case BaseType(BaseTypes.NULL) => ("null", "null")
+                case _                        => ("c: " + renderType(tpe), "c")
+            line(
+              s"case $patternCase => Some($varName.asInstanceOf[s.type & ${renderType(tpe)}])"
+            )
+            line("case _ => Option.empty")
+          }
+        }
+    end match
+  }
+  end typeTestRender
 
   def structure(s: Structure, builder: LineBuilder)(using Config)(using
       ctx: Context
@@ -265,7 +331,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         case stl: Type.StructureLiteralType =>
           val newTypeName = p.name.value.capitalize
           val newType: Type.ReferenceType = Type.ReferenceType(
-            "reference",
             TypeName(
               s.name.value + "." + newTypeName
             )
@@ -278,7 +343,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
             case stl: Type.StructureLiteralType =>
               val newTypeName = "S" + inlineAnonymousStructures
               val newType: Type.ReferenceType = Type.ReferenceType(
-                "reference",
                 TypeName(
                   s.name.value + "." + newTypeName
                 )
@@ -323,8 +387,11 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         )
         line(s"private given reader_rd$idx: Reader[$union] = rd$idx")
         line(
-          s"private val wt$idx = ${upickleWriter(ot, Some(union))}"
+          s"private val wt$idx = "
         )
+        nest {
+          upickleWriter(ot, Some(union)).write(builder)
+        }
         line(s"private given writer_wt$idx: Writer[$union] = wt$idx")
       }
       line(
@@ -358,45 +425,102 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         val w            = widen.map(a => s".widen[${a}]").getOrElse("")
         val constituents = ot.items.map(upickleReader(_)).map(_ + w)
         constituents.mkString(s"badMerge(", ", ", ")")
-      case BaseType(_, BaseTypes.NULL)    => "nullReadWriter"
-      case BaseType(_, BaseTypes.string)  => "stringCodec"
-      case BaseType(_, BaseTypes.integer) => "intCodec"
-      case rt @ ReferenceType(_, ref) =>
+      case BaseType(BaseTypes.NULL)    => "nullReadWriter"
+      case BaseType(BaseTypes.string)  => "stringCodec"
+      case BaseType(BaseTypes.integer) => "intCodec"
+      case rt @ ReferenceType(ref) =>
         summon[Context].resolve(rt).value + ".reader"
       case t => s"upickle.default.reader[${renderType(t)}]"
     end match
   end upickleReader
 
+  enum WriterDefinition:
+    case Expression(str: String)
+    case Definition(f: LineBuilder => Unit)
+
+    def write(out: LineBuilder)(using Config) =
+      this match
+        case Expression(str) => to(out)(str)
+        case Definition(f)   => f(out)
+
   def upickleWriter(t: Type, widen: Option[String] = None)(using
-      Context
-  ): String =
+      Context,
+      Config
+  ): WriterDefinition =
     import Type.*
+    import WriterDefinition.*
     t match
-      case ot: OrType =>
-        val w            = widen.map(a => s"[$a]").getOrElse("")
-        val constituents = ot.items
+      // case ot: OrType =>
+      //   val w            = widen.map(a => s"[$a]").getOrElse("")
+      //   val constituents = ot.items
 
-        val shouldAddWildcard = 
-          constituents.collectFirst {
-            case BaseType(_, BaseTypes.uinteger | BaseTypes.Uri | BaseTypes.DocumentUri) => true
-          }.isDefined
+      // val shouldAddWildcard =
+      //   constituents.collectFirst {
+      //     case BaseType(
+      //           _,
+      //           BaseTypes.uinteger | BaseTypes.Uri | BaseTypes.DocumentUri
+      //         ) =>
+      //       true
+      //   }.isDefined
 
-        s"upickle.default.writer[ujson.Value].comap$w {" + (constituents
-          .map {
-            case BaseType(_, BaseTypes.NULL) =>
-              "case null => ujson.Null"
-            case t =>
-              s"case v: ${renderType(t)} => write(v)(using ${upickleWriter(t)})"
-          }
-          .appended(if shouldAddWildcard then "case _ => ???" else "")
-          .mkString("; ")) +
-          "}"
-      case BaseType(_, BaseTypes.NULL)    => "nullReadWriter"
-      case BaseType(_, BaseTypes.string)  => "stringCodec"
-      case BaseType(_, BaseTypes.integer) => "intCodec"
-      case rt @ ReferenceType(_, ref) =>
-        summon[Context].resolve(rt).value + ".writer"
-      case t => s"upickle.default.writer[${renderType(t)}]"
+      // s"upickle.default.writer[ujson.Value].comap$w { v => (v: @unchecked) match {" + (constituents
+      //   .map {
+      //     case at: ArrayType =>
+      //       s"case v: Vector[?] => writeJs[${renderType(t)}](v)"
+      //     case BaseType(_, BaseTypes.NULL) =>
+      //       "case null => ujson.Null"
+      //     case t =>
+      //       s"case v: ${renderType(t)} => writeJs(v)(using ${upickleWriter(t)})"
+      //   }
+      //   // .appended(if shouldAddWildcard then "case _ => ???" else "")
+      //   .mkString("; ")) +
+      //   "}}"
+      case BaseType(BaseTypes.NULL)    => Expression("nullReadWriter")
+      case BaseType(BaseTypes.string)  => Expression("stringCodec")
+      case BaseType(BaseTypes.integer) => Expression("intCodec")
+      case rt: ReferenceType =>
+        Expression(summon[Context].resolve(rt).value + ".writer")
+      case _: BaseType | _: BooleanLiteralType | _: StringLiteralType =>
+        Expression(s"upickle.default.writer[${renderType(t)}]")
+      case other =>
+        val allOrs = collectOrTypes(other).distinct
+        other match
+          case ot: OrType =>
+            Definition { out =>
+              inline def line: Config ?=> Appender = to(out)
+              allOrs.filterNot(_ == ot).map { tpe =>
+                line(s"given Writer[${renderType(tpe)}] = ")
+                nest {
+                  upickleWriter(tpe).write(out)
+                }
+              }
+
+              val w = widen.map(a => s"[$a]").getOrElse("")
+              line(s"upickle.default.writer[ujson.Value].comap$w { v => ")
+              nest {
+                line("(v: @unchecked) match ")
+                nest {
+                  ot.items.map {
+                    case at: ArrayType =>
+                      val typeName = renderType(at)
+                      line(
+                        s"case v: Vector[?] => writeJs[$typeName](v.asInstanceOf[$typeName])"
+                      )
+                    case BaseType(BaseTypes.NULL) =>
+                      line("case null => ujson.Null")
+                    case t =>
+                      line(s"case v: ${renderType(t)} => writeJs(v)")
+                  }
+                }
+              }
+
+              line("}")
+
+            }
+          case ot: ArrayType => Expression("??? /* arr */")
+          case _             => Expression("???")
+        end match
+      // line(s"??? /*$allOrs*/")
     end match
   end upickleWriter
 
@@ -408,6 +532,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line("import langoustine.*")
     line("import langoustine.lsp.json.{*, given}")
     line("import upickle.default.*")
+    line("import scala.reflect.*")
     line("")
 
     given ctx: Context = Context.global("aliases")
@@ -424,7 +549,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
           case stl: Type.StructureLiteralType =>
             val newTypeName = "S" + inlineAnonymousStructures
             val newType: Type.ReferenceType = Type.ReferenceType(
-              "reference",
               TypeName(
                 a.name.value + "." + newTypeName
               )
@@ -460,8 +584,11 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
             line(s"private given reader_rd$idx: Reader[$union] = rd$idx")
 
             line(
-              s"private val wt$idx = ${upickleWriter(ot, Some(union))}"
+              s"private val wt$idx ="
             )
+            nest {
+              upickleWriter(ot, Some(union)).write(out)
+            }
             line(s"private given writer_wt$idx: Writer[$union] = wt$idx")
           }
 
@@ -481,13 +608,17 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
               )
             )
             line(
-              s"private val _writer: Writer[${a.name}] = " + upickleWriter(
+              s"private val _writer: Writer[${a.name}] = "
+            )
+            nest {
+              upickleWriter(
                 newType,
                 Some(a.name.value)
-              )
-            )
+              ).write(out)
+            }
             line(s"given reader: Reader[${a.name}] = _reader")
             line(s"given writer: Writer[${a.name}] = _writer")
+            typeTestRender(a.name.into(TypeName), newType).write(out)
           end if
           stls.foreach { case (rt, (newName, stl)) =>
             val struct = Structure(
@@ -509,6 +640,19 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     }
   end aliases
 
+  private def collectOrTypes(t: Type) =
+    val allUnions = Vector.newBuilder[Type.OrType]
+    t.traverse {
+      case ot: Type.OrType =>
+        allUnions += ot
+        TypeTraversal.Skip
+      case _ =>
+        TypeTraversal.Skip
+    }
+
+    allUnions.result()
+  end collectOrTypes
+
   def enumerations(out: LineBuilder, subPackage: String = "enumerations")(using
       Config
   ) =
@@ -517,6 +661,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line(s"package $packageName")
     line("")
     line("import langoustine.*")
+    line("import scala.reflect.Typeable") 
     line("")
 
     given ctx: Context = Context.global("enumerations")
@@ -530,31 +675,25 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
       manager.enumerations.foreach { a =>
         val base = a.`type`.name
         import EnumerationTypeName as ET
-        val underlying =
+        val underlying: Type.BaseType = Type.BaseType(
           base match
-            case ET.string   => "String"
-            case ET.integer  => "Int"
-            case ET.uinteger => "RuntimeBase.uinteger"
-        line(s"opaque type ${a.name} = $underlying")
+            case ET.string   => BaseTypes.string  // "String"
+            case ET.integer  => BaseTypes.integer // "Int"
+            case ET.uinteger => BaseTypes.uinteger
+        ) // "RuntimeBase.uinteger"
+        line(s"opaque type ${a.name} = ${renderType(underlying)}")
         if a.values.nonEmpty then
           line(s"object ${a.name}:")
           nest {
-            if base == ET.string then
-              line(
-                s"given reader: up.Reader[${a.name}] = stringCodec.asInstanceOf[up.Reader[${a.name}]]"
-              )
-              line(
-                s"given writer: up.Writer[${a.name}] = stringCodec.asInstanceOf[up.Writer[${a.name}]]"
-              )
-            else
-              line(
-                s"given reader: up.Reader[${a.name}] = intCodec.asInstanceOf[up.Reader[${a.name}]]"
-              )
-              line(
-                s"given writer: up.Writer[${a.name}] = intCodec.asInstanceOf[up.Writer[${a.name}]]"
-              )
-            end if
-
+            val codecVal =
+              if base == ET.string then "stringCodec" else "intCodec"
+            line(
+              s"given reader: up.Reader[${a.name}] = $codecVal.asInstanceOf[up.Reader[${a.name}]]"
+            )
+            line(
+              s"given writer: up.Writer[${a.name}] = $codecVal.asInstanceOf[up.Writer[${a.name}]]"
+            )
+            typeTestRender(a.name.into(TypeName), underlying).write(out)
             a.values.foreach { entry =>
               val value =
                 base match
@@ -570,7 +709,9 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
                 s"private inline def entry(n: Int): ${a.name} = RuntimeBase.uinteger(n)"
               )
             else
-              line(s"private inline def entry(v: $underlying): ${a.name} = v")
+              line(
+                s"private inline def entry(v: ${renderType(underlying)}): ${a.name} = v"
+              )
           }
         end if
         line("")
