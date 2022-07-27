@@ -1,18 +1,12 @@
-import langoustine.lsp.*
-import structures.*
 
 import upickle.default.*
 import langoustine.ImmutableLSPBuilder
 import scala.util.*
+import langoustine.lsp.*
 import langoustine.JSONRPC
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import langoustine.lsp.requests.initialize
 import requests.*
-import java.io.OutputStream
-import cats.MonadThrow.apply
-import java.io.InputStream
-import cats.MonadThrow
+import json.*
+import structures.*
 
 @main def hello(name: String) =
   import scribe.file.*
@@ -31,16 +25,45 @@ import cats.MonadThrow
 
   val server = ImmutableLSPBuilder
     .create[Try](logger)
-    .handler(codeLens.resolve) { (in, req) =>
-      println(in)
-      Success(in)
-    }
     .handler(initialize) { (in, req) =>
-      logger.info(in.toString)
-      Failure(new RuntimeException("hello"))
+      Success {
+        InitializeResult(
+          ServerCapabilities(
+            hoverProvider = Opt(true)
+          ),
+          Opt(
+            InitializeResult
+              .ServerInfo(name = "langoustine", version = Opt("0.0.1"))
+          )
+        )
+      }
+    }
+    .handler(textDocument.hover) { (in, req) =>
+      import aliases.MarkedString
+      Success {
+        Nullable {
+          Hover(contents = Vector(MarkedString("Hello"), MarkedString("World")))
+        }
+      }
     }
     .build
 
-  Exchange(logger).bind(System.in, System.out, req => println(server(req)))
+  Exchange(logger).bind(
+    System.in,
+    System.out,
+    req =>
+      if req.method == "shutdown" then Action.Shutdown
+      else
+        server(req) match
+          case Success(resp) =>
+            println(resp)
+            Action.Response(resp)
+          case Failure(ex) =>
+            logger.error(
+              s"Failed to respond to ${req.method} (id = ${req.id}",
+              ex
+            )
+            Action.Ignore
+  )
 
 end hello

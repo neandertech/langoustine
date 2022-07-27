@@ -54,9 +54,10 @@ lazy val lsp = projectMatrix
   .dependsOn(core)
   .settings(
     name := "lsp",
-    scalacOptions ++= Seq("-Xmax-inlines", "64"),
+    scalacOptions ++= Seq("-Xmax-inlines", "64", "-explain"),
     libraryDependencies += "com.eed3si9n.verify" %% "verify" % "1.0.0" % Test,
-    testFrameworks += new TestFramework("verify.runner.Framework")
+    testFrameworks += new TestFramework("verify.runner.Framework"),
+    Test / fork := true
   )
   .jvmPlatform(scalaVersions)
   /* .jsPlatform(scalaVersions) */

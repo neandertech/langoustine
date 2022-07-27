@@ -5,7 +5,7 @@ import upickle.default.*
 import scala.util.NotGiven
 
 object json:
-  private def valueReader = upickle.default.readwriter[ujson.Value]
+  val valueReader = upickle.default.readwriter[ujson.Value]
   def badMerge[T](r1: => Reader[T], rest: Reader[T]*): Reader[T] =
     valueReader.map { json =>
       var t: T | Null = null
@@ -38,9 +38,35 @@ object json:
   given constStrWriter[T <: String](using NotGiven[T =:= String]): Writer[T] =
     stringCodec.asInstanceOf[Writer[T]]
 
-  val stringCodec = summon[ReadWriter[String]]
-  val intCodec    = summon[ReadWriter[Int]]
-  val unitReader  = summon[ReadWriter[Unit]]
+  val stringCodec      = summon[ReadWriter[String]]
+  val intCodec         = summon[ReadWriter[Int]]
+  val unitReader       = summon[ReadWriter[Unit]]
+  private val jsReader = reader[ujson.Value]
+  private val jsWriter = writer[ujson.Value]
+
+  opaque type Nullable[+A] = A | Null
+  object Nullable:
+    inline def NULL: Nullable[Nothing]     = null
+    inline def apply[A](a: A): Nullable[A] = a
+
+    given [A](using
+        rd: Reader[A]
+    ): Reader[Nullable[A]] =
+      jsReader.map[Nullable[A]] {
+        case ujson.Null => NULL
+        case other      => upickle.default.read(other)(using rd)
+      }
+
+    given [A](using
+        wt: Writer[A]
+    ): Writer[Nullable[A]] =
+      jsWriter.comap[Nullable[A]] {
+        case other => upickle.default.writeJs(other.asInstanceOf[A])(using wt)
+        case null  => ujson.Null
+      }
+
+    given [A]: CanEqual[Nullable[A], Null] = CanEqual.canEqualAny
+  end Nullable
 
   opaque type Opt[+A] = A | Null
   object Opt:
@@ -51,21 +77,11 @@ object json:
         rd: Reader[A]
     ): Reader[Opt[A]] =
       rd.asInstanceOf[Reader[Opt[A]]]
-      // reader[ujson.Value].map {
-      //   case ujson.Null => empty
-      //   case other      => upickle.default.read(other)(using rd)
-      // }
 
     given [A](using
         wt: Writer[A]
     ): Writer[Opt[A]] =
       wt.asInstanceOf[Writer[Opt[A]]]
-
-      // writer[ujson.Value].map {
-      //   case ujson.Null => empty
-      //   case other      => upickle.default.read(other)(using rd)
-      // }
-
   end Opt
 
 end json

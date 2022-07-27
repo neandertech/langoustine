@@ -36,7 +36,7 @@ case class ImmutableLSPBuilder[F[_]: MonadThrow] private (
             case e: LSPError => Left(JSONRPC.error(0, e.toString))
             case s =>
               Right(
-                upickle.default.write[t.Out](s.asInstanceOf[t.Out])(using
+                upickle.default.writeJs[t.Out](s.asInstanceOf[t.Out])(using
                   t.writer
                 )
               )

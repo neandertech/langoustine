@@ -8,25 +8,25 @@ import langoustine.lsp.json.{*, given}
 object callHierarchy:
   object incomingCalls extends LSPRequest("callHierarchy/incomingCalls"):
     type In = structures.CallHierarchyIncomingCallsParams
-    type Out = (Vector[structures.CallHierarchyIncomingCall] | Null)
+    type Out = Nullable[Vector[structures.CallHierarchyIncomingCall]]
     given reader: Reader[In] = structures.CallHierarchyIncomingCallsParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
           case v: Vector[?] => writeJs[Vector[structures.CallHierarchyIncomingCall]](v.asInstanceOf[Vector[structures.CallHierarchyIncomingCall]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
   object outgoingCalls extends LSPRequest("callHierarchy/outgoingCalls"):
     type In = structures.CallHierarchyOutgoingCallsParams
-    type Out = (Vector[structures.CallHierarchyOutgoingCall] | Null)
+    type Out = Nullable[Vector[structures.CallHierarchyOutgoingCall]]
     given reader: Reader[In] = structures.CallHierarchyOutgoingCallsParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
           case v: Vector[?] => writeJs[Vector[structures.CallHierarchyOutgoingCall]](v.asInstanceOf[Vector[structures.CallHierarchyOutgoingCall]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
@@ -111,31 +111,31 @@ object shutdown extends LSPRequest("shutdown"):
 object textDocument:
   object codeAction extends LSPRequest("textDocument/codeAction"):
     type In = structures.CodeActionParams
-    type Out = (Vector[(structures.Command | structures.CodeAction)] | Null)
+    type Out = Nullable[Vector[(structures.Command | structures.CodeAction)]]
     given reader: Reader[In] = structures.CodeActionParams.reader
     private val _writer: Writer[Out] = 
       given Writer[(structures.Command | structures.CodeAction)] = 
-        upickle.default.writer[ujson.Value].comap { v => 
-          (v: @unchecked) match 
-            case v: structures.Command => writeJs(v)
-            case v: structures.CodeAction => writeJs(v)
+        upickle.default.writer[ujson.Value].comap { _v => 
+          (_v: @unchecked) match 
+            case v: structures.Command => writeJs[structures.Command](v)
+            case v: structures.CodeAction => writeJs[structures.CodeAction](v)
         }
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
           case v: Vector[?] => writeJs[Vector[(structures.Command | structures.CodeAction)]](v.asInstanceOf[Vector[(structures.Command | structures.CodeAction)]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
   object codeLens extends LSPRequest("textDocument/codeLens"):
     type In = structures.CodeLensParams
-    type Out = (Vector[structures.CodeLens] | Null)
+    type Out = Nullable[Vector[structures.CodeLens]]
     given reader: Reader[In] = structures.CodeLensParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
           case v: Vector[?] => writeJs[Vector[structures.CodeLens]](v.asInstanceOf[Vector[structures.CodeLens]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
@@ -152,11 +152,11 @@ object textDocument:
     type Out = (Vector[structures.CompletionItem] | structures.CompletionList | Null)
     given reader: Reader[In] = structures.CompletionParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
           case v: Vector[?] => writeJs[Vector[structures.CompletionItem]](v.asInstanceOf[Vector[structures.CompletionItem]])
-          case v: structures.CompletionList => writeJs(v)
-          case null => ujson.Null
+          case v: structures.CompletionList => writeJs[structures.CompletionList](v)
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
@@ -165,11 +165,11 @@ object textDocument:
     type Out = (aliases.Declaration | Vector[aliases.DeclarationLink] | Null)
     given reader: Reader[In] = structures.DeclarationParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
-          case v: aliases.Declaration => writeJs(v)
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
+          case v: aliases.Declaration => writeJs[aliases.Declaration](v)
           case v: Vector[?] => writeJs[Vector[aliases.DeclarationLink]](v.asInstanceOf[Vector[aliases.DeclarationLink]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
@@ -178,11 +178,11 @@ object textDocument:
     type Out = (aliases.Definition | Vector[aliases.DefinitionLink] | Null)
     given reader: Reader[In] = structures.DefinitionParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
-          case v: aliases.Definition => writeJs(v)
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
+          case v: aliases.Definition => writeJs[aliases.Definition](v)
           case v: Vector[?] => writeJs[Vector[aliases.DefinitionLink]](v.asInstanceOf[Vector[aliases.DefinitionLink]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
@@ -204,25 +204,25 @@ object textDocument:
   
   object documentHighlight extends LSPRequest("textDocument/documentHighlight"):
     type In = structures.DocumentHighlightParams
-    type Out = (Vector[structures.DocumentHighlight] | Null)
+    type Out = Nullable[Vector[structures.DocumentHighlight]]
     given reader: Reader[In] = structures.DocumentHighlightParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
           case v: Vector[?] => writeJs[Vector[structures.DocumentHighlight]](v.asInstanceOf[Vector[structures.DocumentHighlight]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
   object documentLink extends LSPRequest("textDocument/documentLink"):
     type In = structures.DocumentLinkParams
-    type Out = (Vector[structures.DocumentLink] | Null)
+    type Out = Nullable[Vector[structures.DocumentLink]]
     given reader: Reader[In] = structures.DocumentLinkParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
           case v: Vector[?] => writeJs[Vector[structures.DocumentLink]](v.asInstanceOf[Vector[structures.DocumentLink]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
@@ -231,47 +231,47 @@ object textDocument:
     type Out = (Vector[structures.SymbolInformation] | Vector[structures.DocumentSymbol] | Null)
     given reader: Reader[In] = structures.DocumentSymbolParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
           case v: Vector[?] => writeJs[Vector[structures.SymbolInformation]](v.asInstanceOf[Vector[structures.SymbolInformation]])
           case v: Vector[?] => writeJs[Vector[structures.DocumentSymbol]](v.asInstanceOf[Vector[structures.DocumentSymbol]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
   object foldingRange extends LSPRequest("textDocument/foldingRange"):
     type In = structures.FoldingRangeParams
-    type Out = (Vector[structures.FoldingRange] | Null)
+    type Out = Nullable[Vector[structures.FoldingRange]]
     given reader: Reader[In] = structures.FoldingRangeParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
           case v: Vector[?] => writeJs[Vector[structures.FoldingRange]](v.asInstanceOf[Vector[structures.FoldingRange]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
   object formatting extends LSPRequest("textDocument/formatting"):
     type In = structures.DocumentFormattingParams
-    type Out = (Vector[structures.TextEdit] | Null)
+    type Out = Nullable[Vector[structures.TextEdit]]
     given reader: Reader[In] = structures.DocumentFormattingParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
           case v: Vector[?] => writeJs[Vector[structures.TextEdit]](v.asInstanceOf[Vector[structures.TextEdit]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
   object hover extends LSPRequest("textDocument/hover"):
     type In = structures.HoverParams
-    type Out = (structures.Hover | Null)
+    type Out = Nullable[structures.Hover]
     given reader: Reader[In] = structures.HoverParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
-          case v: structures.Hover => writeJs(v)
-          case null => ujson.Null
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
+          case v: structures.Hover => writeJs[structures.Hover](v)
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
@@ -280,168 +280,168 @@ object textDocument:
     type Out = (aliases.Definition | Vector[aliases.DefinitionLink] | Null)
     given reader: Reader[In] = structures.ImplementationParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
-          case v: aliases.Definition => writeJs(v)
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
+          case v: aliases.Definition => writeJs[aliases.Definition](v)
           case v: Vector[?] => writeJs[Vector[aliases.DefinitionLink]](v.asInstanceOf[Vector[aliases.DefinitionLink]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
   object inlayHint extends LSPRequest("textDocument/inlayHint"):
     type In = structures.InlayHintParams
-    type Out = (Vector[structures.InlayHint] | Null)
+    type Out = Nullable[Vector[structures.InlayHint]]
     given reader: Reader[In] = structures.InlayHintParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
           case v: Vector[?] => writeJs[Vector[structures.InlayHint]](v.asInstanceOf[Vector[structures.InlayHint]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
   object inlineValue extends LSPRequest("textDocument/inlineValue"):
     type In = structures.InlineValueParams
-    type Out = (Vector[aliases.InlineValue] | Null)
+    type Out = Nullable[Vector[aliases.InlineValue]]
     given reader: Reader[In] = structures.InlineValueParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
           case v: Vector[?] => writeJs[Vector[aliases.InlineValue]](v.asInstanceOf[Vector[aliases.InlineValue]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
   object linkedEditingRange extends LSPRequest("textDocument/linkedEditingRange"):
     type In = structures.LinkedEditingRangeParams
-    type Out = (structures.LinkedEditingRanges | Null)
+    type Out = Nullable[structures.LinkedEditingRanges]
     given reader: Reader[In] = structures.LinkedEditingRangeParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
-          case v: structures.LinkedEditingRanges => writeJs(v)
-          case null => ujson.Null
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
+          case v: structures.LinkedEditingRanges => writeJs[structures.LinkedEditingRanges](v)
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
   object moniker extends LSPRequest("textDocument/moniker"):
     type In = structures.MonikerParams
-    type Out = (Vector[structures.Moniker] | Null)
+    type Out = Nullable[Vector[structures.Moniker]]
     given reader: Reader[In] = structures.MonikerParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
           case v: Vector[?] => writeJs[Vector[structures.Moniker]](v.asInstanceOf[Vector[structures.Moniker]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
   object onTypeFormatting extends LSPRequest("textDocument/onTypeFormatting"):
     type In = structures.DocumentOnTypeFormattingParams
-    type Out = (Vector[structures.TextEdit] | Null)
+    type Out = Nullable[Vector[structures.TextEdit]]
     given reader: Reader[In] = structures.DocumentOnTypeFormattingParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
           case v: Vector[?] => writeJs[Vector[structures.TextEdit]](v.asInstanceOf[Vector[structures.TextEdit]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
   object prepareCallHierarchy extends LSPRequest("textDocument/prepareCallHierarchy"):
     type In = structures.CallHierarchyPrepareParams
-    type Out = (Vector[structures.CallHierarchyItem] | Null)
+    type Out = Nullable[Vector[structures.CallHierarchyItem]]
     given reader: Reader[In] = structures.CallHierarchyPrepareParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
           case v: Vector[?] => writeJs[Vector[structures.CallHierarchyItem]](v.asInstanceOf[Vector[structures.CallHierarchyItem]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
   object prepareRename extends LSPRequest("textDocument/prepareRename"):
     type In = structures.PrepareRenameParams
-    type Out = (aliases.PrepareRenameResult | Null)
+    type Out = Nullable[aliases.PrepareRenameResult]
     given reader: Reader[In] = structures.PrepareRenameParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
-          case v: aliases.PrepareRenameResult => writeJs(v)
-          case null => ujson.Null
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
+          case v: aliases.PrepareRenameResult => writeJs[aliases.PrepareRenameResult](v)
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
   object prepareTypeHierarchy extends LSPRequest("textDocument/prepareTypeHierarchy"):
     type In = structures.TypeHierarchyPrepareParams
-    type Out = (Vector[structures.TypeHierarchyItem] | Null)
+    type Out = Nullable[Vector[structures.TypeHierarchyItem]]
     given reader: Reader[In] = structures.TypeHierarchyPrepareParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
           case v: Vector[?] => writeJs[Vector[structures.TypeHierarchyItem]](v.asInstanceOf[Vector[structures.TypeHierarchyItem]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
   object rangeFormatting extends LSPRequest("textDocument/rangeFormatting"):
     type In = structures.DocumentRangeFormattingParams
-    type Out = (Vector[structures.TextEdit] | Null)
+    type Out = Nullable[Vector[structures.TextEdit]]
     given reader: Reader[In] = structures.DocumentRangeFormattingParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
           case v: Vector[?] => writeJs[Vector[structures.TextEdit]](v.asInstanceOf[Vector[structures.TextEdit]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
   object references extends LSPRequest("textDocument/references"):
     type In = structures.ReferenceParams
-    type Out = (Vector[structures.Location] | Null)
+    type Out = Nullable[Vector[structures.Location]]
     given reader: Reader[In] = structures.ReferenceParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
           case v: Vector[?] => writeJs[Vector[structures.Location]](v.asInstanceOf[Vector[structures.Location]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
   object rename extends LSPRequest("textDocument/rename"):
     type In = structures.RenameParams
-    type Out = (structures.WorkspaceEdit | Null)
+    type Out = Nullable[structures.WorkspaceEdit]
     given reader: Reader[In] = structures.RenameParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
-          case v: structures.WorkspaceEdit => writeJs(v)
-          case null => ujson.Null
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
+          case v: structures.WorkspaceEdit => writeJs[structures.WorkspaceEdit](v)
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
   object selectionRange extends LSPRequest("textDocument/selectionRange"):
     type In = structures.SelectionRangeParams
-    type Out = (Vector[structures.SelectionRange] | Null)
+    type Out = Nullable[Vector[structures.SelectionRange]]
     given reader: Reader[In] = structures.SelectionRangeParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
           case v: Vector[?] => writeJs[Vector[structures.SelectionRange]](v.asInstanceOf[Vector[structures.SelectionRange]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
   object semanticTokens:
     object full extends LSPRequest("textDocument/semanticTokens/full"):
       type In = structures.SemanticTokensParams
-      type Out = (structures.SemanticTokens | Null)
+      type Out = Nullable[structures.SemanticTokens]
       given reader: Reader[In] = structures.SemanticTokensParams.reader
       private val _writer: Writer[Out] = 
-        upickle.default.writer[ujson.Value].comap[Out] { v => 
-          (v: @unchecked) match 
-            case v: structures.SemanticTokens => writeJs(v)
-            case null => ujson.Null
+        upickle.default.writer[ujson.Value].comap[Out] { _v => 
+          (_v: @unchecked) match 
+            case v: structures.SemanticTokens => writeJs[structures.SemanticTokens](v)
+            case a if a == Nullable.NULL => ujson.Null
         }
       given writer: Writer[Out] = _writer
     
@@ -450,35 +450,35 @@ object textDocument:
         type Out = (structures.SemanticTokens | structures.SemanticTokensDelta | Null)
         given reader: Reader[In] = structures.SemanticTokensDeltaParams.reader
         private val _writer: Writer[Out] = 
-          upickle.default.writer[ujson.Value].comap[Out] { v => 
-            (v: @unchecked) match 
-              case v: structures.SemanticTokens => writeJs(v)
-              case v: structures.SemanticTokensDelta => writeJs(v)
-              case null => ujson.Null
+          upickle.default.writer[ujson.Value].comap[Out] { _v => 
+            (_v: @unchecked) match 
+              case v: structures.SemanticTokens => writeJs[structures.SemanticTokens](v)
+              case v: structures.SemanticTokensDelta => writeJs[structures.SemanticTokensDelta](v)
+              case a if a == Nullable.NULL => ujson.Null
           }
         given writer: Writer[Out] = _writer
       
     object range extends LSPRequest("textDocument/semanticTokens/range"):
       type In = structures.SemanticTokensRangeParams
-      type Out = (structures.SemanticTokens | Null)
+      type Out = Nullable[structures.SemanticTokens]
       given reader: Reader[In] = structures.SemanticTokensRangeParams.reader
       private val _writer: Writer[Out] = 
-        upickle.default.writer[ujson.Value].comap[Out] { v => 
-          (v: @unchecked) match 
-            case v: structures.SemanticTokens => writeJs(v)
-            case null => ujson.Null
+        upickle.default.writer[ujson.Value].comap[Out] { _v => 
+          (_v: @unchecked) match 
+            case v: structures.SemanticTokens => writeJs[structures.SemanticTokens](v)
+            case a if a == Nullable.NULL => ujson.Null
         }
       given writer: Writer[Out] = _writer
     
   object signatureHelp extends LSPRequest("textDocument/signatureHelp"):
     type In = structures.SignatureHelpParams
-    type Out = (structures.SignatureHelp | Null)
+    type Out = Nullable[structures.SignatureHelp]
     given reader: Reader[In] = structures.SignatureHelpParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
-          case v: structures.SignatureHelp => writeJs(v)
-          case null => ujson.Null
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
+          case v: structures.SignatureHelp => writeJs[structures.SignatureHelp](v)
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
@@ -487,48 +487,48 @@ object textDocument:
     type Out = (aliases.Definition | Vector[aliases.DefinitionLink] | Null)
     given reader: Reader[In] = structures.TypeDefinitionParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
-          case v: aliases.Definition => writeJs(v)
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
+          case v: aliases.Definition => writeJs[aliases.Definition](v)
           case v: Vector[?] => writeJs[Vector[aliases.DefinitionLink]](v.asInstanceOf[Vector[aliases.DefinitionLink]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
   object willSaveWaitUntil extends LSPRequest("textDocument/willSaveWaitUntil"):
     type In = structures.WillSaveTextDocumentParams
-    type Out = (Vector[structures.TextEdit] | Null)
+    type Out = Nullable[Vector[structures.TextEdit]]
     given reader: Reader[In] = structures.WillSaveTextDocumentParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
           case v: Vector[?] => writeJs[Vector[structures.TextEdit]](v.asInstanceOf[Vector[structures.TextEdit]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
 object typeHierarchy:
   object subtypes extends LSPRequest("typeHierarchy/subtypes"):
     type In = structures.TypeHierarchySubtypesParams
-    type Out = (Vector[structures.TypeHierarchyItem] | Null)
+    type Out = Nullable[Vector[structures.TypeHierarchyItem]]
     given reader: Reader[In] = structures.TypeHierarchySubtypesParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
           case v: Vector[?] => writeJs[Vector[structures.TypeHierarchyItem]](v.asInstanceOf[Vector[structures.TypeHierarchyItem]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
   object supertypes extends LSPRequest("typeHierarchy/supertypes"):
     type In = structures.TypeHierarchySupertypesParams
-    type Out = (Vector[structures.TypeHierarchyItem] | Null)
+    type Out = Nullable[Vector[structures.TypeHierarchyItem]]
     given reader: Reader[In] = structures.TypeHierarchySupertypesParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
           case v: Vector[?] => writeJs[Vector[structures.TypeHierarchyItem]](v.asInstanceOf[Vector[structures.TypeHierarchyItem]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
@@ -543,13 +543,13 @@ object window:
   
   object showMessageRequest extends LSPRequest("window/showMessageRequest"):
     type In = structures.ShowMessageRequestParams
-    type Out = (structures.MessageActionItem | Null)
+    type Out = Nullable[structures.MessageActionItem]
     given reader: Reader[In] = structures.ShowMessageRequestParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
-          case v: structures.MessageActionItem => writeJs(v)
-          case null => ujson.Null
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
+          case v: structures.MessageActionItem => writeJs[structures.MessageActionItem](v)
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
@@ -606,13 +606,13 @@ object workspace:
     
   object executeCommand extends LSPRequest("workspace/executeCommand"):
     type In = structures.ExecuteCommandParams
-    type Out = (ujson.Value | Null)
+    type Out = Nullable[ujson.Value]
     given reader: Reader[In] = structures.ExecuteCommandParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
-          case v: ujson.Value => writeJs(v)
-          case null => ujson.Null
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
+          case v: ujson.Value => writeJs[ujson.Value](v)
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
@@ -648,59 +648,59 @@ object workspace:
     type Out = (Vector[structures.SymbolInformation] | Vector[structures.WorkspaceSymbol] | Null)
     given reader: Reader[In] = structures.WorkspaceSymbolParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
           case v: Vector[?] => writeJs[Vector[structures.SymbolInformation]](v.asInstanceOf[Vector[structures.SymbolInformation]])
           case v: Vector[?] => writeJs[Vector[structures.WorkspaceSymbol]](v.asInstanceOf[Vector[structures.WorkspaceSymbol]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
   object willCreateFiles extends LSPRequest("workspace/willCreateFiles"):
     type In = structures.CreateFilesParams
-    type Out = (structures.WorkspaceEdit | Null)
+    type Out = Nullable[structures.WorkspaceEdit]
     given reader: Reader[In] = structures.CreateFilesParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
-          case v: structures.WorkspaceEdit => writeJs(v)
-          case null => ujson.Null
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
+          case v: structures.WorkspaceEdit => writeJs[structures.WorkspaceEdit](v)
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
   object willDeleteFiles extends LSPRequest("workspace/willDeleteFiles"):
     type In = structures.DeleteFilesParams
-    type Out = (structures.WorkspaceEdit | Null)
+    type Out = Nullable[structures.WorkspaceEdit]
     given reader: Reader[In] = structures.DeleteFilesParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
-          case v: structures.WorkspaceEdit => writeJs(v)
-          case null => ujson.Null
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
+          case v: structures.WorkspaceEdit => writeJs[structures.WorkspaceEdit](v)
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
   object willRenameFiles extends LSPRequest("workspace/willRenameFiles"):
     type In = structures.RenameFilesParams
-    type Out = (structures.WorkspaceEdit | Null)
+    type Out = Nullable[structures.WorkspaceEdit]
     given reader: Reader[In] = structures.RenameFilesParams.reader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
-          case v: structures.WorkspaceEdit => writeJs(v)
-          case null => ujson.Null
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
+          case v: structures.WorkspaceEdit => writeJs[structures.WorkspaceEdit](v)
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   
   object workspaceFolders extends LSPRequest("workspace/workspaceFolders"):
     type In = Unit
-    type Out = (Vector[structures.WorkspaceFolder] | Null)
+    type Out = Nullable[Vector[structures.WorkspaceFolder]]
     given reader: Reader[In] = unitReader
     private val _writer: Writer[Out] = 
-      upickle.default.writer[ujson.Value].comap[Out] { v => 
-        (v: @unchecked) match 
+      upickle.default.writer[ujson.Value].comap[Out] { _v => 
+        (_v: @unchecked) match 
           case v: Vector[?] => writeJs[Vector[structures.WorkspaceFolder]](v.asInstanceOf[Vector[structures.WorkspaceFolder]])
-          case null => ujson.Null
+          case a if a == Nullable.NULL => ujson.Null
       }
     given writer: Writer[Out] = _writer
   

@@ -19,6 +19,16 @@ object JSONRPC:
     def method: String
     def params: ujson.Value
 
+  trait Notification extends Message:
+    def method: String
+    def params: ujson.Value
+
+  private case class NotificationImpl(method: String, params: ujson.Value) extends Notification
+
+  object Notification:
+    given Reader[Notification] = 
+      upickle.default.macroR[NotificationImpl].map(_.asInstanceOf[Notification])
+
   object RequestMessage:
     private given Reader[Int | String] =
       upickle.default.reader[ujson.Value].map[Int | String] {
@@ -33,7 +43,7 @@ object JSONRPC:
 
   trait ResponseMessage extends Message:
     def id: Int | String | Null
-    def result: Option[String]
+    def result: Option[ujson.Value]
     def error: Option[ResponseError]
 
   end ResponseMessage
@@ -46,7 +56,7 @@ object JSONRPC:
 
   private class ResponseMessageImpl(
       val id: Int | String | Null,
-      val result: Option[String],
+      val result: Option[ujson.Value],
       val error: Option[ResponseError]
   ) extends ResponseMessage
 
@@ -59,12 +69,15 @@ object JSONRPC:
 
   def response(
       id: Int | String | Null,
-      result: Either[ResponseError, String]
+      result: Either[ResponseError, ujson.Value]
   ): ResponseMessage =
     ResponseMessageImpl(id, result.toOption, result.left.toOption)
 
-  private class ResponseErrorImpl(val code: Int, val message: String)
+  private case class ResponseErrorImpl(val code: Int, val message: String)
       extends ResponseError
+  private object ResponseErrorImpl:
+    given upickle.default.ReadWriter[ResponseErrorImpl] =
+      upickle.default.macroRW
 
   def error(code: Int, message: String): ResponseError =
     ResponseErrorImpl(code, message)
@@ -83,6 +96,30 @@ object JSONRPC:
     )
     val str = upickle.default.write(obj)
 
-    s"Content-Length: ${str.length}\n\n$str"
+    s"Content-Length: ${str.length}\r\n\r\n$str"
+  end render
+
+  def render(req: ResponseMessage) =
+    val data =
+      req.result.map("result" -> _) orElse
+        req.error.map(e =>
+          "error" ->
+            ujson.Obj(
+              "code"    -> ujson.Num(e.code),
+              "message" -> ujson.Str(e.message)
+            )
+        )
+
+    val obj = ujson.Obj(
+      "id" ->
+        (req.id match
+          case i: Int    => ujson.Num(i)
+          case i: String => ujson.Str(i)
+        ),
+      (data.toSeq ++ Seq("jsonrpc" -> ujson.Str(req.jsonrpc)))*
+    )
+    val str = upickle.default.write(obj)
+
+    s"Content-Length: ${str.length}\r\n\r\n$str"
   end render
 end JSONRPC

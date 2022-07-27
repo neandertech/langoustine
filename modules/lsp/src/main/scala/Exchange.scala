@@ -6,7 +6,14 @@ import java.io.OutputStream
 import langoustine.JSONRPC
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import langoustine.JSONRPC.RequestMessage
+import langoustine.JSONRPC.*
+import java.io.BufferedWriter
+import java.io.OutputStreamWriter
+
+enum Action:
+  case Response(msg: ResponseMessage)
+  case Shutdown
+  case Ignore
 
 class Exchange(logger: scribe.Logger):
   private enum State:
@@ -18,17 +25,16 @@ class Exchange(logger: scribe.Logger):
   def bind(
       in: InputStream,
       out: OutputStream,
-      build: RequestMessage => Unit
+      build: RequestMessage => Action
   ) =
     var state: State = Start
     val reader       = new BufferedReader(new InputStreamReader(in))
+    val writer       = new OutputStreamWriter(out)
+    var keepRunning  = true
 
     try
 
-      while true do
-
-        println(state)
-
+      while keepRunning do
         state match
           case Start =>
             val line = reader.readLine().trim
@@ -37,7 +43,7 @@ class Exchange(logger: scribe.Logger):
               case s"Content-Length: $num" =>
                 State.ReceivedContentLength(num.toInt)
               case other =>
-                logger.error(s"REceived $line")
+                logger.error(s"Received $line")
                 Start
 
           case ReceivedContentLength(l) =>
@@ -46,11 +52,23 @@ class Exchange(logger: scribe.Logger):
             reader.read(buf)
             var request: Option[JSONRPC.RequestMessage] = None
             val str                                     = new String(buf)
+            logger.info(s"Received $str")
             try
               request = Some(
                 upickle.default.read[JSONRPC.RequestMessage](str)
               )
-              request.foreach(request => build(request))
+              request.foreach { request =>
+                build(request) match
+                  case Action.Response(resp) =>
+                    val rendered = JSONRPC.render(resp)
+                    logger.info(rendered)
+
+                    writer.write(rendered)
+                    writer.flush()
+                  case Action.Shutdown =>
+                    keepRunning = false
+                  case Action.Ignore => 
+              }
             catch
               case exc =>
                 logger.error(

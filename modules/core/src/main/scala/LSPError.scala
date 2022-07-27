@@ -10,4 +10,4 @@ import cats.MonadThrow
 enum LSPError(msg: String, tr: Throwable = null) extends Throwable(msg, tr):
   case NotImplementedError(method: String) extends LSPError("Not implemented")
   case FailureParsing(in: ujson.Value, reason: Throwable = null)
-      extends LSPError("Failed to parse input", reason)
+      extends LSPError(s"Failed to parse input '$in' $reason", reason)

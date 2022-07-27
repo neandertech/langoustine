@@ -24,17 +24,10 @@ object Location:
   given writer: Writer[structures.Location] = upickle.default.macroW
 
 case class ImplementationRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null),
+  documentSelector: Nullable[aliases.DocumentSelector],
   id: Opt[String] = Opt.empty
 )
 object ImplementationRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.ImplementationRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.ImplementationRegistrationOptions] = upickle.default.macroW
 
@@ -49,17 +42,10 @@ object TypeDefinitionParams:
   given writer: Writer[structures.TypeDefinitionParams] = upickle.default.macroW
 
 case class TypeDefinitionRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null),
+  documentSelector: Nullable[aliases.DocumentSelector],
   id: Opt[String] = Opt.empty
 )
 object TypeDefinitionRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.TypeDefinitionRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.TypeDefinitionRegistrationOptions] = upickle.default.macroW
 
@@ -110,17 +96,10 @@ object ColorInformation:
   given writer: Writer[structures.ColorInformation] = upickle.default.macroW
 
 case class DocumentColorRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null),
+  documentSelector: Nullable[aliases.DocumentSelector],
   id: Opt[String] = Opt.empty
 )
 object DocumentColorRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.DocumentColorRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.DocumentColorRegistrationOptions] = upickle.default.macroW
 
@@ -152,16 +131,9 @@ object WorkDoneProgressOptions:
   given writer: Writer[structures.WorkDoneProgressOptions] = upickle.default.macroW
 
 case class TextDocumentRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null)
+  documentSelector: Nullable[aliases.DocumentSelector]
 )
 object TextDocumentRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.TextDocumentRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.TextDocumentRegistrationOptions] = upickle.default.macroW
 
@@ -187,17 +159,10 @@ object FoldingRange:
   given writer: Writer[structures.FoldingRange] = upickle.default.macroW
 
 case class FoldingRangeRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null),
+  documentSelector: Nullable[aliases.DocumentSelector],
   id: Opt[String] = Opt.empty
 )
 object FoldingRangeRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.FoldingRangeRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.FoldingRangeRegistrationOptions] = upickle.default.macroW
 
@@ -212,17 +177,10 @@ object DeclarationParams:
   given writer: Writer[structures.DeclarationParams] = upickle.default.macroW
 
 case class DeclarationRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null),
+  documentSelector: Nullable[aliases.DocumentSelector],
   id: Opt[String] = Opt.empty
 )
 object DeclarationRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.DeclarationRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.DeclarationRegistrationOptions] = upickle.default.macroW
 
@@ -245,17 +203,10 @@ object SelectionRange:
   given writer: Writer[structures.SelectionRange] = upickle.default.macroW
 
 case class SelectionRangeRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null),
+  documentSelector: Nullable[aliases.DocumentSelector],
   id: Opt[String] = Opt.empty
 )
 object SelectionRangeRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.SelectionRangeRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.SelectionRangeRegistrationOptions] = upickle.default.macroW
 
@@ -297,17 +248,10 @@ object CallHierarchyItem:
   given writer: Writer[structures.CallHierarchyItem] = upickle.default.macroW
 
 case class CallHierarchyRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null),
+  documentSelector: Nullable[aliases.DocumentSelector],
   id: Opt[String] = Opt.empty
 )
 object CallHierarchyRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.CallHierarchyRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.CallHierarchyRegistrationOptions] = upickle.default.macroW
 
@@ -370,33 +314,26 @@ object SemanticTokensPartialResult:
   given writer: Writer[structures.SemanticTokensPartialResult] = upickle.default.macroW
 
 case class SemanticTokensRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null),
+  documentSelector: Nullable[aliases.DocumentSelector],
   legend: structures.SemanticTokensLegend,
   range: Opt[(Boolean | SemanticTokensRegistrationOptions.S0)] = Opt.empty,
   full: Opt[(Boolean | SemanticTokensRegistrationOptions.S1)] = Opt.empty,
   id: Opt[String] = Opt.empty
 )
 object SemanticTokensRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   private given rd1: Reader[(Boolean | SemanticTokensRegistrationOptions.S0)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | SemanticTokensRegistrationOptions.S0)], SemanticTokensRegistrationOptions.S0.reader.widen[(Boolean | SemanticTokensRegistrationOptions.S0)])
   private given wt1: Writer[(Boolean | SemanticTokensRegistrationOptions.S0)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | SemanticTokensRegistrationOptions.S0)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: SemanticTokensRegistrationOptions.S0 => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | SemanticTokensRegistrationOptions.S0)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: SemanticTokensRegistrationOptions.S0 => writeJs[SemanticTokensRegistrationOptions.S0](v)
     }
   private given rd2: Reader[(Boolean | SemanticTokensRegistrationOptions.S1)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | SemanticTokensRegistrationOptions.S1)], SemanticTokensRegistrationOptions.S1.reader.widen[(Boolean | SemanticTokensRegistrationOptions.S1)])
   private given wt2: Writer[(Boolean | SemanticTokensRegistrationOptions.S1)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | SemanticTokensRegistrationOptions.S1)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: SemanticTokensRegistrationOptions.S1 => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | SemanticTokensRegistrationOptions.S1)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: SemanticTokensRegistrationOptions.S1 => writeJs[SemanticTokensRegistrationOptions.S1](v)
     }
   given reader: Reader[structures.SemanticTokensRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.SemanticTokensRegistrationOptions] = upickle.default.macroW
@@ -482,17 +419,10 @@ object LinkedEditingRanges:
   given writer: Writer[structures.LinkedEditingRanges] = upickle.default.macroW
 
 case class LinkedEditingRangeRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null),
+  documentSelector: Nullable[aliases.DocumentSelector],
   id: Opt[String] = Opt.empty
 )
 object LinkedEditingRangeRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.LinkedEditingRangeRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.LinkedEditingRangeRegistrationOptions] = upickle.default.macroW
 
@@ -511,12 +441,12 @@ case class WorkspaceEdit(
 object WorkspaceEdit:
   private given rd0: Reader[(structures.TextDocumentEdit | structures.CreateFile | structures.RenameFile | structures.DeleteFile)] = badMerge(structures.TextDocumentEdit.reader.widen[(structures.TextDocumentEdit | structures.CreateFile | structures.RenameFile | structures.DeleteFile)], structures.CreateFile.reader.widen[(structures.TextDocumentEdit | structures.CreateFile | structures.RenameFile | structures.DeleteFile)], structures.RenameFile.reader.widen[(structures.TextDocumentEdit | structures.CreateFile | structures.RenameFile | structures.DeleteFile)], structures.DeleteFile.reader.widen[(structures.TextDocumentEdit | structures.CreateFile | structures.RenameFile | structures.DeleteFile)])
   private given wt0: Writer[(structures.TextDocumentEdit | structures.CreateFile | structures.RenameFile | structures.DeleteFile)] = 
-    upickle.default.writer[ujson.Value].comap[(structures.TextDocumentEdit | structures.CreateFile | structures.RenameFile | structures.DeleteFile)] { v => 
-      (v: @unchecked) match 
-        case v: structures.TextDocumentEdit => writeJs(v)
-        case v: structures.CreateFile => writeJs(v)
-        case v: structures.RenameFile => writeJs(v)
-        case v: structures.DeleteFile => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(structures.TextDocumentEdit | structures.CreateFile | structures.RenameFile | structures.DeleteFile)] { _v => 
+      (_v: @unchecked) match 
+        case v: structures.TextDocumentEdit => writeJs[structures.TextDocumentEdit](v)
+        case v: structures.CreateFile => writeJs[structures.CreateFile](v)
+        case v: structures.RenameFile => writeJs[structures.RenameFile](v)
+        case v: structures.DeleteFile => writeJs[structures.DeleteFile](v)
     }
   given reader: Reader[structures.WorkspaceEdit] = Pickle.macroR
   given writer: Writer[structures.WorkspaceEdit] = upickle.default.macroW
@@ -563,16 +493,9 @@ object Moniker:
   given writer: Writer[structures.Moniker] = upickle.default.macroW
 
 case class MonikerRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null)
+  documentSelector: Nullable[aliases.DocumentSelector]
 )
 object MonikerRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.MonikerRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.MonikerRegistrationOptions] = upickle.default.macroW
 
@@ -600,17 +523,10 @@ object TypeHierarchyItem:
   given writer: Writer[structures.TypeHierarchyItem] = upickle.default.macroW
 
 case class TypeHierarchyRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null),
+  documentSelector: Nullable[aliases.DocumentSelector],
   id: Opt[String] = Opt.empty
 )
 object TypeHierarchyRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.TypeHierarchyRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.TypeHierarchyRegistrationOptions] = upickle.default.macroW
 
@@ -643,17 +559,10 @@ object InlineValueParams:
   given writer: Writer[structures.InlineValueParams] = upickle.default.macroW
 
 case class InlineValueRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null),
+  documentSelector: Nullable[aliases.DocumentSelector],
   id: Opt[String] = Opt.empty
 )
 object InlineValueRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.InlineValueRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.InlineValueRegistrationOptions] = upickle.default.macroW
 
@@ -679,34 +588,27 @@ case class InlayHint(
 object InlayHint:
   private given rd0: Reader[(String | Vector[structures.InlayHintLabelPart])] = badMerge(stringCodec.widen[(String | Vector[structures.InlayHintLabelPart])], upickle.default.reader[Vector[structures.InlayHintLabelPart]].widen[(String | Vector[structures.InlayHintLabelPart])])
   private given wt0: Writer[(String | Vector[structures.InlayHintLabelPart])] = 
-    upickle.default.writer[ujson.Value].comap[(String | Vector[structures.InlayHintLabelPart])] { v => 
-      (v: @unchecked) match 
-        case v: String => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(String | Vector[structures.InlayHintLabelPart])] { _v => 
+      (_v: @unchecked) match 
+        case v: String => writeJs[String](v)
         case v: Vector[?] => writeJs[Vector[structures.InlayHintLabelPart]](v.asInstanceOf[Vector[structures.InlayHintLabelPart]])
     }
   private given rd1: Reader[(String | structures.MarkupContent)] = badMerge(stringCodec.widen[(String | structures.MarkupContent)], structures.MarkupContent.reader.widen[(String | structures.MarkupContent)])
   private given wt1: Writer[(String | structures.MarkupContent)] = 
-    upickle.default.writer[ujson.Value].comap[(String | structures.MarkupContent)] { v => 
-      (v: @unchecked) match 
-        case v: String => writeJs(v)
-        case v: structures.MarkupContent => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(String | structures.MarkupContent)] { _v => 
+      (_v: @unchecked) match 
+        case v: String => writeJs[String](v)
+        case v: structures.MarkupContent => writeJs[structures.MarkupContent](v)
     }
   given reader: Reader[structures.InlayHint] = Pickle.macroR
   given writer: Writer[structures.InlayHint] = upickle.default.macroW
 
 case class InlayHintRegistrationOptions(
   resolveProvider: Opt[Boolean] = Opt.empty,
-  documentSelector: (aliases.DocumentSelector | Null),
+  documentSelector: Nullable[aliases.DocumentSelector],
   id: Opt[String] = Opt.empty
 )
 object InlayHintRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.InlayHintRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.InlayHintRegistrationOptions] = upickle.default.macroW
 
@@ -727,10 +629,10 @@ case class DocumentDiagnosticReportPartialResult(
 object DocumentDiagnosticReportPartialResult:
   private given rd0: Reader[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)] = badMerge(structures.FullDocumentDiagnosticReport.reader.widen[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)], structures.UnchangedDocumentDiagnosticReport.reader.widen[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)])
   private given wt0: Writer[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)] = 
-    upickle.default.writer[ujson.Value].comap[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)] { v => 
-      (v: @unchecked) match 
-        case v: structures.FullDocumentDiagnosticReport => writeJs(v)
-        case v: structures.UnchangedDocumentDiagnosticReport => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)] { _v => 
+      (_v: @unchecked) match 
+        case v: structures.FullDocumentDiagnosticReport => writeJs[structures.FullDocumentDiagnosticReport](v)
+        case v: structures.UnchangedDocumentDiagnosticReport => writeJs[structures.UnchangedDocumentDiagnosticReport](v)
     }
   given reader: Reader[structures.DocumentDiagnosticReportPartialResult] = Pickle.macroR
   given writer: Writer[structures.DocumentDiagnosticReportPartialResult] = upickle.default.macroW
@@ -743,20 +645,13 @@ object DiagnosticServerCancellationData:
   given writer: Writer[structures.DiagnosticServerCancellationData] = upickle.default.macroW
 
 case class DiagnosticRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null),
+  documentSelector: Nullable[aliases.DocumentSelector],
   identifier: Opt[String] = Opt.empty,
   interFileDependencies: Boolean,
   workspaceDiagnostics: Boolean,
   id: Opt[String] = Opt.empty
 )
 object DiagnosticRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.DiagnosticRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.DiagnosticRegistrationOptions] = upickle.default.macroW
 
@@ -830,53 +725,25 @@ object UnregistrationParams:
   given writer: Writer[structures.UnregistrationParams] = upickle.default.macroW
 
 case class InitializeParams(
-  processId: (Int | Null),
+  processId: Nullable[Int],
   clientInfo: Opt[InitializeParams.ClientInfo] = Opt.empty,
   locale: Opt[String] = Opt.empty,
-  rootPath: Opt[(String | Null)] = Opt.empty,
-  rootUri: (RuntimeBase.DocumentUri | Null),
+  rootPath: Opt[Nullable[String]] = Opt.empty,
+  rootUri: Nullable[RuntimeBase.DocumentUri],
   capabilities: structures.ClientCapabilities,
   initializationOptions: Opt[ujson.Value] = Opt.empty,
   trace: Opt[("off" | "messages" | "compact" | "verbose")] = Opt.empty,
-  workspaceFolders: Opt[(Vector[structures.WorkspaceFolder] | Null)] = Opt.empty
+  workspaceFolders: Opt[Nullable[Vector[structures.WorkspaceFolder]]] = Opt.empty
 )
 object InitializeParams:
-  private given rd0: Reader[(Int | Null)] = badMerge(intCodec.widen[(Int | Null)], nullReadWriter.widen[(Int | Null)])
-  private given wt0: Writer[(Int | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(Int | Null)] { v => 
-      (v: @unchecked) match 
-        case v: Int => writeJs(v)
-        case null => ujson.Null
-    }
-  private given rd1: Reader[(String | Null)] = badMerge(stringCodec.widen[(String | Null)], nullReadWriter.widen[(String | Null)])
-  private given wt1: Writer[(String | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(String | Null)] { v => 
-      (v: @unchecked) match 
-        case v: String => writeJs(v)
-        case null => ujson.Null
-    }
-  private given rd2: Reader[(RuntimeBase.DocumentUri | Null)] = badMerge(upickle.default.reader[RuntimeBase.DocumentUri].widen[(RuntimeBase.DocumentUri | Null)], nullReadWriter.widen[(RuntimeBase.DocumentUri | Null)])
-  private given wt2: Writer[(RuntimeBase.DocumentUri | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(RuntimeBase.DocumentUri | Null)] { v => 
-      (v: @unchecked) match 
-        case v: RuntimeBase.DocumentUri => writeJs(v)
-        case null => ujson.Null
-    }
   private given rd3: Reader[("off" | "messages" | "compact" | "verbose")] = badMerge(upickle.default.reader["off"].widen[("off" | "messages" | "compact" | "verbose")], upickle.default.reader["messages"].widen[("off" | "messages" | "compact" | "verbose")], upickle.default.reader["compact"].widen[("off" | "messages" | "compact" | "verbose")], upickle.default.reader["verbose"].widen[("off" | "messages" | "compact" | "verbose")])
   private given wt3: Writer[("off" | "messages" | "compact" | "verbose")] = 
-    upickle.default.writer[ujson.Value].comap[("off" | "messages" | "compact" | "verbose")] { v => 
-      (v: @unchecked) match 
-        case v: "off" => writeJs(v)
-        case v: "messages" => writeJs(v)
-        case v: "compact" => writeJs(v)
-        case v: "verbose" => writeJs(v)
-    }
-  private given rd4: Reader[(Vector[structures.WorkspaceFolder] | Null)] = badMerge(upickle.default.reader[Vector[structures.WorkspaceFolder]].widen[(Vector[structures.WorkspaceFolder] | Null)], nullReadWriter.widen[(Vector[structures.WorkspaceFolder] | Null)])
-  private given wt4: Writer[(Vector[structures.WorkspaceFolder] | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(Vector[structures.WorkspaceFolder] | Null)] { v => 
-      (v: @unchecked) match 
-        case v: Vector[?] => writeJs[Vector[structures.WorkspaceFolder]](v.asInstanceOf[Vector[structures.WorkspaceFolder]])
-        case null => ujson.Null
+    upickle.default.writer[ujson.Value].comap[("off" | "messages" | "compact" | "verbose")] { _v => 
+      (_v: @unchecked) match 
+        case v: "off" => writeJs["off"](v)
+        case v: "messages" => writeJs["messages"](v)
+        case v: "compact" => writeJs["compact"](v)
+        case v: "verbose" => writeJs["verbose"](v)
     }
   given reader: Reader[structures.InitializeParams] = Pickle.macroR
   given writer: Writer[structures.InitializeParams] = upickle.default.macroW
@@ -929,9 +796,9 @@ case class DidChangeConfigurationRegistrationOptions(
 object DidChangeConfigurationRegistrationOptions:
   private given rd0: Reader[(String | Vector[String])] = badMerge(stringCodec.widen[(String | Vector[String])], upickle.default.reader[Vector[String]].widen[(String | Vector[String])])
   private given wt0: Writer[(String | Vector[String])] = 
-    upickle.default.writer[ujson.Value].comap[(String | Vector[String])] { v => 
-      (v: @unchecked) match 
-        case v: String => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(String | Vector[String])] { _v => 
+      (_v: @unchecked) match 
+        case v: String => writeJs[String](v)
         case v: Vector[?] => writeJs[Vector[String]](v.asInstanceOf[Vector[String]])
     }
   given reader: Reader[structures.DidChangeConfigurationRegistrationOptions] = Pickle.macroR
@@ -986,16 +853,9 @@ object DidChangeTextDocumentParams:
 
 case class TextDocumentChangeRegistrationOptions(
   syncKind: enumerations.TextDocumentSyncKind,
-  documentSelector: (aliases.DocumentSelector | Null)
+  documentSelector: Nullable[aliases.DocumentSelector]
 )
 object TextDocumentChangeRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.TextDocumentChangeRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.TextDocumentChangeRegistrationOptions] = upickle.default.macroW
 
@@ -1015,17 +875,10 @@ object DidSaveTextDocumentParams:
   given writer: Writer[structures.DidSaveTextDocumentParams] = upickle.default.macroW
 
 case class TextDocumentSaveRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null),
+  documentSelector: Nullable[aliases.DocumentSelector],
   includeText: Opt[Boolean] = Opt.empty
 )
 object TextDocumentSaveRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.TextDocumentSaveRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.TextDocumentSaveRegistrationOptions] = upickle.default.macroW
 
@@ -1103,17 +956,17 @@ case class CompletionItem(
 object CompletionItem:
   private given rd0: Reader[(String | structures.MarkupContent)] = badMerge(stringCodec.widen[(String | structures.MarkupContent)], structures.MarkupContent.reader.widen[(String | structures.MarkupContent)])
   private given wt0: Writer[(String | structures.MarkupContent)] = 
-    upickle.default.writer[ujson.Value].comap[(String | structures.MarkupContent)] { v => 
-      (v: @unchecked) match 
-        case v: String => writeJs(v)
-        case v: structures.MarkupContent => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(String | structures.MarkupContent)] { _v => 
+      (_v: @unchecked) match 
+        case v: String => writeJs[String](v)
+        case v: structures.MarkupContent => writeJs[structures.MarkupContent](v)
     }
   private given rd1: Reader[(structures.TextEdit | structures.InsertReplaceEdit)] = badMerge(structures.TextEdit.reader.widen[(structures.TextEdit | structures.InsertReplaceEdit)], structures.InsertReplaceEdit.reader.widen[(structures.TextEdit | structures.InsertReplaceEdit)])
   private given wt1: Writer[(structures.TextEdit | structures.InsertReplaceEdit)] = 
-    upickle.default.writer[ujson.Value].comap[(structures.TextEdit | structures.InsertReplaceEdit)] { v => 
-      (v: @unchecked) match 
-        case v: structures.TextEdit => writeJs(v)
-        case v: structures.InsertReplaceEdit => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(structures.TextEdit | structures.InsertReplaceEdit)] { _v => 
+      (_v: @unchecked) match 
+        case v: structures.TextEdit => writeJs[structures.TextEdit](v)
+        case v: structures.InsertReplaceEdit => writeJs[structures.InsertReplaceEdit](v)
     }
   given reader: Reader[structures.CompletionItem] = Pickle.macroR
   given writer: Writer[structures.CompletionItem] = upickle.default.macroW
@@ -1136,10 +989,10 @@ object CompletionList:
   object ItemDefaults:
     private given rd0: Reader[(structures.Range | ItemDefaults.S0)] = badMerge(structures.Range.reader.widen[(structures.Range | ItemDefaults.S0)], ItemDefaults.S0.reader.widen[(structures.Range | ItemDefaults.S0)])
     private given wt0: Writer[(structures.Range | ItemDefaults.S0)] = 
-      upickle.default.writer[ujson.Value].comap[(structures.Range | ItemDefaults.S0)] { v => 
-        (v: @unchecked) match 
-          case v: structures.Range => writeJs(v)
-          case v: ItemDefaults.S0 => writeJs(v)
+      upickle.default.writer[ujson.Value].comap[(structures.Range | ItemDefaults.S0)] { _v => 
+        (_v: @unchecked) match 
+          case v: structures.Range => writeJs[structures.Range](v)
+          case v: ItemDefaults.S0 => writeJs[ItemDefaults.S0](v)
       }
     given reader: Reader[structures.CompletionList.ItemDefaults] = Pickle.macroR
     given writer: Writer[structures.CompletionList.ItemDefaults] = upickle.default.macroW
@@ -1152,20 +1005,13 @@ object CompletionList:
       given writer: Writer[structures.CompletionList.ItemDefaults.S0] = upickle.default.macroW
 
 case class CompletionRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null),
+  documentSelector: Nullable[aliases.DocumentSelector],
   triggerCharacters: Opt[Vector[String]] = Opt.empty,
   allCommitCharacters: Opt[Vector[String]] = Opt.empty,
   resolveProvider: Opt[Boolean] = Opt.empty,
   completionItem: Opt[CompletionRegistrationOptions.CompletionItem] = Opt.empty
 )
 object CompletionRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.CompletionRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.CompletionRegistrationOptions] = upickle.default.macroW
   case class CompletionItem(
@@ -1191,26 +1037,19 @@ case class Hover(
 object Hover:
   private given rd0: Reader[(structures.MarkupContent | aliases.MarkedString | Vector[aliases.MarkedString])] = badMerge(structures.MarkupContent.reader.widen[(structures.MarkupContent | aliases.MarkedString | Vector[aliases.MarkedString])], aliases.MarkedString.reader.widen[(structures.MarkupContent | aliases.MarkedString | Vector[aliases.MarkedString])], upickle.default.reader[Vector[aliases.MarkedString]].widen[(structures.MarkupContent | aliases.MarkedString | Vector[aliases.MarkedString])])
   private given wt0: Writer[(structures.MarkupContent | aliases.MarkedString | Vector[aliases.MarkedString])] = 
-    upickle.default.writer[ujson.Value].comap[(structures.MarkupContent | aliases.MarkedString | Vector[aliases.MarkedString])] { v => 
-      (v: @unchecked) match 
-        case v: structures.MarkupContent => writeJs(v)
-        case v: aliases.MarkedString => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(structures.MarkupContent | aliases.MarkedString | Vector[aliases.MarkedString])] { _v => 
+      (_v: @unchecked) match 
+        case v: structures.MarkupContent => writeJs[structures.MarkupContent](v)
+        case v: aliases.MarkedString => writeJs[aliases.MarkedString](v)
         case v: Vector[?] => writeJs[Vector[aliases.MarkedString]](v.asInstanceOf[Vector[aliases.MarkedString]])
     }
   given reader: Reader[structures.Hover] = Pickle.macroR
   given writer: Writer[structures.Hover] = upickle.default.macroW
 
 case class HoverRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null)
+  documentSelector: Nullable[aliases.DocumentSelector]
 )
 object HoverRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.HoverRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.HoverRegistrationOptions] = upickle.default.macroW
 
@@ -1234,18 +1073,11 @@ object SignatureHelp:
   given writer: Writer[structures.SignatureHelp] = upickle.default.macroW
 
 case class SignatureHelpRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null),
+  documentSelector: Nullable[aliases.DocumentSelector],
   triggerCharacters: Opt[Vector[String]] = Opt.empty,
   retriggerCharacters: Opt[Vector[String]] = Opt.empty
 )
 object SignatureHelpRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.SignatureHelpRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.SignatureHelpRegistrationOptions] = upickle.default.macroW
 
@@ -1260,16 +1092,9 @@ object DefinitionParams:
   given writer: Writer[structures.DefinitionParams] = upickle.default.macroW
 
 case class DefinitionRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null)
+  documentSelector: Nullable[aliases.DocumentSelector]
 )
 object DefinitionRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.DefinitionRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.DefinitionRegistrationOptions] = upickle.default.macroW
 
@@ -1285,16 +1110,9 @@ object ReferenceParams:
   given writer: Writer[structures.ReferenceParams] = upickle.default.macroW
 
 case class ReferenceRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null)
+  documentSelector: Nullable[aliases.DocumentSelector]
 )
 object ReferenceRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.ReferenceRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.ReferenceRegistrationOptions] = upickle.default.macroW
 
@@ -1317,16 +1135,9 @@ object DocumentHighlight:
   given writer: Writer[structures.DocumentHighlight] = upickle.default.macroW
 
 case class DocumentHighlightRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null)
+  documentSelector: Nullable[aliases.DocumentSelector]
 )
 object DocumentHighlightRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.DocumentHighlightRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.DocumentHighlightRegistrationOptions] = upickle.default.macroW
 
@@ -1366,17 +1177,10 @@ object DocumentSymbol:
   given writer: Writer[structures.DocumentSymbol] = upickle.default.macroW
 
 case class DocumentSymbolRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null),
+  documentSelector: Nullable[aliases.DocumentSelector],
   label: Opt[String] = Opt.empty
 )
 object DocumentSymbolRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.DocumentSymbolRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.DocumentSymbolRegistrationOptions] = upickle.default.macroW
 
@@ -1421,18 +1225,11 @@ object CodeAction:
     given writer: Writer[structures.CodeAction.Disabled] = upickle.default.macroW
 
 case class CodeActionRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null),
+  documentSelector: Nullable[aliases.DocumentSelector],
   codeActionKinds: Opt[Vector[enumerations.CodeActionKind]] = Opt.empty,
   resolveProvider: Opt[Boolean] = Opt.empty
 )
 object CodeActionRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.CodeActionRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.CodeActionRegistrationOptions] = upickle.default.macroW
 
@@ -1456,10 +1253,10 @@ case class WorkspaceSymbol(
 object WorkspaceSymbol:
   private given rd0: Reader[(structures.Location | WorkspaceSymbol.S0)] = badMerge(structures.Location.reader.widen[(structures.Location | WorkspaceSymbol.S0)], WorkspaceSymbol.S0.reader.widen[(structures.Location | WorkspaceSymbol.S0)])
   private given wt0: Writer[(structures.Location | WorkspaceSymbol.S0)] = 
-    upickle.default.writer[ujson.Value].comap[(structures.Location | WorkspaceSymbol.S0)] { v => 
-      (v: @unchecked) match 
-        case v: structures.Location => writeJs(v)
-        case v: WorkspaceSymbol.S0 => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(structures.Location | WorkspaceSymbol.S0)] { _v => 
+      (_v: @unchecked) match 
+        case v: structures.Location => writeJs[structures.Location](v)
+        case v: WorkspaceSymbol.S0 => writeJs[WorkspaceSymbol.S0](v)
     }
   given reader: Reader[structures.WorkspaceSymbol] = Pickle.macroR
   given writer: Writer[structures.WorkspaceSymbol] = upickle.default.macroW
@@ -1496,17 +1293,10 @@ object CodeLens:
   given writer: Writer[structures.CodeLens] = upickle.default.macroW
 
 case class CodeLensRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null),
+  documentSelector: Nullable[aliases.DocumentSelector],
   resolveProvider: Opt[Boolean] = Opt.empty
 )
 object CodeLensRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.CodeLensRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.CodeLensRegistrationOptions] = upickle.default.macroW
 
@@ -1530,17 +1320,10 @@ object DocumentLink:
   given writer: Writer[structures.DocumentLink] = upickle.default.macroW
 
 case class DocumentLinkRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null),
+  documentSelector: Nullable[aliases.DocumentSelector],
   resolveProvider: Opt[Boolean] = Opt.empty
 )
 object DocumentLinkRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.DocumentLinkRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.DocumentLinkRegistrationOptions] = upickle.default.macroW
 
@@ -1554,16 +1337,9 @@ object DocumentFormattingParams:
   given writer: Writer[structures.DocumentFormattingParams] = upickle.default.macroW
 
 case class DocumentFormattingRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null)
+  documentSelector: Nullable[aliases.DocumentSelector]
 )
 object DocumentFormattingRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.DocumentFormattingRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.DocumentFormattingRegistrationOptions] = upickle.default.macroW
 
@@ -1578,16 +1354,9 @@ object DocumentRangeFormattingParams:
   given writer: Writer[structures.DocumentRangeFormattingParams] = upickle.default.macroW
 
 case class DocumentRangeFormattingRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null)
+  documentSelector: Nullable[aliases.DocumentSelector]
 )
 object DocumentRangeFormattingRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.DocumentRangeFormattingRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.DocumentRangeFormattingRegistrationOptions] = upickle.default.macroW
 
@@ -1602,18 +1371,11 @@ object DocumentOnTypeFormattingParams:
   given writer: Writer[structures.DocumentOnTypeFormattingParams] = upickle.default.macroW
 
 case class DocumentOnTypeFormattingRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null),
+  documentSelector: Nullable[aliases.DocumentSelector],
   firstTriggerCharacter: String,
   moreTriggerCharacter: Opt[Vector[String]] = Opt.empty
 )
 object DocumentOnTypeFormattingRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.DocumentOnTypeFormattingRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.DocumentOnTypeFormattingRegistrationOptions] = upickle.default.macroW
 
@@ -1628,17 +1390,10 @@ object RenameParams:
   given writer: Writer[structures.RenameParams] = upickle.default.macroW
 
 case class RenameRegistrationOptions(
-  documentSelector: (aliases.DocumentSelector | Null),
+  documentSelector: Nullable[aliases.DocumentSelector],
   prepareProvider: Opt[Boolean] = Opt.empty
 )
 object RenameRegistrationOptions:
-  private given rd0: Reader[(aliases.DocumentSelector | Null)] = badMerge(aliases.DocumentSelector.reader.widen[(aliases.DocumentSelector | Null)], nullReadWriter.widen[(aliases.DocumentSelector | Null)])
-  private given wt0: Writer[(aliases.DocumentSelector | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(aliases.DocumentSelector | Null)] { v => 
-      (v: @unchecked) match 
-        case v: aliases.DocumentSelector => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.RenameRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.RenameRegistrationOptions] = upickle.default.macroW
 
@@ -1734,10 +1489,10 @@ case class CancelParams(
 object CancelParams:
   private given rd0: Reader[(Int | String)] = badMerge(intCodec.widen[(Int | String)], stringCodec.widen[(Int | String)])
   private given wt0: Writer[(Int | String)] = 
-    upickle.default.writer[ujson.Value].comap[(Int | String)] { v => 
-      (v: @unchecked) match 
-        case v: Int => writeJs(v)
-        case v: String => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Int | String)] { _v => 
+      (_v: @unchecked) match 
+        case v: Int => writeJs[Int](v)
+        case v: String => writeJs[String](v)
     }
   given reader: Reader[structures.CancelParams] = Pickle.macroR
   given writer: Writer[structures.CancelParams] = upickle.default.macroW
@@ -1889,17 +1644,17 @@ case class SemanticTokensOptions(
 object SemanticTokensOptions:
   private given rd0: Reader[(Boolean | SemanticTokensOptions.S0)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | SemanticTokensOptions.S0)], SemanticTokensOptions.S0.reader.widen[(Boolean | SemanticTokensOptions.S0)])
   private given wt0: Writer[(Boolean | SemanticTokensOptions.S0)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | SemanticTokensOptions.S0)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: SemanticTokensOptions.S0 => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | SemanticTokensOptions.S0)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: SemanticTokensOptions.S0 => writeJs[SemanticTokensOptions.S0](v)
     }
   private given rd1: Reader[(Boolean | SemanticTokensOptions.S1)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | SemanticTokensOptions.S1)], SemanticTokensOptions.S1.reader.widen[(Boolean | SemanticTokensOptions.S1)])
   private given wt1: Writer[(Boolean | SemanticTokensOptions.S1)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | SemanticTokensOptions.S1)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: SemanticTokensOptions.S1 => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | SemanticTokensOptions.S1)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: SemanticTokensOptions.S1 => writeJs[SemanticTokensOptions.S1](v)
     }
   given reader: Reader[structures.SemanticTokensOptions] = Pickle.macroR
   given writer: Writer[structures.SemanticTokensOptions] = upickle.default.macroW
@@ -1945,10 +1700,10 @@ case class TextDocumentEdit(
 object TextDocumentEdit:
   private given rd0: Reader[(structures.TextEdit | structures.AnnotatedTextEdit)] = badMerge(structures.TextEdit.reader.widen[(structures.TextEdit | structures.AnnotatedTextEdit)], structures.AnnotatedTextEdit.reader.widen[(structures.TextEdit | structures.AnnotatedTextEdit)])
   private given wt0: Writer[(structures.TextEdit | structures.AnnotatedTextEdit)] = 
-    upickle.default.writer[ujson.Value].comap[(structures.TextEdit | structures.AnnotatedTextEdit)] { v => 
-      (v: @unchecked) match 
-        case v: structures.TextEdit => writeJs(v)
-        case v: structures.AnnotatedTextEdit => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(structures.TextEdit | structures.AnnotatedTextEdit)] { _v => 
+      (_v: @unchecked) match 
+        case v: structures.TextEdit => writeJs[structures.TextEdit](v)
+        case v: structures.AnnotatedTextEdit => writeJs[structures.AnnotatedTextEdit](v)
     }
   given reader: Reader[structures.TextDocumentEdit] = Pickle.macroR
   given writer: Writer[structures.TextDocumentEdit] = upickle.default.macroW
@@ -2079,10 +1834,10 @@ case class InlayHintLabelPart(
 object InlayHintLabelPart:
   private given rd0: Reader[(String | structures.MarkupContent)] = badMerge(stringCodec.widen[(String | structures.MarkupContent)], structures.MarkupContent.reader.widen[(String | structures.MarkupContent)])
   private given wt0: Writer[(String | structures.MarkupContent)] = 
-    upickle.default.writer[ujson.Value].comap[(String | structures.MarkupContent)] { v => 
-      (v: @unchecked) match 
-        case v: String => writeJs(v)
-        case v: structures.MarkupContent => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(String | structures.MarkupContent)] { _v => 
+      (_v: @unchecked) match 
+        case v: String => writeJs[String](v)
+        case v: structures.MarkupContent => writeJs[structures.MarkupContent](v)
     }
   given reader: Reader[structures.InlayHintLabelPart] = Pickle.macroR
   given writer: Writer[structures.InlayHintLabelPart] = upickle.default.macroW
@@ -2112,10 +1867,10 @@ case class RelatedFullDocumentDiagnosticReport(
 object RelatedFullDocumentDiagnosticReport:
   private given rd0: Reader[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)] = badMerge(structures.FullDocumentDiagnosticReport.reader.widen[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)], structures.UnchangedDocumentDiagnosticReport.reader.widen[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)])
   private given wt0: Writer[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)] = 
-    upickle.default.writer[ujson.Value].comap[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)] { v => 
-      (v: @unchecked) match 
-        case v: structures.FullDocumentDiagnosticReport => writeJs(v)
-        case v: structures.UnchangedDocumentDiagnosticReport => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)] { _v => 
+      (_v: @unchecked) match 
+        case v: structures.FullDocumentDiagnosticReport => writeJs[structures.FullDocumentDiagnosticReport](v)
+        case v: structures.UnchangedDocumentDiagnosticReport => writeJs[structures.UnchangedDocumentDiagnosticReport](v)
     }
   given reader: Reader[structures.RelatedFullDocumentDiagnosticReport] = Pickle.macroR
   given writer: Writer[structures.RelatedFullDocumentDiagnosticReport] = upickle.default.macroW
@@ -2128,10 +1883,10 @@ case class RelatedUnchangedDocumentDiagnosticReport(
 object RelatedUnchangedDocumentDiagnosticReport:
   private given rd0: Reader[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)] = badMerge(structures.FullDocumentDiagnosticReport.reader.widen[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)], structures.UnchangedDocumentDiagnosticReport.reader.widen[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)])
   private given wt0: Writer[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)] = 
-    upickle.default.writer[ujson.Value].comap[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)] { v => 
-      (v: @unchecked) match 
-        case v: structures.FullDocumentDiagnosticReport => writeJs(v)
-        case v: structures.UnchangedDocumentDiagnosticReport => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(structures.FullDocumentDiagnosticReport | structures.UnchangedDocumentDiagnosticReport)] { _v => 
+      (_v: @unchecked) match 
+        case v: structures.FullDocumentDiagnosticReport => writeJs[structures.FullDocumentDiagnosticReport](v)
+        case v: structures.UnchangedDocumentDiagnosticReport => writeJs[structures.UnchangedDocumentDiagnosticReport](v)
     }
   given reader: Reader[structures.RelatedUnchangedDocumentDiagnosticReport] = Pickle.macroR
   given writer: Writer[structures.RelatedUnchangedDocumentDiagnosticReport] = upickle.default.macroW
@@ -2256,46 +2011,25 @@ object Unregistration:
   given writer: Writer[structures.Unregistration] = upickle.default.macroW
 
 case class _InitializeParams(
-  processId: (Int | Null),
+  processId: Nullable[Int],
   clientInfo: Opt[_InitializeParams.ClientInfo] = Opt.empty,
   locale: Opt[String] = Opt.empty,
-  rootPath: Opt[(String | Null)] = Opt.empty,
-  rootUri: (RuntimeBase.DocumentUri | Null),
+  rootPath: Opt[Nullable[String]] = Opt.empty,
+  rootUri: Nullable[RuntimeBase.DocumentUri],
   capabilities: structures.ClientCapabilities,
   initializationOptions: Opt[ujson.Value] = Opt.empty,
   trace: Opt[("off" | "messages" | "compact" | "verbose")] = Opt.empty,
   workDoneToken: Opt[aliases.ProgressToken] = Opt.empty
 )
 object _InitializeParams:
-  private given rd0: Reader[(Int | Null)] = badMerge(intCodec.widen[(Int | Null)], nullReadWriter.widen[(Int | Null)])
-  private given wt0: Writer[(Int | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(Int | Null)] { v => 
-      (v: @unchecked) match 
-        case v: Int => writeJs(v)
-        case null => ujson.Null
-    }
-  private given rd1: Reader[(String | Null)] = badMerge(stringCodec.widen[(String | Null)], nullReadWriter.widen[(String | Null)])
-  private given wt1: Writer[(String | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(String | Null)] { v => 
-      (v: @unchecked) match 
-        case v: String => writeJs(v)
-        case null => ujson.Null
-    }
-  private given rd2: Reader[(RuntimeBase.DocumentUri | Null)] = badMerge(upickle.default.reader[RuntimeBase.DocumentUri].widen[(RuntimeBase.DocumentUri | Null)], nullReadWriter.widen[(RuntimeBase.DocumentUri | Null)])
-  private given wt2: Writer[(RuntimeBase.DocumentUri | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(RuntimeBase.DocumentUri | Null)] { v => 
-      (v: @unchecked) match 
-        case v: RuntimeBase.DocumentUri => writeJs(v)
-        case null => ujson.Null
-    }
   private given rd3: Reader[("off" | "messages" | "compact" | "verbose")] = badMerge(upickle.default.reader["off"].widen[("off" | "messages" | "compact" | "verbose")], upickle.default.reader["messages"].widen[("off" | "messages" | "compact" | "verbose")], upickle.default.reader["compact"].widen[("off" | "messages" | "compact" | "verbose")], upickle.default.reader["verbose"].widen[("off" | "messages" | "compact" | "verbose")])
   private given wt3: Writer[("off" | "messages" | "compact" | "verbose")] = 
-    upickle.default.writer[ujson.Value].comap[("off" | "messages" | "compact" | "verbose")] { v => 
-      (v: @unchecked) match 
-        case v: "off" => writeJs(v)
-        case v: "messages" => writeJs(v)
-        case v: "compact" => writeJs(v)
-        case v: "verbose" => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[("off" | "messages" | "compact" | "verbose")] { _v => 
+      (_v: @unchecked) match 
+        case v: "off" => writeJs["off"](v)
+        case v: "messages" => writeJs["messages"](v)
+        case v: "compact" => writeJs["compact"](v)
+        case v: "verbose" => writeJs["verbose"](v)
     }
   given reader: Reader[structures._InitializeParams] = Pickle.macroR
   given writer: Writer[structures._InitializeParams] = upickle.default.macroW
@@ -2308,16 +2042,9 @@ object _InitializeParams:
     given writer: Writer[structures._InitializeParams.ClientInfo] = upickle.default.macroW
 
 case class WorkspaceFoldersInitializeParams(
-  workspaceFolders: Opt[(Vector[structures.WorkspaceFolder] | Null)] = Opt.empty
+  workspaceFolders: Opt[Nullable[Vector[structures.WorkspaceFolder]]] = Opt.empty
 )
 object WorkspaceFoldersInitializeParams:
-  private given rd0: Reader[(Vector[structures.WorkspaceFolder] | Null)] = badMerge(upickle.default.reader[Vector[structures.WorkspaceFolder]].widen[(Vector[structures.WorkspaceFolder] | Null)], nullReadWriter.widen[(Vector[structures.WorkspaceFolder] | Null)])
-  private given wt0: Writer[(Vector[structures.WorkspaceFolder] | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(Vector[structures.WorkspaceFolder] | Null)] { v => 
-      (v: @unchecked) match 
-        case v: Vector[?] => writeJs[Vector[structures.WorkspaceFolder]](v.asInstanceOf[Vector[structures.WorkspaceFolder]])
-        case null => ujson.Null
-    }
   given reader: Reader[structures.WorkspaceFoldersInitializeParams] = Pickle.macroR
   given writer: Writer[structures.WorkspaceFoldersInitializeParams] = upickle.default.macroW
 
@@ -2361,197 +2088,197 @@ case class ServerCapabilities(
 object ServerCapabilities:
   private given rd0: Reader[(structures.TextDocumentSyncOptions | enumerations.TextDocumentSyncKind)] = badMerge(structures.TextDocumentSyncOptions.reader.widen[(structures.TextDocumentSyncOptions | enumerations.TextDocumentSyncKind)], enumerations.TextDocumentSyncKind.reader.widen[(structures.TextDocumentSyncOptions | enumerations.TextDocumentSyncKind)])
   private given wt0: Writer[(structures.TextDocumentSyncOptions | enumerations.TextDocumentSyncKind)] = 
-    upickle.default.writer[ujson.Value].comap[(structures.TextDocumentSyncOptions | enumerations.TextDocumentSyncKind)] { v => 
-      (v: @unchecked) match 
-        case v: structures.TextDocumentSyncOptions => writeJs(v)
-        case v: enumerations.TextDocumentSyncKind => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(structures.TextDocumentSyncOptions | enumerations.TextDocumentSyncKind)] { _v => 
+      (_v: @unchecked) match 
+        case v: structures.TextDocumentSyncOptions => writeJs[structures.TextDocumentSyncOptions](v)
+        case v: enumerations.TextDocumentSyncKind => writeJs[enumerations.TextDocumentSyncKind](v)
     }
   private given rd1: Reader[(structures.NotebookDocumentSyncOptions | structures.NotebookDocumentSyncRegistrationOptions)] = badMerge(structures.NotebookDocumentSyncOptions.reader.widen[(structures.NotebookDocumentSyncOptions | structures.NotebookDocumentSyncRegistrationOptions)], structures.NotebookDocumentSyncRegistrationOptions.reader.widen[(structures.NotebookDocumentSyncOptions | structures.NotebookDocumentSyncRegistrationOptions)])
   private given wt1: Writer[(structures.NotebookDocumentSyncOptions | structures.NotebookDocumentSyncRegistrationOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(structures.NotebookDocumentSyncOptions | structures.NotebookDocumentSyncRegistrationOptions)] { v => 
-      (v: @unchecked) match 
-        case v: structures.NotebookDocumentSyncOptions => writeJs(v)
-        case v: structures.NotebookDocumentSyncRegistrationOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(structures.NotebookDocumentSyncOptions | structures.NotebookDocumentSyncRegistrationOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: structures.NotebookDocumentSyncOptions => writeJs[structures.NotebookDocumentSyncOptions](v)
+        case v: structures.NotebookDocumentSyncRegistrationOptions => writeJs[structures.NotebookDocumentSyncRegistrationOptions](v)
     }
   private given rd2: Reader[(Boolean | structures.HoverOptions)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | structures.HoverOptions)], structures.HoverOptions.reader.widen[(Boolean | structures.HoverOptions)])
   private given wt2: Writer[(Boolean | structures.HoverOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | structures.HoverOptions)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: structures.HoverOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | structures.HoverOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: structures.HoverOptions => writeJs[structures.HoverOptions](v)
     }
   private given rd3: Reader[(Boolean | structures.DeclarationOptions | structures.DeclarationRegistrationOptions)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | structures.DeclarationOptions | structures.DeclarationRegistrationOptions)], structures.DeclarationOptions.reader.widen[(Boolean | structures.DeclarationOptions | structures.DeclarationRegistrationOptions)], structures.DeclarationRegistrationOptions.reader.widen[(Boolean | structures.DeclarationOptions | structures.DeclarationRegistrationOptions)])
   private given wt3: Writer[(Boolean | structures.DeclarationOptions | structures.DeclarationRegistrationOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | structures.DeclarationOptions | structures.DeclarationRegistrationOptions)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: structures.DeclarationOptions => writeJs(v)
-        case v: structures.DeclarationRegistrationOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | structures.DeclarationOptions | structures.DeclarationRegistrationOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: structures.DeclarationOptions => writeJs[structures.DeclarationOptions](v)
+        case v: structures.DeclarationRegistrationOptions => writeJs[structures.DeclarationRegistrationOptions](v)
     }
   private given rd4: Reader[(Boolean | structures.DefinitionOptions)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | structures.DefinitionOptions)], structures.DefinitionOptions.reader.widen[(Boolean | structures.DefinitionOptions)])
   private given wt4: Writer[(Boolean | structures.DefinitionOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | structures.DefinitionOptions)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: structures.DefinitionOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | structures.DefinitionOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: structures.DefinitionOptions => writeJs[structures.DefinitionOptions](v)
     }
   private given rd5: Reader[(Boolean | structures.TypeDefinitionOptions | structures.TypeDefinitionRegistrationOptions)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | structures.TypeDefinitionOptions | structures.TypeDefinitionRegistrationOptions)], structures.TypeDefinitionOptions.reader.widen[(Boolean | structures.TypeDefinitionOptions | structures.TypeDefinitionRegistrationOptions)], structures.TypeDefinitionRegistrationOptions.reader.widen[(Boolean | structures.TypeDefinitionOptions | structures.TypeDefinitionRegistrationOptions)])
   private given wt5: Writer[(Boolean | structures.TypeDefinitionOptions | structures.TypeDefinitionRegistrationOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | structures.TypeDefinitionOptions | structures.TypeDefinitionRegistrationOptions)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: structures.TypeDefinitionOptions => writeJs(v)
-        case v: structures.TypeDefinitionRegistrationOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | structures.TypeDefinitionOptions | structures.TypeDefinitionRegistrationOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: structures.TypeDefinitionOptions => writeJs[structures.TypeDefinitionOptions](v)
+        case v: structures.TypeDefinitionRegistrationOptions => writeJs[structures.TypeDefinitionRegistrationOptions](v)
     }
   private given rd6: Reader[(Boolean | structures.ImplementationOptions | structures.ImplementationRegistrationOptions)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | structures.ImplementationOptions | structures.ImplementationRegistrationOptions)], structures.ImplementationOptions.reader.widen[(Boolean | structures.ImplementationOptions | structures.ImplementationRegistrationOptions)], structures.ImplementationRegistrationOptions.reader.widen[(Boolean | structures.ImplementationOptions | structures.ImplementationRegistrationOptions)])
   private given wt6: Writer[(Boolean | structures.ImplementationOptions | structures.ImplementationRegistrationOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | structures.ImplementationOptions | structures.ImplementationRegistrationOptions)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: structures.ImplementationOptions => writeJs(v)
-        case v: structures.ImplementationRegistrationOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | structures.ImplementationOptions | structures.ImplementationRegistrationOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: structures.ImplementationOptions => writeJs[structures.ImplementationOptions](v)
+        case v: structures.ImplementationRegistrationOptions => writeJs[structures.ImplementationRegistrationOptions](v)
     }
   private given rd7: Reader[(Boolean | structures.ReferenceOptions)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | structures.ReferenceOptions)], structures.ReferenceOptions.reader.widen[(Boolean | structures.ReferenceOptions)])
   private given wt7: Writer[(Boolean | structures.ReferenceOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | structures.ReferenceOptions)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: structures.ReferenceOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | structures.ReferenceOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: structures.ReferenceOptions => writeJs[structures.ReferenceOptions](v)
     }
   private given rd8: Reader[(Boolean | structures.DocumentHighlightOptions)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | structures.DocumentHighlightOptions)], structures.DocumentHighlightOptions.reader.widen[(Boolean | structures.DocumentHighlightOptions)])
   private given wt8: Writer[(Boolean | structures.DocumentHighlightOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | structures.DocumentHighlightOptions)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: structures.DocumentHighlightOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | structures.DocumentHighlightOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: structures.DocumentHighlightOptions => writeJs[structures.DocumentHighlightOptions](v)
     }
   private given rd9: Reader[(Boolean | structures.DocumentSymbolOptions)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | structures.DocumentSymbolOptions)], structures.DocumentSymbolOptions.reader.widen[(Boolean | structures.DocumentSymbolOptions)])
   private given wt9: Writer[(Boolean | structures.DocumentSymbolOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | structures.DocumentSymbolOptions)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: structures.DocumentSymbolOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | structures.DocumentSymbolOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: structures.DocumentSymbolOptions => writeJs[structures.DocumentSymbolOptions](v)
     }
   private given rd10: Reader[(Boolean | structures.CodeActionOptions)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | structures.CodeActionOptions)], structures.CodeActionOptions.reader.widen[(Boolean | structures.CodeActionOptions)])
   private given wt10: Writer[(Boolean | structures.CodeActionOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | structures.CodeActionOptions)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: structures.CodeActionOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | structures.CodeActionOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: structures.CodeActionOptions => writeJs[structures.CodeActionOptions](v)
     }
   private given rd11: Reader[(Boolean | structures.DocumentColorOptions | structures.DocumentColorRegistrationOptions)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | structures.DocumentColorOptions | structures.DocumentColorRegistrationOptions)], structures.DocumentColorOptions.reader.widen[(Boolean | structures.DocumentColorOptions | structures.DocumentColorRegistrationOptions)], structures.DocumentColorRegistrationOptions.reader.widen[(Boolean | structures.DocumentColorOptions | structures.DocumentColorRegistrationOptions)])
   private given wt11: Writer[(Boolean | structures.DocumentColorOptions | structures.DocumentColorRegistrationOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | structures.DocumentColorOptions | structures.DocumentColorRegistrationOptions)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: structures.DocumentColorOptions => writeJs(v)
-        case v: structures.DocumentColorRegistrationOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | structures.DocumentColorOptions | structures.DocumentColorRegistrationOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: structures.DocumentColorOptions => writeJs[structures.DocumentColorOptions](v)
+        case v: structures.DocumentColorRegistrationOptions => writeJs[structures.DocumentColorRegistrationOptions](v)
     }
   private given rd12: Reader[(Boolean | structures.WorkspaceSymbolOptions)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | structures.WorkspaceSymbolOptions)], structures.WorkspaceSymbolOptions.reader.widen[(Boolean | structures.WorkspaceSymbolOptions)])
   private given wt12: Writer[(Boolean | structures.WorkspaceSymbolOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | structures.WorkspaceSymbolOptions)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: structures.WorkspaceSymbolOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | structures.WorkspaceSymbolOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: structures.WorkspaceSymbolOptions => writeJs[structures.WorkspaceSymbolOptions](v)
     }
   private given rd13: Reader[(Boolean | structures.DocumentFormattingOptions)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | structures.DocumentFormattingOptions)], structures.DocumentFormattingOptions.reader.widen[(Boolean | structures.DocumentFormattingOptions)])
   private given wt13: Writer[(Boolean | structures.DocumentFormattingOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | structures.DocumentFormattingOptions)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: structures.DocumentFormattingOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | structures.DocumentFormattingOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: structures.DocumentFormattingOptions => writeJs[structures.DocumentFormattingOptions](v)
     }
   private given rd14: Reader[(Boolean | structures.DocumentRangeFormattingOptions)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | structures.DocumentRangeFormattingOptions)], structures.DocumentRangeFormattingOptions.reader.widen[(Boolean | structures.DocumentRangeFormattingOptions)])
   private given wt14: Writer[(Boolean | structures.DocumentRangeFormattingOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | structures.DocumentRangeFormattingOptions)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: structures.DocumentRangeFormattingOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | structures.DocumentRangeFormattingOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: structures.DocumentRangeFormattingOptions => writeJs[structures.DocumentRangeFormattingOptions](v)
     }
   private given rd15: Reader[(Boolean | structures.RenameOptions)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | structures.RenameOptions)], structures.RenameOptions.reader.widen[(Boolean | structures.RenameOptions)])
   private given wt15: Writer[(Boolean | structures.RenameOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | structures.RenameOptions)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: structures.RenameOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | structures.RenameOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: structures.RenameOptions => writeJs[structures.RenameOptions](v)
     }
   private given rd16: Reader[(Boolean | structures.FoldingRangeOptions | structures.FoldingRangeRegistrationOptions)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | structures.FoldingRangeOptions | structures.FoldingRangeRegistrationOptions)], structures.FoldingRangeOptions.reader.widen[(Boolean | structures.FoldingRangeOptions | structures.FoldingRangeRegistrationOptions)], structures.FoldingRangeRegistrationOptions.reader.widen[(Boolean | structures.FoldingRangeOptions | structures.FoldingRangeRegistrationOptions)])
   private given wt16: Writer[(Boolean | structures.FoldingRangeOptions | structures.FoldingRangeRegistrationOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | structures.FoldingRangeOptions | structures.FoldingRangeRegistrationOptions)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: structures.FoldingRangeOptions => writeJs(v)
-        case v: structures.FoldingRangeRegistrationOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | structures.FoldingRangeOptions | structures.FoldingRangeRegistrationOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: structures.FoldingRangeOptions => writeJs[structures.FoldingRangeOptions](v)
+        case v: structures.FoldingRangeRegistrationOptions => writeJs[structures.FoldingRangeRegistrationOptions](v)
     }
   private given rd17: Reader[(Boolean | structures.SelectionRangeOptions | structures.SelectionRangeRegistrationOptions)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | structures.SelectionRangeOptions | structures.SelectionRangeRegistrationOptions)], structures.SelectionRangeOptions.reader.widen[(Boolean | structures.SelectionRangeOptions | structures.SelectionRangeRegistrationOptions)], structures.SelectionRangeRegistrationOptions.reader.widen[(Boolean | structures.SelectionRangeOptions | structures.SelectionRangeRegistrationOptions)])
   private given wt17: Writer[(Boolean | structures.SelectionRangeOptions | structures.SelectionRangeRegistrationOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | structures.SelectionRangeOptions | structures.SelectionRangeRegistrationOptions)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: structures.SelectionRangeOptions => writeJs(v)
-        case v: structures.SelectionRangeRegistrationOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | structures.SelectionRangeOptions | structures.SelectionRangeRegistrationOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: structures.SelectionRangeOptions => writeJs[structures.SelectionRangeOptions](v)
+        case v: structures.SelectionRangeRegistrationOptions => writeJs[structures.SelectionRangeRegistrationOptions](v)
     }
   private given rd18: Reader[(Boolean | structures.CallHierarchyOptions | structures.CallHierarchyRegistrationOptions)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | structures.CallHierarchyOptions | structures.CallHierarchyRegistrationOptions)], structures.CallHierarchyOptions.reader.widen[(Boolean | structures.CallHierarchyOptions | structures.CallHierarchyRegistrationOptions)], structures.CallHierarchyRegistrationOptions.reader.widen[(Boolean | structures.CallHierarchyOptions | structures.CallHierarchyRegistrationOptions)])
   private given wt18: Writer[(Boolean | structures.CallHierarchyOptions | structures.CallHierarchyRegistrationOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | structures.CallHierarchyOptions | structures.CallHierarchyRegistrationOptions)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: structures.CallHierarchyOptions => writeJs(v)
-        case v: structures.CallHierarchyRegistrationOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | structures.CallHierarchyOptions | structures.CallHierarchyRegistrationOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: structures.CallHierarchyOptions => writeJs[structures.CallHierarchyOptions](v)
+        case v: structures.CallHierarchyRegistrationOptions => writeJs[structures.CallHierarchyRegistrationOptions](v)
     }
   private given rd19: Reader[(Boolean | structures.LinkedEditingRangeOptions | structures.LinkedEditingRangeRegistrationOptions)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | structures.LinkedEditingRangeOptions | structures.LinkedEditingRangeRegistrationOptions)], structures.LinkedEditingRangeOptions.reader.widen[(Boolean | structures.LinkedEditingRangeOptions | structures.LinkedEditingRangeRegistrationOptions)], structures.LinkedEditingRangeRegistrationOptions.reader.widen[(Boolean | structures.LinkedEditingRangeOptions | structures.LinkedEditingRangeRegistrationOptions)])
   private given wt19: Writer[(Boolean | structures.LinkedEditingRangeOptions | structures.LinkedEditingRangeRegistrationOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | structures.LinkedEditingRangeOptions | structures.LinkedEditingRangeRegistrationOptions)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: structures.LinkedEditingRangeOptions => writeJs(v)
-        case v: structures.LinkedEditingRangeRegistrationOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | structures.LinkedEditingRangeOptions | structures.LinkedEditingRangeRegistrationOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: structures.LinkedEditingRangeOptions => writeJs[structures.LinkedEditingRangeOptions](v)
+        case v: structures.LinkedEditingRangeRegistrationOptions => writeJs[structures.LinkedEditingRangeRegistrationOptions](v)
     }
   private given rd20: Reader[(structures.SemanticTokensOptions | structures.SemanticTokensRegistrationOptions)] = badMerge(structures.SemanticTokensOptions.reader.widen[(structures.SemanticTokensOptions | structures.SemanticTokensRegistrationOptions)], structures.SemanticTokensRegistrationOptions.reader.widen[(structures.SemanticTokensOptions | structures.SemanticTokensRegistrationOptions)])
   private given wt20: Writer[(structures.SemanticTokensOptions | structures.SemanticTokensRegistrationOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(structures.SemanticTokensOptions | structures.SemanticTokensRegistrationOptions)] { v => 
-      (v: @unchecked) match 
-        case v: structures.SemanticTokensOptions => writeJs(v)
-        case v: structures.SemanticTokensRegistrationOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(structures.SemanticTokensOptions | structures.SemanticTokensRegistrationOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: structures.SemanticTokensOptions => writeJs[structures.SemanticTokensOptions](v)
+        case v: structures.SemanticTokensRegistrationOptions => writeJs[structures.SemanticTokensRegistrationOptions](v)
     }
   private given rd21: Reader[(Boolean | structures.MonikerOptions | structures.MonikerRegistrationOptions)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | structures.MonikerOptions | structures.MonikerRegistrationOptions)], structures.MonikerOptions.reader.widen[(Boolean | structures.MonikerOptions | structures.MonikerRegistrationOptions)], structures.MonikerRegistrationOptions.reader.widen[(Boolean | structures.MonikerOptions | structures.MonikerRegistrationOptions)])
   private given wt21: Writer[(Boolean | structures.MonikerOptions | structures.MonikerRegistrationOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | structures.MonikerOptions | structures.MonikerRegistrationOptions)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: structures.MonikerOptions => writeJs(v)
-        case v: structures.MonikerRegistrationOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | structures.MonikerOptions | structures.MonikerRegistrationOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: structures.MonikerOptions => writeJs[structures.MonikerOptions](v)
+        case v: structures.MonikerRegistrationOptions => writeJs[structures.MonikerRegistrationOptions](v)
     }
   private given rd22: Reader[(Boolean | structures.TypeHierarchyOptions | structures.TypeHierarchyRegistrationOptions)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | structures.TypeHierarchyOptions | structures.TypeHierarchyRegistrationOptions)], structures.TypeHierarchyOptions.reader.widen[(Boolean | structures.TypeHierarchyOptions | structures.TypeHierarchyRegistrationOptions)], structures.TypeHierarchyRegistrationOptions.reader.widen[(Boolean | structures.TypeHierarchyOptions | structures.TypeHierarchyRegistrationOptions)])
   private given wt22: Writer[(Boolean | structures.TypeHierarchyOptions | structures.TypeHierarchyRegistrationOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | structures.TypeHierarchyOptions | structures.TypeHierarchyRegistrationOptions)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: structures.TypeHierarchyOptions => writeJs(v)
-        case v: structures.TypeHierarchyRegistrationOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | structures.TypeHierarchyOptions | structures.TypeHierarchyRegistrationOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: structures.TypeHierarchyOptions => writeJs[structures.TypeHierarchyOptions](v)
+        case v: structures.TypeHierarchyRegistrationOptions => writeJs[structures.TypeHierarchyRegistrationOptions](v)
     }
   private given rd23: Reader[(Boolean | structures.InlineValueOptions | structures.InlineValueRegistrationOptions)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | structures.InlineValueOptions | structures.InlineValueRegistrationOptions)], structures.InlineValueOptions.reader.widen[(Boolean | structures.InlineValueOptions | structures.InlineValueRegistrationOptions)], structures.InlineValueRegistrationOptions.reader.widen[(Boolean | structures.InlineValueOptions | structures.InlineValueRegistrationOptions)])
   private given wt23: Writer[(Boolean | structures.InlineValueOptions | structures.InlineValueRegistrationOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | structures.InlineValueOptions | structures.InlineValueRegistrationOptions)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: structures.InlineValueOptions => writeJs(v)
-        case v: structures.InlineValueRegistrationOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | structures.InlineValueOptions | structures.InlineValueRegistrationOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: structures.InlineValueOptions => writeJs[structures.InlineValueOptions](v)
+        case v: structures.InlineValueRegistrationOptions => writeJs[structures.InlineValueRegistrationOptions](v)
     }
   private given rd24: Reader[(Boolean | structures.InlayHintOptions | structures.InlayHintRegistrationOptions)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | structures.InlayHintOptions | structures.InlayHintRegistrationOptions)], structures.InlayHintOptions.reader.widen[(Boolean | structures.InlayHintOptions | structures.InlayHintRegistrationOptions)], structures.InlayHintRegistrationOptions.reader.widen[(Boolean | structures.InlayHintOptions | structures.InlayHintRegistrationOptions)])
   private given wt24: Writer[(Boolean | structures.InlayHintOptions | structures.InlayHintRegistrationOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | structures.InlayHintOptions | structures.InlayHintRegistrationOptions)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: structures.InlayHintOptions => writeJs(v)
-        case v: structures.InlayHintRegistrationOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | structures.InlayHintOptions | structures.InlayHintRegistrationOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: structures.InlayHintOptions => writeJs[structures.InlayHintOptions](v)
+        case v: structures.InlayHintRegistrationOptions => writeJs[structures.InlayHintRegistrationOptions](v)
     }
   private given rd25: Reader[(structures.DiagnosticOptions | structures.DiagnosticRegistrationOptions)] = badMerge(structures.DiagnosticOptions.reader.widen[(structures.DiagnosticOptions | structures.DiagnosticRegistrationOptions)], structures.DiagnosticRegistrationOptions.reader.widen[(structures.DiagnosticOptions | structures.DiagnosticRegistrationOptions)])
   private given wt25: Writer[(structures.DiagnosticOptions | structures.DiagnosticRegistrationOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(structures.DiagnosticOptions | structures.DiagnosticRegistrationOptions)] { v => 
-      (v: @unchecked) match 
-        case v: structures.DiagnosticOptions => writeJs(v)
-        case v: structures.DiagnosticRegistrationOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(structures.DiagnosticOptions | structures.DiagnosticRegistrationOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: structures.DiagnosticOptions => writeJs[structures.DiagnosticOptions](v)
+        case v: structures.DiagnosticRegistrationOptions => writeJs[structures.DiagnosticRegistrationOptions](v)
     }
   given reader: Reader[structures.ServerCapabilities] = Pickle.macroR
   given writer: Writer[structures.ServerCapabilities] = upickle.default.macroW
@@ -2608,10 +2335,10 @@ case class Diagnostic(
 object Diagnostic:
   private given rd0: Reader[(Int | String)] = badMerge(intCodec.widen[(Int | String)], stringCodec.widen[(Int | String)])
   private given wt0: Writer[(Int | String)] = 
-    upickle.default.writer[ujson.Value].comap[(Int | String)] { v => 
-      (v: @unchecked) match 
-        case v: Int => writeJs(v)
-        case v: String => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Int | String)] { _v => 
+      (_v: @unchecked) match 
+        case v: Int => writeJs[Int](v)
+        case v: String => writeJs[String](v)
     }
   given reader: Reader[structures.Diagnostic] = Pickle.macroR
   given writer: Writer[structures.Diagnostic] = upickle.default.macroW
@@ -2684,10 +2411,10 @@ case class SignatureInformation(
 object SignatureInformation:
   private given rd0: Reader[(String | structures.MarkupContent)] = badMerge(stringCodec.widen[(String | structures.MarkupContent)], structures.MarkupContent.reader.widen[(String | structures.MarkupContent)])
   private given wt0: Writer[(String | structures.MarkupContent)] = 
-    upickle.default.writer[ujson.Value].comap[(String | structures.MarkupContent)] { v => 
-      (v: @unchecked) match 
-        case v: String => writeJs(v)
-        case v: structures.MarkupContent => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(String | structures.MarkupContent)] { _v => 
+      (_v: @unchecked) match 
+        case v: String => writeJs[String](v)
+        case v: structures.MarkupContent => writeJs[structures.MarkupContent](v)
     }
   given reader: Reader[structures.SignatureInformation] = Pickle.macroR
   given writer: Writer[structures.SignatureInformation] = upickle.default.macroW
@@ -2847,17 +2574,10 @@ object SemanticTokensLegend:
   given writer: Writer[structures.SemanticTokensLegend] = upickle.default.macroW
 
 case class OptionalVersionedTextDocumentIdentifier(
-  version: (Int | Null),
+  version: Nullable[Int],
   uri: RuntimeBase.DocumentUri
 )
 object OptionalVersionedTextDocumentIdentifier:
-  private given rd0: Reader[(Int | Null)] = badMerge(intCodec.widen[(Int | Null)], nullReadWriter.widen[(Int | Null)])
-  private given wt0: Writer[(Int | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(Int | Null)] { v => 
-      (v: @unchecked) match 
-        case v: Int => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.OptionalVersionedTextDocumentIdentifier] = Pickle.macroR
   given writer: Writer[structures.OptionalVersionedTextDocumentIdentifier] = upickle.default.macroW
 
@@ -2913,36 +2633,22 @@ object FileOperationPattern:
 
 case class WorkspaceFullDocumentDiagnosticReport(
   uri: RuntimeBase.DocumentUri,
-  version: (Int | Null),
+  version: Nullable[Int],
   kind: "full",
   resultId: Opt[String] = Opt.empty,
   items: Vector[structures.Diagnostic]
 )
 object WorkspaceFullDocumentDiagnosticReport:
-  private given rd0: Reader[(Int | Null)] = badMerge(intCodec.widen[(Int | Null)], nullReadWriter.widen[(Int | Null)])
-  private given wt0: Writer[(Int | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(Int | Null)] { v => 
-      (v: @unchecked) match 
-        case v: Int => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.WorkspaceFullDocumentDiagnosticReport] = Pickle.macroR
   given writer: Writer[structures.WorkspaceFullDocumentDiagnosticReport] = upickle.default.macroW
 
 case class WorkspaceUnchangedDocumentDiagnosticReport(
   uri: RuntimeBase.DocumentUri,
-  version: (Int | Null),
+  version: Nullable[Int],
   kind: "unchanged",
   resultId: String
 )
 object WorkspaceUnchangedDocumentDiagnosticReport:
-  private given rd0: Reader[(Int | Null)] = badMerge(intCodec.widen[(Int | Null)], nullReadWriter.widen[(Int | Null)])
-  private given wt0: Writer[(Int | Null)] = 
-    upickle.default.writer[ujson.Value].comap[(Int | Null)] { v => 
-      (v: @unchecked) match 
-        case v: Int => writeJs(v)
-        case null => ujson.Null
-    }
   given reader: Reader[structures.WorkspaceUnchangedDocumentDiagnosticReport] = Pickle.macroR
   given writer: Writer[structures.WorkspaceUnchangedDocumentDiagnosticReport] = upickle.default.macroW
 
@@ -2993,10 +2699,10 @@ case class TextDocumentSyncOptions(
 object TextDocumentSyncOptions:
   private given rd0: Reader[(Boolean | structures.SaveOptions)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | structures.SaveOptions)], structures.SaveOptions.reader.widen[(Boolean | structures.SaveOptions)])
   private given wt0: Writer[(Boolean | structures.SaveOptions)] = 
-    upickle.default.writer[ujson.Value].comap[(Boolean | structures.SaveOptions)] { v => 
-      (v: @unchecked) match 
-        case v: Boolean => writeJs(v)
-        case v: structures.SaveOptions => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(Boolean | structures.SaveOptions)] { _v => 
+      (_v: @unchecked) match 
+        case v: Boolean => writeJs[Boolean](v)
+        case v: structures.SaveOptions => writeJs[structures.SaveOptions](v)
     }
   given reader: Reader[structures.TextDocumentSyncOptions] = Pickle.macroR
   given writer: Writer[structures.TextDocumentSyncOptions] = upickle.default.macroW
@@ -3008,10 +2714,10 @@ case class NotebookDocumentSyncOptions(
 object NotebookDocumentSyncOptions:
   private given rd0: Reader[(NotebookDocumentSyncOptions.S0 | NotebookDocumentSyncOptions.S1)] = badMerge(NotebookDocumentSyncOptions.S0.reader.widen[(NotebookDocumentSyncOptions.S0 | NotebookDocumentSyncOptions.S1)], NotebookDocumentSyncOptions.S1.reader.widen[(NotebookDocumentSyncOptions.S0 | NotebookDocumentSyncOptions.S1)])
   private given wt0: Writer[(NotebookDocumentSyncOptions.S0 | NotebookDocumentSyncOptions.S1)] = 
-    upickle.default.writer[ujson.Value].comap[(NotebookDocumentSyncOptions.S0 | NotebookDocumentSyncOptions.S1)] { v => 
-      (v: @unchecked) match 
-        case v: NotebookDocumentSyncOptions.S0 => writeJs(v)
-        case v: NotebookDocumentSyncOptions.S1 => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(NotebookDocumentSyncOptions.S0 | NotebookDocumentSyncOptions.S1)] { _v => 
+      (_v: @unchecked) match 
+        case v: NotebookDocumentSyncOptions.S0 => writeJs[NotebookDocumentSyncOptions.S0](v)
+        case v: NotebookDocumentSyncOptions.S1 => writeJs[NotebookDocumentSyncOptions.S1](v)
     }
   given reader: Reader[structures.NotebookDocumentSyncOptions] = Pickle.macroR
   given writer: Writer[structures.NotebookDocumentSyncOptions] = upickle.default.macroW
@@ -3022,10 +2728,10 @@ object NotebookDocumentSyncOptions:
   object S0:
     private given rd0: Reader[(String | aliases.NotebookDocumentFilter)] = badMerge(stringCodec.widen[(String | aliases.NotebookDocumentFilter)], aliases.NotebookDocumentFilter.reader.widen[(String | aliases.NotebookDocumentFilter)])
     private given wt0: Writer[(String | aliases.NotebookDocumentFilter)] = 
-      upickle.default.writer[ujson.Value].comap[(String | aliases.NotebookDocumentFilter)] { v => 
-        (v: @unchecked) match 
-          case v: String => writeJs(v)
-          case v: aliases.NotebookDocumentFilter => writeJs(v)
+      upickle.default.writer[ujson.Value].comap[(String | aliases.NotebookDocumentFilter)] { _v => 
+        (_v: @unchecked) match 
+          case v: String => writeJs[String](v)
+          case v: aliases.NotebookDocumentFilter => writeJs[aliases.NotebookDocumentFilter](v)
       }
     given reader: Reader[structures.NotebookDocumentSyncOptions.S0] = Pickle.macroR
     given writer: Writer[structures.NotebookDocumentSyncOptions.S0] = upickle.default.macroW
@@ -3042,10 +2748,10 @@ object NotebookDocumentSyncOptions:
   object S1:
     private given rd0: Reader[(String | aliases.NotebookDocumentFilter)] = badMerge(stringCodec.widen[(String | aliases.NotebookDocumentFilter)], aliases.NotebookDocumentFilter.reader.widen[(String | aliases.NotebookDocumentFilter)])
     private given wt0: Writer[(String | aliases.NotebookDocumentFilter)] = 
-      upickle.default.writer[ujson.Value].comap[(String | aliases.NotebookDocumentFilter)] { v => 
-        (v: @unchecked) match 
-          case v: String => writeJs(v)
-          case v: aliases.NotebookDocumentFilter => writeJs(v)
+      upickle.default.writer[ujson.Value].comap[(String | aliases.NotebookDocumentFilter)] { _v => 
+        (_v: @unchecked) match 
+          case v: String => writeJs[String](v)
+          case v: aliases.NotebookDocumentFilter => writeJs[aliases.NotebookDocumentFilter](v)
       }
     given reader: Reader[structures.NotebookDocumentSyncOptions.S1] = Pickle.macroR
     given writer: Writer[structures.NotebookDocumentSyncOptions.S1] = upickle.default.macroW
@@ -3064,10 +2770,10 @@ case class NotebookDocumentSyncRegistrationOptions(
 object NotebookDocumentSyncRegistrationOptions:
   private given rd0: Reader[(NotebookDocumentSyncRegistrationOptions.S0 | NotebookDocumentSyncRegistrationOptions.S1)] = badMerge(NotebookDocumentSyncRegistrationOptions.S0.reader.widen[(NotebookDocumentSyncRegistrationOptions.S0 | NotebookDocumentSyncRegistrationOptions.S1)], NotebookDocumentSyncRegistrationOptions.S1.reader.widen[(NotebookDocumentSyncRegistrationOptions.S0 | NotebookDocumentSyncRegistrationOptions.S1)])
   private given wt0: Writer[(NotebookDocumentSyncRegistrationOptions.S0 | NotebookDocumentSyncRegistrationOptions.S1)] = 
-    upickle.default.writer[ujson.Value].comap[(NotebookDocumentSyncRegistrationOptions.S0 | NotebookDocumentSyncRegistrationOptions.S1)] { v => 
-      (v: @unchecked) match 
-        case v: NotebookDocumentSyncRegistrationOptions.S0 => writeJs(v)
-        case v: NotebookDocumentSyncRegistrationOptions.S1 => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(NotebookDocumentSyncRegistrationOptions.S0 | NotebookDocumentSyncRegistrationOptions.S1)] { _v => 
+      (_v: @unchecked) match 
+        case v: NotebookDocumentSyncRegistrationOptions.S0 => writeJs[NotebookDocumentSyncRegistrationOptions.S0](v)
+        case v: NotebookDocumentSyncRegistrationOptions.S1 => writeJs[NotebookDocumentSyncRegistrationOptions.S1](v)
     }
   given reader: Reader[structures.NotebookDocumentSyncRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.NotebookDocumentSyncRegistrationOptions] = upickle.default.macroW
@@ -3078,10 +2784,10 @@ object NotebookDocumentSyncRegistrationOptions:
   object S0:
     private given rd0: Reader[(String | aliases.NotebookDocumentFilter)] = badMerge(stringCodec.widen[(String | aliases.NotebookDocumentFilter)], aliases.NotebookDocumentFilter.reader.widen[(String | aliases.NotebookDocumentFilter)])
     private given wt0: Writer[(String | aliases.NotebookDocumentFilter)] = 
-      upickle.default.writer[ujson.Value].comap[(String | aliases.NotebookDocumentFilter)] { v => 
-        (v: @unchecked) match 
-          case v: String => writeJs(v)
-          case v: aliases.NotebookDocumentFilter => writeJs(v)
+      upickle.default.writer[ujson.Value].comap[(String | aliases.NotebookDocumentFilter)] { _v => 
+        (_v: @unchecked) match 
+          case v: String => writeJs[String](v)
+          case v: aliases.NotebookDocumentFilter => writeJs[aliases.NotebookDocumentFilter](v)
       }
     given reader: Reader[structures.NotebookDocumentSyncRegistrationOptions.S0] = Pickle.macroR
     given writer: Writer[structures.NotebookDocumentSyncRegistrationOptions.S0] = upickle.default.macroW
@@ -3098,10 +2804,10 @@ object NotebookDocumentSyncRegistrationOptions:
   object S1:
     private given rd0: Reader[(String | aliases.NotebookDocumentFilter)] = badMerge(stringCodec.widen[(String | aliases.NotebookDocumentFilter)], aliases.NotebookDocumentFilter.reader.widen[(String | aliases.NotebookDocumentFilter)])
     private given wt0: Writer[(String | aliases.NotebookDocumentFilter)] = 
-      upickle.default.writer[ujson.Value].comap[(String | aliases.NotebookDocumentFilter)] { v => 
-        (v: @unchecked) match 
-          case v: String => writeJs(v)
-          case v: aliases.NotebookDocumentFilter => writeJs(v)
+      upickle.default.writer[ujson.Value].comap[(String | aliases.NotebookDocumentFilter)] { _v => 
+        (_v: @unchecked) match 
+          case v: String => writeJs[String](v)
+          case v: aliases.NotebookDocumentFilter => writeJs[aliases.NotebookDocumentFilter](v)
       }
     given reader: Reader[structures.NotebookDocumentSyncRegistrationOptions.S1] = Pickle.macroR
     given writer: Writer[structures.NotebookDocumentSyncRegistrationOptions.S1] = upickle.default.macroW
@@ -3119,10 +2825,10 @@ case class WorkspaceFoldersServerCapabilities(
 object WorkspaceFoldersServerCapabilities:
   private given rd0: Reader[(String | Boolean)] = badMerge(stringCodec.widen[(String | Boolean)], upickle.default.reader[Boolean].widen[(String | Boolean)])
   private given wt0: Writer[(String | Boolean)] = 
-    upickle.default.writer[ujson.Value].comap[(String | Boolean)] { v => 
-      (v: @unchecked) match 
-        case v: String => writeJs(v)
-        case v: Boolean => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(String | Boolean)] { _v => 
+      (_v: @unchecked) match 
+        case v: String => writeJs[String](v)
+        case v: Boolean => writeJs[Boolean](v)
     }
   given reader: Reader[structures.WorkspaceFoldersServerCapabilities] = Pickle.macroR
   given writer: Writer[structures.WorkspaceFoldersServerCapabilities] = upickle.default.macroW
@@ -3167,17 +2873,17 @@ case class ParameterInformation(
 object ParameterInformation:
   private given rd0: Reader[(String | (RuntimeBase.uinteger, RuntimeBase.uinteger))] = badMerge(stringCodec.widen[(String | (RuntimeBase.uinteger, RuntimeBase.uinteger))], upickle.default.reader[(RuntimeBase.uinteger, RuntimeBase.uinteger)].widen[(String | (RuntimeBase.uinteger, RuntimeBase.uinteger))])
   private given wt0: Writer[(String | (RuntimeBase.uinteger, RuntimeBase.uinteger))] = 
-    upickle.default.writer[ujson.Value].comap[(String | (RuntimeBase.uinteger, RuntimeBase.uinteger))] { v => 
-      (v: @unchecked) match 
-        case v: String => writeJs(v)
-        case v: (RuntimeBase.uinteger, RuntimeBase.uinteger) => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(String | (RuntimeBase.uinteger, RuntimeBase.uinteger))] { _v => 
+      (_v: @unchecked) match 
+        case v: String => writeJs[String](v)
+        case v: (RuntimeBase.uinteger, RuntimeBase.uinteger) => writeJs[(RuntimeBase.uinteger, RuntimeBase.uinteger)](v)
     }
   private given rd1: Reader[(String | structures.MarkupContent)] = badMerge(stringCodec.widen[(String | structures.MarkupContent)], structures.MarkupContent.reader.widen[(String | structures.MarkupContent)])
   private given wt1: Writer[(String | structures.MarkupContent)] = 
-    upickle.default.writer[ujson.Value].comap[(String | structures.MarkupContent)] { v => 
-      (v: @unchecked) match 
-        case v: String => writeJs(v)
-        case v: structures.MarkupContent => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(String | structures.MarkupContent)] { _v => 
+      (_v: @unchecked) match 
+        case v: String => writeJs[String](v)
+        case v: structures.MarkupContent => writeJs[structures.MarkupContent](v)
     }
   given reader: Reader[structures.ParameterInformation] = Pickle.macroR
   given writer: Writer[structures.ParameterInformation] = upickle.default.macroW
@@ -3189,10 +2895,10 @@ case class NotebookCellTextDocumentFilter(
 object NotebookCellTextDocumentFilter:
   private given rd0: Reader[(String | aliases.NotebookDocumentFilter)] = badMerge(stringCodec.widen[(String | aliases.NotebookDocumentFilter)], aliases.NotebookDocumentFilter.reader.widen[(String | aliases.NotebookDocumentFilter)])
   private given wt0: Writer[(String | aliases.NotebookDocumentFilter)] = 
-    upickle.default.writer[ujson.Value].comap[(String | aliases.NotebookDocumentFilter)] { v => 
-      (v: @unchecked) match 
-        case v: String => writeJs(v)
-        case v: aliases.NotebookDocumentFilter => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(String | aliases.NotebookDocumentFilter)] { _v => 
+      (_v: @unchecked) match 
+        case v: String => writeJs[String](v)
+        case v: aliases.NotebookDocumentFilter => writeJs[aliases.NotebookDocumentFilter](v)
     }
   given reader: Reader[structures.NotebookCellTextDocumentFilter] = Pickle.macroR
   given writer: Writer[structures.NotebookCellTextDocumentFilter] = upickle.default.macroW
@@ -3308,10 +3014,10 @@ case class RelativePattern(
 object RelativePattern:
   private given rd0: Reader[(structures.WorkspaceFolder | aliases.URI)] = badMerge(structures.WorkspaceFolder.reader.widen[(structures.WorkspaceFolder | aliases.URI)], aliases.URI.reader.widen[(structures.WorkspaceFolder | aliases.URI)])
   private given wt0: Writer[(structures.WorkspaceFolder | aliases.URI)] = 
-    upickle.default.writer[ujson.Value].comap[(structures.WorkspaceFolder | aliases.URI)] { v => 
-      (v: @unchecked) match 
-        case v: structures.WorkspaceFolder => writeJs(v)
-        case v: aliases.URI => writeJs(v)
+    upickle.default.writer[ujson.Value].comap[(structures.WorkspaceFolder | aliases.URI)] { _v => 
+      (_v: @unchecked) match 
+        case v: structures.WorkspaceFolder => writeJs[structures.WorkspaceFolder](v)
+        case v: aliases.URI => writeJs[aliases.URI](v)
     }
   given reader: Reader[structures.RelativePattern] = Pickle.macroR
   given writer: Writer[structures.RelativePattern] = upickle.default.macroW
@@ -3757,17 +3463,17 @@ object SemanticTokensClientCapabilities:
   object Requests:
     private given rd0: Reader[(Boolean | Requests.S0)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | Requests.S0)], Requests.S0.reader.widen[(Boolean | Requests.S0)])
     private given wt0: Writer[(Boolean | Requests.S0)] = 
-      upickle.default.writer[ujson.Value].comap[(Boolean | Requests.S0)] { v => 
-        (v: @unchecked) match 
-          case v: Boolean => writeJs(v)
-          case v: Requests.S0 => writeJs(v)
+      upickle.default.writer[ujson.Value].comap[(Boolean | Requests.S0)] { _v => 
+        (_v: @unchecked) match 
+          case v: Boolean => writeJs[Boolean](v)
+          case v: Requests.S0 => writeJs[Requests.S0](v)
       }
     private given rd1: Reader[(Boolean | Requests.S1)] = badMerge(upickle.default.reader[Boolean].widen[(Boolean | Requests.S1)], Requests.S1.reader.widen[(Boolean | Requests.S1)])
     private given wt1: Writer[(Boolean | Requests.S1)] = 
-      upickle.default.writer[ujson.Value].comap[(Boolean | Requests.S1)] { v => 
-        (v: @unchecked) match 
-          case v: Boolean => writeJs(v)
-          case v: Requests.S1 => writeJs(v)
+      upickle.default.writer[ujson.Value].comap[(Boolean | Requests.S1)] { _v => 
+        (_v: @unchecked) match 
+          case v: Boolean => writeJs[Boolean](v)
+          case v: Requests.S1 => writeJs[Requests.S1](v)
       }
     given reader: Reader[structures.SemanticTokensClientCapabilities.Requests] = Pickle.macroR
     given writer: Writer[structures.SemanticTokensClientCapabilities.Requests] = upickle.default.macroW
