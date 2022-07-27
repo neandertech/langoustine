@@ -64,10 +64,13 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     end match
   end renderType
 
-  def property(p: Property)(using Context) =
+  private def property(p: Property)(using Context) =
     import p.*
     val typeName = renderType(tpe)
-    s"${sanitise(name.value)}: $typeName"
+    if p.optional == IsOptional.Yes then 
+      s"${sanitise(name.value)}: Opt[$typeName] = Opt.empty"
+    else 
+      s"${sanitise(name.value)}: $typeName"
 
   def sanitise(name: String) =
     val prohibited =
@@ -97,16 +100,16 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line("import langoustine.lsp.json.{*, given}")
     line("")
 
-    val prelude = """
-    |abstract class LSPRequest(val requestMethod: String):
-    |  type In
-    |  type Out
-    |
-    |  given reader: Reader[In]
-    |  given writer: Writer[Out] 
-    """.stripMargin.trim
+    // val prelude = """
+    // |abstract class LSPRequest(val requestMethod: String):
+    // |  type In
+    // |  type Out
+    // |
+    // |  given reader: Reader[In]
+    // |  given writer: Writer[Out] 
+    // """.stripMargin.trim
 
-    prelude.linesIterator.foreach(line)
+    // prelude.linesIterator.foreach(line)
 
     var currentScope = List.empty[String]
 
@@ -133,8 +136,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
           case ParamsType.Single(t) => upickleReader(t, Some("In"))
           case ParamsType.Many(t)   => "Pickle.macroR"
 
-        line(s"private val _reader: Reader[In] = $reader")
-        line(s"given reader: Reader[In] = _reader")
+        line(s"given reader: Reader[In] = $reader")
         line(
           s"private val _writer: Writer[Out] = "
         )
@@ -382,17 +384,15 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
       }
       allUnions.result().distinct.zipWithIndex.foreach { case (ot, idx) =>
         val union = renderType(ot)
-        line(
-          s"private val rd$idx = ${upickleReader(ot, Some(union))}"
-        )
-        line(s"private given reader_rd$idx: Reader[$union] = rd$idx")
-        line(
-          s"private val wt$idx = "
-        )
+        // line(
+        //   s"private val rd$idx = ${upickleReader(ot, Some(union))}"
+        // )
+        line(s"private given rd$idx: Reader[$union] = ${upickleReader(ot, Some(union))}")
+        line(s"private given wt$idx: Writer[$union] = ")
         nest {
           upickleWriter(ot, Some(union)).write(builder)
         }
-        line(s"private given writer_wt$idx: Writer[$union] = wt$idx")
+        // line(s"private given writer_wt$idx: Writer[$union] = wt$idx")
       }
       line(
         s"given reader: Reader[${ctx.definitionScope}.${s.name}] = Pickle.macroR"
@@ -430,6 +430,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
       case BaseType(BaseTypes.integer) => "intCodec"
       case rt @ ReferenceType(ref) =>
         summon[Context].resolve(rt).value + ".reader"
+      case _: AndType => s"??? /* TODO: $t  */"
       case t => s"upickle.default.reader[${renderType(t)}]"
     end match
   end upickleReader
@@ -450,31 +451,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     import Type.*
     import WriterDefinition.*
     t match
-      // case ot: OrType =>
-      //   val w            = widen.map(a => s"[$a]").getOrElse("")
-      //   val constituents = ot.items
-
-      // val shouldAddWildcard =
-      //   constituents.collectFirst {
-      //     case BaseType(
-      //           _,
-      //           BaseTypes.uinteger | BaseTypes.Uri | BaseTypes.DocumentUri
-      //         ) =>
-      //       true
-      //   }.isDefined
-
-      // s"upickle.default.writer[ujson.Value].comap$w { v => (v: @unchecked) match {" + (constituents
-      //   .map {
-      //     case at: ArrayType =>
-      //       s"case v: Vector[?] => writeJs[${renderType(t)}](v)"
-      //     case BaseType(_, BaseTypes.NULL) =>
-      //       "case null => ujson.Null"
-      //     case t =>
-      //       s"case v: ${renderType(t)} => writeJs(v)(using ${upickleWriter(t)})"
-      //   }
-      //   // .appended(if shouldAddWildcard then "case _ => ???" else "")
-      //   .mkString("; ")) +
-      //   "}}"
       case BaseType(BaseTypes.NULL)    => Expression("nullReadWriter")
       case BaseType(BaseTypes.string)  => Expression("stringCodec")
       case BaseType(BaseTypes.integer) => Expression("intCodec")
@@ -568,28 +544,20 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         val stls = inlineStructures.result()
         line(s"object ${a.name}:")
         nest {
-          val allUnions = Vector.newBuilder[Type.OrType]
-          newType.traverse {
-            case ot: Type.OrType =>
-              allUnions += ot
-              TypeTraversal.Skip
-            case _ =>
-              TypeTraversal.Skip
-          }
-          allUnions.result().distinct.zipWithIndex.foreach { case (ot, idx) =>
+          collectOrTypes(newType).distinct.zipWithIndex.foreach { case (ot, idx) =>
             val union = renderType(ot)
             line(
               s"private val rd$idx = ${upickleReader(ot, Some(union))}"
             )
             line(s"private given reader_rd$idx: Reader[$union] = rd$idx")
 
-            line(
-              s"private val wt$idx ="
-            )
-            nest {
-              upickleWriter(ot, Some(union)).write(out)
-            }
-            line(s"private given writer_wt$idx: Writer[$union] = wt$idx")
+            // line(
+            //   s"private val wt$idx ="
+            // )
+            // nest {
+            //   upickleWriter(ot, Some(union)).write(out)
+            // }
+            // line(s"private given writer_wt$idx: Writer[$union] = wt$idx")
           }
 
           if a.name.value == "LSPArray" then
@@ -607,17 +575,14 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
                 Some(a.name.value)
               )
             )
-            line(
-              s"private val _writer: Writer[${a.name}] = "
-            )
+            line(s"given reader: Reader[${a.name}] = _reader")
+            line(s"given writer: Writer[${a.name}] =")
             nest {
               upickleWriter(
                 newType,
                 Some(a.name.value)
               ).write(out)
             }
-            line(s"given reader: Reader[${a.name}] = _reader")
-            line(s"given writer: Writer[${a.name}] = _writer")
             typeTestRender(a.name.into(TypeName), newType).write(out)
           end if
           stls.foreach { case (rt, (newName, stl)) =>

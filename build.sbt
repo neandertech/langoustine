@@ -42,7 +42,7 @@ lazy val core = projectMatrix
   )
   .jvmPlatform(scalaVersions)
   /* .jsPlatform(scalaVersions) */
-  /* .nativePlatform(scalaVersions) */
+  .nativePlatform(scalaVersions)
   .settings(
     libraryDependencies += "com.outr"      %%% "scribe"    % "3.10.1",
     libraryDependencies += "com.lihaoyi"   %%% "upickle"   % "2.0.0",
@@ -54,11 +54,24 @@ lazy val lsp = projectMatrix
   .dependsOn(core)
   .settings(
     name := "lsp",
-    scalacOptions ++= Seq("-Xmax-inlines", "64")
+    scalacOptions ++= Seq("-Xmax-inlines", "64"),
+    libraryDependencies += "com.eed3si9n.verify" %% "verify" % "1.0.0" % Test,
+    testFrameworks += new TestFramework("verify.runner.Framework")
   )
   .jvmPlatform(scalaVersions)
-/* .jsPlatform(scalaVersions) */
-/* .nativePlatform(scalaVersions) */
+  /* .jsPlatform(scalaVersions) */
+  .nativePlatform(scalaVersions)
+
+lazy val sample = projectMatrix
+  .in(file("modules/sample"))
+  .dependsOn(lsp)
+  .settings(
+    name := "sample",
+    scalacOptions ++= Seq("-Xmax-inlines", "64"),
+    libraryDependencies += "com.outr" %%% "scribe-file" % "3.10.1"
+  )
+  .jvmPlatform(scalaVersions)
+  .nativePlatform(scalaVersions)
 
 lazy val generate = projectMatrix
   .in(file("modules/generate"))

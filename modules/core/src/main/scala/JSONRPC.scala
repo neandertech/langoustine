@@ -17,17 +17,31 @@ object JSONRPC:
   trait RequestMessage extends Message:
     def id: Int | String
     def method: String
-    def params: String
+    def params: ujson.Value
+
+  object RequestMessage:
+    private given Reader[Int | String] =
+      upickle.default.reader[ujson.Value].map[Int | String] {
+        case ujson.Str(s) => s
+        case ujson.Num(v) => v.toInt
+        case u            => throw LSPError.FailureParsing(u)
+      }
+    given Reader[RequestMessage] = upickle.default
+      .macroR[RequestMessageImpl]
+      .map(_.asInstanceOf[RequestMessage])
+  end RequestMessage
 
   trait ResponseMessage extends Message:
     def id: Int | String | Null
     def result: Option[String]
     def error: Option[ResponseError]
 
-  private class RequestMessageImpl(
-      val id: Int | String,
-      val method: String,
-      val params: String
+  end ResponseMessage
+
+  private case class RequestMessageImpl(
+      id: Int | String,
+      method: String,
+      params: ujson.Value
   ) extends RequestMessage
 
   private class ResponseMessageImpl(
@@ -57,3 +71,18 @@ object JSONRPC:
 
   type Handler[F[_]] = RequestMessage => F[ResponseMessage]
 
+  def render(req: RequestMessage) =
+    val obj = ujson.Obj(
+      "id" ->
+        (req.id match
+          case i: Int    => ujson.Num(i)
+          case i: String => ujson.Str(i)
+        ),
+      "method"  -> ujson.Str(req.method),
+      "jsonrpc" -> ujson.Str(req.jsonrpc)
+    )
+    val str = upickle.default.write(obj)
+
+    s"Content-Length: ${str.length}\n\n$str"
+  end render
+end JSONRPC

@@ -6,6 +6,8 @@ import scala.util.Success
 import upickle.default.{Reader, Writer}
 import cats.syntax.all.*
 import cats.MonadThrow
+import langoustine.JSONRPC.RequestMessage
+import langoustine.JSONRPC.ResponseMessage
 
 case class ImmutableLSPBuilder[F[_]: MonadThrow] private (
     mp: Map[String, JSONRPC.Handler[F]],
@@ -24,7 +26,7 @@ case class ImmutableLSPBuilder[F[_]: MonadThrow] private (
 
         logger.info(
           s"Received a ${msg.method} request (id = ${msg.id}) ",
-          msg.params
+          msg.params.toString
         )
 
         F.catchNonFatal(
@@ -44,7 +46,7 @@ case class ImmutableLSPBuilder[F[_]: MonadThrow] private (
     )
   )
 
-  def build = rqm =>
+  def build: RequestMessage => F[ResponseMessage] = rqm =>
     mp.get(rqm.method) match
       case Some(handler) => handler(rqm)
       case None =>
@@ -56,3 +58,6 @@ end ImmutableLSPBuilder
 object ImmutableLSPBuilder:
   def create[F[_]: MonadThrow]: LSPBuilder[F] =
     new ImmutableLSPBuilder[F](Map.empty, scribe.Logger("LSP"))
+
+  def create[F[_]: MonadThrow](log: scribe.Logger): LSPBuilder[F] =
+    new ImmutableLSPBuilder[F](Map.empty, log)

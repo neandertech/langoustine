@@ -5,21 +5,26 @@ import upickle.default.*
 import scala.util.NotGiven
 
 object json:
-  private val valueReader = upickle.default.readwriter[ujson.Value]
-  def badMerge[T](r1: Reader[T], rest: Reader[T]*): Reader[T] =
-
+  private def valueReader = upickle.default.readwriter[ujson.Value]
+  def badMerge[T](r1: => Reader[T], rest: Reader[T]*): Reader[T] =
     valueReader.map { json =>
       var t: T | Null = null
+      val stack       = Vector.newBuilder[Throwable]
+
       (r1 +: rest).foreach { reader =>
         if t == null then
-          println(json)
+          // println(json)
           try t = read[T](json, trace = true)(using reader)
           catch
             case exc =>
-              println(exc)
-
+              stack += exc
       }
-      if t != null then t.nn else throw new LSPError.FailureParsing(json)
+      if t != null then t.nn
+      else
+        throw new LSPError.FailureParsing(
+          json,
+          stack.result().headOption.getOrElse(null)
+        )
     }
 
   extension [T](r: Reader[T]) def widen[K >: T] = r.map(_.asInstanceOf[K])
@@ -29,13 +34,40 @@ object json:
 
   given constStrReader[T <: String](using NotGiven[T =:= String]): Reader[T] =
     stringCodec.asInstanceOf[Reader[T]]
-  
+
   given constStrWriter[T <: String](using NotGiven[T =:= String]): Writer[T] =
     stringCodec.asInstanceOf[Writer[T]]
 
   val stringCodec = summon[ReadWriter[String]]
   val intCodec    = summon[ReadWriter[Int]]
-  val unitReader = summon[ReadWriter[Unit]]
+  val unitReader  = summon[ReadWriter[Unit]]
+
+  opaque type Opt[+A] = A | Null
+  object Opt:
+    inline def empty: Opt[Nothing]    = null
+    inline def apply[A](a: A): Opt[A] = a
+
+    given [A](using
+        rd: Reader[A]
+    ): Reader[Opt[A]] =
+      rd.asInstanceOf[Reader[Opt[A]]]
+      // reader[ujson.Value].map {
+      //   case ujson.Null => empty
+      //   case other      => upickle.default.read(other)(using rd)
+      // }
+
+    given [A](using
+        wt: Writer[A]
+    ): Writer[Opt[A]] =
+      wt.asInstanceOf[Writer[Opt[A]]]
+
+      // writer[ujson.Value].map {
+      //   case ujson.Null => empty
+      //   case other      => upickle.default.read(other)(using rd)
+      // }
+
+  end Opt
+
 end json
 
 import scala.deriving.Mirror
