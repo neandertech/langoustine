@@ -37,12 +37,16 @@ lazy val publishing = Seq(
   sonatypeProfileName := "com.indoorvivants"
 )
 
+lazy val noPublishing = Seq(
+  publish / skip := true
+)
+
 val Scala3        = "3.1.3"
 val scalaVersions = List(Scala3)
 
 lazy val root = project
   .aggregate((meta.projectRefs ++ lsp.projectRefs)*)
-  .settings(publish / skip := true)
+  .settings(noPublishing)
 
 lazy val meta = projectMatrix
   .in(file("modules/meta"))
@@ -77,7 +81,7 @@ lazy val lsp = projectMatrix
 lazy val sample = projectMatrix
   .in(file("modules/sample"))
   .dependsOn(lsp)
-  .settings(publishing)
+  .settings(noPublishing)
   .settings(
     name := "sample",
     scalacOptions ++= Seq("-Xmax-inlines", "64"),
