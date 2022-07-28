@@ -1,4 +1,4 @@
-package langoustine
+package langoustine.meta
 
 import scala.deriving.Mirror
 

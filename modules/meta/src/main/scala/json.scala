@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package langoustine
+package langoustine.meta
 
 import java.io.File
 

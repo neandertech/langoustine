@@ -1,4 +1,4 @@
-package langoustine
+package langoustine.generate
 
 import java.io.File
 import scala.util.Using
@@ -7,39 +7,23 @@ import java.nio.file.Paths
 import upickle.default.*
 import scala.reflect.TypeTest
 
-object Runtime:
-  opaque type uinteger = Int
-  object uinteger extends OpaqueInt[uinteger]:
-    given TypeTest[Any, uinteger] with
-      def unapply(i: Any) =
-        if i.isInstanceOf[Int] then Some(i.asInstanceOf[i.type & uinteger])
-        else None
+import langoustine.meta.*
 
-@main def generate(path: String) =
+@main def run(path: String) =
   import upickle.default.*
   import json.{*, given}
   val metaModel = read[MetaModel](new File("metaModel.json"))
-  val filtered = metaModel.copy(typeAliases =
-    metaModel.typeAliases
-      .filterNot(a => a.name.value == "LSPAny" || a.name.value == "LSPArray"),
-    // structures = metaModel.structures.filterNot(_.name.value == "LSPObject")
-  )
+  val filtered =
+    metaModel.copy(typeAliases =
+      metaModel.typeAliases
+        .filterNot(a => a.name.value == "LSPAny" || a.name.value == "LSPArray"),
+    )
   val mm = Manager(filtered)
   val re = Render(mm)
 
   import Render.*
 
   given Render.Config(indents = Indentation(0), indentSize = IndentationSize(2))
-
-  import Runtime.*
-
-  given TypeTest[uinteger, Int] with
-    def unapply(i: uinteger) = Some(i.asInstanceOf[i.type & Int])
-
-  def x(i: Runtime.uinteger | String) =
-    i match
-      case int: Runtime.uinteger => "bla"
-      case other                 => "hlo"
 
   def inFile(s: File)(f: LineBuilder => Unit) =
     val out = Render.LineBuilder()
@@ -63,4 +47,4 @@ object Runtime:
   inFile(Paths.get(path, "enumerations.scala").toFile()) { out =>
     re.enumerations(out)
   }
-end generate
+end run

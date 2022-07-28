@@ -1,4 +1,4 @@
-package langoustine
+package langoustine.lsp
 
 trait BasicallyTheSame[A, T]:
   def apply(a: A): T

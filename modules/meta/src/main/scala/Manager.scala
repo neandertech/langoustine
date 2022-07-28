@@ -1,4 +1,4 @@
-package langoustine
+package langoustine.meta
 
 import java.io.File
 import scala.util.Using

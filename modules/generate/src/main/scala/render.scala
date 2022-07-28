@@ -1,4 +1,6 @@
-package langoustine
+package langoustine.generate
+
+import langoustine.meta.*
 
 class Render(manager: Manager, packageName: String = "langoustine.lsp"):
   private val INDENT = "  "
@@ -257,9 +259,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
 
     order.result().flatMap(seen.get)
   end deduplicateProperties
-
-  opaque type NewTypeName = String
-  object NewTypeName extends OpaqueString[NewTypeName]
 
   private def typeTestRender(typeName: TypeName, tpe: Type)(using
       Config,

@@ -56,7 +56,6 @@ import structures.*
       else
         server(req) match
           case Success(resp) =>
-            println(resp)
             Action.Response(resp)
           case Failure(ex) =>
             logger.error(

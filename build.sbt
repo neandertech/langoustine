@@ -9,7 +9,7 @@ inThisBuild(
     semanticdbEnabled          := true,
     semanticdbVersion          := scalafixSemanticdb.revision,
     scalafixScalaBinaryVersion := scalaBinaryVersion.value,
-    organization               := "com.indoorvivants",
+    organization               := "com.indoorvivants.langoustine",
     organizationName           := "Anton Sviridov",
     homepage := Some(
       url("https://github.com/indoorvivants/scala-library-template")
@@ -29,19 +29,29 @@ inThisBuild(
   )
 )
 
+organization        := "com.indoorvivants.langoustine"
+sonatypeProfileName := "com.indoorvivants"
+
+lazy val publishing = Seq(
+  organization        := "com.indoorvivants.langoustine",
+  sonatypeProfileName := "com.indoorvivants"
+)
+
 val Scala3        = "3.1.3"
 val scalaVersions = List(Scala3)
 
 lazy val root = project
-  .aggregate(core.projectRefs*)
+  .aggregate((meta.projectRefs ++ lsp.projectRefs)*)
+  .settings(publish / skip := true)
 
-lazy val core = projectMatrix
-  .in(file("modules/core"))
+lazy val meta = projectMatrix
+  .in(file("modules/meta"))
   .settings(
-    name := "core"
+    name := "meta"
   )
+  .settings(publishing)
   .jvmPlatform(scalaVersions)
-  /* .jsPlatform(scalaVersions) */
+  .jsPlatform(scalaVersions)
   .nativePlatform(scalaVersions)
   .settings(
     libraryDependencies += "com.outr"      %%% "scribe"    % "3.10.1",
@@ -51,7 +61,8 @@ lazy val core = projectMatrix
 
 lazy val lsp = projectMatrix
   .in(file("modules/lsp"))
-  .dependsOn(core)
+  .dependsOn(meta)
+  .settings(publishing)
   .settings(
     name := "lsp",
     scalacOptions ++= Seq("-Xmax-inlines", "64", "-explain"),
@@ -60,12 +71,13 @@ lazy val lsp = projectMatrix
     Test / fork := true
   )
   .jvmPlatform(scalaVersions)
-  /* .jsPlatform(scalaVersions) */
+  .jsPlatform(scalaVersions)
   .nativePlatform(scalaVersions)
 
 lazy val sample = projectMatrix
   .in(file("modules/sample"))
   .dependsOn(lsp)
+  .settings(publishing)
   .settings(
     name := "sample",
     scalacOptions ++= Seq("-Xmax-inlines", "64"),
@@ -76,7 +88,7 @@ lazy val sample = projectMatrix
 
 lazy val generate = projectMatrix
   .in(file("modules/generate"))
-  .dependsOn(core)
+  .dependsOn(meta)
   .settings(
     name := "generate",
     scalacOptions ++= Seq("-Xmax-inlines", "64")
@@ -91,7 +103,7 @@ lazy val docs = projectMatrix
       "VERSION" -> version.value
     )
   )
-  .dependsOn(core)
+  .dependsOn(meta)
   .enablePlugins(MdocPlugin)
 
 val scalafixRules = Seq(
@@ -107,18 +119,18 @@ val CICommands = Seq(
   "compile",
   "test",
   "docs/mdoc",
-  "core/scalafmtCheckAll",
-  s"core/scalafix --check $scalafixRules",
-  "core/headerCheck"
+  "scalafmtCheckAll",
+  s"scalafix --check $scalafixRules",
+  "headerCheck"
 ).mkString(";")
 
 val PrepareCICommands = Seq(
-  s"core/compile:scalafix --rules $scalafixRules",
-  s"core/test:scalafix --rules $scalafixRules",
-  "core/test:scalafmtAll",
-  "core/compile:scalafmtAll",
-  "core/scalafmtSbt",
-  "core/headerCreate"
+  s"Compile/scalafix --rules $scalafixRules",
+  s"Test/scalafix --rules $scalafixRules",
+  "Test/scalafmtAll",
+  "Compile/scalafmtAll",
+  "scalafmtSbt",
+  "headerCreate"
 ).mkString(";")
 
 addCommandAlias("ci", CICommands)

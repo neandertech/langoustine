@@ -1,4 +1,4 @@
-package langoustine
+package langoustine.meta
 
 case class MetaModel(
     structures: Vector[Structure],
