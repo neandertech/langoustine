@@ -93,6 +93,7 @@ lazy val generate = projectMatrix
     name := "generate"
   )
   .jvmPlatform(scalaVersions)
+  .settings(noPublishing)
 
 lazy val docs = projectMatrix
   .in(file("myproject-docs"))
@@ -104,6 +105,7 @@ lazy val docs = projectMatrix
   )
   .dependsOn(meta)
   .enablePlugins(MdocPlugin)
+  .settings(noPublishing)
 
 val scalafixRules = Seq(
   "OrganizeImports",
