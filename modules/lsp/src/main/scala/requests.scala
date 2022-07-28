@@ -5,6 +5,12 @@ import langoustine.*
 import upickle.default.*
 import langoustine.lsp.json.{*, given}
 
+sealed abstract class LSPRequest(val requestMethod: String):
+  type In
+  type Out
+
+  given reader: Reader[In]
+  given writer: Writer[Out]
 object callHierarchy:
   object incomingCalls extends LSPRequest("callHierarchy/incomingCalls"):
     type In  = structures.CallHierarchyIncomingCallsParams

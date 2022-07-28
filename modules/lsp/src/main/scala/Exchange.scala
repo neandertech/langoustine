@@ -3,12 +3,12 @@ package langoustine.lsp
 import cats.MonadThrow
 import java.io.InputStream
 import java.io.OutputStream
-import langoustine.JSONRPC
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import langoustine.JSONRPC.*
 import java.io.BufferedWriter
 import java.io.OutputStreamWriter
+
+import JSONRPC.*
 
 enum Action:
   case Response(msg: ResponseMessage)

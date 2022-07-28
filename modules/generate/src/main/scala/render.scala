@@ -114,16 +114,16 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line("import langoustine.lsp.json.{*, given}")
     line("")
 
-    // val prelude = """
-    // |abstract class LSPRequest(val requestMethod: String):
-    // |  type In
-    // |  type Out
-    // |
-    // |  given reader: Reader[In]
-    // |  given writer: Writer[Out]
-    // """.stripMargin.trim
+    val prelude = """
+    |sealed abstract class LSPRequest(val requestMethod: String):
+    |  type In
+    |  type Out
+    |
+    |  given reader: Reader[In]
+    |  given writer: Writer[Out]
+    """.stripMargin.trim
 
-    // prelude.linesIterator.foreach(line)
+    prelude.linesIterator.foreach(line)
 
     var currentScope = List.empty[String]
 

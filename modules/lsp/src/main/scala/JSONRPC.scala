@@ -1,4 +1,4 @@
-package langoustine
+package langoustine.lsp
 
 import scala.util.Try.apply
 import scala.util.Try

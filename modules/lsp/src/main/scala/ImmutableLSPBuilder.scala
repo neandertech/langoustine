@@ -1,4 +1,4 @@
-package langoustine
+package langoustine.lsp
 
 import scala.util.Try.apply
 import scala.util.Try
@@ -6,8 +6,9 @@ import scala.util.Success
 import upickle.default.{Reader, Writer}
 import cats.syntax.all.*
 import cats.MonadThrow
-import langoustine.JSONRPC.RequestMessage
-import langoustine.JSONRPC.ResponseMessage
+import JSONRPC.*
+
+import requests.LSPRequest
 
 case class ImmutableLSPBuilder[F[_]: MonadThrow] private (
     mp: Map[String, JSONRPC.Handler[F]],
