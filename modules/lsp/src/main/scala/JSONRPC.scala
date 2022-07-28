@@ -23,10 +23,11 @@ object JSONRPC:
     def method: String
     def params: ujson.Value
 
-  private case class NotificationImpl(method: String, params: ujson.Value) extends Notification
+  private case class NotificationImpl(method: String, params: ujson.Value)
+      extends Notification
 
   object Notification:
-    given Reader[Notification] = 
+    given Reader[Notification] =
       upickle.default.macroR[NotificationImpl].map(_.asInstanceOf[Notification])
 
   object RequestMessage:

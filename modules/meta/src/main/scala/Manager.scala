@@ -17,4 +17,4 @@ class Manager(mm: MetaModel):
   export mm.{structures, enumerations, typeAliases as aliases, requests}
 
   def get(s: String) = index.get(s)
-
+end Manager

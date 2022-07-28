@@ -558,12 +558,12 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         line(s"object ${a.name}:")
         nest {
           import Type.*
-          val constituents = 
-            newType match 
-            case OrType(items) => items
-            case other => Vector(other)
+          val constituents =
+            newType match
+              case OrType(items) => items
+              case other         => Vector(other)
 
-          constituents.foreach {tpe => 
+          constituents.foreach { tpe =>
             line(s"inline def apply(v: ${renderType(tpe)}): ${a.name} = v")
           }
           collectOrTypes(newType).distinct.zipWithIndex.foreach {

@@ -50,9 +50,7 @@ lazy val root = project
 
 lazy val meta = projectMatrix
   .in(file("modules/meta"))
-  .settings(
-    name := "meta"
-  )
+  .settings(name := "meta")
   .settings(publishing)
   .jvmPlatform(scalaVersions)
   .jsPlatform(scalaVersions)
@@ -69,10 +67,9 @@ lazy val lsp = projectMatrix
   .settings(publishing)
   .settings(
     name := "lsp",
-    scalacOptions ++= Seq("-Xmax-inlines", "64", "-explain"),
+    scalacOptions ++= Seq("-Xmax-inlines", "64"),
     libraryDependencies += "com.eed3si9n.verify" %% "verify" % "1.0.0" % Test,
-    testFrameworks += new TestFramework("verify.runner.Framework"),
-    Test / fork := true
+    testFrameworks += new TestFramework("verify.runner.Framework")
   )
   .jvmPlatform(scalaVersions)
   .jsPlatform(scalaVersions)
@@ -84,7 +81,6 @@ lazy val sample = projectMatrix
   .settings(noPublishing)
   .settings(
     name := "sample",
-    scalacOptions ++= Seq("-Xmax-inlines", "64"),
     libraryDependencies += "com.outr" %%% "scribe-file" % "3.10.1"
   )
   .jvmPlatform(scalaVersions)
@@ -95,7 +91,6 @@ lazy val generate = projectMatrix
   .dependsOn(meta)
   .settings(
     name := "generate",
-    scalacOptions ++= Seq("-Xmax-inlines", "64")
   )
   .jvmPlatform(scalaVersions)
 
@@ -124,17 +119,17 @@ val CICommands = Seq(
   "test",
   "docs/mdoc",
   "scalafmtCheckAll",
-  s"scalafix --check $scalafixRules",
-  "headerCheck"
+  /* s"scalafix --check $scalafixRules", */
+  /* "headerCheck" */
 ).mkString(";")
 
 val PrepareCICommands = Seq(
-  s"Compile/scalafix --rules $scalafixRules",
-  s"Test/scalafix --rules $scalafixRules",
+  /* s"Compile/scalafix --rules $scalafixRules", */
+  /* s"Test/scalafix --rules $scalafixRules", */
   "Test/scalafmtAll",
   "Compile/scalafmtAll",
   "scalafmtSbt",
-  "headerCreate"
+  /* "headerCreate" */
 ).mkString(";")
 
 addCommandAlias("ci", CICommands)

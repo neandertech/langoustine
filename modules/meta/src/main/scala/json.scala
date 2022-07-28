@@ -97,5 +97,6 @@ object json:
       case "stringLiteral" => read[StringLiteralType](obj)
       case "tuple"         => read[TupleType](obj)
       case "and"           => read[AndType](obj)
+    end match
   }
-
+end json

@@ -67,7 +67,7 @@ class Exchange(logger: scribe.Logger):
                     writer.flush()
                   case Action.Shutdown =>
                     keepRunning = false
-                  case Action.Ignore => 
+                  case Action.Ignore =>
               }
             catch
               case exc =>

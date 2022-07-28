@@ -103,16 +103,16 @@ enum Type(
     kind: "base" | "reference" | "and" | "or" | "array" | "booleanLiteral" |
       "map" | "literal" | "stringLiteral" | "tuple"
 ):
-  case BaseType(name: BaseTypes) extends Type("base")
-  case ReferenceType(name: TypeName) extends Type("reference")
-  case AndType(items: Vector[Type]) extends Type("and")
-  case OrType(items: Vector[Type]) extends Type("or")
-  case ArrayType(element: Type) extends Type("array")
+  case BaseType(name: BaseTypes)          extends Type("base")
+  case ReferenceType(name: TypeName)      extends Type("reference")
+  case AndType(items: Vector[Type])       extends Type("and")
+  case OrType(items: Vector[Type])        extends Type("or")
+  case ArrayType(element: Type)           extends Type("array")
   case BooleanLiteralType(value: Boolean) extends Type("booleanLiteral")
-  case MapType(key: Type, value: Type) extends Type("map")
+  case MapType(key: Type, value: Type)    extends Type("map")
   case StructureLiteralType(value: StructureLiteral) extends Type("literal")
   case StringLiteralType(value: String) extends Type("stringLiteral")
-  case TupleType(items: Vector[Type]) extends Type("tuple")
+  case TupleType(items: Vector[Type])   extends Type("tuple")
 
   def traverse(f: Type => TypeTraversal) =
     TypeTraversal(this)(f)
@@ -136,7 +136,7 @@ object TypeTraversal:
       case at: AndType   => f(AndType(at.items.map(app).map(f)))
       case at: OrType    => f(OrType(at.items.map(app).map(f)))
       case at: ArrayType => f(ArrayType(f(app(at.element))))
-      case at: MapType => f(MapType(f(app(at.key)), f(app(at.value))))
-      case other       => f(other)
+      case at: MapType   => f(MapType(f(app(at.key)), f(app(at.value))))
+      case other         => f(other)
   end apply
 end TypeTraversal

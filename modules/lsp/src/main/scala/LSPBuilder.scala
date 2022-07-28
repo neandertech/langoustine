@@ -4,7 +4,7 @@ import scala.util.Try.apply
 import scala.util.Try
 import scala.util.Success
 import upickle.default.{Reader, Writer}
-import cats.syntax.all._
+import cats.syntax.all.*
 import cats.MonadThrow
 
 trait LSPBuilder[F[_]]:
