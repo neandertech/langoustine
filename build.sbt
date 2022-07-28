@@ -80,7 +80,7 @@ lazy val sample = projectMatrix
   .dependsOn(lsp)
   .settings(noPublishing)
   .settings(
-    name := "sample",
+    name                               := "sample",
     libraryDependencies += "com.outr" %%% "scribe-file" % "3.10.1"
   )
   .jvmPlatform(scalaVersions)
@@ -90,7 +90,7 @@ lazy val generate = projectMatrix
   .in(file("modules/generate"))
   .dependsOn(meta)
   .settings(
-    name := "generate",
+    name := "generate"
   )
   .jvmPlatform(scalaVersions)
 
@@ -118,7 +118,7 @@ val CICommands = Seq(
   "compile",
   "test",
   "docs3/mdoc",
-  "scalafmtCheckAll",
+  "scalafmtCheckAll"
   /* s"scalafix --check $scalafixRules", */
   /* "headerCheck" */
 ).mkString(";")
@@ -128,7 +128,7 @@ val PrepareCICommands = Seq(
   /* s"Test/scalafix --rules $scalafixRules", */
   "Test/scalafmtAll",
   "Compile/scalafmtAll",
-  "scalafmtSbt",
+  "scalafmtSbt"
   /* "headerCreate" */
 ).mkString(";")
 
