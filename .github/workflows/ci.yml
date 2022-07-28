@@ -12,37 +12,52 @@ jobs:
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: coursier/cache-action@v3      
-      - uses: actions/setup-java@v2
-        with:
-          distribution: 'temurin' 
-          java-version: '8'
-      - name: Test
-        run: sbt ci
-      - name: Test publishing
-        run: sbt publishLocal
+      - uses: actions/checkout@v3
+        fetch-depth: 0
 
-  release:
-    name: Release
-    needs: [build]
-    if: startsWith(github.ref, 'refs/tags/v') || (github.ref == 'refs/heads/main')
-    strategy:
-      fail-fast: false
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: coursier/cache-action@v3      
+      - uses: coursier/cache-action@v6     
+
       - uses: actions/setup-java@v2
         with:
           distribution: 'temurin' 
           java-version: '8'
-      - run: git fetch --unshallow
+
+      - name: Test
+        run: sbt --client ci
+
+      - name: Test publishing
+        run: sbt --client publishLocal
+
       - name: Publish ${{ github.ref }}
-        run: sbt ci-release
+        if: startsWith(github.ref, 'refs/tags/v') || (github.ref == 'refs/heads/main')
+        run: sbt --client ci-release
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+
+
+  # release:
+  #   name: Release
+  #   needs: [build]
+  #   if: startsWith(github.ref, 'refs/tags/v') || (github.ref == 'refs/heads/main')
+  #   strategy:
+  #     fail-fast: false
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: coursier/cache-action@v3      
+  #     - uses: actions/setup-java@v2
+  #       with:
+  #         distribution: 'temurin' 
+  #         java-version: '8'
+  #     - run: git fetch --unshallow
+  #     - name: Publish ${{ github.ref }}
+  #       run: sbt ci-release
+  #       env:
+  #         PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+  #         PGP_SECRET: ${{ secrets.PGP_SECRET }}
+  #         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+  #         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
 
