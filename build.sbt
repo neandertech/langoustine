@@ -66,6 +66,7 @@ lazy val lsp = projectMatrix
   .dependsOn(meta)
   .settings(publishing)
   .settings(
+    Compile / doc / sources := Seq.empty,
     name := "lsp",
     scalacOptions ++= Seq("-Xmax-inlines", "64"),
     libraryDependencies += "com.eed3si9n.verify" %% "verify" % "1.0.0" % Test,

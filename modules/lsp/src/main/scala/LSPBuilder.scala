@@ -8,10 +8,18 @@ import cats.syntax.all.*
 import cats.MonadThrow
 
 import requests.LSPRequest
+import notifications.LSPNotification
 
 trait LSPBuilder[F[_]]:
-  def handler[X <: LSPRequest](t: X)(
+  def handleRequest[X <: LSPRequest](t: X)(
       f: (t.In, X) => F[t.Out | LSPError]
   ): LSPBuilder[F]
 
-  def build: JSONRPC.RequestMessage => F[JSONRPC.ResponseMessage]
+  def handleNotification[X <: LSPNotification](t: X)(
+      f: (t.In, X) => F[Unit | LSPError]
+  ): LSPBuilder[F]
+
+  def build: (JSONRPC.RequestMessage | JSONRPC.Notification) => F[
+    Option[JSONRPC.ResponseMessage]
+  ]
+end LSPBuilder

@@ -64,7 +64,7 @@ object JSONRPC:
   def request(
       id: Int | String,
       method: String,
-      params: String
+      params: ujson.Value
   ): RequestMessage =
     RequestMessageImpl(id, method, params)
 
@@ -83,7 +83,10 @@ object JSONRPC:
   def error(code: Int, message: String): ResponseError =
     ResponseErrorImpl(code, message)
 
-  type Handler[F[_]] = RequestMessage => F[ResponseMessage]
+  type RequestHandler[F[_]] =
+    RequestMessage => F[ResponseMessage]
+
+  type NotificationHandler[F[_]] = Notification => F[Unit]
 
   def render(req: RequestMessage) =
     val obj = ujson.Obj(
@@ -93,7 +96,8 @@ object JSONRPC:
           case i: String => ujson.Str(i)
         ),
       "method"  -> ujson.Str(req.method),
-      "jsonrpc" -> ujson.Str(req.jsonrpc)
+      "jsonrpc" -> ujson.Str(req.jsonrpc),
+      "params"  -> req.params
     )
     val str = upickle.default.write(obj)
 

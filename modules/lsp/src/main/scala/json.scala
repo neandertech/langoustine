@@ -38,11 +38,11 @@ object json:
   given constStrWriter[T <: String](using NotGiven[T =:= String]): Writer[T] =
     stringCodec.asInstanceOf[Writer[T]]
 
-  val stringCodec      = summon[ReadWriter[String]]
-  val intCodec         = summon[ReadWriter[Int]]
-  val unitReader       = summon[ReadWriter[Unit]]
-  private val jsReader = reader[ujson.Value]
-  private val jsWriter = writer[ujson.Value]
+  val stringCodec = summon[ReadWriter[String]]
+  val intCodec    = summon[ReadWriter[Int]]
+  val unitReader  = summon[ReadWriter[Unit]]
+  val jsReader    = reader[ujson.Value]
+  val jsWriter    = writer[ujson.Value]
 
   opaque type Nullable[+A] = A | Null
   object Nullable:

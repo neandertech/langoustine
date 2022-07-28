@@ -9,6 +9,10 @@ import java.io.BufferedWriter
 import java.io.OutputStreamWriter
 
 import JSONRPC.*
+import scala.util.Try
+import java.io.CharArrayReader
+import java.nio.charset.StandardCharsets
+import java.nio.CharBuffer
 
 enum Action:
   case Response(msg: ResponseMessage)
@@ -25,12 +29,23 @@ class Exchange(logger: scribe.Logger):
   def bind(
       in: InputStream,
       out: OutputStream,
-      build: RequestMessage => Action
+      build: RequestMessage | Notification => Action
   ) =
     var state: State = Start
-    val reader       = new BufferedReader(new InputStreamReader(in))
-    val writer       = new OutputStreamWriter(out)
-    var keepRunning  = true
+    val reader = new BufferedReader(
+      new InputStreamReader(in, StandardCharsets.US_ASCII)
+    )
+    val writer      = new OutputStreamWriter(out)
+    var keepRunning = true
+    val sb          = new StringBuilder
+
+    def readLine() =
+      var keepRunning = true
+      while keepRunning do
+        val next = in.read()
+        keepRunning = next != '\r'
+        if keepRunning then sb.append(next.toChar)
+      sb.result()
 
     try
 
@@ -41,22 +56,40 @@ class Exchange(logger: scribe.Logger):
 
             state = line match
               case s"Content-Length: $num" =>
+                logger.info(s"Expecting minimum $num characters")
                 State.ReceivedContentLength(num.toInt)
               case other =>
                 logger.error(s"Received $line")
                 Start
 
           case ReceivedContentLength(l) =>
+            assert(reader.read() == '\r')
+            assert(reader.read() == '\n')
+
             val buf = Array.ofDim[Char](l)
-            reader.skip(2)
-            reader.read(buf)
-            var request: Option[JSONRPC.RequestMessage] = None
-            val str                                     = new String(buf)
-            logger.info(s"Received $str")
+
+            var acc  = 0
+            var over = false
+
+            while acc != l && !over do
+              val numBytes = reader.read(buf, acc, l - acc)
+
+              logger.info(s"Buffer: $acc, expected $l, read $numBytes")
+              if numBytes != -1 then acc += numBytes
+              over = numBytes == -1
+
+            logger.info(s"Actually read: $acc bytes")
+
+            var request: Option[JSONRPC.RequestMessage | JSONRPC.Notification] =
+              None
+
+            val str = new String(buf)
+            logger.info(s"Received ${str.length} bytes: '$str'")
             try
-              request = Some(
+              request = Try(
                 upickle.default.read[JSONRPC.RequestMessage](str)
-              )
+              ).toOption orElse
+                Try(upickle.default.read[JSONRPC.Notification](str)).toOption
               request.foreach { request =>
                 build(request) match
                   case Action.Response(resp) =>
@@ -72,7 +105,7 @@ class Exchange(logger: scribe.Logger):
             catch
               case exc =>
                 logger.error(
-                  s"Failed to execute ${request.map(_.method)}",
+                  s"Failed to execute ${request}",
                   exc
                 )
             end try

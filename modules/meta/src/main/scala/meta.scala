@@ -38,7 +38,8 @@ case class Request(
 )
 
 case class Notification(
-    method: RequestMethod
+    method: RequestMethod,
+    params: ParamsType = ParamsType.None
 )
 
 case class EnumerationType(
