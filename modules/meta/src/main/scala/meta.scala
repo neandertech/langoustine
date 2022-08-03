@@ -11,8 +11,20 @@ case class MetaModel(
 opaque type StructureName = String
 object StructureName extends OpaqueString[StructureName]
 
+opaque type StructureDescription = String
+object StructureDescription extends OpaqueString[StructureDescription]
+
 opaque type PropertyName = String
 object PropertyName extends OpaqueString[PropertyName]
+
+opaque type PropertyDescription = String
+object PropertyDescription extends OpaqueString[PropertyDescription]
+
+opaque type RequestDescription = String
+object RequestDescription extends OpaqueString[RequestDescription]
+
+opaque type NotificationDescription = String
+object NotificationDescription extends OpaqueString[NotificationDescription]
 
 opaque type IsOptional = Boolean
 object IsOptional extends YesNo[IsOptional]
@@ -34,12 +46,14 @@ enum ParamsType:
 case class Request(
     params: ParamsType = ParamsType.None,
     method: RequestMethod,
-    result: Type
+    result: Type,
+    documentation: Opt[RequestDescription] = Opt.empty
 )
 
 case class Notification(
     method: RequestMethod,
-    params: ParamsType = ParamsType.None
+    params: ParamsType = ParamsType.None,
+    documentation: Opt[NotificationDescription] = Opt.empty
 )
 
 case class EnumerationType(
@@ -64,7 +78,8 @@ case class EnumerationEntry(name: EnumerationItemName, value: EnumerationItem)
 case class Property(
     name: PropertyName,
     optional: IsOptional = IsOptional.No,
-    `type`: Type
+    `type`: Type,
+    documentation: Opt[PropertyDescription] = Opt.empty
 ):
   def tpe = `type`
 
@@ -72,7 +87,8 @@ case class Structure(
     `extends`: Vector[Type] = Vector.empty,
     mixins: Vector[Type] = Vector.empty,
     name: StructureName,
-    properties: Vector[Property] = Vector.empty
+    properties: Vector[Property] = Vector.empty,
+    documentation: Opt[StructureDescription] = Opt.empty
 ):
   inline def extendz = `extends`
 
@@ -84,6 +100,29 @@ case class TypeAlias(name: TypeAliasName, `type`: Type)
 case class StructureLiteral(
     properties: Vector[Property]
 )
+
+opaque type Opt[+A] = A | Null
+object Opt:
+  import upickle.default.*
+  inline def empty: Opt[Nothing]    = null
+  inline def apply[A](a: A): Opt[A] = a
+
+  extension [A](o: Opt[A])
+    inline def toOption: Option[A] =
+      o match
+        case null => None
+        case a: A => Some(a)
+
+  given [A](using
+      rd: Reader[A]
+  ): Reader[Opt[A]] =
+    rd.asInstanceOf[Reader[Opt[A]]]
+
+  given [A](using
+      wt: Writer[A]
+  ): Writer[Opt[A]] =
+    wt.asInstanceOf[Writer[Opt[A]]]
+end Opt
 
 enum BaseTypes:
   case Uri, DocumentUri,

@@ -14,7 +14,13 @@ sealed abstract class LSPRequest(val requestMethod: String):
   given inputWriter: Writer[In]
   given outputWriter: Writer[Out]
   given outputReader: Reader[Out]
+
 object callHierarchy:
+  /**
+   *  A request to resolve the incoming calls for a given `CallHierarchyItem`.
+   *  
+   *  @since 3.16.0
+   */
   object incomingCalls extends LSPRequest("callHierarchy/incomingCalls"):
     type In = structures.CallHierarchyIncomingCallsParams
     type Out = Nullable[Vector[structures.CallHierarchyIncomingCall]]
@@ -35,6 +41,11 @@ object callHierarchy:
     given outputReader: Reader[Out] =
       badMerge[Out](upickle.default.reader[Vector[structures.CallHierarchyIncomingCall]], nullReadWriter)
   
+  /**
+   *  A request to resolve the outgoing calls for a given `CallHierarchyItem`.
+   *  
+   *  @since 3.16.0
+   */
   object outgoingCalls extends LSPRequest("callHierarchy/outgoingCalls"):
     type In = structures.CallHierarchyOutgoingCallsParams
     type Out = Nullable[Vector[structures.CallHierarchyOutgoingCall]]
@@ -56,6 +67,10 @@ object callHierarchy:
       badMerge[Out](upickle.default.reader[Vector[structures.CallHierarchyOutgoingCall]], nullReadWriter)
   
 object client:
+  /**
+   *  The `client/registerCapability` request is sent from the server to the client to register a new capability
+   *  handler on the client side.
+   */
   object registerCapability extends LSPRequest("client/registerCapability"):
     type In = structures.RegistrationParams
     type Out = Null
@@ -72,6 +87,10 @@ object client:
     given outputReader: Reader[Out] =
       nullReadWriter
   
+  /**
+   *  The `client/unregisterCapability` request is sent from the server to the client to unregister a previously registered capability
+   *  handler on the client side.
+   */
   object unregisterCapability extends LSPRequest("client/unregisterCapability"):
     type In = structures.UnregistrationParams
     type Out = Null
@@ -89,6 +108,11 @@ object client:
       nullReadWriter
   
 object codeAction:
+  /**
+   *  Request to resolve additional information for a given code action.The request's
+   *  parameter is of type [CodeAction](#CodeAction) the response
+   *  is of type [CodeAction](#CodeAction) or a Thenable that resolves to such.
+   */
   object resolve extends LSPRequest("codeAction/resolve"):
     type In = structures.CodeAction
     type Out = structures.CodeAction
@@ -106,6 +130,9 @@ object codeAction:
       structures.CodeAction.reader
   
 object codeLens:
+  /**
+   *  A request to resolve a command for a given code lens.
+   */
   object resolve extends LSPRequest("codeLens/resolve"):
     type In = structures.CodeLens
     type Out = structures.CodeLens
@@ -123,6 +150,11 @@ object codeLens:
       structures.CodeLens.reader
   
 object completionItem:
+  /**
+   *  Request to resolve additional information for a given completion item.The request's
+   *  parameter is of type [CompletionItem](#CompletionItem) the response
+   *  is of type [CompletionItem](#CompletionItem) or a Thenable that resolves to such.
+   */
   object resolve extends LSPRequest("completionItem/resolve"):
     type In = structures.CompletionItem
     type Out = structures.CompletionItem
@@ -140,6 +172,11 @@ object completionItem:
       structures.CompletionItem.reader
   
 object documentLink:
+  /**
+   *  Request to resolve additional information for a given document link. The request's
+   *  parameter is of type [DocumentLink](#DocumentLink) the response
+   *  is of type [DocumentLink](#DocumentLink) or a Thenable that resolves to such.
+   */
   object resolve extends LSPRequest("documentLink/resolve"):
     type In = structures.DocumentLink
     type Out = structures.DocumentLink
@@ -156,6 +193,13 @@ object documentLink:
     given outputReader: Reader[Out] =
       structures.DocumentLink.reader
   
+/**
+ *  The initialize request is sent from the client to the server.
+ *  It is sent once as the request after starting up the server.
+ *  The requests parameter is of type [InitializeParams](#InitializeParams)
+ *  the response if of type [InitializeResult](#InitializeResult) of a Thenable that
+ *  resolves to such.
+ */
 object initialize extends LSPRequest("initialize"):
   type In = structures.InitializeParams
   type Out = structures.InitializeResult
@@ -173,6 +217,13 @@ object initialize extends LSPRequest("initialize"):
     structures.InitializeResult.reader
 
 object inlayHint:
+  /**
+   *  A request to resolve additional properties for an inlay hint.
+   *  The request's parameter is of type [InlayHint](#InlayHint), the response is
+   *  of type [InlayHint](#InlayHint) or a Thenable that resolves to such.
+   *  
+   *  @since 3.17.0
+   */
   object resolve extends LSPRequest("inlayHint/resolve"):
     type In = structures.InlayHint
     type Out = structures.InlayHint
@@ -189,6 +240,12 @@ object inlayHint:
     given outputReader: Reader[Out] =
       structures.InlayHint.reader
   
+/**
+ *  A shutdown request is sent from the client to the server.
+ *  It is sent once when the client decides to shutdown the
+ *  server. The only notification that is sent after a shutdown request
+ *  is the exit event.
+ */
 object shutdown extends LSPRequest("shutdown"):
   type In = Unit
   type Out = Null
@@ -206,6 +263,9 @@ object shutdown extends LSPRequest("shutdown"):
     nullReadWriter
 
 object textDocument:
+  /**
+   *  A request to provide commands for the given text document and range.
+   */
   object codeAction extends LSPRequest("textDocument/codeAction"):
     type In = structures.CodeActionParams
     type Out = Nullable[Vector[(structures.Command | structures.CodeAction)]]
@@ -234,6 +294,9 @@ object textDocument:
         badMerge[(structures.Command | structures.CodeAction)](structures.Command.reader, structures.CodeAction.reader)
       badMerge[Out](upickle.default.reader[Vector[(structures.Command | structures.CodeAction)]], nullReadWriter)
   
+  /**
+   *  A request to provide code lens for the given text document.
+   */
   object codeLens extends LSPRequest("textDocument/codeLens"):
     type In = structures.CodeLensParams
     type Out = Nullable[Vector[structures.CodeLens]]
@@ -254,6 +317,12 @@ object textDocument:
     given outputReader: Reader[Out] =
       badMerge[Out](upickle.default.reader[Vector[structures.CodeLens]], nullReadWriter)
   
+  /**
+   *  A request to list all presentation for a color. The request's
+   *  parameter is of type [ColorPresentationParams](#ColorPresentationParams) the
+   *  response is of type [ColorInformation[]](#ColorInformation) or a Thenable
+   *  that resolves to such.
+   */
   object colorPresentation extends LSPRequest("textDocument/colorPresentation"):
     type In = structures.ColorPresentationParams
     type Out = Vector[structures.ColorPresentation]
@@ -270,6 +339,17 @@ object textDocument:
     given outputReader: Reader[Out] =
       vectorReader[structures.ColorPresentation]
   
+  /**
+   *  Request to request completion at a given text document position. The request's
+   *  parameter is of type [TextDocumentPosition](#TextDocumentPosition) the response
+   *  is of type [CompletionItem[]](#CompletionItem) or [CompletionList](#CompletionList)
+   *  or a Thenable that resolves to such.
+   *  
+   *  The request can delay the computation of the [`detail`](#CompletionItem.detail)
+   *  and [`documentation`](#CompletionItem.documentation) properties to the `completionItem/resolve`
+   *  request. However, properties that are needed for the initial sorting and filtering, like `sortText`,
+   *  `filterText`, `insertText`, and `textEdit`, must not be changed during resolve.
+   */
   object completion extends LSPRequest("textDocument/completion"):
     type In = structures.CompletionParams
     type Out = (Vector[structures.CompletionItem] | structures.CompletionList | Null)
@@ -291,6 +371,13 @@ object textDocument:
     given outputReader: Reader[Out] =
       badMerge[Out](upickle.default.reader[Vector[structures.CompletionItem]], structures.CompletionList.reader, nullReadWriter)
   
+  /**
+   *  A request to resolve the type definition locations of a symbol at a given text
+   *  document position. The request's parameter is of type [TextDocumentPositionParams]
+   *  (#TextDocumentPositionParams) the response is of type [Declaration](#Declaration)
+   *  or a typed array of [DeclarationLink](#DeclarationLink) or a Thenable that resolves
+   *  to such.
+   */
   object declaration extends LSPRequest("textDocument/declaration"):
     type In = structures.DeclarationParams
     type Out = (aliases.Declaration | Vector[aliases.DeclarationLink] | Null)
@@ -312,6 +399,13 @@ object textDocument:
     given outputReader: Reader[Out] =
       badMerge[Out](aliases.Declaration.reader, upickle.default.reader[Vector[aliases.DeclarationLink]], nullReadWriter)
   
+  /**
+   *  A request to resolve the definition location of a symbol at a given text
+   *  document position. The request's parameter is of type [TextDocumentPosition]
+   *  (#TextDocumentPosition) the response is of either type [Definition](#Definition)
+   *  or a typed array of [DefinitionLink](#DefinitionLink) or a Thenable that resolves
+   *  to such.
+   */
   object definition extends LSPRequest("textDocument/definition"):
     type In = structures.DefinitionParams
     type Out = (aliases.Definition | Vector[aliases.DefinitionLink] | Null)
@@ -333,6 +427,11 @@ object textDocument:
     given outputReader: Reader[Out] =
       badMerge[Out](aliases.Definition.reader, upickle.default.reader[Vector[aliases.DefinitionLink]], nullReadWriter)
   
+  /**
+   *  The document diagnostic request definition.
+   *  
+   *  @since 3.17.0
+   */
   object diagnostic extends LSPRequest("textDocument/diagnostic"):
     type In = structures.DocumentDiagnosticParams
     type Out = aliases.DocumentDiagnosticReport
@@ -349,6 +448,12 @@ object textDocument:
     given outputReader: Reader[Out] =
       aliases.DocumentDiagnosticReport.reader
   
+  /**
+   *  A request to list all color symbols found in a given text document. The request's
+   *  parameter is of type [DocumentColorParams](#DocumentColorParams) the
+   *  response is of type [ColorInformation[]](#ColorInformation) or a Thenable
+   *  that resolves to such.
+   */
   object documentColor extends LSPRequest("textDocument/documentColor"):
     type In = structures.DocumentColorParams
     type Out = Vector[structures.ColorInformation]
@@ -365,6 +470,12 @@ object textDocument:
     given outputReader: Reader[Out] =
       vectorReader[structures.ColorInformation]
   
+  /**
+   *  Request to resolve a [DocumentHighlight](#DocumentHighlight) for a given
+   *  text document position. The request's parameter is of type [TextDocumentPosition]
+   *  (#TextDocumentPosition) the request response is of type [DocumentHighlight[]]
+   *  (#DocumentHighlight) or a Thenable that resolves to such.
+   */
   object documentHighlight extends LSPRequest("textDocument/documentHighlight"):
     type In = structures.DocumentHighlightParams
     type Out = Nullable[Vector[structures.DocumentHighlight]]
@@ -385,6 +496,9 @@ object textDocument:
     given outputReader: Reader[Out] =
       badMerge[Out](upickle.default.reader[Vector[structures.DocumentHighlight]], nullReadWriter)
   
+  /**
+   *  A request to provide document links
+   */
   object documentLink extends LSPRequest("textDocument/documentLink"):
     type In = structures.DocumentLinkParams
     type Out = Nullable[Vector[structures.DocumentLink]]
@@ -405,6 +519,12 @@ object textDocument:
     given outputReader: Reader[Out] =
       badMerge[Out](upickle.default.reader[Vector[structures.DocumentLink]], nullReadWriter)
   
+  /**
+   *  A request to list all symbols found in a given text document. The request's
+   *  parameter is of type [TextDocumentIdentifier](#TextDocumentIdentifier) the
+   *  response is of type [SymbolInformation[]](#SymbolInformation) or a Thenable
+   *  that resolves to such.
+   */
   object documentSymbol extends LSPRequest("textDocument/documentSymbol"):
     type In = structures.DocumentSymbolParams
     type Out = (Vector[structures.SymbolInformation] | Vector[structures.DocumentSymbol] | Null)
@@ -426,6 +546,12 @@ object textDocument:
     given outputReader: Reader[Out] =
       badMerge[Out](upickle.default.reader[Vector[structures.SymbolInformation]], upickle.default.reader[Vector[structures.DocumentSymbol]], nullReadWriter)
   
+  /**
+   *  A request to provide folding ranges in a document. The request's
+   *  parameter is of type [FoldingRangeParams](#FoldingRangeParams), the
+   *  response is of type [FoldingRangeList](#FoldingRangeList) or a Thenable
+   *  that resolves to such.
+   */
   object foldingRange extends LSPRequest("textDocument/foldingRange"):
     type In = structures.FoldingRangeParams
     type Out = Nullable[Vector[structures.FoldingRange]]
@@ -446,6 +572,9 @@ object textDocument:
     given outputReader: Reader[Out] =
       badMerge[Out](upickle.default.reader[Vector[structures.FoldingRange]], nullReadWriter)
   
+  /**
+   *  A request to to format a whole document.
+   */
   object formatting extends LSPRequest("textDocument/formatting"):
     type In = structures.DocumentFormattingParams
     type Out = Nullable[Vector[structures.TextEdit]]
@@ -466,6 +595,11 @@ object textDocument:
     given outputReader: Reader[Out] =
       badMerge[Out](upickle.default.reader[Vector[structures.TextEdit]], nullReadWriter)
   
+  /**
+   *  Request to request hover information at a given text document position. The request's
+   *  parameter is of type [TextDocumentPosition](#TextDocumentPosition) the response is of
+   *  type [Hover](#Hover) or a Thenable that resolves to such.
+   */
   object hover extends LSPRequest("textDocument/hover"):
     type In = structures.HoverParams
     type Out = Nullable[structures.Hover]
@@ -486,6 +620,12 @@ object textDocument:
     given outputReader: Reader[Out] =
       badMerge[Out](structures.Hover.reader, nullReadWriter)
   
+  /**
+   *  A request to resolve the implementation locations of a symbol at a given text
+   *  document position. The request's parameter is of type [TextDocumentPositionParams]
+   *  (#TextDocumentPositionParams) the response is of type [Definition](#Definition) or a
+   *  Thenable that resolves to such.
+   */
   object implementation extends LSPRequest("textDocument/implementation"):
     type In = structures.ImplementationParams
     type Out = (aliases.Definition | Vector[aliases.DefinitionLink] | Null)
@@ -507,6 +647,13 @@ object textDocument:
     given outputReader: Reader[Out] =
       badMerge[Out](aliases.Definition.reader, upickle.default.reader[Vector[aliases.DefinitionLink]], nullReadWriter)
   
+  /**
+   *  A request to provide inlay hints in a document. The request's parameter is of
+   *  type [InlayHintsParams](#InlayHintsParams), the response is of type
+   *  [InlayHint[]](#InlayHint[]) or a Thenable that resolves to such.
+   *  
+   *  @since 3.17.0
+   */
   object inlayHint extends LSPRequest("textDocument/inlayHint"):
     type In = structures.InlayHintParams
     type Out = Nullable[Vector[structures.InlayHint]]
@@ -527,6 +674,13 @@ object textDocument:
     given outputReader: Reader[Out] =
       badMerge[Out](upickle.default.reader[Vector[structures.InlayHint]], nullReadWriter)
   
+  /**
+   *  A request to provide inline values in a document. The request's parameter is of
+   *  type [InlineValueParams](#InlineValueParams), the response is of type
+   *  [InlineValue[]](#InlineValue[]) or a Thenable that resolves to such.
+   *  
+   *  @since 3.17.0
+   */
   object inlineValue extends LSPRequest("textDocument/inlineValue"):
     type In = structures.InlineValueParams
     type Out = Nullable[Vector[aliases.InlineValue]]
@@ -547,6 +701,11 @@ object textDocument:
     given outputReader: Reader[Out] =
       badMerge[Out](upickle.default.reader[Vector[aliases.InlineValue]], nullReadWriter)
   
+  /**
+   *  A request to provide ranges that can be edited together.
+   *  
+   *  @since 3.16.0
+   */
   object linkedEditingRange extends LSPRequest("textDocument/linkedEditingRange"):
     type In = structures.LinkedEditingRangeParams
     type Out = Nullable[structures.LinkedEditingRanges]
@@ -567,6 +726,11 @@ object textDocument:
     given outputReader: Reader[Out] =
       badMerge[Out](structures.LinkedEditingRanges.reader, nullReadWriter)
   
+  /**
+   *  A request to get the moniker of a symbol at a given text document position.
+   *  The request parameter is of type [TextDocumentPositionParams](#TextDocumentPositionParams).
+   *  The response is of type [Moniker[]](#Moniker[]) or `null`.
+   */
   object moniker extends LSPRequest("textDocument/moniker"):
     type In = structures.MonikerParams
     type Out = Nullable[Vector[structures.Moniker]]
@@ -587,6 +751,9 @@ object textDocument:
     given outputReader: Reader[Out] =
       badMerge[Out](upickle.default.reader[Vector[structures.Moniker]], nullReadWriter)
   
+  /**
+   *  A request to format a document on type.
+   */
   object onTypeFormatting extends LSPRequest("textDocument/onTypeFormatting"):
     type In = structures.DocumentOnTypeFormattingParams
     type Out = Nullable[Vector[structures.TextEdit]]
@@ -607,6 +774,12 @@ object textDocument:
     given outputReader: Reader[Out] =
       badMerge[Out](upickle.default.reader[Vector[structures.TextEdit]], nullReadWriter)
   
+  /**
+   *  A request to result a `CallHierarchyItem` in a document at a given position.
+   *  Can be used as an input to an incoming or outgoing call hierarchy.
+   *  
+   *  @since 3.16.0
+   */
   object prepareCallHierarchy extends LSPRequest("textDocument/prepareCallHierarchy"):
     type In = structures.CallHierarchyPrepareParams
     type Out = Nullable[Vector[structures.CallHierarchyItem]]
@@ -627,6 +800,11 @@ object textDocument:
     given outputReader: Reader[Out] =
       badMerge[Out](upickle.default.reader[Vector[structures.CallHierarchyItem]], nullReadWriter)
   
+  /**
+   *  A request to test and perform the setup necessary for a rename.
+   *  
+   *  @since 3.16 - support for default behavior
+   */
   object prepareRename extends LSPRequest("textDocument/prepareRename"):
     type In = structures.PrepareRenameParams
     type Out = Nullable[aliases.PrepareRenameResult]
@@ -647,6 +825,12 @@ object textDocument:
     given outputReader: Reader[Out] =
       badMerge[Out](aliases.PrepareRenameResult.reader, nullReadWriter)
   
+  /**
+   *  A request to result a `TypeHierarchyItem` in a document at a given position.
+   *  Can be used as an input to a subtypes or supertypes type hierarchy.
+   *  
+   *  @since 3.17.0
+   */
   object prepareTypeHierarchy extends LSPRequest("textDocument/prepareTypeHierarchy"):
     type In = structures.TypeHierarchyPrepareParams
     type Out = Nullable[Vector[structures.TypeHierarchyItem]]
@@ -667,6 +851,9 @@ object textDocument:
     given outputReader: Reader[Out] =
       badMerge[Out](upickle.default.reader[Vector[structures.TypeHierarchyItem]], nullReadWriter)
   
+  /**
+   *  A request to to format a range in a document.
+   */
   object rangeFormatting extends LSPRequest("textDocument/rangeFormatting"):
     type In = structures.DocumentRangeFormattingParams
     type Out = Nullable[Vector[structures.TextEdit]]
@@ -687,6 +874,12 @@ object textDocument:
     given outputReader: Reader[Out] =
       badMerge[Out](upickle.default.reader[Vector[structures.TextEdit]], nullReadWriter)
   
+  /**
+   *  A request to resolve project-wide references for the symbol denoted
+   *  by the given text document position. The request's parameter is of
+   *  type [ReferenceParams](#ReferenceParams) the response is of type
+   *  [Location[]](#Location) or a Thenable that resolves to such.
+   */
   object references extends LSPRequest("textDocument/references"):
     type In = structures.ReferenceParams
     type Out = Nullable[Vector[structures.Location]]
@@ -707,6 +900,9 @@ object textDocument:
     given outputReader: Reader[Out] =
       badMerge[Out](upickle.default.reader[Vector[structures.Location]], nullReadWriter)
   
+  /**
+   *  A request to rename a symbol.
+   */
   object rename extends LSPRequest("textDocument/rename"):
     type In = structures.RenameParams
     type Out = Nullable[structures.WorkspaceEdit]
@@ -727,6 +923,12 @@ object textDocument:
     given outputReader: Reader[Out] =
       badMerge[Out](structures.WorkspaceEdit.reader, nullReadWriter)
   
+  /**
+   *  A request to provide selection ranges in a document. The request's
+   *  parameter is of type [SelectionRangeParams](#SelectionRangeParams), the
+   *  response is of type [SelectionRange[]](#SelectionRange[]) or a Thenable
+   *  that resolves to such.
+   */
   object selectionRange extends LSPRequest("textDocument/selectionRange"):
     type In = structures.SelectionRangeParams
     type Out = Nullable[Vector[structures.SelectionRange]]
@@ -748,6 +950,9 @@ object textDocument:
       badMerge[Out](upickle.default.reader[Vector[structures.SelectionRange]], nullReadWriter)
   
   object semanticTokens:
+    /**
+     *  @since 3.16.0
+     */
     object full extends LSPRequest("textDocument/semanticTokens/full"):
       type In = structures.SemanticTokensParams
       type Out = Nullable[structures.SemanticTokens]
@@ -768,6 +973,9 @@ object textDocument:
       given outputReader: Reader[Out] =
         badMerge[Out](structures.SemanticTokens.reader, nullReadWriter)
     
+      /**
+       *  @since 3.16.0
+       */
       object delta extends LSPRequest("textDocument/semanticTokens/full/delta"):
         type In = structures.SemanticTokensDeltaParams
         type Out = (structures.SemanticTokens | structures.SemanticTokensDelta | Null)
@@ -789,6 +997,9 @@ object textDocument:
         given outputReader: Reader[Out] =
           badMerge[Out](structures.SemanticTokens.reader, structures.SemanticTokensDelta.reader, nullReadWriter)
       
+    /**
+     *  @since 3.16.0
+     */
     object range extends LSPRequest("textDocument/semanticTokens/range"):
       type In = structures.SemanticTokensRangeParams
       type Out = Nullable[structures.SemanticTokens]
@@ -829,6 +1040,12 @@ object textDocument:
     given outputReader: Reader[Out] =
       badMerge[Out](structures.SignatureHelp.reader, nullReadWriter)
   
+  /**
+   *  A request to resolve the type definition locations of a symbol at a given text
+   *  document position. The request's parameter is of type [TextDocumentPositionParams]
+   *  (#TextDocumentPositionParams) the response is of type [Definition](#Definition) or a
+   *  Thenable that resolves to such.
+   */
   object typeDefinition extends LSPRequest("textDocument/typeDefinition"):
     type In = structures.TypeDefinitionParams
     type Out = (aliases.Definition | Vector[aliases.DefinitionLink] | Null)
@@ -850,6 +1067,14 @@ object textDocument:
     given outputReader: Reader[Out] =
       badMerge[Out](aliases.Definition.reader, upickle.default.reader[Vector[aliases.DefinitionLink]], nullReadWriter)
   
+  /**
+   *  A document will save request is sent from the client to the server before
+   *  the document is actually saved. The request can return an array of TextEdits
+   *  which will be applied to the text document before it is saved. Please note that
+   *  clients might drop results if computing the text edits took too long or if a
+   *  server constantly fails on this request. This is done to keep the save fast and
+   *  reliable.
+   */
   object willSaveWaitUntil extends LSPRequest("textDocument/willSaveWaitUntil"):
     type In = structures.WillSaveTextDocumentParams
     type Out = Nullable[Vector[structures.TextEdit]]
@@ -871,6 +1096,11 @@ object textDocument:
       badMerge[Out](upickle.default.reader[Vector[structures.TextEdit]], nullReadWriter)
   
 object typeHierarchy:
+  /**
+   *  A request to resolve the subtypes for a given `TypeHierarchyItem`.
+   *  
+   *  @since 3.17.0
+   */
   object subtypes extends LSPRequest("typeHierarchy/subtypes"):
     type In = structures.TypeHierarchySubtypesParams
     type Out = Nullable[Vector[structures.TypeHierarchyItem]]
@@ -891,6 +1121,11 @@ object typeHierarchy:
     given outputReader: Reader[Out] =
       badMerge[Out](upickle.default.reader[Vector[structures.TypeHierarchyItem]], nullReadWriter)
   
+  /**
+   *  A request to resolve the supertypes for a given `TypeHierarchyItem`.
+   *  
+   *  @since 3.17.0
+   */
   object supertypes extends LSPRequest("typeHierarchy/supertypes"):
     type In = structures.TypeHierarchySupertypesParams
     type Out = Nullable[Vector[structures.TypeHierarchyItem]]
@@ -912,6 +1147,14 @@ object typeHierarchy:
       badMerge[Out](upickle.default.reader[Vector[structures.TypeHierarchyItem]], nullReadWriter)
   
 object window:
+  /**
+   *  A request to show a document. This request might open an
+   *  external program depending on the value of the URI to open.
+   *  For example a request to open `https://code.visualstudio.com/`
+   *  will very likely open the URI in a WEB browser.
+   *  
+   *  @since 3.16.0
+   */
   object showDocument extends LSPRequest("window/showDocument"):
     type In = structures.ShowDocumentParams
     type Out = structures.ShowDocumentResult
@@ -928,6 +1171,10 @@ object window:
     given outputReader: Reader[Out] =
       structures.ShowDocumentResult.reader
   
+  /**
+   *  The show message request is sent from the server to the client to show a message
+   *  and a set of options actions to the user.
+   */
   object showMessageRequest extends LSPRequest("window/showMessageRequest"):
     type In = structures.ShowMessageRequestParams
     type Out = Nullable[structures.MessageActionItem]
@@ -949,6 +1196,10 @@ object window:
       badMerge[Out](structures.MessageActionItem.reader, nullReadWriter)
   
   object workDoneProgress:
+    /**
+     *  The `window/workDoneProgress/create` request is sent from the server to the client to initiate progress
+     *  reporting from the server.
+     */
     object create extends LSPRequest("window/workDoneProgress/create"):
       type In = structures.WorkDoneProgressCreateParams
       type Out = Null
@@ -966,6 +1217,9 @@ object window:
         nullReadWriter
     
 object workspace:
+  /**
+   *  A request sent from the server to the client to modified certain resources.
+   */
   object applyEdit extends LSPRequest("workspace/applyEdit"):
     type In = structures.ApplyWorkspaceEditParams
     type Out = structures.ApplyWorkspaceEditResult
@@ -983,6 +1237,11 @@ object workspace:
       structures.ApplyWorkspaceEditResult.reader
   
   object codeLens:
+    /**
+     *  A request to refresh all code actions
+     *  
+     *  @since 3.16.0
+     */
     object refresh extends LSPRequest("workspace/codeLens/refresh"):
       type In = Unit
       type Out = Null
@@ -999,6 +1258,15 @@ object workspace:
       given outputReader: Reader[Out] =
         nullReadWriter
     
+  /**
+   *  The 'workspace/configuration' request is sent from the server to the client to fetch a certain
+   *  configuration setting.
+   *  
+   *  This pull model replaces the old push model were the client signaled configuration change via an
+   *  event. If the server still needs to react to configuration changes (since the server caches the
+   *  result of `workspace/configuration` requests) the server should register for an empty configuration
+   *  change event and empty the cache if such an event is received.
+   */
   object configuration extends LSPRequest("workspace/configuration"):
     type In = Any /*AndType(Vector(ReferenceType(ConfigurationParams), ReferenceType(PartialResultParams)))*/
     type Out = Vector[ujson.Value]
@@ -1015,6 +1283,11 @@ object workspace:
     given outputReader: Reader[Out] =
       vectorReader[ujson.Value]
   
+  /**
+   *  The workspace diagnostic request definition.
+   *  
+   *  @since 3.17.0
+   */
   object diagnostic extends LSPRequest("workspace/diagnostic"):
     type In = structures.WorkspaceDiagnosticParams
     type Out = structures.WorkspaceDiagnosticReport
@@ -1031,6 +1304,11 @@ object workspace:
     given outputReader: Reader[Out] =
       structures.WorkspaceDiagnosticReport.reader
   
+    /**
+     *  The diagnostic refresh request definition.
+     *  
+     *  @since 3.17.0
+     */
     object refresh extends LSPRequest("workspace/diagnostic/refresh"):
       type In = Unit
       type Out = Null
@@ -1047,6 +1325,10 @@ object workspace:
       given outputReader: Reader[Out] =
         nullReadWriter
     
+  /**
+   *  A request send from the client to the server to execute a command. The request might return
+   *  a workspace edit which the client will apply to the workspace.
+   */
   object executeCommand extends LSPRequest("workspace/executeCommand"):
     type In = structures.ExecuteCommandParams
     type Out = Nullable[ujson.Value]
@@ -1068,6 +1350,9 @@ object workspace:
       badMerge[Out](jsReader, nullReadWriter)
   
   object inlayHint:
+    /**
+     *  @since 3.17.0
+     */
     object refresh extends LSPRequest("workspace/inlayHint/refresh"):
       type In = Unit
       type Out = Null
@@ -1085,6 +1370,9 @@ object workspace:
         nullReadWriter
     
   object inlineValue:
+    /**
+     *  @since 3.17.0
+     */
     object refresh extends LSPRequest("workspace/inlineValue/refresh"):
       type In = Unit
       type Out = Null
@@ -1102,6 +1390,9 @@ object workspace:
         nullReadWriter
     
   object semanticTokens:
+    /**
+     *  @since 3.16.0
+     */
     object refresh extends LSPRequest("workspace/semanticTokens/refresh"):
       type In = Unit
       type Out = Null
@@ -1118,6 +1409,16 @@ object workspace:
       given outputReader: Reader[Out] =
         nullReadWriter
     
+  /**
+   *  A request to list project-wide symbols matching the query string given
+   *  by the [WorkspaceSymbolParams](#WorkspaceSymbolParams). The response is
+   *  of type [SymbolInformation[]](#SymbolInformation) or a Thenable that
+   *  resolves to such.
+   *  
+   *  @since 3.17.0 - support for WorkspaceSymbol in the returned data. Clients
+   *   need to advertise support for WorkspaceSymbols via the client capability
+   *   `workspace.symbol.resolveSupport`.
+   */
   object symbol extends LSPRequest("workspace/symbol"):
     type In = structures.WorkspaceSymbolParams
     type Out = (Vector[structures.SymbolInformation] | Vector[structures.WorkspaceSymbol] | Null)
@@ -1139,6 +1440,12 @@ object workspace:
     given outputReader: Reader[Out] =
       badMerge[Out](upickle.default.reader[Vector[structures.SymbolInformation]], upickle.default.reader[Vector[structures.WorkspaceSymbol]], nullReadWriter)
   
+  /**
+   *  The will create files request is sent from the client to the server before files are actually
+   *  created as long as the creation is triggered from within the client.
+   *  
+   *  @since 3.16.0
+   */
   object willCreateFiles extends LSPRequest("workspace/willCreateFiles"):
     type In = structures.CreateFilesParams
     type Out = Nullable[structures.WorkspaceEdit]
@@ -1159,6 +1466,12 @@ object workspace:
     given outputReader: Reader[Out] =
       badMerge[Out](structures.WorkspaceEdit.reader, nullReadWriter)
   
+  /**
+   *  The did delete files notification is sent from the client to the server when
+   *  files were deleted from within the client.
+   *  
+   *  @since 3.16.0
+   */
   object willDeleteFiles extends LSPRequest("workspace/willDeleteFiles"):
     type In = structures.DeleteFilesParams
     type Out = Nullable[structures.WorkspaceEdit]
@@ -1179,6 +1492,12 @@ object workspace:
     given outputReader: Reader[Out] =
       badMerge[Out](structures.WorkspaceEdit.reader, nullReadWriter)
   
+  /**
+   *  The will rename files request is sent from the client to the server before files are actually
+   *  renamed as long as the rename is triggered from within the client.
+   *  
+   *  @since 3.16.0
+   */
   object willRenameFiles extends LSPRequest("workspace/willRenameFiles"):
     type In = structures.RenameFilesParams
     type Out = Nullable[structures.WorkspaceEdit]
@@ -1199,6 +1518,9 @@ object workspace:
     given outputReader: Reader[Out] =
       badMerge[Out](structures.WorkspaceEdit.reader, nullReadWriter)
   
+  /**
+   *  The `workspace/workspaceFolders` is sent from the server to the client to fetch the open workspace folders.
+   */
   object workspaceFolders extends LSPRequest("workspace/workspaceFolders"):
     type In = Unit
     type Out = Nullable[Vector[structures.WorkspaceFolder]]
@@ -1220,6 +1542,12 @@ object workspace:
       badMerge[Out](upickle.default.reader[Vector[structures.WorkspaceFolder]], nullReadWriter)
   
 object workspaceSymbol:
+  /**
+   *  A request to resolve the range inside the workspace
+   *  symbol's location.
+   *  
+   *  @since 3.17.0
+   */
   object resolve extends LSPRequest("workspaceSymbol/resolve"):
     type In = structures.WorkspaceSymbol
     type Out = structures.WorkspaceSymbol
