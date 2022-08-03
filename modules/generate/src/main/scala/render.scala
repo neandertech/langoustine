@@ -30,6 +30,8 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
 
     prelude.linesIterator.foreach(line)
 
+    line("")
+
     var currentScope = List.empty[String]
 
     given Context = Context.global(manager, "notifications")
@@ -57,6 +59,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
       )
       nest {
         line(s"type In = ${renderParams(req.params)}")
+        line("")
 
         val reader = req.params match
           case ParamsType.None      => WriterDefinition.Expression("unitReader")
@@ -84,7 +87,11 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
       segments match
         case Nil => ()
         case h :: t =>
-          line(s"object $h:")
+          val scopeName =
+            h match
+              case "$"   => "$DOLLAR"
+              case other => other
+          line(s"object $scopeName:")
           nest { rec(t) }
 
     val sorted = manager.notifications.sortBy(_.method.value)
@@ -786,6 +793,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
       line(s"private val stringCodec = upickle.default.readwriter[String]")
       line(s"private val intCodec = upickle.default.readwriter[Int]")
       line("import upickle.{default => up}")
+      line("")
 
       manager.enumerations.foreach { a =>
         val base = a.`type`.name
@@ -796,37 +804,35 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
             case ET.integer  => BaseTypes.integer
             case ET.uinteger => BaseTypes.uinteger
         )
+
+        val impl = base match
+          case ET.string   => "StringEnum"
+          case ET.integer  => "IntEnum"
+          case ET.uinteger => "UIntEnum"
+
+        a.documentation.toOption.foreach { d =>
+          commentWriter(out) { cw =>
+            cw.commentLine(d.value)
+          }
+        }
         line(s"opaque type ${a.name} = ${renderType(underlying)}")
         if a.values.nonEmpty then
-          line(s"object ${a.name}:")
+          line(s"object ${a.name} extends $impl[${a.name}]:")
           nest {
-            val codecVal =
-              if base == ET.string then "stringCodec" else "intCodec"
-            line(
-              s"given reader: up.Reader[${a.name}] = $codecVal.asInstanceOf[up.Reader[${a.name}]]"
-            )
-            line(
-              s"given writer: up.Writer[${a.name}] = $codecVal.asInstanceOf[up.Writer[${a.name}]]"
-            )
-            typeTestRender(a.name.into(TypeName), underlying).write(out)
             a.values.foreach { entry =>
               val value =
                 base match
                   case ET.string => ('"' + entry.value.stringValue + '"').trim
                   case _         => entry.value.intValue.toString
-              line(s"inline def ${sanitise(entry.name.value)} = entry($value)")
+
+              entry.documentation.toOption.foreach { d =>
+                commentWriter(out) { cw =>
+                  cw.commentLine(d.value)
+                }
+              }
+              line(s"val ${sanitise(entry.name.value)} = entry($value)")
             }
 
-            line("")
-
-            if base == ET.uinteger then
-              line(
-                s"private inline def entry(n: Int): ${a.name} = RuntimeBase.uinteger(n)"
-              )
-            else
-              line(
-                s"private inline def entry(v: ${renderType(underlying)}): ${a.name} = v"
-              )
           }
         end if
         line("")

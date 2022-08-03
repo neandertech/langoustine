@@ -35,6 +35,13 @@ object RequestMethod extends OpaqueString[RequestMethod]
 opaque type EnumerationName = String
 object EnumerationName extends OpaqueString[EnumerationName]
 
+opaque type EnumerationDocumentation = String
+object EnumerationDocumentation extends OpaqueString[EnumerationDocumentation]
+
+opaque type EnumerationEntryDocumentation = String
+object EnumerationEntryDocumentation
+    extends OpaqueString[EnumerationEntryDocumentation]
+
 opaque type EnumerationItemName = String
 object EnumerationItemName extends OpaqueString[EnumerationItemName]
 
@@ -73,7 +80,11 @@ object EnumerationItem:
     def intValue    = t.asInstanceOf[Int]
     def stringValue = t.asInstanceOf[String]
 
-case class EnumerationEntry(name: EnumerationItemName, value: EnumerationItem)
+case class EnumerationEntry(
+    name: EnumerationItemName,
+    value: EnumerationItem,
+    documentation: Opt[EnumerationEntryDocumentation] = Opt.empty
+)
 
 case class Property(
     name: PropertyName,
@@ -111,7 +122,7 @@ object Opt:
     inline def toOption: Option[A] =
       o match
         case null => None
-        case a: A => Some(a)
+        case _    => Some(o.asInstanceOf[A])
 
   given [A](using
       rd: Reader[A]
@@ -136,7 +147,8 @@ object TypeName extends OpaqueString[TypeName]
 case class Enumeration(
     name: EnumerationName,
     `type`: EnumerationType,
-    values: Vector[EnumerationEntry]
+    values: Vector[EnumerationEntry],
+    documentation: Opt[EnumerationDocumentation] = Opt.empty
 )
 
 enum Type(
