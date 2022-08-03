@@ -11,6 +11,7 @@ inThisBuild(
     scalafixScalaBinaryVersion := scalaBinaryVersion.value,
     organization               := "tech.neander",
     organizationName           := "Neandertech",
+    sonatypeCredentialHost := "s01.oss.sonatype.org",
     homepage := Some(
       url("https://github.com/neandertech/langoustine")
     ),
