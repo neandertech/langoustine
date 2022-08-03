@@ -75,7 +75,7 @@ trait LSPBuilder[F[_]]:
   def build(comm: Communicate[F]): List[Endpoint[F]]
 
   def bind(channel: Channel[F])(using Monadic[F]): F[Channel[F]] =
-    val Fm         = summon[Monadic[F]]
+    val Fm        = summon[Monadic[F]]
     val endpoints = build(Communicate.channel(channel))
 
     endpoints match

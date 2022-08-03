@@ -158,7 +158,7 @@ val PrepareCICommands = Seq(
 
 addCommandAlias(
   "generateLSP",
-  "generate/runMain langoustine.generate.run /Users/velvetbaldmime/projects/langoustine/modules/lsp/src/main/scala"
+  "generate/runMain langoustine.generate.run modules/lsp/src/main/scala/generated/"
 )
 addCommandAlias("ci", CICommands)
 addCommandAlias("checkDocs", "docs/mdoc")

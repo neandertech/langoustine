@@ -28,7 +28,6 @@ object aliases:
         case c: structures.Location => Some(c.asInstanceOf[s.type & structures.Location])
         case c: Vector[?] => Some(c.asInstanceOf[s.type & Vector[structures.Location]])
         case _ => Option.empty
-  end Definition
   
   opaque type DefinitionLink = structures.LocationLink
   object DefinitionLink:
@@ -45,7 +44,6 @@ object aliases:
         s match
         case c: structures.LocationLink => Some(c.asInstanceOf[s.type & structures.LocationLink])
         case _ => Option.empty
-  end DefinitionLink
   
   opaque type Declaration = (structures.Location | Vector[structures.Location])
   object Declaration:
@@ -68,7 +66,6 @@ object aliases:
         case c: structures.Location => Some(c.asInstanceOf[s.type & structures.Location])
         case c: Vector[?] => Some(c.asInstanceOf[s.type & Vector[structures.Location]])
         case _ => Option.empty
-  end Declaration
   
   opaque type DeclarationLink = structures.LocationLink
   object DeclarationLink:
@@ -85,7 +82,6 @@ object aliases:
         s match
         case c: structures.LocationLink => Some(c.asInstanceOf[s.type & structures.LocationLink])
         case _ => Option.empty
-  end DeclarationLink
   
   opaque type InlineValue = (structures.InlineValueText | structures.InlineValueVariableLookup | structures.InlineValueEvaluatableExpression)
   object InlineValue:
@@ -111,7 +107,6 @@ object aliases:
         case c: structures.InlineValueVariableLookup => Some(c.asInstanceOf[s.type & structures.InlineValueVariableLookup])
         case c: structures.InlineValueEvaluatableExpression => Some(c.asInstanceOf[s.type & structures.InlineValueEvaluatableExpression])
         case _ => Option.empty
-  end InlineValue
   
   opaque type DocumentDiagnosticReport = (structures.RelatedFullDocumentDiagnosticReport | structures.RelatedUnchangedDocumentDiagnosticReport)
   object DocumentDiagnosticReport:
@@ -134,7 +129,6 @@ object aliases:
         case c: structures.RelatedFullDocumentDiagnosticReport => Some(c.asInstanceOf[s.type & structures.RelatedFullDocumentDiagnosticReport])
         case c: structures.RelatedUnchangedDocumentDiagnosticReport => Some(c.asInstanceOf[s.type & structures.RelatedUnchangedDocumentDiagnosticReport])
         case _ => Option.empty
-  end DocumentDiagnosticReport
   
   opaque type PrepareRenameResult = (structures.Range | PrepareRenameResult.S0 | PrepareRenameResult.S1)
   object PrepareRenameResult:
@@ -173,7 +167,6 @@ object aliases:
     object S1:
       given reader: Reader[aliases.PrepareRenameResult.S1] = Pickle.macroR
       given writer: Writer[aliases.PrepareRenameResult.S1] = upickle.default.macroW
-  end PrepareRenameResult
   
   opaque type URI = String
   object URI:
@@ -190,7 +183,6 @@ object aliases:
         s match
         case c: String => Some(c.asInstanceOf[s.type & String])
         case _ => Option.empty
-  end URI
   
   opaque type ProgressToken = (Int | String)
   object ProgressToken:
@@ -213,7 +205,6 @@ object aliases:
         case c: Int => Some(c.asInstanceOf[s.type & Int])
         case c: String => Some(c.asInstanceOf[s.type & String])
         case _ => Option.empty
-  end ProgressToken
   
   opaque type DocumentSelector = Vector[(String | aliases.DocumentFilter)]
   object DocumentSelector:
@@ -238,7 +229,6 @@ object aliases:
         s match
         case c: Vector[?] => Some(c.asInstanceOf[s.type & Vector[(String | aliases.DocumentFilter)]])
         case _ => Option.empty
-  end DocumentSelector
   
   opaque type ChangeAnnotationIdentifier = String
   object ChangeAnnotationIdentifier:
@@ -255,7 +245,6 @@ object aliases:
         s match
         case c: String => Some(c.asInstanceOf[s.type & String])
         case _ => Option.empty
-  end ChangeAnnotationIdentifier
   
   opaque type WorkspaceDocumentDiagnosticReport = (structures.WorkspaceFullDocumentDiagnosticReport | structures.WorkspaceUnchangedDocumentDiagnosticReport)
   object WorkspaceDocumentDiagnosticReport:
@@ -278,7 +267,6 @@ object aliases:
         case c: structures.WorkspaceFullDocumentDiagnosticReport => Some(c.asInstanceOf[s.type & structures.WorkspaceFullDocumentDiagnosticReport])
         case c: structures.WorkspaceUnchangedDocumentDiagnosticReport => Some(c.asInstanceOf[s.type & structures.WorkspaceUnchangedDocumentDiagnosticReport])
         case _ => Option.empty
-  end WorkspaceDocumentDiagnosticReport
   
   opaque type TextDocumentContentChangeEvent = (TextDocumentContentChangeEvent.S0 | TextDocumentContentChangeEvent.S1)
   object TextDocumentContentChangeEvent:
@@ -315,7 +303,6 @@ object aliases:
     object S1:
       given reader: Reader[aliases.TextDocumentContentChangeEvent.S1] = Pickle.macroR
       given writer: Writer[aliases.TextDocumentContentChangeEvent.S1] = upickle.default.macroW
-  end TextDocumentContentChangeEvent
   
   opaque type MarkedString = (String | MarkedString.S0)
   object MarkedString:
@@ -345,7 +332,6 @@ object aliases:
     object S0:
       given reader: Reader[aliases.MarkedString.S0] = Pickle.macroR
       given writer: Writer[aliases.MarkedString.S0] = upickle.default.macroW
-  end MarkedString
   
   opaque type DocumentFilter = (aliases.TextDocumentFilter | structures.NotebookCellTextDocumentFilter)
   object DocumentFilter:
@@ -368,7 +354,6 @@ object aliases:
         case c: aliases.TextDocumentFilter => Some(c.asInstanceOf[s.type & aliases.TextDocumentFilter])
         case c: structures.NotebookCellTextDocumentFilter => Some(c.asInstanceOf[s.type & structures.NotebookCellTextDocumentFilter])
         case _ => Option.empty
-  end DocumentFilter
   
   opaque type GlobPattern = (aliases.Pattern | structures.RelativePattern)
   object GlobPattern:
@@ -391,7 +376,6 @@ object aliases:
         case c: aliases.Pattern => Some(c.asInstanceOf[s.type & aliases.Pattern])
         case c: structures.RelativePattern => Some(c.asInstanceOf[s.type & structures.RelativePattern])
         case _ => Option.empty
-  end GlobPattern
   
   opaque type TextDocumentFilter = (TextDocumentFilter.S0 | TextDocumentFilter.S1 | TextDocumentFilter.S2)
   object TextDocumentFilter:
@@ -441,7 +425,6 @@ object aliases:
     object S2:
       given reader: Reader[aliases.TextDocumentFilter.S2] = Pickle.macroR
       given writer: Writer[aliases.TextDocumentFilter.S2] = upickle.default.macroW
-  end TextDocumentFilter
   
   opaque type NotebookDocumentFilter = (NotebookDocumentFilter.S0 | NotebookDocumentFilter.S1 | NotebookDocumentFilter.S2)
   object NotebookDocumentFilter:
@@ -491,7 +474,6 @@ object aliases:
     object S2:
       given reader: Reader[aliases.NotebookDocumentFilter.S2] = Pickle.macroR
       given writer: Writer[aliases.NotebookDocumentFilter.S2] = upickle.default.macroW
-  end NotebookDocumentFilter
   
   opaque type Pattern = String
   object Pattern:
@@ -508,6 +490,4 @@ object aliases:
         s match
         case c: String => Some(c.asInstanceOf[s.type & String])
         case _ => Option.empty
-  end Pattern
-end aliases
   
