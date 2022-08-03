@@ -141,7 +141,7 @@ val CICommands = Seq(
   "clean",
   "compile",
   "test",
-  "docs3/mdoc",
+  "checkDocs",
   "scalafmtCheckAll"
   /* s"scalafix --check $scalafixRules", */
   /* "headerCheck" */
@@ -160,9 +160,8 @@ addCommandAlias(
   "generateLSP",
   "generate/runMain langoustine.generate.run /Users/velvetbaldmime/projects/langoustine/modules/lsp/src/main/scala"
 )
-
 addCommandAlias("ci", CICommands)
-
+addCommandAlias("checkDocs", "docs/mdoc")
 addCommandAlias("preCI", PrepareCICommands)
 
 import sbtwelcome.*
@@ -186,6 +185,7 @@ logo :=
 
 usefulTasks := Seq(
   UsefulTask("a", "generateLSP", "Regenerate LSP definitions"),
+  UsefulTask("a", "checkDocs", "Check documentation compiles"),
   UsefulTask("b", "preCI", "Reformat and apply Scalafix rules"),
   UsefulTask(
     "c",
