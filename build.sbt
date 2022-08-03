@@ -70,8 +70,7 @@ lazy val lsp = projectMatrix
   .in(file("modules/lsp"))
   .defaultAxes(default*)
   .settings(
-    Compile / doc / sources := Seq.empty,
-    name                    := "langoustine-lsp",
+    name := "langoustine-lsp",
     scalacOptions ++= Seq("-Xmax-inlines", "64"),
     libraryDependencies += "com.eed3si9n.verify" %%% "verify" % V.verify % Test,
     testFrameworks += new TestFramework("verify.runner.Framework"),

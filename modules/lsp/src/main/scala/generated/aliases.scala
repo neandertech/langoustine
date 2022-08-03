@@ -289,6 +289,19 @@ object aliases:
         case c: TextDocumentContentChangeEvent.S0 => Some(c.asInstanceOf[s.type & TextDocumentContentChangeEvent.S0])
         case c: TextDocumentContentChangeEvent.S1 => Some(c.asInstanceOf[s.type & TextDocumentContentChangeEvent.S1])
         case _ => Option.empty
+    /**
+     *  @param range
+     *    The range of the document that changed.
+    
+     *  @param rangeLength
+     *    The optional length of the range that got replaced.
+     *    
+     *    @deprecated use range instead.
+    
+     *  @param text
+     *    The new text for the provided range.
+    
+     */
     case class S0(
       range: structures.Range,
       rangeLength: Opt[RuntimeBase.uinteger] = Opt.empty,
@@ -297,6 +310,11 @@ object aliases:
     object S0:
       given reader: Reader[aliases.TextDocumentContentChangeEvent.S0] = Pickle.macroR
       given writer: Writer[aliases.TextDocumentContentChangeEvent.S0] = upickle.default.macroW
+    /**
+     *  @param text
+     *    The new text of the whole document.
+    
+     */
     case class S1(
       text: String
     )
@@ -401,6 +419,17 @@ object aliases:
         case c: TextDocumentFilter.S1 => Some(c.asInstanceOf[s.type & TextDocumentFilter.S1])
         case c: TextDocumentFilter.S2 => Some(c.asInstanceOf[s.type & TextDocumentFilter.S2])
         case _ => Option.empty
+    /**
+     *  @param language
+     *    A language id, like `typescript`. 
+    
+     *  @param scheme
+     *    A Uri [scheme](#Uri.scheme), like `file` or `untitled`. 
+    
+     *  @param pattern
+     *    A glob pattern, like `*.{ts,js}`. 
+    
+     */
     case class S0(
       language: String,
       scheme: Opt[String] = Opt.empty,
@@ -409,6 +438,17 @@ object aliases:
     object S0:
       given reader: Reader[aliases.TextDocumentFilter.S0] = Pickle.macroR
       given writer: Writer[aliases.TextDocumentFilter.S0] = upickle.default.macroW
+    /**
+     *  @param language
+     *    A language id, like `typescript`. 
+    
+     *  @param scheme
+     *    A Uri [scheme](#Uri.scheme), like `file` or `untitled`. 
+    
+     *  @param pattern
+     *    A glob pattern, like `*.{ts,js}`. 
+    
+     */
     case class S1(
       language: Opt[String] = Opt.empty,
       scheme: String,
@@ -417,6 +457,17 @@ object aliases:
     object S1:
       given reader: Reader[aliases.TextDocumentFilter.S1] = Pickle.macroR
       given writer: Writer[aliases.TextDocumentFilter.S1] = upickle.default.macroW
+    /**
+     *  @param language
+     *    A language id, like `typescript`. 
+    
+     *  @param scheme
+     *    A Uri [scheme](#Uri.scheme), like `file` or `untitled`. 
+    
+     *  @param pattern
+     *    A glob pattern, like `*.{ts,js}`. 
+    
+     */
     case class S2(
       language: Opt[String] = Opt.empty,
       scheme: Opt[String] = Opt.empty,
@@ -450,6 +501,17 @@ object aliases:
         case c: NotebookDocumentFilter.S1 => Some(c.asInstanceOf[s.type & NotebookDocumentFilter.S1])
         case c: NotebookDocumentFilter.S2 => Some(c.asInstanceOf[s.type & NotebookDocumentFilter.S2])
         case _ => Option.empty
+    /**
+     *  @param notebookType
+     *    The type of the enclosing notebook. 
+    
+     *  @param scheme
+     *    A Uri [scheme](#Uri.scheme), like `file` or `untitled`. 
+    
+     *  @param pattern
+     *    A glob pattern. 
+    
+     */
     case class S0(
       notebookType: String,
       scheme: Opt[String] = Opt.empty,
@@ -458,6 +520,17 @@ object aliases:
     object S0:
       given reader: Reader[aliases.NotebookDocumentFilter.S0] = Pickle.macroR
       given writer: Writer[aliases.NotebookDocumentFilter.S0] = upickle.default.macroW
+    /**
+     *  @param notebookType
+     *    The type of the enclosing notebook. 
+    
+     *  @param scheme
+     *    A Uri [scheme](#Uri.scheme), like `file` or `untitled`.
+    
+     *  @param pattern
+     *    A glob pattern. 
+    
+     */
     case class S1(
       notebookType: Opt[String] = Opt.empty,
       scheme: String,
@@ -466,6 +539,17 @@ object aliases:
     object S1:
       given reader: Reader[aliases.NotebookDocumentFilter.S1] = Pickle.macroR
       given writer: Writer[aliases.NotebookDocumentFilter.S1] = upickle.default.macroW
+    /**
+     *  @param notebookType
+     *    The type of the enclosing notebook. 
+    
+     *  @param scheme
+     *    A Uri [scheme](#Uri.scheme), like `file` or `untitled`. 
+    
+     *  @param pattern
+     *    A glob pattern. 
+    
+     */
     case class S2(
       notebookType: Opt[String] = Opt.empty,
       scheme: Opt[String] = Opt.empty,

@@ -7,29 +7,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
   import Render.*
   import Types.*
 
-  private def property(p: Property)(using Context) =
-    import p.*
-    val typeName = renderType(tpe)
-    if p.optional == IsOptional.Yes then
-      s"${sanitise(name.value)}: Opt[$typeName] = Opt.empty"
-    else s"${sanitise(name.value)}: $typeName"
-
-  def sanitise(name: String) =
-    val prohibited =
-      Set(
-        "type",
-        "class",
-        "enum",
-        "abstract",
-        "def",
-        "import",
-        "export",
-        "macro"
-      )
-
-    if prohibited(name) then s"`$name`" else name
-  end sanitise
-
   def notifications(builder: LineBuilder, subPackage: String = "notifications")(
       using Config
   ): Unit =
@@ -53,6 +30,8 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
 
     prelude.linesIterator.foreach(line)
 
+    line("")
+
     var currentScope = List.empty[String]
 
     given Context = Context.global(manager, "notifications")
@@ -68,11 +47,19 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         case ParamsType.Many(t)   => t.map(renderType).mkString("(", ", ", ")")
 
     def renderReq(req: Notification)(using Config) =
+      req.documentation.toOption.foreach { doc =>
+        commentWriter(builder) { cw =>
+          import cw.*
+
+          commentLine(doc.value)
+        }
+      }
       line(
         s"object ${req.name} extends LSPNotification(\"${req.method.value}\"):"
       )
       nest {
         line(s"type In = ${renderParams(req.params)}")
+        line("")
 
         val reader = req.params match
           case ParamsType.None      => WriterDefinition.Expression("unitReader")
@@ -100,7 +87,11 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
       segments match
         case Nil => ()
         case h :: t =>
-          line(s"object $h:")
+          val scopeName =
+            h match
+              case "$"   => "$DOLLAR"
+              case other => other
+          line(s"object $scopeName:")
           nest { rec(t) }
 
     val sorted = manager.notifications.sortBy(_.method.value)
@@ -165,6 +156,8 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
 
     prelude.linesIterator.foreach(line)
 
+    line("")
+
     var currentScope = List.empty[String]
 
     given Context = Context.global(manager, "requests")
@@ -180,6 +173,14 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         case ParamsType.Many(t)   => t.map(renderType).mkString("(", ", ", ")")
 
     def renderReq(req: Request)(using Config) =
+      req.documentation.toOption.foreach { doc =>
+        commentWriter(builder) { cw =>
+          import cw.*
+
+          commentLine(doc.value)
+        }
+
+      }
       line(s"object ${req.name} extends LSPRequest(\"${req.method.value}\"):")
       nest {
         line(s"type In = ${renderParams(req.params)}")
@@ -376,6 +377,20 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
   }
   end typeTestRender
 
+  case class CommentWriter(commentLine: String => Unit)
+
+  def commentWriter(b: LineBuilder)(f: CommentWriter => Unit)(using Config) =
+    inline def line: Config ?=> Appender = to(b)
+    line("/**")
+    f(CommentWriter { s =>
+      val lines = s.linesIterator
+      lines.foreach { l =>
+        line(" *  " + l.replace("*/", "").replace("/*", "")) // TAKE THAT
+      }
+    })
+    line(" */")
+  end commentWriter
+
   def structure(s: Structure, builder: LineBuilder)(using Config)(using
       ctx: Context
   ): Unit =
@@ -438,11 +453,37 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
           props += property(p.copy(`type` = newType))
     }
 
+    val finalProperties = props.result()
+
+    val hasDocs = s.documentation != Opt.empty ||
+      allProperties.exists(_.documentation != Opt.empty)
+
+    if hasDocs then
+      commentWriter(builder) { cw =>
+        import cw.*
+        s.documentation.toOption.foreach { d =>
+          commentLine(d.value)
+          line("")
+        }
+
+        allProperties.foreach { prop =>
+          commentLine(
+            s"@param ${prop.name}"
+          )
+          prop.documentation.toOption.foreach { d =>
+            d.value.linesIterator.foreach { l =>
+              commentLine(s"  $l")
+            }
+            line("")
+          }
+        }
+      }
+    end if
+
     line(s"case class ${s.name}(")
     nest {
-      val result = props.result()
-      result.zipWithIndex.foreach { (propLine, idx) =>
-        if idx != result.length - 1 then line(propLine + ",")
+      finalProperties.zipWithIndex.foreach { (propLine, idx) =>
+        if idx != finalProperties.length - 1 then line(propLine + ",")
         else line(propLine)
       }
     }
@@ -752,6 +793,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
       line(s"private val stringCodec = upickle.default.readwriter[String]")
       line(s"private val intCodec = upickle.default.readwriter[Int]")
       line("import upickle.{default => up}")
+      line("")
 
       manager.enumerations.foreach { a =>
         val base = a.`type`.name
@@ -762,37 +804,35 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
             case ET.integer  => BaseTypes.integer
             case ET.uinteger => BaseTypes.uinteger
         )
+
+        val impl = base match
+          case ET.string   => "StringEnum"
+          case ET.integer  => "IntEnum"
+          case ET.uinteger => "UIntEnum"
+
+        a.documentation.toOption.foreach { d =>
+          commentWriter(out) { cw =>
+            cw.commentLine(d.value)
+          }
+        }
         line(s"opaque type ${a.name} = ${renderType(underlying)}")
         if a.values.nonEmpty then
-          line(s"object ${a.name}:")
+          line(s"object ${a.name} extends $impl[${a.name}]:")
           nest {
-            val codecVal =
-              if base == ET.string then "stringCodec" else "intCodec"
-            line(
-              s"given reader: up.Reader[${a.name}] = $codecVal.asInstanceOf[up.Reader[${a.name}]]"
-            )
-            line(
-              s"given writer: up.Writer[${a.name}] = $codecVal.asInstanceOf[up.Writer[${a.name}]]"
-            )
-            typeTestRender(a.name.into(TypeName), underlying).write(out)
             a.values.foreach { entry =>
               val value =
                 base match
                   case ET.string => ('"' + entry.value.stringValue + '"').trim
                   case _         => entry.value.intValue.toString
-              line(s"inline def ${sanitise(entry.name.value)} = entry($value)")
+
+              entry.documentation.toOption.foreach { d =>
+                commentWriter(out) { cw =>
+                  cw.commentLine(d.value)
+                }
+              }
+              line(s"val ${sanitise(entry.name.value)} = entry($value)")
             }
 
-            line("")
-
-            if base == ET.uinteger then
-              line(
-                s"private inline def entry(n: Int): ${a.name} = RuntimeBase.uinteger(n)"
-              )
-            else
-              line(
-                s"private inline def entry(v: ${renderType(underlying)}): ${a.name} = v"
-              )
           }
         end if
         line("")
@@ -925,4 +965,27 @@ object Types:
 
     allUnions.result()
   end collectOrTypes
+
+  def property(p: Property)(using Context) =
+    import p.*
+    val typeName = renderType(tpe)
+    if p.optional == IsOptional.Yes then
+      s"${sanitise(name.value)}: Opt[$typeName] = Opt.empty"
+    else s"${sanitise(name.value)}: $typeName"
+
+  def sanitise(name: String) =
+    val prohibited =
+      Set(
+        "type",
+        "class",
+        "enum",
+        "abstract",
+        "def",
+        "import",
+        "export",
+        "macro"
+      )
+
+    if prohibited(name) then s"`$name`" else name
+  end sanitise
 end Types
