@@ -5,79 +5,7 @@ import langoustine.meta.*
 class Render(manager: Manager, packageName: String = "langoustine.lsp"):
   private val INDENT = "  "
   import Render.*
-  private def renderBase(bt: Type.BaseType) =
-    bt.name match
-      case BaseTypes.NULL        => "Null"
-      case BaseTypes.DocumentUri => "RuntimeBase.DocumentUri"
-      case BaseTypes.Uri         => "RuntimeBase.DocumentUri"
-      case BaseTypes.RegExp      => "RuntimeBase.RegExp"
-      case BaseTypes.string      => "String"
-      case BaseTypes.boolean     => "Boolean"
-      case BaseTypes.integer     => "Int"
-      case BaseTypes.decimal     => "Float"
-      case BaseTypes.uinteger    => "RuntimeBase.uinteger"
-      // case _                     => s"Any /*Base: ${bt.name}*/"
-
-  case class Context(
-      resolve: Type.ReferenceType => TypeName,
-      definitionScope: String
-  )
-
-  object Context:
-    def global(scope: String) =
-      val rtFallback = (rt: Type.ReferenceType) =>
-        manager
-          .get(rt.name.value)
-          .map(_ match
-            case _: Enumeration => s"enumerations.${rt.name.value}"
-            case _: Structure   => s"structures.${rt.name.value}"
-            case _: TypeAlias   => s"aliases.${rt.name.value}"
-            case _              => s"${rt.name.value} /* qualifyName */"
-          )
-          .map(TypeName.apply(_))
-          .getOrElse(rt.name)
-
-      Context(rtFallback, scope)
-    end global
-  end Context
-
-  private object NullableType:
-    def unapply(tpe: Type): Option[Type] =
-      import Type.*
-      tpe match
-        case ot: Type.OrType =>
-          val isNull = BaseType(BaseTypes.NULL)
-          if ot.items.size == 2 && ot.items.contains(isNull) then
-            ot.items.filterNot(_ == isNull).headOption
-          else None
-        case _ => None
-  end NullableType
-
-  private def renderType(
-      tpe: Type
-  )(using ctx: Context): String =
-    import Type.*
-    tpe match
-      case bt: BaseType                            => renderBase(bt)
-      case ReferenceType(t) if t.value == "LSPAny" => "ujson.Value"
-      case rt: ReferenceType =>
-        ctx
-          .resolve(rt)
-          .value
-      case rt: ArrayType    => s"Vector[${renderType(rt.element)}]"
-      case NullableType(nt) => s"Nullable[${renderType(nt)}]"
-      case rt: OrType =>
-        "(" + rt.items.map(renderType).mkString(" | ") + ")"
-      case tt: TupleType =>
-        tt.items.map(renderType(_)).mkString("(", ", ", ")")
-      case mt: MapType =>
-        s"Map[${renderType(mt.key)}, ${renderType(mt.value)}]"
-
-      case stl: StringLiteralType =>
-        s""" "${stl.value}" """.trim
-      case other => s"Any /*$other*/"
-    end match
-  end renderType
+  import Types.*
 
   private def property(p: Property)(using Context) =
     import p.*
@@ -112,20 +40,22 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line("import langoustine.*")
     line("import upickle.default.*")
     line("import langoustine.lsp.json.{*, given}")
+    line("// format: off")
     line("")
 
     val prelude = """
     |sealed abstract class LSPNotification(val notificationMethod: String):
     |  type In
     |
-    |  given reader: Reader[In]
+    |  given inputReader: Reader[In]
+    |  given inputWriter: Writer[In]
     """.stripMargin.trim
 
     prelude.linesIterator.foreach(line)
 
     var currentScope = List.empty[String]
 
-    given Context = Context.global("notifications")
+    given Context = Context.global(manager, "notifications")
 
     extension (req: Notification)
       inline def segs = req.method.value.split("/").toList
@@ -145,14 +75,23 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         line(s"type In = ${renderParams(req.params)}")
 
         val reader = req.params match
-          case ParamsType.None => "unitReader"
-          case ParamsType.Single(Type.ReferenceType(n))
-              if n.value == "LSPAny" =>
-            "jsReader"
-          case ParamsType.Single(t) => upickleReader(t, Some("In"))
-          case ParamsType.Many(t)   => "Pickle.macroR"
+          case ParamsType.None      => WriterDefinition.Expression("unitReader")
+          case ParamsType.Single(t) => upickleReader1(t, "In")
+          case ParamsType.Many(t) =>
+            WriterDefinition.Expression("Pickle.macroR")
 
-        line(s"given reader: Reader[In] = $reader")
+        line(s"given inputReader: Reader[In] = ")
+        nest {
+          reader.write(builder)
+        }
+        line(s"given inputWriter: Writer[In] = ")
+        nest {
+          req.params match
+            case ParamsType.None => line("unitWriter")
+            case ParamsType.Single(t) =>
+              upickleWriter(t, Some("In")).write(builder)
+            case ParamsType.Many(t) => line("Pickle.macroR")
+        }
       }
       line("")
     end renderReq
@@ -210,6 +149,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line("import langoustine.*")
     line("import upickle.default.*")
     line("import langoustine.lsp.json.{*, given}")
+    line("// format: off")
     line("")
 
     val prelude = """
@@ -217,15 +157,17 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     |  type In
     |  type Out
     |
-    |  given reader: Reader[In]
-    |  given writer: Writer[Out]
+    |  given inputReader: Reader[In]
+    |  given inputWriter: Writer[In]
+    |  given outputWriter: Writer[Out]
+    |  given outputReader: Reader[Out]
     """.stripMargin.trim
 
     prelude.linesIterator.foreach(line)
 
     var currentScope = List.empty[String]
 
-    given Context = Context.global("requests")
+    given Context = Context.global(manager, "requests")
 
     extension (req: Request)
       inline def segs = req.method.value.split("/").toList
@@ -242,20 +184,45 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
       nest {
         line(s"type In = ${renderParams(req.params)}")
         line(s"type Out = ${renderType(req.result)}")
+        line("")
 
         val reader = req.params match
-          case ParamsType.None      => "unitReader"
-          case ParamsType.Single(t) => upickleReader(t, Some("In"))
-          case ParamsType.Many(t)   => "Pickle.macroR"
+          case ParamsType.None      => WriterDefinition.Expression("unitReader")
+          case ParamsType.Single(t) => upickleReader1(t, "In")
+          case ParamsType.Many(t) =>
+            WriterDefinition.Expression("Pickle.macroR")
 
-        line(s"given reader: Reader[In] = $reader")
-        line(
-          s"private val _writer: Writer[Out] = "
-        )
+        line(s"given inputReader: Reader[In] = ")
+        nest {
+          reader.write(builder)
+        }
+
+        line("")
+
+        line(s"given inputWriter: Writer[In] = ")
+        nest {
+          req.params match
+            case ParamsType.None => line("unitWriter")
+            case ParamsType.Single(t) =>
+              upickleWriter(t, Some("In")).write(builder)
+            case ParamsType.Many(t) => line("Pickle.macroR")
+        }
+
+        line("")
+
+        line(s"given outputWriter: Writer[Out] =")
         nest {
           upickleWriter(req.result, Some("Out")).write(builder)
         }
-        line(s"given writer: Writer[Out] = _writer")
+
+        line("")
+
+        line(
+          s"given outputReader: Reader[Out] ="
+        )
+        nest {
+          upickleReader1(req.result, "Out").write(builder)
+        }
       }
       line("")
     end renderReq
@@ -313,10 +280,12 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line("import langoustine.*")
     line("import upickle.default.*")
     line("import langoustine.lsp.json.{*, given}")
+    line("// format: off")
     line("")
 
+    given Context = Context.global(manager, "structures")
+
     manager.structures.foreach { s =>
-      given Context = Context.global("structures")
       structure(s, builder)
       line("")
     }
@@ -481,23 +450,18 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     val stls = inlineStructures.result()
     line(s"object ${s.name}:")
     nest {
-      val allUnions = Vector.newBuilder[Type.OrType]
-      propTypes.result().distinct.foreach { tpe =>
-        tpe.traverse {
-          case ot: Type.OrType =>
-            allUnions += ot
-            TypeTraversal.Skip
-          case _ =>
-            TypeTraversal.Skip
-        }
-      }
-      allUnions.result().distinct.zipWithIndex.foreach {
+      val allUnions = propTypes.result().flatMap(collectOrTypes)
+
+      allUnions.distinct.zipWithIndex.foreach {
         case (NullableType(_), _) =>
         case (ot, idx) =>
           val union = renderType(ot)
           line(
-            s"private given rd$idx: Reader[$union] = ${upickleReader(ot, Some(union))}"
+            s"private given rd$idx: Reader[$union] = "
           )
+          nest {
+            upickleReader1(ot, union).write(builder)
+          }
           line(s"private given wt$idx: Writer[$union] = ")
           nest {
             upickleWriter(ot, Some(union)).write(builder)
@@ -525,6 +489,53 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     }
   end structure
 
+  def upickleReader1(t: Type, widen: String)(using
+      Context,
+      Config
+  ): WriterDefinition =
+    import WriterDefinition.*
+    import Type.*
+    t match
+      case ot: OrType =>
+        val constituents = ot.items.map(upickleReader(_))
+
+        Definition { out =>
+          inline def line: Config ?=> Appender = to(out)
+          val allOrs                           = collectOrTypes(ot).distinct
+          allOrs.filterNot(_ == ot).map { tpe =>
+            line(s"given Reader[${renderType(tpe)}] = ")
+            nest {
+              upickleReader1(tpe, renderType(tpe)).write(out)
+            }
+          }
+
+          line(constituents.mkString(s"badMerge[$widen](", ", ", ")"))
+        }
+      case BaseType(BaseTypes.NULL)    => Expression("nullReadWriter")
+      case BaseType(BaseTypes.string)  => Expression("stringCodec")
+      case BaseType(BaseTypes.integer) => Expression("intCodec")
+      case rt @ ReferenceType(ref) if ref.value == "LSPAny" =>
+        Expression("jsReader")
+      case rt @ ReferenceType(ref) =>
+        Expression(summon[Context].resolve(rt).value + ".reader")
+      case _: AndType => Expression(s"??? /* TODO: $t  */")
+      case at: ArrayType =>
+        Definition { out =>
+          inline def line: Config ?=> Appender = to(out)
+          val allOrs                           = collectOrTypes(at).distinct
+          allOrs.map { tpe =>
+            line(s"given Reader[${renderType(tpe)}] = ")
+            nest {
+              upickleReader1(tpe, renderType(tpe)).write(out)
+            }
+          }
+
+          line(s"vectorReader[${renderType(at.element)}]")
+        }
+      case t => Expression(s"upickle.default.reader[${renderType(t)}]")
+    end match
+  end upickleReader1
+
   def upickleReader(t: Type, widen: Option[String] = None)(using
       Context
   ): String =
@@ -537,6 +548,8 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
       case BaseType(BaseTypes.NULL)    => "nullReadWriter"
       case BaseType(BaseTypes.string)  => "stringCodec"
       case BaseType(BaseTypes.integer) => "intCodec"
+      case rt @ ReferenceType(ref) if ref.value == "LSPAny" =>
+        "jsReader"
       case rt @ ReferenceType(ref) =>
         summon[Context].resolve(rt).value + ".reader"
       case _: AndType => s"??? /* TODO: $t  */"
@@ -563,6 +576,8 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
       case BaseType(BaseTypes.NULL)    => Expression("nullReadWriter")
       case BaseType(BaseTypes.string)  => Expression("stringCodec")
       case BaseType(BaseTypes.integer) => Expression("intCodec")
+      case rt @ ReferenceType(ref) if ref.value == "LSPAny" =>
+        Expression("jsWriter")
       case rt: ReferenceType =>
         Expression(summon[Context].resolve(rt).value + ".writer")
       case _: BaseType | _: BooleanLiteralType | _: StringLiteralType =>
@@ -604,10 +619,21 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
               line("}")
 
             }
-          case ot: ArrayType => Expression("??? /* arr */")
-          case _             => Expression("???")
+          case ot: ArrayType =>
+            Definition { out =>
+              inline def line: Config ?=> Appender = to(out)
+
+              allOrs.filterNot(_ == ot).map { tpe =>
+                line(s"given Writer[${renderType(tpe)}] = ")
+                nest {
+                  upickleWriter(tpe).write(out)
+                }
+              }
+
+              line(s"vectorWriter[${renderType(ot.element)}]")
+            }
+          case _ => Expression("???")
         end match
-      // line(s"??? /*$allOrs*/")
     end match
   end upickleWriter
 
@@ -620,9 +646,10 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line("import langoustine.lsp.json.{*, given}")
     line("import upickle.default.*")
     line("import scala.reflect.*")
+    line("// format: off")
     line("")
 
-    given ctx: Context = Context.global("aliases")
+    given ctx: Context = Context.global(manager, "aliases")
 
     line(s"object $subPackage: ")
     nest {
@@ -664,40 +691,28 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
           constituents.foreach { tpe =>
             line(s"inline def apply(v: ${renderType(tpe)}): ${a.name} = v")
           }
-          collectOrTypes(newType).distinct.zipWithIndex.foreach {
-            case (ot, idx) =>
-              val union = renderType(ot)
-              line(
-                s"private val rd$idx = ${upickleReader(ot, Some(union))}"
-              )
-              line(s"private given reader_rd$idx: Reader[$union] = rd$idx")
+
+          line("")
+
+          line(s"given reader: Reader[${a.name}] = ")
+          nest {
+            upickleReader1(newType, a.name.value).write(out)
           }
 
-          if a.name.value == "LSPArray" then
-            line(s"import LSPAny.given")
-            line(
-              s"given reader: Reader[LSPArray] = upickle.default.reader[${renderType(newType)}].map(LSPArray.apply)"
-            )
-            line(
-              s"given writer: Writer[LSPArray] = upickle.default.writer[${renderType(newType)}].comap(_.elements)"
-            )
-          else
-            line(
-              s"private val _reader: Reader[${a.name}] = " + upickleReader(
-                newType,
-                Some(a.name.value)
-              )
-            )
-            line(s"given reader: Reader[${a.name}] = _reader")
-            line(s"given writer: Writer[${a.name}] =")
-            nest {
-              upickleWriter(
-                newType,
-                Some(a.name.value)
-              ).write(out)
-            }
-            typeTestRender(a.name.into(TypeName), newType).write(out)
-          end if
+          line("")
+
+          line(s"given writer: Writer[${a.name}] =")
+          nest {
+            upickleWriter(
+              newType,
+              Some(a.name.value)
+            ).write(out)
+          }
+
+          line("")
+
+          typeTestRender(a.name.into(TypeName), newType).write(out)
+
           stls.foreach { case (rt, (newName, stl)) =>
             val struct = Structure(
               `extends` = Vector.empty,
@@ -718,19 +733,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     }
   end aliases
 
-  private def collectOrTypes(t: Type) =
-    val allUnions = Vector.newBuilder[Type.OrType]
-    t.traverse {
-      case ot: Type.OrType =>
-        allUnions += ot
-        TypeTraversal.Skip
-      case _ =>
-        TypeTraversal.Skip
-    }
-
-    allUnions.result()
-  end collectOrTypes
-
   def enumerations(out: LineBuilder, subPackage: String = "enumerations")(using
       Config
   ) =
@@ -740,9 +742,10 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line("")
     line("import langoustine.*")
     line("import scala.reflect.Typeable")
+    line("// format: off")
     line("")
 
-    given ctx: Context = Context.global("enumerations")
+    given ctx: Context = Context.global(manager, "enumerations")
 
     line(s"object $subPackage: ")
     nest {
@@ -755,10 +758,10 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         import EnumerationTypeName as ET
         val underlying: Type.BaseType = Type.BaseType(
           base match
-            case ET.string   => BaseTypes.string  // "String"
-            case ET.integer  => BaseTypes.integer // "Int"
+            case ET.string   => BaseTypes.string
+            case ET.integer  => BaseTypes.integer
             case ET.uinteger => BaseTypes.uinteger
-        ) // "RuntimeBase.uinteger"
+        )
         line(s"opaque type ${a.name} = ${renderType(underlying)}")
         if a.values.nonEmpty then
           line(s"object ${a.name}:")
@@ -775,7 +778,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
             a.values.foreach { entry =>
               val value =
                 base match
-                  case ET.string => s""" "${entry.value.stringValue}" """.trim
+                  case ET.string => ('"' + entry.value.stringValue + '"').trim
                   case _         => entry.value.intValue.toString
               line(s"inline def ${sanitise(entry.name.value)} = entry($value)")
             }
@@ -835,3 +838,91 @@ object Render:
 
   type Appender = Config ?=> String => Unit
 end Render
+
+object Types:
+  case class Context(
+      resolve: Type.ReferenceType => TypeName,
+      definitionScope: String
+  )
+
+  object Context:
+    def global(manager: Manager, scope: String) =
+      val rtFallback = (rt: Type.ReferenceType) =>
+        manager
+          .get(rt.name.value)
+          .map(_ match
+            case _: Enumeration => s"enumerations.${rt.name.value}"
+            case _: Structure   => s"structures.${rt.name.value}"
+            case _: TypeAlias   => s"aliases.${rt.name.value}"
+            case _              => s"${rt.name.value} /* qualifyName */"
+          )
+          .map(TypeName.apply(_))
+          .getOrElse(rt.name)
+
+      Context(rtFallback, scope)
+    end global
+  end Context
+
+  def renderBase(bt: Type.BaseType) =
+    bt.name match
+      case BaseTypes.NULL        => "Null"
+      case BaseTypes.DocumentUri => "RuntimeBase.DocumentUri"
+      case BaseTypes.Uri         => "RuntimeBase.DocumentUri"
+      case BaseTypes.RegExp      => "RuntimeBase.RegExp"
+      case BaseTypes.string      => "String"
+      case BaseTypes.boolean     => "Boolean"
+      case BaseTypes.integer     => "Int"
+      case BaseTypes.decimal     => "Float"
+      case BaseTypes.uinteger    => "RuntimeBase.uinteger"
+
+  object NullableType:
+    def unapply(tpe: Type): Option[Type] =
+      import Type.*
+      tpe match
+        case ot: Type.OrType =>
+          val isNull = BaseType(BaseTypes.NULL)
+          if ot.items.size == 2 && ot.items.contains(isNull) then
+            ot.items.filterNot(_ == isNull).headOption
+          else None
+        case _ => None
+  end NullableType
+
+  def renderType(
+      tpe: Type
+  )(using ctx: Context): String =
+    import Type.*
+    tpe match
+      case bt: BaseType                            => renderBase(bt)
+      case ReferenceType(t) if t.value == "LSPAny" => "ujson.Value"
+      case rt: ReferenceType =>
+        ctx
+          .resolve(rt)
+          .value
+      case rt: ArrayType    => s"Vector[${renderType(rt.element)}]"
+      case NullableType(nt) => s"Nullable[${renderType(nt)}]"
+      case rt: OrType =>
+        "(" + rt.items.map(renderType).mkString(" | ") + ")"
+      case tt: TupleType =>
+        tt.items.map(renderType(_)).mkString("(", ", ", ")")
+      case mt: MapType =>
+        s"Map[${renderType(mt.key)}, ${renderType(mt.value)}]"
+
+      case stl: StringLiteralType =>
+        s""" "${stl.value}" """.trim
+      case other => s"Any /*$other*/"
+    end match
+  end renderType
+
+  def collectOrTypes(t: Type) =
+    val allUnions = Vector.newBuilder[Type.OrType]
+    t.traverse {
+      case ot: Type.OrType =>
+        allUnions += ot
+        TypeTraversal.Skip
+      case _ =>
+        TypeTraversal.Skip
+    }
+
+    allUnions.result()
+  end collectOrTypes
+end Types

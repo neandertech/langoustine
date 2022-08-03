@@ -6,100 +6,50 @@ import scala.util.Success
 import upickle.default.{Reader, Writer}
 import cats.syntax.all.*
 import cats.MonadThrow
-import JSONRPC.*
+
+import jsonrpclib.*
 
 import requests.LSPRequest
 import notifications.LSPNotification
 
-case class ImmutableLSPBuilder[F[_]: MonadThrow] private (
-    requestHandlers: Map[String, JSONRPC.RequestHandler[F]],
-    notificationHandlers: Map[String, JSONRPC.NotificationHandler[F]],
-    logger: scribe.Logger
+case class ImmutableLSPBuilder[F[_]: Monadic] private (
+    endpoints: List[Endpoint[F]],
+    logger: scribe.Logger,
+    notifyDelegate: Communicate.Delegate[F]
 ) extends LSPBuilder[F]:
 
-  val F = MonadThrow[F]
-
-  def handleNotification[X <: LSPNotification](t: X)(
-      f: (t.In, X) => F[Unit | LSPError]
+  override def handleNotification[X <: LSPNotification](t: X)(
+      f: t.In => F[Unit]
   ) = copy(
-    notificationHandlers = notificationHandlers.updated(
-      t.notificationMethod,
-      { (msg: JSONRPC.Notification) =>
-        val inBytes = msg.params
-
-        logger.info(
-          s"Received a ${msg.method} notification",
-          msg.params.toString
-        )
-
-        F.catchNonFatal(
-          upickle.default.read[t.In](inBytes, trace = true)
-        ).flatMap(f(_, t))
-          .void
-
-      }
-    )
+    endpoints = endpoints :+ jsonrpcIntegration.handlerToNotification(t)(f)
   )
 
-  def handleRequest[X <: LSPRequest](t: X)(
-      f: (t.In, X) => F[t.Out | LSPError]
+  override def handleRequest[X <: LSPRequest](t: X)(
+      f: (t.In, Communicate[F]) => F[t.Out]
   ) = copy(
-    requestHandlers = requestHandlers.updated(
-      t.requestMethod,
-      { (msg: JSONRPC.RequestMessage) =>
-        val inBytes = msg.params
-
-        logger.info(
-          s"Received a ${msg.method} request (id = ${msg.id}) ",
-          msg.params.toString
-        )
-
-        F.catchNonFatal(
-          upickle.default.read[t.In](inBytes, trace = true)
-        ).flatMap(f(_, t))
-          .map {
-            case e: LSPError => Left(JSONRPC.error(0, e.toString))
-            case s =>
-              Right(
-                upickle.default.writeJs[t.Out](s.asInstanceOf[t.Out])(using
-                  t.writer
-                )
-              )
-          }
-          .map(JSONRPC.response(msg.id, _))
-      }
-    )
+    endpoints = endpoints :+ jsonrpcIntegration.handlerToEndpoint(t) { in =>
+      f(in, notifyDelegate)
+    }
   )
 
-  def build = rqm =>
-    rqm match
-      case req: RequestMessage =>
-        requestHandlers
-          .get(req.method)
-          .map(_(req).map(Option.apply))
-          .getOrElse(
-            MonadThrow[F].raiseError(
-              LSPError.NotImplementedError(
-                s"Request handler for '${req.method}' is not implemented"
-              )
-            )
-          )
-      case req: Notification =>
-        notificationHandlers
-          .get(req.method)
-          .map(_(req).map(_ => None))
-          .getOrElse(
-            MonadThrow[F].raiseError(
-              LSPError.NotImplementedError(
-                s"Notification handler for '${req.method}' is not implemented"
-              )
-            )
-          )
+  override def build(notifications: Communicate[F]) =
+    notifyDelegate.unsafeRedirect(notifications)
+    endpoints
+
 end ImmutableLSPBuilder
 
 object ImmutableLSPBuilder:
-  def create[F[_]: MonadThrow]: LSPBuilder[F] =
-    new ImmutableLSPBuilder[F](Map.empty, Map.empty, scribe.Logger("LSP"))
+  def create[F[_]: Monadic]: LSPBuilder[F] =
+    new ImmutableLSPBuilder[F](
+      Nil,
+      scribe.Logger("LSP"),
+      new Communicate.Delegate[F](Communicate.drop[F])
+    )
 
-  def create[F[_]: MonadThrow](log: scribe.Logger): LSPBuilder[F] =
-    new ImmutableLSPBuilder[F](Map.empty, Map.empty, log)
+  def create[F[_]: Monadic](log: scribe.Logger): LSPBuilder[F] =
+    new ImmutableLSPBuilder[F](
+      Nil,
+      log,
+      new Communicate.Delegate[F](Communicate.drop[F])
+    )
+end ImmutableLSPBuilder

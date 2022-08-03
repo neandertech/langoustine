@@ -1,130 +1,39 @@
 package langoustine.lsp
 
-import scala.util.Try.apply
+import jsonrpclib.*
 import scala.util.Try
-import scala.util.Success
-import upickle.default.Reader
-import cats.MonadThrow
 
-object JSONRPC:
-  trait Message:
-    def jsonrpc: "2.0" = "2.0"
+import upickle.default.*
 
-  trait ResponseError:
-    def code: Int
-    def message: String
+import util.chaining.*
 
-  trait RequestMessage extends Message:
-    def id: Int | String
-    def method: String
-    def params: ujson.Value
+private[lsp] object jsonrpcIntegration:
+  given codec[T: Reader: Writer]: Codec[T] =
+    new Codec[T]:
+      override def decode(
+          payload: Option[Payload]
+      ): Either[ProtocolError, T] =
+        System.err.println(s"Decoding $payload")
+        payload
+          .map(_.array)
+          .flatMap { arr =>
+            Try(read[T](arr, trace = true)).toOption
+          }
+          .toRight(ProtocolError.InvalidParams("oopsie daisy"))
+          .tap(System.err.println(_))
+      end decode
 
-  trait Notification extends Message:
-    def method: String
-    def params: ujson.Value
+      override def encode(a: T): Payload =
+        Payload(write(a).getBytes)
 
-  private case class NotificationImpl(method: String, params: ujson.Value)
-      extends Notification
+  def handlerToEndpoint[F[_]: Monadic, T <: requests.LSPRequest](req: T)(
+      f: req.In => F[req.Out]
+  ): Endpoint[F] =
+    Endpoint(req.requestMethod).simple(f)
 
-  object Notification:
-    given Reader[Notification] =
-      upickle.default.macroR[NotificationImpl].map(_.asInstanceOf[Notification])
-
-  object RequestMessage:
-    private given Reader[Int | String] =
-      upickle.default.reader[ujson.Value].map[Int | String] {
-        case ujson.Str(s) => s
-        case ujson.Num(v) => v.toInt
-        case u            => throw LSPError.FailureParsing(u)
-      }
-    given Reader[RequestMessage] = upickle.default
-      .macroR[RequestMessageImpl]
-      .map(_.asInstanceOf[RequestMessage])
-  end RequestMessage
-
-  trait ResponseMessage extends Message:
-    def id: Int | String | Null
-    def result: Option[ujson.Value]
-    def error: Option[ResponseError]
-
-  end ResponseMessage
-
-  private case class RequestMessageImpl(
-      id: Int | String,
-      method: String,
-      params: ujson.Value
-  ) extends RequestMessage
-
-  private class ResponseMessageImpl(
-      val id: Int | String | Null,
-      val result: Option[ujson.Value],
-      val error: Option[ResponseError]
-  ) extends ResponseMessage
-
-  def request(
-      id: Int | String,
-      method: String,
-      params: ujson.Value
-  ): RequestMessage =
-    RequestMessageImpl(id, method, params)
-
-  def response(
-      id: Int | String | Null,
-      result: Either[ResponseError, ujson.Value]
-  ): ResponseMessage =
-    ResponseMessageImpl(id, result.toOption, result.left.toOption)
-
-  private case class ResponseErrorImpl(val code: Int, val message: String)
-      extends ResponseError
-  private object ResponseErrorImpl:
-    given upickle.default.ReadWriter[ResponseErrorImpl] =
-      upickle.default.macroRW
-
-  def error(code: Int, message: String): ResponseError =
-    ResponseErrorImpl(code, message)
-
-  type RequestHandler[F[_]] =
-    RequestMessage => F[ResponseMessage]
-
-  type NotificationHandler[F[_]] = Notification => F[Unit]
-
-  def render(req: RequestMessage) =
-    val obj = ujson.Obj(
-      "id" ->
-        (req.id match
-          case i: Int    => ujson.Num(i)
-          case i: String => ujson.Str(i)
-        ),
-      "method"  -> ujson.Str(req.method),
-      "jsonrpc" -> ujson.Str(req.jsonrpc),
-      "params"  -> req.params
-    )
-    val str = upickle.default.write(obj)
-
-    s"Content-Length: ${str.length}\r\n\r\n$str"
-  end render
-
-  def render(req: ResponseMessage) =
-    val data =
-      req.result.map("result" -> _) orElse
-        req.error.map(e =>
-          "error" ->
-            ujson.Obj(
-              "code"    -> ujson.Num(e.code),
-              "message" -> ujson.Str(e.message)
-            )
-        )
-
-    val obj = ujson.Obj(
-      "id" ->
-        (req.id match
-          case i: Int    => ujson.Num(i)
-          case i: String => ujson.Str(i)
-        ),
-      (data.toSeq ++ Seq("jsonrpc" -> ujson.Str(req.jsonrpc)))*
-    )
-    val str = upickle.default.write(obj)
-
-    s"Content-Length: ${str.length}\r\n\r\n$str"
-  end render
-end JSONRPC
+  def handlerToNotification[F[_]: Monadic, T <: notifications.LSPNotification](
+      req: T
+  )(
+      f: req.In => F[Unit]
+  ): Endpoint[F] = Endpoint(req.notificationMethod).notification(f)
+end jsonrpcIntegration

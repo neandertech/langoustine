@@ -6,22 +6,21 @@ import scala.util.NotGiven
 
 object json:
   val valueReader = upickle.default.readwriter[ujson.Value]
-  def badMerge[T](r1: => Reader[T], rest: Reader[T]*): Reader[T] =
+  def badMerge[T](r1: => Reader[?], rest: Reader[?]*): Reader[T] =
     valueReader.map { json =>
       var t: T | Null = null
       val stack       = Vector.newBuilder[Throwable]
 
       (r1 +: rest).foreach { reader =>
         if t == null then
-          // println(json)
-          try t = read[T](json, trace = true)(using reader)
+          try t = read[T](json, trace = true)(using reader.asInstanceOf[Reader[T]])
           catch
             case exc =>
               stack += exc
       }
       if t != null then t.nn
       else
-        throw new LSPError.FailureParsing(
+        throw new LangoustineError.FailureParsing(
           json,
           stack.result().headOption.getOrElse(null)
         )
@@ -41,8 +40,12 @@ object json:
   val stringCodec = summon[ReadWriter[String]]
   val intCodec    = summon[ReadWriter[Int]]
   val unitReader  = summon[ReadWriter[Unit]]
+  val unitWriter  = summon[ReadWriter[Unit]]
   val jsReader    = reader[ujson.Value]
   val jsWriter    = writer[ujson.Value]
+
+  def vectorWriter[T: Writer]: Writer[Vector[T]] = summon[Writer[Vector[T]]]
+  def vectorReader[T: Reader]: Reader[Vector[T]] = summon[Reader[Vector[T]]]
 
   opaque type Nullable[+A] = A | Null
   object Nullable:
@@ -93,12 +96,30 @@ import upickle.default.*
 import upickle.core.*
 
 object Pickle:
+  import scala.deriving.*
+  import scala.compiletime.*
+  inline final def summonLabelsRec[T <: Tuple]: List[String] =
+    inline erasedValue[T] match
+      case _: EmptyTuple => Nil
+      case _: (t *: ts) =>
+        constValue[t].asInstanceOf[String] :: summonLabelsRec[ts]
+
+  inline final def summonDecoder[A]: Reader[A] = summonFrom {
+    case decodeA: Reader[A] => decodeA
+    case _: Mirror.Of[A]    => macroR[A]
+  }
+
+  inline final def summonDecodersRec[T <: Tuple]: List[Reader[?]] =
+    inline erasedValue[T] match
+      case _: EmptyTuple => Nil
+      case _: (t *: ts)  => summonDecoder[t] :: summonDecodersRec[ts]
+
   inline def macroR[T](using m: Mirror.Of[T]): Reader[T] = inline m match
     case m: Mirror.ProductOf[T] =>
-      val labels: List[String] = macros.fieldLabels[T]
-      val visitors: List[Visitor[?, ?]] =
-        macros
-          .summonList[Tuple.Map[m.MirroredElemTypes, Reader]]
+      val labels: List[String] =
+        summonLabelsRec[m.MirroredElemLabels] // macros.fieldLabels[T]
+      lazy val visitors: List[Visitor[?, ?]] =
+        summonDecodersRec[m.MirroredElemTypes]
           .asInstanceOf[List[upickle.core.Visitor[?, ?]]]
       val defaultParams: Map[String, AnyRef] = macros.getDefaultParams[T]
 

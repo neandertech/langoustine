@@ -32,6 +32,15 @@ inThisBuild(
 organization        := "com.indoorvivants.langoustine"
 sonatypeProfileName := "com.indoorvivants"
 
+val V = new {
+  val scala      = "3.1.3"
+  val scribe     = "3.10.1"
+  val upickle    = "2.0.0"
+  val cats       = "2.8.0"
+  val verify     = "1.0.0"
+  val jsonrpclib = "0.0.1"
+}
+
 lazy val publishing = Seq(
   organization        := "com.indoorvivants.langoustine",
   sonatypeProfileName := "com.indoorvivants"
@@ -41,8 +50,7 @@ lazy val noPublishing = Seq(
   publish / skip := true
 )
 
-val Scala3        = "3.1.3"
-val scalaVersions = List(Scala3)
+val scalaVersions = List(V.scala)
 
 lazy val root = project
   .aggregate((meta.projectRefs ++ lsp.projectRefs)*)
@@ -56,21 +64,25 @@ lazy val meta = projectMatrix
   .jsPlatform(scalaVersions)
   .nativePlatform(scalaVersions)
   .settings(
-    libraryDependencies += "com.outr"      %%% "scribe"    % "3.10.1",
-    libraryDependencies += "com.lihaoyi"   %%% "upickle"   % "2.0.0",
-    libraryDependencies += "org.typelevel" %%% "cats-core" % "2.8.0"
+    libraryDependencies += "com.outr"      %%% "scribe"    % V.scribe,
+    libraryDependencies += "com.lihaoyi"   %%% "upickle"   % V.upickle,
+    libraryDependencies += "org.typelevel" %%% "cats-core" % V.cats
   )
 
 lazy val lsp = projectMatrix
   .in(file("modules/lsp"))
-  .dependsOn(meta)
   .settings(publishing)
   .settings(
     Compile / doc / sources := Seq.empty,
-    name := "lsp",
+    name                    := "lsp",
     scalacOptions ++= Seq("-Xmax-inlines", "64"),
-    libraryDependencies += "com.eed3si9n.verify" %% "verify" % "1.0.0" % Test,
-    testFrameworks += new TestFramework("verify.runner.Framework")
+    libraryDependencies += "com.eed3si9n.verify" %%% "verify" % V.verify % Test,
+    testFrameworks += new TestFramework("verify.runner.Framework"),
+    Test / fork := virtualAxes.value.contains(VirtualAxis.jvm),
+    libraryDependencies += "com.outr"      %%% "scribe"    % V.scribe,
+    libraryDependencies += "com.lihaoyi"   %%% "upickle"   % V.upickle,
+    libraryDependencies += "org.typelevel" %%% "cats-core" % V.cats,
+    libraryDependencies += "com.neandertech.jsonrpc" %%% "core-3" % V.jsonrpclib
   )
   .jvmPlatform(scalaVersions)
   .jsPlatform(scalaVersions)
@@ -81,10 +93,12 @@ lazy val sample = projectMatrix
   .dependsOn(lsp)
   .settings(noPublishing)
   .settings(
-    name                               := "sample",
-    libraryDependencies += "com.outr" %%% "scribe-file" % "3.10.1"
+    name                                          := "sample",
+    libraryDependencies += "com.eed3si9n.verify" %%% "verify" % V.verify % Test,
+    testFrameworks += new TestFramework("verify.runner.Framework")
   )
   .jvmPlatform(scalaVersions)
+  .jsPlatform(scalaVersions)
   .nativePlatform(scalaVersions)
 
 lazy val generate = projectMatrix
