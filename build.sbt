@@ -9,7 +9,7 @@ inThisBuild(
     semanticdbEnabled          := true,
     semanticdbVersion          := scalafixSemanticdb.revision,
     scalafixScalaBinaryVersion := scalaBinaryVersion.value,
-    organization               := "tech.neander.langoustine",
+    organization               := "tech.neander",
     organizationName           := "Neandertech",
     homepage := Some(
       url("https://github.com/neandertech/langoustine")
@@ -29,9 +29,6 @@ inThisBuild(
   )
 )
 
-organization        := "tech.neander.langoustine"
-sonatypeProfileName := "tech.neander"
-
 val V = new {
   val scala      = "3.1.3"
   val scribe     = "3.10.1"
@@ -41,10 +38,6 @@ val V = new {
   val jsonrpclib = "0.0.1"
 }
 
-lazy val publishing = Seq(
-  organization        := "tech.neander.langoustine",
-  sonatypeProfileName := "tech.neander"
-)
 
 lazy val noPublishing = Seq(
   publish / skip := true
@@ -60,9 +53,8 @@ lazy val root = project
 
 lazy val meta = projectMatrix
   .in(file("modules/meta"))
-  .settings(name := "meta")
+  .settings(name := "langoustine-meta")
   .defaultAxes(default*)
-  .settings(publishing)
   .jvmPlatform(scalaVersions)
   .jsPlatform(scalaVersions)
   .nativePlatform(scalaVersions)
@@ -74,11 +66,10 @@ lazy val meta = projectMatrix
 
 lazy val lsp = projectMatrix
   .in(file("modules/lsp"))
-  .settings(publishing)
   .defaultAxes(default*)
   .settings(
     Compile / doc / sources := Seq.empty,
-    name                    := "lsp",
+    name                    := "langoustine-lsp",
     scalacOptions ++= Seq("-Xmax-inlines", "64"),
     libraryDependencies += "com.eed3si9n.verify" %%% "verify" % V.verify % Test,
     testFrameworks += new TestFramework("verify.runner.Framework"),
