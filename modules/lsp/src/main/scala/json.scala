@@ -13,7 +13,9 @@ object json:
 
       (r1 +: rest).foreach { reader =>
         if t == null then
-          try t = read[T](json, trace = true)(using reader.asInstanceOf[Reader[T]])
+          try
+            t =
+              read[T](json, trace = true)(using reader.asInstanceOf[Reader[T]])
           catch
             case exc =>
               stack += exc

@@ -9,10 +9,10 @@ inThisBuild(
     semanticdbEnabled          := true,
     semanticdbVersion          := scalafixSemanticdb.revision,
     scalafixScalaBinaryVersion := scalaBinaryVersion.value,
-    organization               := "com.indoorvivants.langoustine",
-    organizationName           := "Anton Sviridov",
+    organization               := "tech.neander",
+    organizationName           := "Neandertech",
     homepage := Some(
-      url("https://github.com/indoorvivants/scala-library-template")
+      url("https://github.com/neandertech/langoustine")
     ),
     startYear := Some(2022),
     licenses := List(
@@ -29,9 +29,6 @@ inThisBuild(
   )
 )
 
-organization        := "com.indoorvivants.langoustine"
-sonatypeProfileName := "com.indoorvivants"
-
 val V = new {
   val scala      = "3.1.3"
   val scribe     = "3.10.1"
@@ -41,16 +38,15 @@ val V = new {
   val jsonrpclib = "0.0.1"
 }
 
-lazy val publishing = Seq(
-  organization        := "com.indoorvivants.langoustine",
-  sonatypeProfileName := "com.indoorvivants"
-)
 
 lazy val noPublishing = Seq(
-  publish / skip := true
+  publish / skip := true,
+  publishLocal / skip := true
 )
 
 val scalaVersions = List(V.scala)
+
+val default = Seq(VirtualAxis.scalaABIVersion(V.scala), VirtualAxis.jvm)
 
 lazy val root = project
   .aggregate((meta.projectRefs ++ lsp.projectRefs)*)
@@ -58,8 +54,8 @@ lazy val root = project
 
 lazy val meta = projectMatrix
   .in(file("modules/meta"))
-  .settings(name := "meta")
-  .settings(publishing)
+  .settings(name := "langoustine-meta")
+  .defaultAxes(default*)
   .jvmPlatform(scalaVersions)
   .jsPlatform(scalaVersions)
   .nativePlatform(scalaVersions)
@@ -71,18 +67,18 @@ lazy val meta = projectMatrix
 
 lazy val lsp = projectMatrix
   .in(file("modules/lsp"))
-  .settings(publishing)
+  .defaultAxes(default*)
   .settings(
     Compile / doc / sources := Seq.empty,
-    name                    := "lsp",
+    name                    := "langoustine-lsp",
     scalacOptions ++= Seq("-Xmax-inlines", "64"),
     libraryDependencies += "com.eed3si9n.verify" %%% "verify" % V.verify % Test,
     testFrameworks += new TestFramework("verify.runner.Framework"),
     Test / fork := virtualAxes.value.contains(VirtualAxis.jvm),
-    libraryDependencies += "com.outr"      %%% "scribe"    % V.scribe,
-    libraryDependencies += "com.lihaoyi"   %%% "upickle"   % V.upickle,
-    libraryDependencies += "org.typelevel" %%% "cats-core" % V.cats,
-    libraryDependencies += "com.neandertech.jsonrpc" %%% "core-3" % V.jsonrpclib
+    libraryDependencies += "com.outr"      %%% "scribe"          % V.scribe,
+    libraryDependencies += "com.lihaoyi"   %%% "upickle"         % V.upickle,
+    libraryDependencies += "org.typelevel" %%% "cats-core"       % V.cats,
+    libraryDependencies += "tech.neander"  %%% "jsonrpclib-core" % V.jsonrpclib
   )
   .jvmPlatform(scalaVersions)
   .jsPlatform(scalaVersions)
@@ -92,6 +88,7 @@ lazy val sample = projectMatrix
   .in(file("modules/sample"))
   .dependsOn(lsp)
   .settings(noPublishing)
+  .defaultAxes(default*)
   .settings(
     name                                          := "sample",
     libraryDependencies += "com.eed3si9n.verify" %%% "verify" % V.verify % Test,
@@ -104,6 +101,7 @@ lazy val sample = projectMatrix
 lazy val generate = projectMatrix
   .in(file("modules/generate"))
   .dependsOn(meta)
+  .defaultAxes(default*)
   .settings(
     name := "generate"
   )
@@ -113,6 +111,7 @@ lazy val generate = projectMatrix
 lazy val docs = projectMatrix
   .in(file("myproject-docs"))
   .jvmPlatform(scalaVersions)
+  .defaultAxes(default*)
   .settings(
     mdocVariables := Map(
       "VERSION" -> version.value
@@ -134,7 +133,7 @@ val CICommands = Seq(
   "clean",
   "compile",
   "test",
-  "docs3/mdoc",
+  "checkDocs",
   "scalafmtCheckAll"
   /* s"scalafix --check $scalafixRules", */
   /* "headerCheck" */
@@ -149,6 +148,42 @@ val PrepareCICommands = Seq(
   /* "headerCreate" */
 ).mkString(";")
 
+addCommandAlias(
+  "generateLSP",
+  "generate/runMain langoustine.generate.run modules/lsp/src/main/scala/generated/"
+)
 addCommandAlias("ci", CICommands)
-
+addCommandAlias("checkDocs", "docs/mdoc")
 addCommandAlias("preCI", PrepareCICommands)
+
+import sbtwelcome.*
+
+logo :=
+  raw"""
+    |    _                                       _   _            
+    |   | |                                     | | (_)           
+    |   | |     __ _ _ __   __ _  ___  _   _ ___| |_ _ _ __   ___ 
+    |   | |    / _` | '_ \ / _` |/ _ \| | | / __| __| | '_ \ / _ \
+    |   | |___| (_| | | | | (_| | (_) | |_| \__ \ |_| | | | |  __/
+    |   |______\__,_|_| |_|\__, |\___/ \__,_|___/\__|_|_| |_|\___|
+    |                       __/ |                                 
+    |                      |___/                                  
+    |
+    |${version.value}
+    |
+    |${scala.Console.YELLOW}Scala ${V.scala}${scala.Console.RESET}
+    |
+    |""".stripMargin
+
+usefulTasks := Seq(
+  UsefulTask("a", "generateLSP", "Regenerate LSP definitions"),
+  UsefulTask("a", "checkDocs", "Check documentation compiles"),
+  UsefulTask("b", "preCI", "Reformat and apply Scalafix rules"),
+  UsefulTask(
+    "c",
+    "publishLocal",
+    "Publish all modules locally"
+  )
+)
+
+logoColor := scala.Console.MAGENTA
