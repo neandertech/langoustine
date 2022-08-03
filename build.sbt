@@ -11,7 +11,7 @@ inThisBuild(
     scalafixScalaBinaryVersion := scalaBinaryVersion.value,
     organization               := "tech.neander",
     organizationName           := "Neandertech",
-    sonatypeCredentialHost := "s01.oss.sonatype.org",
+    sonatypeCredentialHost     := "s01.oss.sonatype.org",
     homepage := Some(
       url("https://github.com/neandertech/langoustine")
     ),
@@ -39,9 +39,8 @@ val V = new {
   val jsonrpclib = "0.0.1"
 }
 
-
 lazy val noPublishing = Seq(
-  publish / skip := true,
+  publish / skip      := true,
   publishLocal / skip := true
 )
 
@@ -50,6 +49,7 @@ val scalaVersions = List(V.scala)
 val default = Seq(VirtualAxis.scalaABIVersion(V.scala), VirtualAxis.jvm)
 
 lazy val root = project
+  .in(file("."))
   .aggregate((meta.projectRefs ++ lsp.projectRefs)*)
   .settings(noPublishing)
 
