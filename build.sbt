@@ -9,10 +9,10 @@ inThisBuild(
     semanticdbEnabled          := true,
     semanticdbVersion          := scalafixSemanticdb.revision,
     scalafixScalaBinaryVersion := scalaBinaryVersion.value,
-    organization               := "com.indoorvivants.langoustine",
-    organizationName           := "Anton Sviridov",
+    organization               := "com.neandertech.langoustine",
+    organizationName           := "Neandertech",
     homepage := Some(
-      url("https://github.com/indoorvivants/scala-library-template")
+      url("https://github.com/neandertech/langoustine")
     ),
     startYear := Some(2022),
     licenses := List(
@@ -29,8 +29,8 @@ inThisBuild(
   )
 )
 
-organization        := "com.indoorvivants.langoustine"
-sonatypeProfileName := "com.indoorvivants"
+organization        := "com.neandertech.langoustine"
+sonatypeProfileName := "com.neandertech"
 
 val V = new {
   val scala      = "3.1.3"
@@ -42,8 +42,8 @@ val V = new {
 }
 
 lazy val publishing = Seq(
-  organization        := "com.indoorvivants.langoustine",
-  sonatypeProfileName := "com.indoorvivants"
+  organization        := "com.neandertech.langoustine",
+  sonatypeProfileName := "com.neandertech"
 )
 
 lazy val noPublishing = Seq(
@@ -82,7 +82,7 @@ lazy val lsp = projectMatrix
     libraryDependencies += "com.outr"      %%% "scribe"    % V.scribe,
     libraryDependencies += "com.lihaoyi"   %%% "upickle"   % V.upickle,
     libraryDependencies += "org.typelevel" %%% "cats-core" % V.cats,
-    libraryDependencies += "com.neandertech.jsonrpc" %%% "core-3" % V.jsonrpclib
+    libraryDependencies += "com.neandertech" %%% "jsonrpclib-core" % V.jsonrpclib
   )
   .jvmPlatform(scalaVersions)
   .jsPlatform(scalaVersions)
