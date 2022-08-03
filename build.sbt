@@ -40,7 +40,8 @@ val V = new {
 
 
 lazy val noPublishing = Seq(
-  publish / skip := true
+  publish / skip := true,
+  publishLocal / skip := true
 )
 
 val scalaVersions = List(V.scala)
