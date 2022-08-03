@@ -9,7 +9,7 @@ inThisBuild(
     semanticdbEnabled          := true,
     semanticdbVersion          := scalafixSemanticdb.revision,
     scalafixScalaBinaryVersion := scalaBinaryVersion.value,
-    organization               := "com.neandertech.langoustine",
+    organization               := "tech.neander.langoustine",
     organizationName           := "Neandertech",
     homepage := Some(
       url("https://github.com/neandertech/langoustine")
@@ -29,8 +29,8 @@ inThisBuild(
   )
 )
 
-organization        := "com.neandertech.langoustine"
-sonatypeProfileName := "com.neandertech"
+organization        := "tech.neander.langoustine"
+sonatypeProfileName := "tech.neander"
 
 val V = new {
   val scala      = "3.1.3"
@@ -42,8 +42,8 @@ val V = new {
 }
 
 lazy val publishing = Seq(
-  organization        := "com.neandertech.langoustine",
-  sonatypeProfileName := "com.neandertech"
+  organization        := "tech.neander.langoustine",
+  sonatypeProfileName := "tech.neander"
 )
 
 lazy val noPublishing = Seq(
@@ -52,6 +52,8 @@ lazy val noPublishing = Seq(
 
 val scalaVersions = List(V.scala)
 
+val default = Seq(VirtualAxis.scalaABIVersion(V.scala), VirtualAxis.jvm)
+
 lazy val root = project
   .aggregate((meta.projectRefs ++ lsp.projectRefs)*)
   .settings(noPublishing)
@@ -59,6 +61,7 @@ lazy val root = project
 lazy val meta = projectMatrix
   .in(file("modules/meta"))
   .settings(name := "meta")
+  .defaultAxes(default*)
   .settings(publishing)
   .jvmPlatform(scalaVersions)
   .jsPlatform(scalaVersions)
@@ -72,6 +75,7 @@ lazy val meta = projectMatrix
 lazy val lsp = projectMatrix
   .in(file("modules/lsp"))
   .settings(publishing)
+  .defaultAxes(default*)
   .settings(
     Compile / doc / sources := Seq.empty,
     name                    := "lsp",
@@ -79,10 +83,10 @@ lazy val lsp = projectMatrix
     libraryDependencies += "com.eed3si9n.verify" %%% "verify" % V.verify % Test,
     testFrameworks += new TestFramework("verify.runner.Framework"),
     Test / fork := virtualAxes.value.contains(VirtualAxis.jvm),
-    libraryDependencies += "com.outr"      %%% "scribe"    % V.scribe,
-    libraryDependencies += "com.lihaoyi"   %%% "upickle"   % V.upickle,
-    libraryDependencies += "org.typelevel" %%% "cats-core" % V.cats,
-    libraryDependencies += "com.neandertech" %%% "jsonrpclib-core" % V.jsonrpclib
+    libraryDependencies += "com.outr"      %%% "scribe"          % V.scribe,
+    libraryDependencies += "com.lihaoyi"   %%% "upickle"         % V.upickle,
+    libraryDependencies += "org.typelevel" %%% "cats-core"       % V.cats,
+    libraryDependencies += "tech.neander"  %%% "jsonrpclib-core" % V.jsonrpclib
   )
   .jvmPlatform(scalaVersions)
   .jsPlatform(scalaVersions)
@@ -92,6 +96,7 @@ lazy val sample = projectMatrix
   .in(file("modules/sample"))
   .dependsOn(lsp)
   .settings(noPublishing)
+  .defaultAxes(default*)
   .settings(
     name                                          := "sample",
     libraryDependencies += "com.eed3si9n.verify" %%% "verify" % V.verify % Test,
@@ -104,6 +109,7 @@ lazy val sample = projectMatrix
 lazy val generate = projectMatrix
   .in(file("modules/generate"))
   .dependsOn(meta)
+  .defaultAxes(default*)
   .settings(
     name := "generate"
   )
@@ -113,6 +119,7 @@ lazy val generate = projectMatrix
 lazy val docs = projectMatrix
   .in(file("myproject-docs"))
   .jvmPlatform(scalaVersions)
+  .defaultAxes(default*)
   .settings(
     mdocVariables := Map(
       "VERSION" -> version.value
@@ -149,6 +156,42 @@ val PrepareCICommands = Seq(
   /* "headerCreate" */
 ).mkString(";")
 
+addCommandAlias(
+  "generateLSP",
+  "generate/runMain langoustine.generate.run /Users/velvetbaldmime/projects/langoustine/modules/lsp/src/main/scala"
+)
+
 addCommandAlias("ci", CICommands)
 
 addCommandAlias("preCI", PrepareCICommands)
+
+import sbtwelcome.*
+
+logo :=
+  raw"""
+    |    _                                       _   _            
+    |   | |                                     | | (_)           
+    |   | |     __ _ _ __   __ _  ___  _   _ ___| |_ _ _ __   ___ 
+    |   | |    / _` | '_ \ / _` |/ _ \| | | / __| __| | '_ \ / _ \
+    |   | |___| (_| | | | | (_| | (_) | |_| \__ \ |_| | | | |  __/
+    |   |______\__,_|_| |_|\__, |\___/ \__,_|___/\__|_|_| |_|\___|
+    |                       __/ |                                 
+    |                      |___/                                  
+    |
+    |${version.value}
+    |
+    |${scala.Console.YELLOW}Scala ${V.scala}${scala.Console.RESET}
+    |
+    |""".stripMargin
+
+usefulTasks := Seq(
+  UsefulTask("a", "generateLSP", "Regenerate LSP definitions"),
+  UsefulTask("b", "preCI", "Reformat and apply Scalafix rules"),
+  UsefulTask(
+    "c",
+    "publishLocal",
+    "Publish all modules locally"
+  )
+)
+
+logoColor := scala.Console.MAGENTA
