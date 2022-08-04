@@ -1,41 +1,84 @@
-## Scala Library template
+# Langoustine - write Language Servers in Scala 3
 
-This is a template repository with some of the learnings from OSS Scala ecosystem applied.
+... and use them with Javascript, JVM, or even native libraries
 
+**Status as of August 3rd, 2022**: active, but very unstable, use (don't) at your own risk
 
-|                | JVM | Scala.js (1.x) | Scala Native (0.4.0) |
-| -------------- | --- | -------------- | ----------------------- |
-| Scala 2.12.13  | ✅   | ✅            | ✅                    |
-| Scala 2.13.5   | ✅   | ✅            | ✅                    |
-| Scala 3.0.0    | ✅   | ✅            |                     |
+## What is it? 
 
+It's a clean room implementation of the LSP protocol definitions.
 
-* Github Actions is used for CI and Releases
+By "clean room" we mean
 
-   * On pushes and pull requests, `sbt ci` command is ran (more about it later)
-   * On tags, `sbt ci-release` command is ran, from [sbt-ci-release](https://github.com/olafurpg/sbt-ci-release)
-   * Version is determined using [sbt-dynver](https://github.com/dwijnand/sbt-dynver)
+1. Using only Scala libraries 
+2. Idiomatic Scala code
+3. Using Scala 3 features
 
-* Syntax formatting is verified using [sbt-scalafmt](https://github.com/scalameta/sbt-scalafmt)
+Most of the code is generated directly from the recently published LSP specification in JSON format.
 
-* Imports are organised and checked using [organize-imports](https://github.com/liancheng/scalafix-organize-imports) Scalafix rule
+## Should I use it?
 
-  * Several other Scalafix rules are enabled by default, see [.scalafix.conf](.scalafix.conf)
+Please refer to this helpful diagram:
 
-* Compilation flags are set using [sbt-tpolecat](https://github.com/DavidGregory084/sbt-tpolecat)
+```text 
+┌──────────────┐                                                     
+│  YAS KWEEEN  │                                                     
+│     area     │                           .───────────.             
+└──────────────┘                       _.─'             `──.         
+        │                           ,─'                     '─.      
+        │                          ╱                           ╲     
+        │                        ,'      People who enjoy       `.   
+        │                       ╱          using Scala 3          ╲  
+        │       .───────────.  ;                                   : 
+        │   _.─'             `─;.                                  : 
+        └────────────────────────────┐                              :
+        ╱                     │     ╲│     .───────────.            │
+      ,'                      │      │._.─'             `──.        │
+     ╱                        :     ,┼'╲                    '─.     ;
+    ;                          :   ╱ │  :                      ╲   ; 
+    ;                          : ,'  │  :                       `. ; 
+   ;                            ╱    │   :                        ╲  
+   │                           ; ╲   ▼   │                       ╱ : 
+   │     People who enjoy      ;  `.     │                     ,'  : 
+   :     creating Language    ;     ╲    ;                    ╱     :
+    :         Servers         │      '─.;                  ,─'      │
+    :                         │         `──.           _.─'         │
+     ╲                        :        ╱    `─────────'             ;
+      ╲                        :      ╱                            ; 
+       `.                      :    ,'      People who are         ; 
+         ╲                      ╲  ╱           ready for          ╱  
+          '─.                   ,╲'         disappointment       ╱   
+             `──.           _.─'  `.                           ,'    
+                 `─────────'        ╲                         ╱      
+                                     '─.                   ,─'       
+                                        `──.           _.─'          
+                                            `─────────'              
+```
 
-* Explicit dependencies are checked using [sbt-explicit-dependencies](https://github.com/cb372/sbt-explicit-dependencies)
+If you are in the YAS KWEEN area - welcome and let's have some fun!
 
-* Presence of Licence header is checked using [sbt-header](https://github.com/sbt/sbt-header/)
+## What can I use it for? 
 
-* Binary incompatibilities among dependencies are checked using [sbt-missinglink](https://github.com/scalacenter/sbt-missinglink)
+Writing a language server for:
 
-* Build matrix is managed using [sbt-projectmatrix](https://github.com/sbt/sbt-projectmatrix)
+1.  your own toy language
+   
+2.  already existing language but with specific requirements
+    
+    For example, see [Grammar.js LSP](https://github.com/keynmol/grammar-js-lsp) - written specifically 
+    for the `grammar.js` files in the Tree Sitter grammars.
 
-### `sbt preCI`
+    It uses the Scala.js artifact of this project, because it's easier to parse JavaScript using a 
+    JavaScript library and package the whole server as a Node.js application.
 
-A `preCI` command is added - which will reformat, apply scalafix rules, create licence headers, run missinglink, etc.
-
-This command is designed to be run before pushing, **not on CI**.
-
-`sbt ci` command only runs checks, it never changes sources.
+3. markup languages and protocol files, think
+   1. Certain YAML files (LSP with verification for Github Actions YAML files!)
+   2. Avro files
+   3. Protobuf files
+   4. Smithy files ([**jk** a great one already exists](https://github.com/disneystreaming/smithy-language-server))
+   5. LLVM IR text files (for all those compiler engineers!)
+   6. Scala Native's NIR files
+   7. loads and loads more
+   
+Even basic Go To Definition implementation for the files you work with for hours on a daily basis can have 
+an immeasurable impact on your productivity.
