@@ -69,12 +69,12 @@ trait LSPBuilder[F[_]]:
   ): LSPBuilder[F]
 
   def handleNotification[X <: LSPNotification](t: X)(
-      f: t.In => F[Unit]
+      f: (t.In, Communicate[F]) => F[Unit]
   ): LSPBuilder[F]
 
   def build(comm: Communicate[F]): List[Endpoint[F]]
 
-  def bind(channel: Channel[F])(using Monadic[F]): F[Channel[F]] =
+  def bind[T <: Channel[F]](channel: T)(using Monadic[F]): F[T] =
     val Fm        = summon[Monadic[F]]
     val endpoints = build(Communicate.channel(channel))
 
