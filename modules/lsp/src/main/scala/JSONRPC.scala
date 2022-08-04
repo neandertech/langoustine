@@ -13,14 +13,12 @@ private[lsp] object jsonrpcIntegration:
       override def decode(
           payload: Option[Payload]
       ): Either[ProtocolError, T] =
-        System.err.println(s"Decoding $payload")
         payload
           .map(_.array)
           .flatMap { arr =>
             Try(read[T](arr, trace = true)).toOption
           }
           .toRight(ProtocolError.InvalidParams("oopsie daisy"))
-          .tap(System.err.println(_))
       end decode
 
       override def encode(a: T): Payload =

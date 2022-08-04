@@ -163,7 +163,6 @@ object Pickle:
     // else reader
 
     case m: Mirror.SumOf[T] =>
-      println("OH NO")
       inline compiletime.erasedValue[T] match
         case _: scala.reflect.Enum =>
           val valueOf     = macros.enumValueOf[T]
