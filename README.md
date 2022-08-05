@@ -16,6 +16,13 @@ By "clean room" we mean
 
 Most of the code is generated directly from the recently published LSP specification in JSON format.
 
+## Is there a simple example?
+
+Introducing [Quickmaffs](https://github.com/neandertech/quickmaffs), a primitive language with a LSP, REPL, and an interpreter, designed specifically
+to demonstrate how easy it is to build Language Servers with Langoustine.
+
+![GIF demonstrating operations in the editor with the made up Quickmaffs language](https://raw.githubusercontent.com/neandertech/quickmaffs/main/docs/lsp.gif)
+
 ## Should I use it?
 
 Please refer to this helpful diagram:
