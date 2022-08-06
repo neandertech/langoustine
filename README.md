@@ -16,6 +16,8 @@ By "clean room" we mean
 
 Most of the code is generated directly from the recently published LSP specification in JSON format.
 
+See the [API documentation](https://neandertech.github.io/langoustine/api/index.html) for requests that are supported.
+
 ## Is there a simple example?
 
 Introducing [Quickmaffs](https://github.com/neandertech/quickmaffs), a primitive language with a LSP, REPL, and an interpreter, designed specifically
