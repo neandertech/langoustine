@@ -71,7 +71,7 @@ lazy val lsp = projectMatrix
   .settings(
     name := "langoustine-lsp",
     Compile / doc / sources := {
-      if (virtualAxes.value.contains(VirtualAxis.native)) Seq.empty
+      if (!virtualAxes.value.contains(VirtualAxis.jvm)) Seq.empty
       else (Compile / doc / sources).value
     },
     Compile / doc / target := (ThisBuild / baseDirectory).value / "website" / "api",
