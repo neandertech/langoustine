@@ -116,7 +116,7 @@ val CICommands = Seq(
   "clean",
   "compile",
   "test",
-  "checkDocs",
+  /* "checkDocs", */
   "scalafmtCheckAll"
   /* s"scalafix --check $scalafixRules", */
   /* "headerCheck" */
