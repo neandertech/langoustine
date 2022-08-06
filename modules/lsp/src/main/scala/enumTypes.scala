@@ -3,7 +3,7 @@ package langoustine.lsp
 import upickle.default.*
 import scala.reflect.*
 
-trait IntEnum[T](using ev: T =:= Int):
+private[lsp] trait IntEnum[T](using ev: T =:= Int):
   private val intCodec    = upickle.default.readwriter[Int]
   given reader: Reader[T] = intCodec.asInstanceOf[Reader[T]]
   given writer: Writer[T] = intCodec.asInstanceOf[Writer[T]]
@@ -18,7 +18,7 @@ trait IntEnum[T](using ev: T =:= Int):
     n.asInstanceOf[T]
 end IntEnum
 
-trait StringEnum[T](using ev: T =:= String):
+private[lsp] trait StringEnum[T](using ev: T =:= String):
   private val stringCodec = upickle.default.readwriter[String]
   given reader: Reader[T] = stringCodec.asInstanceOf[Reader[T]]
   given writer: Writer[T] = stringCodec.asInstanceOf[Writer[T]]
@@ -33,7 +33,7 @@ trait StringEnum[T](using ev: T =:= String):
     n.asInstanceOf[T]
 end StringEnum
 
-trait UIntEnum[T](using ev: T =:= RuntimeBase.uinteger):
+private[lsp] trait UIntEnum[T](using ev: T =:= RuntimeBase.uinteger):
   private val intCodec = upickle.default.readwriter[Int]
 
   given reader: Reader[T] = intCodec.asInstanceOf[Reader[T]]

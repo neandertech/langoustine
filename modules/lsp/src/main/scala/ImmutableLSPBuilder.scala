@@ -9,10 +9,9 @@ import cats.MonadThrow
 
 import jsonrpclib.*
 
-import requests.LSPRequest
-import notifications.LSPNotification
+import requests.{LSPRequest, LSPNotification}
 
-case class ImmutableLSPBuilder[F[_]: Monadic] private (
+private[lsp] case class ImmutableLSPBuilder[F[_]: Monadic] private (
     endpoints: List[Endpoint[F]],
     logger: scribe.Logger,
     notifyDelegate: Communicate.Delegate[F]
@@ -40,7 +39,7 @@ case class ImmutableLSPBuilder[F[_]: Monadic] private (
 
 end ImmutableLSPBuilder
 
-object ImmutableLSPBuilder:
+private[lsp] object ImmutableLSPBuilder:
   def create[F[_]: Monadic]: LSPBuilder[F] =
     new ImmutableLSPBuilder[F](
       Nil,

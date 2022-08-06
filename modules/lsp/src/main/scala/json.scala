@@ -97,7 +97,7 @@ import upickle.implicits.macros
 import upickle.default.*
 import upickle.core.*
 
-object Pickle:
+private[lsp] object Pickle:
   import scala.deriving.*
   import scala.compiletime.*
   inline final def summonLabelsRec[T <: Tuple]: List[String] =

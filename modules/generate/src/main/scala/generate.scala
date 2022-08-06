@@ -32,10 +32,6 @@ import langoustine.meta.*
       fw.write(out.result)
     }
 
-  inFile(Paths.get(path, "notifications.scala").toFile()) { out =>
-    re.notifications(out)
-  }
-
   inFile(Paths.get(path, "requests.scala").toFile()) { out =>
     re.requests(out)
   }

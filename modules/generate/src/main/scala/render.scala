@@ -7,129 +7,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
   import Render.*
   import Types.*
 
-  def notifications(builder: LineBuilder, subPackage: String = "notifications")(
-      using Config
-  ): Unit =
-    inline def line: Config ?=> Appender = to(builder)
-    line(s"package $packageName")
-    line(s"package $subPackage")
-    line("")
-    line("import langoustine.*")
-    line("import upickle.default.*")
-    line("import langoustine.lsp.json.{*, given}")
-    line("// format: off")
-    line("")
-
-    val prelude = """
-    |sealed abstract class LSPNotification(val notificationMethod: String):
-    |  type In
-    |
-    |  given inputReader: Reader[In]
-    |  given inputWriter: Writer[In]
-    """.stripMargin.trim
-
-    prelude.linesIterator.foreach(line)
-
-    line("")
-
-    var currentScope = List.empty[String]
-
-    given Context = Context.global(manager, "notifications")
-
-    extension (req: Notification)
-      inline def segs = req.method.value.split("/").toList
-      inline def name = req.segs.last
-
-    def renderParams(p: ParamsType) =
-      p match
-        case ParamsType.None      => "Unit"
-        case ParamsType.Single(t) => renderType(t)
-        case ParamsType.Many(t)   => t.map(renderType).mkString("(", ", ", ")")
-
-    def renderReq(req: Notification)(using Config) =
-      req.documentation.toOption.foreach { doc =>
-        commentWriter(builder) { cw =>
-          import cw.*
-
-          commentLine(doc.value)
-        }
-      }
-      line(
-        s"object ${req.name} extends LSPNotification(\"${req.method.value}\"):"
-      )
-      nest {
-        line(s"type In = ${renderParams(req.params)}")
-        line("")
-
-        val reader = req.params match
-          case ParamsType.None      => WriterDefinition.Expression("unitReader")
-          case ParamsType.Single(t) => upickleReader1(t, "In")
-          case ParamsType.Many(t) =>
-            WriterDefinition.Expression("Pickle.macroR")
-
-        line(s"given inputReader: Reader[In] = ")
-        nest {
-          reader.write(builder)
-        }
-        line(s"given inputWriter: Writer[In] = ")
-        nest {
-          req.params match
-            case ParamsType.None => line("unitWriter")
-            case ParamsType.Single(t) =>
-              upickleWriter(t, Some("In")).write(builder)
-            case ParamsType.Many(t) => line("Pickle.macroR")
-        }
-      }
-      line("")
-    end renderReq
-
-    def rec(segments: List[String])(using Config): Unit =
-      segments match
-        case Nil => ()
-        case h :: t =>
-          val scopeName =
-            h match
-              case "$"   => "$DOLLAR"
-              case other => other
-          line(s"object $scopeName:")
-          nest { rec(t) }
-
-    val sorted = manager.notifications.sortBy(_.method.value)
-    val names  = sorted.map(_.method.value.split("/").toList).toSet
-
-    sorted.zipWithIndex.foreach { (req, i) =>
-      val segs = req.segs
-
-      val next = if i < sorted.size - 1 then Some(sorted(i + 1)) else None
-
-      if segs.size == 1 then renderReq(req)
-      else
-        val last :: reversedFront = segs.reverse
-        val front                 = reversedFront.reverse
-
-        if front != currentScope then
-          val same =
-            currentScope.zip(front).takeWhile((a, b) => a == b).map(_._1)
-
-          val nein =
-            val prev = segs.dropRight(1)
-            if names.contains(prev) then 1
-            else 0
-
-          deep(same.size) {
-            rec(front.drop(same.size).dropRight(nein))
-          }
-          currentScope = front
-        end if
-
-        deep(currentScope.size) {
-          renderReq(req)
-        }
-      end if
-    }
-
-  end notifications
-
   def requests(builder: LineBuilder, subPackage: String = "requests")(using
       Config
   ): Unit =
@@ -143,7 +20,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line("// format: off")
     line("")
 
-    val prelude = """
+    val requestPrelude = """
     |sealed abstract class LSPRequest(val requestMethod: String):
     |  type In
     |  type Out
@@ -154,7 +31,19 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     |  given outputReader: Reader[Out]
     """.stripMargin.trim
 
-    prelude.linesIterator.foreach(line)
+    requestPrelude.linesIterator.foreach(line)
+
+    line("")
+
+    val notificationPrelude = """
+    |sealed abstract class LSPNotification(val notificationMethod: String):
+    |  type In
+    |
+    |  given inputReader: Reader[In]
+    |  given inputWriter: Writer[In]
+    """.stripMargin.trim
+
+    notificationPrelude.linesIterator.foreach(line)
 
     line("")
 
@@ -162,9 +51,17 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
 
     given Context = Context.global(manager, "requests")
 
-    extension (req: Request)
-      inline def segs = req.method.value.split("/").toList
-      inline def name = req.segs.last
+    extension (req: Notification | Request)
+      def segs =
+        req.methodName.value.split("/").toList
+
+      def name = req.segs.last
+
+      def methodName: RequestMethod =
+        req match
+          case n: Notification => n.method
+          case r: Request      => r.method
+    end extension
 
     def renderParams(p: ParamsType) =
       p match
@@ -228,22 +125,76 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
       line("")
     end renderReq
 
+    def renderNotification(req: Notification)(using Config) =
+      req.documentation.toOption.foreach { doc =>
+        commentWriter(builder) { cw =>
+          import cw.*
+
+          commentLine(doc.value)
+        }
+      }
+      line(
+        s"object ${req.name} extends LSPNotification(\"${req.method.value}\"):"
+      )
+      nest {
+        line(s"type In = ${renderParams(req.params)}")
+        line("")
+
+        val reader = req.params match
+          case ParamsType.None      => WriterDefinition.Expression("unitReader")
+          case ParamsType.Single(t) => upickleReader1(t, "In")
+          case ParamsType.Many(t) =>
+            WriterDefinition.Expression("Pickle.macroR")
+
+        line(s"given inputReader: Reader[In] = ")
+        nest {
+          reader.write(builder)
+        }
+        line(s"given inputWriter: Writer[In] = ")
+        nest {
+          req.params match
+            case ParamsType.None => line("unitWriter")
+            case ParamsType.Single(t) =>
+              upickleWriter(t, Some("In")).write(builder)
+            case ParamsType.Many(t) => line("Pickle.macroR")
+        }
+      }
+      line("")
+    end renderNotification
+
     def rec(segments: List[String])(using Config): Unit =
       segments match
         case Nil => ()
         case h :: t =>
-          line(s"object $h:")
+          val scopeName =
+            h match
+              case "$"   => "$DOLLAR"
+              case other => other
+          line(s"object $scopeName:")
           nest { rec(t) }
 
-    val sorted = manager.requests.sortBy(_.method.value)
-    val names  = sorted.map(_.method.value.split("/").toList).toSet
+
+    extension [A](value: A) def unionise[T] = value.asInstanceOf[A | T]
+
+    val sorted =
+      (manager.requests.map(_.unionise[Notification]) ++
+        manager.notifications.map(_.unionise[Request]))
+        .sortBy(_.methodName.value)
+
+    val names = sorted.map(_.segs).toSet
+
+    inline def render(r: Notification | Request)(using Config) =
+      r match
+        case n: Notification => renderNotification(n)
+        case r: Request      => renderReq(r)
 
     sorted.zipWithIndex.foreach { (req, i) =>
       val segs = req.segs
+      scribe.info(s"$segs")
 
       val next = if i < sorted.size - 1 then Some(sorted(i + 1)) else None
 
-      if segs.size == 1 then renderReq(req)
+      if segs.size == 1 then render(req)
       else
         val last :: reversedFront = segs.reverse
         val front                 = reversedFront.reverse
@@ -264,7 +215,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         end if
 
         deep(currentScope.size) {
-          renderReq(req)
+          render(req)
         }
       end if
     }

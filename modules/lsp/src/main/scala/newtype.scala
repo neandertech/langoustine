@@ -1,10 +1,10 @@
 package langoustine.lsp
 
-trait BasicallyTheSame[A, T]:
+private[lsp] trait BasicallyTheSame[A, T]:
   def apply(a: A): T
   def reverse(t: T): A
 
-trait TotalWrapper[Newtype, Impl](using ev: Newtype =:= Impl):
+private[lsp] trait TotalWrapper[Newtype, Impl](using ev: Newtype =:= Impl):
   def raw(a: Newtype): Impl   = ev.apply(a)
   def apply(s: Impl): Newtype = ev.flip.apply(s)
 
@@ -20,18 +20,20 @@ trait TotalWrapper[Newtype, Impl](using ev: Newtype =:= Impl):
     inline def map(inline f: Impl => Impl): Newtype = apply(f(raw(a)))
 end TotalWrapper
 
-inline given [A, T](using
+private[lsp] inline given [A, T](using
     bts: BasicallyTheSame[T, A],
     ord: Ordering[A]
 ): Ordering[T] =
   Ordering.by(bts.apply)
 
-trait OpaqueString[A](using A =:= String) extends TotalWrapper[A, String]
-trait OpaqueInt[A](using A =:= Int)       extends TotalWrapper[A, Int]
+private[lsp] trait OpaqueString[A](using A =:= String)
+    extends TotalWrapper[A, String]
+private[lsp] trait OpaqueInt[A](using A =:= Int) extends TotalWrapper[A, Int]
 
-abstract class OpaqueNum[A](using A =:= Int) extends TotalWrapper[A, Int]
+private[lsp] abstract class OpaqueNum[A](using A =:= Int)
+    extends TotalWrapper[A, Int]
 
-abstract class YesNo[A](using ev: Boolean =:= A):
+private[lsp] abstract class YesNo[A](using ev: Boolean =:= A):
   val Yes: A = ev.apply(true)
   val No: A  = ev.apply(false)
   given BasicallyTheSame[Boolean, A] with
