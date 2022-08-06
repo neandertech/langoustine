@@ -87,20 +87,6 @@ lazy val lsp = projectMatrix
   .jsPlatform(scalaVersions)
   .nativePlatform(scalaVersions)
 
-lazy val sample = projectMatrix
-  .in(file("modules/sample"))
-  .dependsOn(lsp)
-  .settings(noPublishing)
-  .defaultAxes(default*)
-  .settings(
-    name                                          := "sample",
-    libraryDependencies += "com.eed3si9n.verify" %%% "verify" % V.verify % Test,
-    testFrameworks += new TestFramework("verify.runner.Framework")
-  )
-  .jvmPlatform(scalaVersions)
-  .jsPlatform(scalaVersions)
-  .nativePlatform(scalaVersions)
-
 lazy val generate = projectMatrix
   .in(file("modules/generate"))
   .dependsOn(meta)
