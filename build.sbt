@@ -70,6 +70,10 @@ lazy val lsp = projectMatrix
   .defaultAxes(default*)
   .settings(
     name := "langoustine-lsp",
+    Compile / doc / sources := {
+      if (virtualAxes.value.contains(VirtualAxis.native)) Seq.empty
+      else (Compile / doc / sources).value
+    },
     Compile / doc / target := (ThisBuild / baseDirectory).value / "website" / "api",
     Compile / doc / scalacOptions ++= {
       Seq("-project", "Langoustine")
