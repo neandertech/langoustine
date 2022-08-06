@@ -1,15 +1,11 @@
 package langoustine.lsp
 
-import scala.util.Try.apply
-import scala.util.Try
-import scala.util.Success
 import upickle.default.{Reader, Writer}
 import cats.MonadThrow
 
 import jsonrpclib.Endpoint
 
-import requests.LSPRequest
-import notifications.LSPNotification
+import requests.{LSPRequest, LSPNotification}
 import jsonrpclib.Monadic
 import jsonrpclib.Codec
 import jsonrpclib.Payload
@@ -91,3 +87,10 @@ trait LSPBuilder[F[_]]:
   end bind
 
 end LSPBuilder
+
+object LSPBuilder:
+  def create[F[_]: Monadic]: LSPBuilder[F] =
+    ImmutableLSPBuilder.create[F]
+
+  def create[F[_]: Monadic](log: scribe.Logger): LSPBuilder[F] =
+    ImmutableLSPBuilder.create[F](log)

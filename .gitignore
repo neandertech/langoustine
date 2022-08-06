@@ -20,3 +20,4 @@ target
 *.log
 
 project/metals.sbt
+website

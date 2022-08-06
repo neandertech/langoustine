@@ -29,7 +29,7 @@ private[lsp] object jsonrpcIntegration:
   ): Endpoint[F] =
     Endpoint(req.requestMethod).simple(f)
 
-  def handlerToNotification[F[_]: Monadic, T <: notifications.LSPNotification](
+  def handlerToNotification[F[_]: Monadic, T <: requests.LSPNotification](
       req: T
   )(
       f: req.In => F[Unit]

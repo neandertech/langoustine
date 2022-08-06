@@ -1,9 +1,88 @@
 import upickle.default.*
-import langoustine.lsp.structures.DocumentSymbol
-import langoustine.lsp.notifications.textDocument
+import langoustine.lsp.*
+import jsonrpclib.Monadic
+import scala.util.*
+import cats.MonadThrow
 
-case class Sym(a: String, b: Vector[Sym])
+import structures.*
+import enumerations.*
+import langoustine.lsp.json.*
+import cats.Monad
 
-object BaseSuite extends verify.BasicTestSuite:
-  test("hello") {}
-end BaseSuite
+def basicServer[F[_]: Monadic] =
+  LSPBuilder.create[F]
+
+import jsonrpclib.*
+
+object LSPSuite extends verify.BasicTestSuite:
+  test("initialize") {
+
+    import requests.*
+    import RuntimeBase.*
+
+    val capabilities =
+      ServerCapabilities(
+        hoverProvider = Opt(true),
+        documentSymbolProvider =
+          Opt(DocumentSymbolOptions(label = Opt("howdy")))
+      )
+
+    val server = basicServer[Try].handleRequest(initialize) { (in, back) =>
+      Try {
+        InitializeResult(capabilities)
+      }
+    }
+
+    val (response, _) = request(
+      server,
+      initialize,
+      InitializeParams(
+        processId = Nullable(25),
+        rootUri = Nullable(DocumentUri("/howdy")),
+        capabilities = ClientCapabilities()
+      )
+    ).get
+
+    assert(response.capabilities == capabilities)
+
+  }
+
+  test("didOpen") {
+    import requests.*
+    import RuntimeBase.*
+
+    val server = basicServer[Try].handleNotification(textDocument.didOpen) {
+      (in, back) =>
+        back.notification(
+          window.showMessage,
+          ShowMessageParams(
+            MessageType.Info,
+            s"you opened a ${in.textDocument.languageId} document from ${in.textDocument.uri}!"
+          )
+        )
+    }
+
+    val back = notification(
+      server,
+      textDocument.didOpen,
+      DidOpenTextDocumentParams(
+        TextDocumentItem(
+          uri = DocumentUri("/home/bla.txt"),
+          languageId = "text",
+          version = 0,
+          text = "Hello!"
+        )
+      )
+    ).get
+
+    assert(
+      back.collect(window.showMessage).get == List(
+        ShowMessageParams(
+          MessageType.Info,
+          "you opened a text document from /home/bla.txt!"
+        )
+      )
+    )
+
+  }
+end LSPSuite
