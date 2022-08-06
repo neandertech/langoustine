@@ -1,7 +1,6 @@
 Global / excludeLintKeys += logManager
 Global / excludeLintKeys += scalaJSUseMainModuleInitializer
 Global / excludeLintKeys += scalaJSLinkerConfig
-Global / onChangedBuildSource := ReloadOnSourceChanges
 
 inThisBuild(
   List(
@@ -71,6 +70,10 @@ lazy val lsp = projectMatrix
   .defaultAxes(default*)
   .settings(
     name := "langoustine-lsp",
+    Compile / doc / target := (ThisBuild / baseDirectory).value / "website" / "api",
+    Compile / doc / scalacOptions ++= {
+      Seq("-project", "Langoustine")
+    },
     scalacOptions ++= Seq("-Xmax-inlines", "64"),
     libraryDependencies += "com.eed3si9n.verify" %%% "verify" % V.verify % Test,
     testFrameworks += new TestFramework("verify.runner.Framework"),
@@ -109,16 +112,10 @@ lazy val generate = projectMatrix
   .settings(noPublishing)
 
 lazy val docs = projectMatrix
-  .in(file("myproject-docs"))
+  .in(file("docs"))
+  .dependsOn(lsp)
   .jvmPlatform(scalaVersions)
   .defaultAxes(default*)
-  .settings(
-    mdocVariables := Map(
-      "VERSION" -> version.value
-    )
-  )
-  .dependsOn(meta)
-  .enablePlugins(MdocPlugin)
   .settings(noPublishing)
 
 val scalafixRules = Seq(
