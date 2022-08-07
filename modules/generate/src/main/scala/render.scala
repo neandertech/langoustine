@@ -599,7 +599,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
                         s"case v: Vector[?] => writeJs[$typeName](v.asInstanceOf[$typeName])"
                       )
                     case BaseType(BaseTypes.NULL) =>
-                      line("case a if a == Nullable.NULL => ujson.Null")
+                      line("case a if a == Opt.empty => ujson.Null")
                     case t =>
                       line(
                         s"case v: ${renderType(t)} => writeJs[${renderType(t)}](v)"
@@ -872,8 +872,10 @@ object Types:
       tpe match
         case ot: Type.OrType =>
           val isNull = BaseType(BaseTypes.NULL)
-          if ot.items.size == 2 && ot.items.contains(isNull) then
-            ot.items.filterNot(_ == isNull).headOption
+          if ot.items.contains(isNull) then
+            val filtered = ot.items.filterNot(_ == isNull)
+            if filtered.size == 1 then filtered.headOption 
+            else Some(OrType(filtered))
           else None
         case _ => None
   end NullableType
@@ -890,7 +892,7 @@ object Types:
           .resolve(rt)
           .value
       case rt: ArrayType    => s"Vector[${renderType(rt.element)}]"
-      case NullableType(nt) => s"Nullable[${renderType(nt)}]"
+      case NullableType(nt) => s"Opt[${renderType(nt)}]"
       case rt: OrType =>
         "(" + rt.items.map(renderType).mkString(" | ") + ")"
       case tt: TupleType =>

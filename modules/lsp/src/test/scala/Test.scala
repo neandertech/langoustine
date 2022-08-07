@@ -37,8 +37,8 @@ object LSPSuite extends verify.BasicTestSuite:
       server,
       initialize,
       InitializeParams(
-        processId = Nullable(25),
-        rootUri = Nullable(DocumentUri("/howdy")),
+        processId = Opt(25),
+        rootUri = Opt(DocumentUri("/howdy")),
         capabilities = ClientCapabilities()
       )
     ).get
