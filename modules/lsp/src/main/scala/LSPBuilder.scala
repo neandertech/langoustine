@@ -59,14 +59,39 @@ object Communicate:
   end Delegate
 end Communicate
 
+trait Invocation[P, F[_]]:
+  def params: P
+  def toClient: Communicate[F]
+
+object Invocation:
+  private[lsp] case class Impl[P, F[_]](params: P, toClient: Communicate[F])
+      extends Invocation[P, F]
+
 trait LSPBuilder[F[_]]:
   def handleRequest[X <: LSPRequest](t: X)(
-      f: (t.In, Communicate[F]) => F[t.Out]
+      f: Invocation[t.In, F] => F[t.Out]
   ): LSPBuilder[F]
 
   def handleNotification[X <: LSPNotification](t: X)(
-      f: (t.In, Communicate[F]) => F[Unit]
+      f: Invocation[t.In, F] => F[Unit]
   ): LSPBuilder[F]
+
+  @deprecated(
+    "This method is deprecated in favour of one using Invocation",
+    "0.1.0"
+  )
+  def handleRequest[X <: LSPRequest](t: X)(
+      f: (t.In, Communicate[F]) => F[t.Out]
+  ): LSPBuilder[F] = handleRequest(t)(invok => f(invok.params, invok.toClient))
+
+  @deprecated(
+    "This method is deprecated in favour of one using Invocation",
+    "0.1.0"
+  )
+  def handleNotification[X <: LSPNotification](t: X)(
+      f: (t.In, Communicate[F]) => F[Unit]
+  ): LSPBuilder[F] =
+    handleNotification(t)(invok => f(invok.params, invok.toClient))
 
   def build(comm: Communicate[F]): List[Endpoint[F]]
 

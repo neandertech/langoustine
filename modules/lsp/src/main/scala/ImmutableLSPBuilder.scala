@@ -18,18 +18,18 @@ private[lsp] case class ImmutableLSPBuilder[F[_]: Monadic] private (
 ) extends LSPBuilder[F]:
 
   override def handleNotification[X <: LSPNotification](t: X)(
-      f: (t.In, Communicate[F]) => F[Unit]
+      f: Invocation[t.In, F] => F[Unit]
   ) = copy(
     endpoints = endpoints :+ jsonrpcIntegration.handlerToNotification(t) { in =>
-      f(in, notifyDelegate)
+      f(Invocation.Impl(in, notifyDelegate))
     }
   )
 
   override def handleRequest[X <: LSPRequest](t: X)(
-      f: (t.In, Communicate[F]) => F[t.Out]
+      f: Invocation[t.In, F] => F[t.Out]
   ) = copy(
     endpoints = endpoints :+ jsonrpcIntegration.handlerToEndpoint(t) { in =>
-      f(in, notifyDelegate)
+      f(Invocation.Impl(in, notifyDelegate))
     }
   )
 

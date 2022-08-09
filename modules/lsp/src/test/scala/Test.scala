@@ -27,7 +27,7 @@ object LSPSuite extends verify.BasicTestSuite:
           Opt(DocumentSymbolOptions(label = Opt("howdy")))
       )
 
-    val server = basicServer[Try].handleRequest(initialize) { (in, back) =>
+    val server = basicServer[Try].handleRequest(initialize) { in =>
       Try {
         InitializeResult(capabilities)
       }
@@ -37,8 +37,8 @@ object LSPSuite extends verify.BasicTestSuite:
       server,
       initialize,
       InitializeParams(
-        processId = Nullable(25),
-        rootUri = Nullable(DocumentUri("/howdy")),
+        processId = Opt(25),
+        rootUri = Opt(DocumentUri("/howdy")),
         capabilities = ClientCapabilities()
       )
     ).get
@@ -52,12 +52,12 @@ object LSPSuite extends verify.BasicTestSuite:
     import RuntimeBase.*
 
     val server = basicServer[Try].handleNotification(textDocument.didOpen) {
-      (in, back) =>
-        back.notification(
+      in =>
+        in.toClient.notification(
           window.showMessage,
           ShowMessageParams(
             MessageType.Info,
-            s"you opened a ${in.textDocument.languageId} document from ${in.textDocument.uri}!"
+            s"you opened a ${in.params.textDocument.languageId} document from ${in.params.textDocument.uri}!"
           )
         )
     }

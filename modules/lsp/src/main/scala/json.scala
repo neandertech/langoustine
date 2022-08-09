@@ -49,44 +49,29 @@ object json:
   def vectorWriter[T: Writer]: Writer[Vector[T]] = summon[Writer[Vector[T]]]
   def vectorReader[T: Reader]: Reader[Vector[T]] = summon[Reader[Vector[T]]]
 
-  opaque type Nullable[+A] = A | Null
-  object Nullable:
-    inline def NULL: Nullable[Nothing]     = null
-    inline def apply[A](a: A): Nullable[A] = a
-
-    given [A](using
-        rd: Reader[A]
-    ): Reader[Nullable[A]] =
-      jsReader.map[Nullable[A]] {
-        case ujson.Null => NULL
-        case other      => upickle.default.read(other)(using rd)
-      }
-
-    given [A](using
-        wt: Writer[A]
-    ): Writer[Nullable[A]] =
-      jsWriter.comap[Nullable[A]] {
-        case other => upickle.default.writeJs(other.asInstanceOf[A])(using wt)
-        case null  => ujson.Null
-      }
-
-    given [A]: CanEqual[Nullable[A], Null] = CanEqual.canEqualAny
-  end Nullable
-
   opaque type Opt[+A] = A | Null
   object Opt:
     inline def empty: Opt[Nothing]    = null
     inline def apply[A](a: A): Opt[A] = a
 
+    given [A]: CanEqual[Opt[A], Null] = CanEqual.canEqualAny
+
     given [A](using
         rd: Reader[A]
     ): Reader[Opt[A]] =
-      rd.asInstanceOf[Reader[Opt[A]]]
+      jsReader.map[Opt[A]] {
+        case ujson.Null => empty
+        case other      => upickle.default.read(other)(using rd)
+      }
 
     given [A](using
         wt: Writer[A]
     ): Writer[Opt[A]] =
-      wt.asInstanceOf[Writer[Opt[A]]]
+      jsWriter.comap[Opt[A]] {
+        case other => upickle.default.writeJs(other.asInstanceOf[A])(using wt)
+        case null  => ujson.Null
+      }
+
   end Opt
 
 end json

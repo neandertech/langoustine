@@ -57,7 +57,7 @@ object Location:
 
  */
 case class ImplementationRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector],
+  documentSelector: Opt[aliases.DocumentSelector],
   id: Opt[String] = Opt.empty
 )
 object ImplementationRegistrationOptions:
@@ -100,7 +100,7 @@ object TypeDefinitionParams:
 
  */
 case class TypeDefinitionRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector],
+  documentSelector: Opt[aliases.DocumentSelector],
   id: Opt[String] = Opt.empty
 )
 object TypeDefinitionRegistrationOptions:
@@ -217,7 +217,7 @@ object ColorInformation:
 
  */
 case class DocumentColorRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector],
+  documentSelector: Opt[aliases.DocumentSelector],
   id: Opt[String] = Opt.empty
 )
 object DocumentColorRegistrationOptions:
@@ -296,7 +296,7 @@ object WorkDoneProgressOptions:
 
  */
 case class TextDocumentRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector]
+  documentSelector: Opt[aliases.DocumentSelector]
 )
 object TextDocumentRegistrationOptions:
   given reader: Reader[structures.TextDocumentRegistrationOptions] = Pickle.macroR
@@ -379,7 +379,7 @@ object FoldingRange:
 
  */
 case class FoldingRangeRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector],
+  documentSelector: Opt[aliases.DocumentSelector],
   id: Opt[String] = Opt.empty
 )
 object FoldingRangeRegistrationOptions:
@@ -422,7 +422,7 @@ object DeclarationParams:
 
  */
 case class DeclarationRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector],
+  documentSelector: Opt[aliases.DocumentSelector],
   id: Opt[String] = Opt.empty
 )
 object DeclarationRegistrationOptions:
@@ -486,7 +486,7 @@ object SelectionRange:
 
  */
 case class SelectionRangeRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector],
+  documentSelector: Opt[aliases.DocumentSelector],
   id: Opt[String] = Opt.empty
 )
 object SelectionRangeRegistrationOptions:
@@ -603,7 +603,7 @@ object CallHierarchyItem:
 
  */
 case class CallHierarchyRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector],
+  documentSelector: Opt[aliases.DocumentSelector],
   id: Opt[String] = Opt.empty
 )
 object CallHierarchyRegistrationOptions:
@@ -778,7 +778,7 @@ object SemanticTokensPartialResult:
 
  */
 case class SemanticTokensRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector],
+  documentSelector: Opt[aliases.DocumentSelector],
   legend: structures.SemanticTokensLegend,
   range: Opt[(Boolean | SemanticTokensRegistrationOptions.S0)] = Opt.empty,
   full: Opt[(Boolean | SemanticTokensRegistrationOptions.S1)] = Opt.empty,
@@ -1009,7 +1009,7 @@ object LinkedEditingRanges:
 
  */
 case class LinkedEditingRangeRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector],
+  documentSelector: Opt[aliases.DocumentSelector],
   id: Opt[String] = Opt.empty
 )
 object LinkedEditingRangeRegistrationOptions:
@@ -1202,7 +1202,7 @@ object Moniker:
 
  */
 case class MonikerRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector]
+  documentSelector: Opt[aliases.DocumentSelector]
 )
 object MonikerRegistrationOptions:
   given reader: Reader[structures.MonikerRegistrationOptions] = Pickle.macroR
@@ -1295,7 +1295,7 @@ object TypeHierarchyItem:
 
  */
 case class TypeHierarchyRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector],
+  documentSelector: Opt[aliases.DocumentSelector],
   id: Opt[String] = Opt.empty
 )
 object TypeHierarchyRegistrationOptions:
@@ -1392,7 +1392,7 @@ object InlineValueParams:
 
  */
 case class InlineValueRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector],
+  documentSelector: Opt[aliases.DocumentSelector],
   id: Opt[String] = Opt.empty
 )
 object InlineValueRegistrationOptions:
@@ -1520,7 +1520,7 @@ object InlayHint:
  */
 case class InlayHintRegistrationOptions(
   resolveProvider: Opt[Boolean] = Opt.empty,
-  documentSelector: Nullable[aliases.DocumentSelector],
+  documentSelector: Opt[aliases.DocumentSelector],
   id: Opt[String] = Opt.empty
 )
 object InlayHintRegistrationOptions:
@@ -1624,7 +1624,7 @@ object DiagnosticServerCancellationData:
 
  */
 case class DiagnosticRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector],
+  documentSelector: Opt[aliases.DocumentSelector],
   identifier: Opt[String] = Opt.empty,
   interFileDependencies: Boolean,
   workspaceDiagnostics: Boolean,
@@ -1855,15 +1855,15 @@ object UnregistrationParams:
 
  */
 case class InitializeParams(
-  processId: Nullable[Int],
+  processId: Opt[Int],
   clientInfo: Opt[InitializeParams.ClientInfo] = Opt.empty,
   locale: Opt[String] = Opt.empty,
-  rootPath: Opt[Nullable[String]] = Opt.empty,
-  rootUri: Nullable[RuntimeBase.DocumentUri],
+  rootPath: Opt[Opt[String]] = Opt.empty,
+  rootUri: Opt[RuntimeBase.DocumentUri],
   capabilities: structures.ClientCapabilities,
   initializationOptions: Opt[ujson.Value] = Opt.empty,
   trace: Opt[("off" | "messages" | "compact" | "verbose")] = Opt.empty,
-  workspaceFolders: Opt[Nullable[Vector[structures.WorkspaceFolder]]] = Opt.empty
+  workspaceFolders: Opt[Opt[Vector[structures.WorkspaceFolder]]] = Opt.empty
 )
 object InitializeParams:
   private given rd3: Reader[("off" | "messages" | "compact" | "verbose")] = 
@@ -2107,7 +2107,7 @@ object DidChangeTextDocumentParams:
  */
 case class TextDocumentChangeRegistrationOptions(
   syncKind: enumerations.TextDocumentSyncKind,
-  documentSelector: Nullable[aliases.DocumentSelector]
+  documentSelector: Opt[aliases.DocumentSelector]
 )
 object TextDocumentChangeRegistrationOptions:
   given reader: Reader[structures.TextDocumentChangeRegistrationOptions] = Pickle.macroR
@@ -2158,7 +2158,7 @@ object DidSaveTextDocumentParams:
 
  */
 case class TextDocumentSaveRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector],
+  documentSelector: Opt[aliases.DocumentSelector],
   includeText: Opt[Boolean] = Opt.empty
 )
 object TextDocumentSaveRegistrationOptions:
@@ -2598,7 +2598,7 @@ object CompletionList:
 
  */
 case class CompletionRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector],
+  documentSelector: Opt[aliases.DocumentSelector],
   triggerCharacters: Opt[Vector[String]] = Opt.empty,
   allCommitCharacters: Opt[Vector[String]] = Opt.empty,
   resolveProvider: Opt[Boolean] = Opt.empty,
@@ -2682,7 +2682,7 @@ object Hover:
 
  */
 case class HoverRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector]
+  documentSelector: Opt[aliases.DocumentSelector]
 )
 object HoverRegistrationOptions:
   given reader: Reader[structures.HoverRegistrationOptions] = Pickle.macroR
@@ -2775,7 +2775,7 @@ object SignatureHelp:
 
  */
 case class SignatureHelpRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector],
+  documentSelector: Opt[aliases.DocumentSelector],
   triggerCharacters: Opt[Vector[String]] = Opt.empty,
   retriggerCharacters: Opt[Vector[String]] = Opt.empty
 )
@@ -2819,7 +2819,7 @@ object DefinitionParams:
 
  */
 case class DefinitionRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector]
+  documentSelector: Opt[aliases.DocumentSelector]
 )
 object DefinitionRegistrationOptions:
   given reader: Reader[structures.DefinitionRegistrationOptions] = Pickle.macroR
@@ -2863,7 +2863,7 @@ object ReferenceParams:
 
  */
 case class ReferenceRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector]
+  documentSelector: Opt[aliases.DocumentSelector]
 )
 object ReferenceRegistrationOptions:
   given reader: Reader[structures.ReferenceRegistrationOptions] = Pickle.macroR
@@ -2925,7 +2925,7 @@ object DocumentHighlight:
 
  */
 case class DocumentHighlightRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector]
+  documentSelector: Opt[aliases.DocumentSelector]
 )
 object DocumentHighlightRegistrationOptions:
   given reader: Reader[structures.DocumentHighlightRegistrationOptions] = Pickle.macroR
@@ -3072,7 +3072,7 @@ object DocumentSymbol:
 
  */
 case class DocumentSymbolRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector],
+  documentSelector: Opt[aliases.DocumentSelector],
   label: Opt[String] = Opt.empty
 )
 object DocumentSymbolRegistrationOptions:
@@ -3242,7 +3242,7 @@ object CodeAction:
 
  */
 case class CodeActionRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector],
+  documentSelector: Opt[aliases.DocumentSelector],
   codeActionKinds: Opt[Vector[enumerations.CodeActionKind]] = Opt.empty,
   resolveProvider: Opt[Boolean] = Opt.empty
 )
@@ -3416,7 +3416,7 @@ object CodeLens:
 
  */
 case class CodeLensRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector],
+  documentSelector: Opt[aliases.DocumentSelector],
   resolveProvider: Opt[Boolean] = Opt.empty
 )
 object CodeLensRegistrationOptions:
@@ -3492,7 +3492,7 @@ object DocumentLink:
 
  */
 case class DocumentLinkRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector],
+  documentSelector: Opt[aliases.DocumentSelector],
   resolveProvider: Opt[Boolean] = Opt.empty
 )
 object DocumentLinkRegistrationOptions:
@@ -3530,7 +3530,7 @@ object DocumentFormattingParams:
 
  */
 case class DocumentFormattingRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector]
+  documentSelector: Opt[aliases.DocumentSelector]
 )
 object DocumentFormattingRegistrationOptions:
   given reader: Reader[structures.DocumentFormattingRegistrationOptions] = Pickle.macroR
@@ -3571,7 +3571,7 @@ object DocumentRangeFormattingParams:
 
  */
 case class DocumentRangeFormattingRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector]
+  documentSelector: Opt[aliases.DocumentSelector]
 )
 object DocumentRangeFormattingRegistrationOptions:
   given reader: Reader[structures.DocumentRangeFormattingRegistrationOptions] = Pickle.macroR
@@ -3623,7 +3623,7 @@ object DocumentOnTypeFormattingParams:
 
  */
 case class DocumentOnTypeFormattingRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector],
+  documentSelector: Opt[aliases.DocumentSelector],
   firstTriggerCharacter: String,
   moreTriggerCharacter: Opt[Vector[String]] = Opt.empty
 )
@@ -3673,7 +3673,7 @@ object RenameParams:
 
  */
 case class RenameRegistrationOptions(
-  documentSelector: Nullable[aliases.DocumentSelector],
+  documentSelector: Opt[aliases.DocumentSelector],
   prepareProvider: Opt[Boolean] = Opt.empty
 )
 object RenameRegistrationOptions:
@@ -5215,11 +5215,11 @@ object Unregistration:
 
  */
 case class _InitializeParams(
-  processId: Nullable[Int],
+  processId: Opt[Int],
   clientInfo: Opt[_InitializeParams.ClientInfo] = Opt.empty,
   locale: Opt[String] = Opt.empty,
-  rootPath: Opt[Nullable[String]] = Opt.empty,
-  rootUri: Nullable[RuntimeBase.DocumentUri],
+  rootPath: Opt[Opt[String]] = Opt.empty,
+  rootUri: Opt[RuntimeBase.DocumentUri],
   capabilities: structures.ClientCapabilities,
   initializationOptions: Opt[ujson.Value] = Opt.empty,
   trace: Opt[("off" | "messages" | "compact" | "verbose")] = Opt.empty,
@@ -5266,7 +5266,7 @@ object _InitializeParams:
 
  */
 case class WorkspaceFoldersInitializeParams(
-  workspaceFolders: Opt[Nullable[Vector[structures.WorkspaceFolder]]] = Opt.empty
+  workspaceFolders: Opt[Opt[Vector[structures.WorkspaceFolder]]] = Opt.empty
 )
 object WorkspaceFoldersInitializeParams:
   given reader: Reader[structures.WorkspaceFoldersInitializeParams] = Pickle.macroR
@@ -6427,7 +6427,7 @@ object SemanticTokensLegend:
 
  */
 case class OptionalVersionedTextDocumentIdentifier(
-  version: Nullable[Int],
+  version: Opt[Int],
   uri: RuntimeBase.DocumentUri
 )
 object OptionalVersionedTextDocumentIdentifier:
@@ -6593,7 +6593,7 @@ object FileOperationPattern:
  */
 case class WorkspaceFullDocumentDiagnosticReport(
   uri: RuntimeBase.DocumentUri,
-  version: Nullable[Int],
+  version: Opt[Int],
   kind: "full",
   resultId: Opt[String] = Opt.empty,
   items: Vector[structures.Diagnostic]
@@ -6627,7 +6627,7 @@ object WorkspaceFullDocumentDiagnosticReport:
  */
 case class WorkspaceUnchangedDocumentDiagnosticReport(
   uri: RuntimeBase.DocumentUri,
-  version: Nullable[Int],
+  version: Opt[Int],
   kind: "unchanged",
   resultId: String
 )
