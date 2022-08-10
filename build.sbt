@@ -70,14 +70,6 @@ lazy val lsp = projectMatrix
   .defaultAxes(default*)
   .settings(
     name := "langoustine-lsp",
-    Compile / doc / sources := {
-      if (!virtualAxes.value.contains(VirtualAxis.jvm)) Seq.empty
-      else (Compile / doc / sources).value
-    },
-    Compile / doc / target := (ThisBuild / baseDirectory).value / "website" / "api",
-    Compile / doc / scalacOptions ++= {
-      Seq("-project", "Langoustine")
-    },
     scalacOptions ++= Seq("-Xmax-inlines", "64"),
     libraryDependencies += "com.eed3si9n.verify" %%% "verify" % V.verify % Test,
     testFrameworks += new TestFramework("verify.runner.Framework"),
@@ -90,6 +82,7 @@ lazy val lsp = projectMatrix
   .jvmPlatform(scalaVersions)
   .jsPlatform(scalaVersions)
   .nativePlatform(scalaVersions)
+  .settings(docsSettings)
 
 lazy val generate = projectMatrix
   .in(file("modules/generate"))
@@ -174,3 +167,28 @@ usefulTasks := Seq(
 )
 
 logoColor := scala.Console.MAGENTA
+
+lazy val docsSettings = Seq(
+  Compile / doc / scalacOptions ++= Seq(
+    "-project",
+    "Langoustine",
+    "-siteroot",
+    "docs",
+    "-project-version",
+    version.value,
+    /* "-project-logo", */
+    /* "docs/logo.svg", */
+    "-social-links:" +
+      "github::https://github.com/neandertech/langoustine",
+    "-project-footer",
+    s"Copyright (c) 2022, Neandertech",
+    "-source-links:github://neandertech/langoustine",
+    "-revision",
+    "master"
+  ),
+  Compile / doc := {
+    val out = (Compile / doc).value
+    IO.copyDirectory((Compile / doc / target).value, file("website"))
+    out
+  }
+)

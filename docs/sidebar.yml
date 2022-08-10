@@ -1,0 +1,6 @@
+index: index.md
+subsection:
+  - title: Examples
+    page: examples.md
+  - title: Contributing guide
+    page: CONTRIBUTING.md
