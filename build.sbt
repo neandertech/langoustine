@@ -70,14 +70,6 @@ lazy val lsp = projectMatrix
   .defaultAxes(default*)
   .settings(
     name := "langoustine-lsp",
-    /* Compile / doc / sources := { */
-    /*   if (!virtualAxes.value.contains(VirtualAxis.jvm)) Seq.empty */
-    /*   else (Compile / doc / sources).value */
-    /* }, */
-    /* Compile / doc / target := (ThisBuild / baseDirectory).value / "website" / "api", */
-    /* Compile / doc / scalacOptions ++= { */
-    /*   Seq("-project", "Langoustine") */
-    /* }, */
     scalacOptions ++= Seq("-Xmax-inlines", "64"),
     libraryDependencies += "com.eed3si9n.verify" %%% "verify" % V.verify % Test,
     testFrameworks += new TestFramework("verify.runner.Framework"),
