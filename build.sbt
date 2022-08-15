@@ -35,7 +35,7 @@ val V = new {
   val upickle    = "2.0.0"
   val cats       = "2.8.0"
   val verify     = "1.0.0"
-  val jsonrpclib = "0.0.2"
+  val jsonrpclib = "0.0.3"
 }
 
 lazy val noPublishing = Seq(
