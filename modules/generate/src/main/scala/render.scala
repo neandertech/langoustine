@@ -173,7 +173,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
           line(s"object $scopeName:")
           nest { rec(t) }
 
-
     extension [A](value: A) def unionise[T] = value.asInstanceOf[A | T]
 
     val sorted =
@@ -874,10 +873,11 @@ object Types:
           val isNull = BaseType(BaseTypes.NULL)
           if ot.items.contains(isNull) then
             val filtered = ot.items.filterNot(_ == isNull)
-            if filtered.size == 1 then filtered.headOption 
+            if filtered.size == 1 then filtered.headOption
             else Some(OrType(filtered))
           else None
         case _ => None
+    end unapply
   end NullableType
 
   def renderType(
