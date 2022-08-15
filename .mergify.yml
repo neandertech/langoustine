@@ -1,0 +1,11 @@
+pull_request_rules:
+  - name: automatically merge scala-steward's PRs
+    conditions:
+      - author=neanderward[bot]
+      - or:
+        - body~=labels:.*semver-patch.*
+        - body~=labels:.*semver-spec-patch.*
+      - check-success=build
+    actions:
+      merge:
+        method: merge
