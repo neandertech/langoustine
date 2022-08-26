@@ -36,6 +36,9 @@ val V = new {
   val cats       = "2.8.0"
   val verify     = "1.0.0"
   val jsonrpclib = "0.0.3"
+  val fs2        = "3.2.12"
+  val http4s     = "0.23.15"
+  val laminar    = "0.14.2"
 }
 
 lazy val noPublishing = Seq(
@@ -49,7 +52,10 @@ val default = Seq(VirtualAxis.scalaABIVersion(V.scala), VirtualAxis.jvm)
 
 lazy val root = project
   .in(file("."))
-  .aggregate((meta.projectRefs ++ lsp.projectRefs)*)
+  .aggregate(meta.projectRefs*)
+  .aggregate(lsp.projectRefs*)
+  .aggregate(tracer.projectRefs*)
+  .aggregate(tracerShared.projectRefs*)
   .settings(noPublishing)
 
 lazy val meta = projectMatrix
@@ -93,6 +99,73 @@ lazy val generate = projectMatrix
   )
   .jvmPlatform(scalaVersions)
   .settings(noPublishing)
+
+lazy val tracer = projectMatrix
+  .in(file("modules/tracer/backend"))
+  .dependsOn(lsp, tracerShared)
+  .defaultAxes(default*)
+  .settings(
+    name                                   := "tracer",
+    libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2" % V.jsonrpclib,
+    libraryDependencies += "co.fs2"       %%% "fs2-io"         % V.fs2,
+    libraryDependencies += "org.http4s" %%% "http4s-ember-server" % V.http4s,
+    libraryDependencies += "org.http4s" %%% "http4s-dsl"          % V.http4s,
+    // embedding frontend in backend's resources
+    Compile / resourceGenerators += {
+      Def.task[Seq[File]] {
+        val (_, location) = (ThisBuild / frontendOutput).value
+
+        val outDir = (Compile / resourceManaged).value / "assets"
+        IO.listFiles(location).toList.map { file =>
+          val (name, ext) = file.baseAndExt
+          val out         = outDir / (name + "." + ext)
+
+          IO.copyFile(file, out)
+
+          out
+        }
+      }
+    }
+  )
+  .jvmPlatform(scalaVersions)
+
+import org.scalajs.linker.interface.Report
+lazy val frontendJS = tracerFrontend.js(V.scala)
+
+lazy val frontendOutput = taskKey[(Report, File)]("")
+ThisBuild / frontendOutput := {
+  /* if (isRelease) */
+  /*   (frontendJS / Compile / fullLinkJS).value.data -> */
+  /*     (frontendJS / Compile / fullLinkJS / scalaJSLinkerOutputDirectory).value */
+  /* else */
+  (frontendJS / Compile / fastLinkJS).value.data ->
+    (frontendJS / Compile / fastLinkJS / scalaJSLinkerOutputDirectory).value
+}
+
+lazy val tracerFrontend = projectMatrix
+  .in(file("modules/tracer/frontend"))
+  .dependsOn(tracerShared)
+  .defaultAxes(default*)
+  .settings(
+    name                                := "tracer-frontend",
+    libraryDependencies += "com.raquo" %%% "laminar" % V.laminar,
+    scalaJSUseMainModuleInitializer     := true
+  )
+  .jsPlatform(scalaVersions)
+
+lazy val tracerShared = projectMatrix
+  .in(file("modules/tracer/shared"))
+  .defaultAxes(default*)
+  .settings(
+    name := "tracer-shared",
+    libraryDependencies ++= Seq(
+      "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-core" % "2.15.0",
+      "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-macros" % "2.15.0" % "compile-internal",
+      "tech.neander" %%% "jsonrpclib-core" % V.jsonrpclib
+    )
+  )
+  .jsPlatform(scalaVersions)
+  .jvmPlatform(scalaVersions)
 
 lazy val docs = projectMatrix
   .in(file("docs"))
@@ -192,3 +265,10 @@ lazy val docsSettings = Seq(
     out
   }
 )
+
+ThisBuild / version := {
+  sys.env.get("VERSION_OVERRIDE") match {
+    case None        => version.value
+    case Some(value) => value
+  }
+}

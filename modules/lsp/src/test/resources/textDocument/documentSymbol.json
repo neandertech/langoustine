@@ -1,0 +1,14 @@
+{
+    "id": 25,
+    "method": "textDocument/documentSymbol",
+    "params": {
+        "textDocument": {
+            "uri": "file:///home/user/README.md"
+        },
+        "position": {
+            "line": 14,
+            "character": 0
+        }
+    },
+    "jsonrpc": "2.0"
+}

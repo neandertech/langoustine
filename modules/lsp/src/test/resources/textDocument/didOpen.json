@@ -1,0 +1,12 @@
+{
+    "params": {
+        "textDocument": {
+            "uri": "file:///home/user/grammar.js",
+            "languageId": "javascript",
+            "version": 0,
+            "text": "hello"
+        }
+    },
+    "jsonrpc": "2.0",
+    "method": "textDocument/didOpen"
+}
