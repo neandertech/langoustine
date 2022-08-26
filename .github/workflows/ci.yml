@@ -12,6 +12,7 @@ concurrency:
 
 env:
   JAVA_OPTS: "-Xmx4G"
+  RELEASE: yesh
 
 jobs:
   build:
