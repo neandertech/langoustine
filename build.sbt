@@ -105,7 +105,7 @@ lazy val tracer = projectMatrix
   .dependsOn(lsp, tracerShared)
   .defaultAxes(default*)
   .settings(
-    name                                   := "tracer",
+    name                                   := "langoustine-tracer",
     libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2" % V.jsonrpclib,
     libraryDependencies += "co.fs2"       %%% "fs2-io"         % V.fs2,
     libraryDependencies += "org.http4s" %%% "http4s-ember-server" % V.http4s,
@@ -131,15 +131,16 @@ lazy val tracer = projectMatrix
 
 import org.scalajs.linker.interface.Report
 lazy val frontendJS = tracerFrontend.js(V.scala)
+lazy val isRelease  = sys.env.get("RELEASE").contains("yesh")
 
 lazy val frontendOutput = taskKey[(Report, File)]("")
 ThisBuild / frontendOutput := {
-  /* if (isRelease) */
-  /*   (frontendJS / Compile / fullLinkJS).value.data -> */
-  /*     (frontendJS / Compile / fullLinkJS / scalaJSLinkerOutputDirectory).value */
-  /* else */
-  (frontendJS / Compile / fastLinkJS).value.data ->
-    (frontendJS / Compile / fastLinkJS / scalaJSLinkerOutputDirectory).value
+  if (isRelease)
+    (frontendJS / Compile / fullLinkJS).value.data ->
+      (frontendJS / Compile / fullLinkJS / scalaJSLinkerOutputDirectory).value
+  else
+    (frontendJS / Compile / fastLinkJS).value.data ->
+      (frontendJS / Compile / fastLinkJS / scalaJSLinkerOutputDirectory).value
 }
 
 lazy val tracerFrontend = projectMatrix
@@ -147,7 +148,7 @@ lazy val tracerFrontend = projectMatrix
   .dependsOn(tracerShared)
   .defaultAxes(default*)
   .settings(
-    name                                := "tracer-frontend",
+    name                                := "langoustine-tracer-frontend",
     libraryDependencies += "com.raquo" %%% "laminar" % V.laminar,
     scalaJSUseMainModuleInitializer     := true
   )
@@ -157,7 +158,7 @@ lazy val tracerShared = projectMatrix
   .in(file("modules/tracer/shared"))
   .defaultAxes(default*)
   .settings(
-    name := "tracer-shared",
+    name := "langoustine-tracer-shared",
     libraryDependencies ++= Seq(
       "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-core" % "2.15.0",
       "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-macros" % "2.15.0" % "compile-internal",
