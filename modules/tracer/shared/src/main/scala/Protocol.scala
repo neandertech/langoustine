@@ -26,30 +26,40 @@ object TracerEvent:
   given JsonValueCodec[TracerEvent] = JsonCodecMaker.make
 
 enum Message:
-  case Request(method: String, id: CallId) extends Message
-  case Response(id: CallId)                extends Message
-  case ClientNotification(method: String)  extends Message
-  case ServerNotification(method: String)  extends Message
+  case Request(method: String, id: CallId, params: Option[Payload])
+      extends Message
+  case Response(id: CallId, result: Either[ErrorPayload, Option[Payload]])
+      extends Message
+  case Notification(
+      method: String,
+      params: Option[Payload],
+      error: Option[ErrorPayload],
+      direction: Direction
+  ) extends Message
+end Message
 
 object Message:
   given JsonValueCodec[Message] = JsonCodecMaker.make
+
+  def makeResult(rm: RawMessage): Either[ErrorPayload, Option[Payload]] =
+    rm.error match
+      case None     => Right(rm.result)
+      case Some(er) => Left(er)
 
   def from(raw: RawMessage, direction: Direction): Option[Message] =
     raw.id match
       // notification
       case None =>
-        direction match
-          case Direction.ToServer =>
-            raw.method.map(Message.ClientNotification.apply)
-          case Direction.ToClient =>
-            raw.method.map(Message.ServerNotification.apply)
+        raw.method.map(
+          Message.Notification(_, raw.params, raw.error, direction)
+        )
       case Some(id) =>
         direction match
           case Direction.ToServer =>
-            raw.method.map(Message.Request.apply(_, id))
+            raw.method.map(Message.Request.apply(_, id, raw.params))
           case Direction.ToClient =>
             raw.method match
-              case None       => Some(Message.Response(id))
+              case None       => Some(Message.Response(id, makeResult(raw)))
               case Some(what) => None
 
 end Message

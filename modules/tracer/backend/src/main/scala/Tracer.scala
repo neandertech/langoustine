@@ -2,9 +2,8 @@ package langoustine
 package tracer
 
 import jsonrpclib.fs2.*
-import cats.effect.IOApp
-import cats.effect.ExitCode
-import cats.effect.IO
+import cats.effect.*
+import cats.syntax.all.*
 import fs2.Chunk
 
 import org.http4s.EntityEncoder
@@ -29,45 +28,51 @@ object Tracer extends IOApp:
       .toMap
 
     val byteTopic =
-      fs2.Stream.eval(fs2.concurrent.Channel.unbounded[IO, Chunk[Byte]])
+      Resource.eval(fs2.concurrent.Channel.synchronous[IO, Chunk[Byte]])
 
-    byteTopic
-      .flatMap { inBytes =>
-        byteTopic.flatMap { outBytes =>
-          byteTopic.flatMap { errBytes =>
-            ChildProcess
-              .spawn[IO](restArgs*)
-              .flatMap { child =>
+    (byteTopic, byteTopic, byteTopic).parTupled
+      .flatMap { case (inBytes, outBytes, errBytes) =>
+        ChildProcess.resource[IO](restArgs*).flatMap { child =>
+          val redirectInput =
+            in.chunks
+              .evalTap(inBytes.send)
+              .unchunks
+              .through(child.stdin)
+              .compile
+              .drain
+              .background
 
-                val redirectInput =
-                  in.chunks.evalTap(inBytes.send).unchunks.through(child.stdin)
+          val redirectOutput =
+            child.stdout.chunks
+              .evalTap(outBytes.send)
+              .unchunks
+              .through(out)
+              .compile
+              .drain
+              .background
 
-                val redirectOutput =
-                  child.stdout.chunks
-                    .evalTap(outBytes.send)
-                    .unchunks
-                    .through(out)
+          val redirectLogs =
+            child.stderr.chunks
+              .evalTap(errBytes.send)
+              .compile
+              .drain
+              .background
 
-                TracerServer
-                  .create(
-                    inBytes.stream.unchunks,
-                    outBytes.stream.unchunks,
-                    errBytes.stream.unchunks
-                  )
-                  .runStream(argMap)
-                  .flatMap { _ =>
-                    redirectInput
-                      .concurrently(redirectOutput)
-                      .concurrently(
-                        child.stderr.chunks.evalTap(errBytes.send)
-                      )
-                  }
-              }
-          }
+          val server = TracerServer
+            .create(
+              inBytes.stream.unchunks,
+              outBytes.stream.unchunks,
+              errBytes.stream.unchunks
+            )
+            .runResource(argMap)
+            .evalTap(IO.consoleForIO.errorln)
+
+          (redirectInput, redirectOutput, redirectLogs, server).parTupled
         }
+
       }
-      .compile
-      .drain
-      .as(ExitCode(0))
+      .useForever
+      .as(ExitCode.Success)
+
   end run
 end Tracer

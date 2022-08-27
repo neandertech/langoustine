@@ -63,7 +63,7 @@ object hljs extends js.Object:
 
 object Frontend:
 
-  val showing = Var(Option.empty[Message.Request | Message.Response])
+  val showing = Var(Option.empty[Message])
 
   def cid(c: CallId) = c match
     case CallId.NumberId(n) => n.toString
@@ -108,7 +108,7 @@ object Frontend:
         div(base, h2("server", marginTop := "0px"), textAlign.right)
       ),
       msgs.reverse.collect {
-        case rq @ Request(method, callId) =>
+        case rq: Request =>
           div(
             base,
             fromClient,
@@ -116,13 +116,13 @@ object Frontend:
             button(
               noBorder,
               request,
-              b(method),
+              b(rq.method),
               ": ",
-              cid(callId),
+              cid(rq.id),
               onClick.preventDefault.mapTo(rq) --> showing.someWriter
             )
           )
-        case rp @ Response(id) =>
+        case rp: Response =>
           div(
             select(rp),
             base,
@@ -132,20 +132,56 @@ object Frontend:
               request,
               b("Response for"),
               ": ",
-              cid(id),
+              cid(rp.id),
               onClick.preventDefault.mapTo(rp) --> showing.someWriter
             )
           )
-        case ClientNotification(method) =>
-          div(base, button(noBorder, notif, fromClient, method))
-        case ServerNotification(method) =>
-          div(base, button(noBorder, notif, fromServer, method))
+        case cm: Notification =>
+          div(
+            select(cm),
+            base,
+            if (cm.direction == Direction.ToClient)
+            then fromServer
+            else fromClient,
+            button(
+              noBorder,
+              notif,
+              cm.method,
+              onClick.preventDefault.mapTo(cm) --> showing.someWriter
+            )
+          )
       }
     )
   end timeline
 
   val bus    = new EventBus[Double]
   val logBus = new EventBus[Double]
+
+  def displayJson[T: JsonValueCodec](rmsg: T) =
+    val js = JSON.parse(
+      writeToStringReentrant(
+        rmsg
+      )
+    )
+
+    pre(
+      code(
+        className := "language-json",
+        JSON.stringify(js, space = 2),
+        onMountCallback(ctx => hljs.highlightAll())
+      )
+    )
+  end displayJson
+
+  import jsonrpclib.{ErrorPayload, Payload}
+
+  def displayErr(ep: ErrorPayload) =
+    div(b(color := "pink", "Error"), displayJson(ep))
+
+  given JsonValueCodec[Option[Payload]] = JsonCodecMaker.make
+
+  def displayPayload(name: String, op: Option[Payload]) =
+    div(b(color := "lightgreen", name, displayJson(op)))
 
   val commandTracer =
     div(
@@ -160,44 +196,26 @@ object Frontend:
         position := "sticky",
         top      := "0",
         overflow.scroll,
-        child <-- showing.signal.flatMap {
-          case None => Signal.fromValue(p(""))
+        child <-- showing.signal.map {
+          case None => i("Select any operation on the right to see its result")
+
           case Some(req: Message.Request) =>
-            Signal.fromFuture(Api.request(cid(req.id))).map(_.flatten).map {
-              case None => i("not found...")
-              case Some(rmsg) =>
-                val js = JSON.parse(
-                  writeToStringReentrant(
-                    rmsg
-                  )
-                )
+            displayPayload("Params", req.params)
 
-                pre(
-                  code(
-                    className := "language-json",
-                    JSON.stringify(js, space = 2),
-                    onMountCallback(ctx => hljs.highlightAll())
-                  )
-                )
-            }
           case Some(req: Message.Response) =>
-            Signal.fromFuture(Api.response(cid(req.id))).map(_.flatten).map {
-              case None => i("not found...")
-              case Some(rmsg) =>
-                val js = JSON.parse(
-                  writeToStringReentrant(
-                    rmsg
-                  )
-                )
+            req.result match
+              case Left(ep) =>
+                displayErr(ep)
+              case Right(op) =>
+                displayPayload("Result", op)
 
-                pre(
-                  code(
-                    className := "language-json",
-                    JSON.stringify(js, space = 2),
-                    onMountCallback(ctx => hljs.highlightAll())
-                  )
-                )
-            }
+          case Some(cm: Message.Notification) =>
+            (cm.params, cm.error) match
+              case (None, None) => i("no error or payload")
+              case (_, Some(err)) =>
+                div(b(color := "pink", "Error"), displayJson(err))
+              case (Some(p), None) =>
+                div(b(color := "lightgreen", "Params"), displayJson(p))
         }
       ),
       div(
