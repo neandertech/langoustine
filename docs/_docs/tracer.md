@@ -1,5 +1,8 @@
 # Tracer
 
+![2022-08-27 17 50 05](https://user-images.githubusercontent.com/1052965/187040059-f6e0c08b-7c76-4899-b370-0e8ada0c4819.gif)
+
+
 A UI tool for capturing the LSP requests and responses that are exchanged between the client and the server.
 
 It doesn't matter what the target LSP is implemented with, as we only intercept JSONRPC payloads sent to stdin and stdout.
