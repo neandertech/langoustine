@@ -7,10 +7,12 @@ import langoustine.tracer.RawMessage
 
 object ProtocolSpec extends SimpleIOSuite:
 
-  pureTest("confirm no changes for https://github.com/neandertech/jsonrpclib/issues/16") {
-    // There is a bug in jsonrpclib - we keep these tests around to make sure 
+  pureTest(
+    "confirm no changes for https://github.com/neandertech/jsonrpclib/issues/16"
+  ) {
+    // There is a bug in jsonrpclib - we keep these tests around to make sure
     // the bug is still there.
-    // Once the bug disappears, it might be a good opportunity to remove any code that was 
+    // Once the bug disappears, it might be a good opportunity to remove any code that was
     // put as a prevention mechanism
     val regStr1 =
       """{"jsonrpc":"2.0","id":"1","method":"workspace/configuration","params":{"items":[{"section":"metals"}]}}"""
