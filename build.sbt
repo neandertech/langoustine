@@ -39,6 +39,7 @@ val V = new {
   val fs2        = "3.2.12"
   val http4s     = "0.23.15"
   val laminar    = "0.14.2"
+  val decline    = "2.2.0"
 }
 
 lazy val noPublishing = Seq(
@@ -110,8 +111,9 @@ lazy val tracer = projectMatrix
     name                                   := "langoustine-tracer",
     libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2" % V.jsonrpclib,
     libraryDependencies += "co.fs2"       %%% "fs2-io"         % V.fs2,
-    libraryDependencies += "org.http4s" %%% "http4s-ember-server" % V.http4s,
-    libraryDependencies += "org.http4s" %%% "http4s-dsl"          % V.http4s,
+    libraryDependencies += "org.http4s"   %%% "http4s-ember-server" % V.http4s,
+    libraryDependencies += "org.http4s"   %%% "http4s-dsl"          % V.http4s,
+    libraryDependencies += "com.monovore" %%% "decline"             % V.decline,
     // embedding frontend in backend's resources
     Compile / resourceGenerators += {
       Def.task[Seq[File]] {

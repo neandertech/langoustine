@@ -112,16 +112,16 @@ class TracerServer private (
         ch     <- Channel.bounded[IO, String](128)
       yield State(ch, rf, raw, logBuf)
 
-  def runStream(argMap: Map[String, String]) =
-    fs2.Stream.resource(runResource(argMap))
+  def runStream(config: Config) =
+    fs2.Stream.resource(runResource(config))
 
-  def runResource(argMap: Map[String, String]) =
+  def runResource(config: Config) =
     Resource.eval(State.create).flatMap { state =>
       val run = Server(
         wbs =>
           ErrorHandling
             .httpApp(handleErrors(app(wbs, state))),
-        argMap
+        config
       )
       val dump = dumpRequests(state)
         .concurrently(dumpResponses(state))
@@ -222,12 +222,12 @@ class TracerServer private (
 
   def Server(
       app: WebSocketBuilder2[IO] => HttpApp[IO],
-      argMap: Map[String, String]
+      config: Config
   ): Resource[cats.effect.IO, server.Server] =
     EmberServerBuilder
       .default[IO]
       .withPort(
-        argMap.get("--port").flatMap(Port.fromString).getOrElse(port"9977")
+        Port.fromInt(config.port).get
       )
       .withHost(host"localhost")
       .withShutdownTimeout(1.second)

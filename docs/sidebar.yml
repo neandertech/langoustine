@@ -1,6 +1,10 @@
 index: index.md
 subsection:
+  - title: Tracer
+    page: tracer.md
+
   - title: Examples
     page: examples.md
+
   - title: Contributing guide
     page: CONTRIBUTING.md
