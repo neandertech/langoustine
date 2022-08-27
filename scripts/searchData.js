@@ -1,4 +1,5 @@
 pages = [{"l":"_docs/index.html#","e":false,"n":"Langoustine","t":"Langoustine","d":"","k":"static"},
+{"l":"_docs/tracer.html#","e":false,"n":"Tracer","t":"Tracer","d":"","k":"static"},
 {"l":"_docs/examples.html#","e":false,"n":"Examples","t":"Examples","d":"","k":"static"},
 {"l":"_docs/CONTRIBUTING.html#","e":false,"n":"Contributing guide","t":"Contributing guide","d":"","k":"static"},
 {"l":"index.html#","e":false,"n":"API","t":"API","d":"","k":"static"},
