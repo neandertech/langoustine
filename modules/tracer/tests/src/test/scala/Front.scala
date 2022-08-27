@@ -24,7 +24,7 @@ case class Front(client: Client[IO], base: Uri, ws: WSClient[IO]):
   def request(callId: CallId) =
     client.expect[RawMessage](base.withPath(s"/api/raw/request/${cid(callId)}"))
 
-  def summary = 
+  def summary =
     client.expect[Summary](base.withPath(s"/api/summary"))
 
   def request(callId: Option[CallId]) =

@@ -292,10 +292,12 @@ object Frontend:
         ),
         child.maybe <-- Signal.fromFuture(Api.summary).map {
           _.map { summary =>
+            val cmd = summary.serverCommand.mkString(" ")
+            dom.document.title = s"Tracer: $cmd"
             div(
               marginLeft := "15px",
               p(b("In folder: "), summary.workingFolder),
-              p(b("LSP command: "), summary.serverCommand.mkString(" "))
+              p(b("LSP command: "), cmd)
             )
           }
         }
