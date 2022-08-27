@@ -69,6 +69,15 @@ object TracerServerSpec extends ServerSpec:
     yield expect.all(logs.containsSlice(Seq("hello", "world")))
   }
 
+  test("Serves summary at /api/summary") { serv =>
+    serv.front.summary.map { summary =>
+      expect.all(
+        summary.workingFolder == System.getProperty("user.dir"),
+        summary.serverCommand == List("echo", "world")
+      )
+    }
+  }
+
   test("Serves JavaScript at /assets/main.js") { serv =>
     serv.front.client
       .expect[String](serv.front.base.withPath("/assets/main.js"))
