@@ -5,7 +5,7 @@ import com.github.plokhotnyuk.jsoniter_scala.macros.*
 
 import jsonrpclib.*
 
-case class RawMessage(
+case class RawMessage private (
     jsonrpc: String,
     method: Option[String] = None,
     result: Option[Payload] = None,
@@ -57,3 +57,13 @@ end Message
 object RawMessage:
   import com.github.plokhotnyuk.jsoniter_scala.macros.*
   given JsonValueCodec[RawMessage] = JsonCodecMaker.make
+
+  def create(
+      method: Option[String] = None,
+      result: Option[Payload] = None,
+      error: Option[ErrorPayload] = None,
+      params: Option[Payload] = None,
+      id: Option[CallId] = None
+  ) =
+    RawMessage("2.0", method, result, error, params, id)
+end RawMessage

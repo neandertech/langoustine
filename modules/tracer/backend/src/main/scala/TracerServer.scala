@@ -24,6 +24,7 @@ import org.http4s.server.Router
 import org.http4s.server.websocket.WebSocketBuilder2
 import org.http4s.websocket.WebSocketFrame
 import scala.concurrent.duration.*
+import cats.effect.kernel.Resource
 
 class TracerServer private (
     in: fs2.Stream[IO, Byte],
@@ -111,23 +112,28 @@ class TracerServer private (
         ch     <- Channel.bounded[IO, String](128)
       yield State(ch, rf, raw, logBuf)
 
-  def run(argMap: Map[String, String]) =
-    fs2.Stream.eval(State.create).flatMap { state =>
-      fs2.Stream
-        .resource(
-          Server(
-            wbs =>
-              ErrorHandling
-                .httpApp(handleErrors(app(wbs, state))),
-            argMap
-          )
-        )
-        .flatMap { _ =>
-          dumpRequests(state)
-            .concurrently(dumpResponses(state))
-            .concurrently(dumpLogs(state))
-        }
+  def runStream(argMap: Map[String, String]) =
+    fs2.Stream.resource(runResource(argMap))
+
+  def runResource(argMap: Map[String, String]) =
+    Resource.eval(State.create).flatMap { state =>
+      val run = Server(
+        wbs =>
+          ErrorHandling
+            .httpApp(handleErrors(app(wbs, state))),
+        argMap
+      )
+      val dump = dumpRequests(state)
+        .concurrently(dumpResponses(state))
+        .concurrently(dumpLogs(state))
+        .compile
+        .drain
+        .background
+
+      (run, dump).parMapN((s, _) => s)
     }
+
+  import org.http4s.dsl.io.*
 
   import org.http4s.dsl.io.*
 
@@ -170,6 +176,9 @@ class TracerServer private (
       case GET -> Root / "all" =>
         rf.get.map(_.sortBy(_.timestamp).map(_.value)).flatMap(Ok(_))
 
+      case GET -> Root / "logs" =>
+        logBuf.get.flatMap(Ok(_))
+
       case GET -> Root / "raw" / "all" =>
         raw.get.map(_.sortBy(_.timestamp).map(_.value)).flatMap(Ok(_))
 
@@ -179,7 +188,10 @@ class TracerServer private (
 
         raw.get.flatMap { messages =>
           val found = messages.collectFirst {
-            case Received(_, r) if asLong == r.id || r.id.contains(asStr) =>
+            case Received(_, r)
+                if (asLong == r.id || r.id.contains(
+                  asStr
+                )) && r.method.nonEmpty =>
               r
           }
 
@@ -211,7 +223,7 @@ class TracerServer private (
   def Server(
       app: WebSocketBuilder2[IO] => HttpApp[IO],
       argMap: Map[String, String]
-  ) =
+  ): Resource[cats.effect.IO, server.Server] =
     EmberServerBuilder
       .default[IO]
       .withPort(
@@ -228,6 +240,7 @@ object TracerServer:
   given msg: JsonValueCodec[Vector[LspMessage]] = JsonCodecMaker.make
   given raw: JsonValueCodec[Vector[RawMessage]] = JsonCodecMaker.make
 
+  given JsonValueCodec[Vector[String]] = JsonCodecMaker.make
   given jsonEncoder[T: JsonValueCodec]: EntityEncoder[IO, T] =
     EntityEncoder
       .byteArrayEncoder[IO]
@@ -235,6 +248,9 @@ object TracerServer:
       .withContentType(
         `Content-Type`(MediaType.application.json, Some(Charset.`UTF-8`))
       )
+
+  given jsonDecoder[T: JsonValueCodec]: EntityDecoder[IO, T] =
+    EntityDecoder.byteArrayDecoder[IO].map(readFromArray[T](_))
 
   def create(
       in: fs2.Stream[IO, Byte],

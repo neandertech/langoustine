@@ -260,8 +260,12 @@ object Frontend:
   val myApp =
     div(
       fontFamily := "'Wotfard',Futura,-apple-system,sans-serif",
-      h1("Langoustine tracer"),
-      p("welcome to the future of LSP tooling"),
+      div(
+        display.flex,
+        alignItems.center,
+        h1("Langoustine tracer"),
+        p(marginLeft := "15px", "welcome to the future of LSP tooling")
+      ),
       switcher,
       child <-- page.signal.map {
         case Page.Commands =>

@@ -48,18 +48,20 @@ object Tracer extends IOApp:
                     .unchunks
                     .through(out)
 
-                redirectInput
-                  .concurrently(redirectOutput)
-                  .concurrently(child.stderr.chunks.evalTap(errBytes.send))
-                  .concurrently(
-                    TracerServer
-                      .create(
-                        inBytes.stream.unchunks,
-                        outBytes.stream.unchunks,
-                        errBytes.stream.unchunks
-                      )
-                      .run(argMap)
+                TracerServer
+                  .create(
+                    inBytes.stream.unchunks,
+                    outBytes.stream.unchunks,
+                    errBytes.stream.unchunks
                   )
+                  .runStream(argMap)
+                  .flatMap { _ =>
+                    redirectInput
+                      .concurrently(redirectOutput)
+                      .concurrently(
+                        child.stderr.chunks.evalTap(errBytes.send)
+                      )
+                  }
               }
           }
         }

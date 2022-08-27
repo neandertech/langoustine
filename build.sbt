@@ -56,6 +56,7 @@ lazy val root = project
   .aggregate(lsp.projectRefs*)
   .aggregate(tracer.projectRefs*)
   .aggregate(tracerShared.projectRefs*)
+  .aggregate(tracerTests.projectRefs*)
   .settings(noPublishing)
 
 lazy val meta = projectMatrix
@@ -133,9 +134,6 @@ lazy val tracer = projectMatrix
 
         IO.write(outDir / "index.html", indexFileContents)
 
-        println(outDir / "index.html")
-        println(indexFileContents)
-
         IO.listFiles(location).toList.map { file =>
           val (name, ext) = file.baseAndExt
           val out         = outDir / (name + "." + ext)
@@ -187,6 +185,19 @@ lazy val tracerShared = projectMatrix
   )
   .jsPlatform(scalaVersions)
   .jvmPlatform(scalaVersions)
+
+lazy val tracerTests = projectMatrix
+  .in(file("modules/tracer/tests"))
+  .defaultAxes(default*)
+  .dependsOn(tracer)
+  .settings(
+    libraryDependencies += "org.http4s" %%% "http4s-ember-client" % V.http4s % Test,
+    libraryDependencies += "com.disneystreaming" %% "weaver-cats" % "0.7.15" % Test,
+    libraryDependencies += "org.http4s" %% "http4s-jdk-http-client" % "0.7.0" % Test,
+    testFrameworks += new TestFramework("weaver.framework.CatsEffect")
+  )
+  .jvmPlatform(scalaVersions)
+  .settings(noPublishing)
 
 lazy val docs = projectMatrix
   .in(file("docs"))
