@@ -188,13 +188,17 @@ object TracerServerSpec extends IOSuite:
   }
   test("sends logs over websockets") { serv =>
     def logsAreOkay(v: Vector[TracerEvent]) = expect.all(
-      v.collectFirst {
-        case TracerEvent.LogLines(v)
-            if v.contains("first") && v.contains("second") =>
-          true
+      v.collectFirst { case _: TracerEvent.LogLines =>
+        true
       }.isDefined,
       v.contains(TracerEvent.LogLine("log1")),
-      v.contains(TracerEvent.LogLine("log2"))
+      v.contains(TracerEvent.LogLine("log2")),
+      v.collect {
+        case TracerEvent.LogLines(v) => v
+        case TracerEvent.LogLine(v)  => Vector(v)
+      }.flatten
+        .filter(v => v == "first" || v == "second")
+        .toSet == Set("first", "second")
     )
 
   serv.front.ws
