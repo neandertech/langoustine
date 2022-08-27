@@ -24,9 +24,18 @@ import scala.scalajs.js.annotation.JSGlobal
 object hljs extends js.Object:
   def highlightAll(): Unit = js.native
 
+enum Page:
+  case Logs, Commands
+
 object Frontend:
 
-  val showing = Var(Option.empty[Message])
+  val showing       = Var(Option.empty[Message])
+  val page          = Var(Page.Commands)
+  val logs          = Var(Vector.empty[String])
+  val commandFilter = Var(Option.empty[String])
+  val logFilter     = Var(Option.empty[String])
+  val bus           = new EventBus[Double]
+  val logBus        = new EventBus[Double]
 
   def cid(c: CallId) = c match
     case CallId.NumberId(n) => n.toString
@@ -70,55 +79,61 @@ object Frontend:
         div(base, h2("client", marginTop := "0px")),
         div(base, h2("server", marginTop := "0px"), textAlign.right)
       ),
-      msgs.reverse.collect {
-        case rq: Request =>
-          div(
-            base,
-            fromClient,
-            select(rq),
-            button(
-              noBorder,
-              request,
-              b(rq.method),
-              ": ",
-              cid(rq.id),
-              onClick.preventDefault.mapTo(rq) --> showing.someWriter
+      children <-- commandFilter.signal.map { filter =>
+        msgs
+          .filter(m =>
+            filter.isEmpty || m.methodName.exists(
+              _.toLowerCase.contains(filter.getOrElse(""))
             )
           )
-        case rp: Response =>
-          div(
-            select(rp),
-            base,
-            fromServer,
-            button(
-              noBorder,
-              request,
-              b("Response for"),
-              ": ",
-              cid(rp.id),
-              onClick.preventDefault.mapTo(rp) --> showing.someWriter
-            )
-          )
-        case cm: Notification =>
-          div(
-            select(cm),
-            base,
-            if (cm.direction == Direction.ToClient)
-            then fromServer
-            else fromClient,
-            button(
-              noBorder,
-              notif,
-              cm.method,
-              onClick.preventDefault.mapTo(cm) --> showing.someWriter
-            )
-          )
+          .reverse
+          .collect {
+            case rq: Request =>
+              div(
+                base,
+                fromClient,
+                select(rq),
+                button(
+                  noBorder,
+                  request,
+                  b(rq.method),
+                  ": ",
+                  cid(rq.id),
+                  onClick.preventDefault.mapTo(rq) --> showing.someWriter
+                )
+              )
+            case rp: Response =>
+              div(
+                select(rp),
+                base,
+                fromServer,
+                button(
+                  noBorder,
+                  request,
+                  b("Response for"),
+                  ": ",
+                  cid(rp.id),
+                  onClick.preventDefault.mapTo(rp) --> showing.someWriter
+                )
+              )
+            case cm: Notification =>
+              div(
+                select(cm),
+                base,
+                if (cm.direction == Direction.ToClient)
+                then fromServer
+                else fromClient,
+                button(
+                  noBorder,
+                  notif,
+                  cm.method,
+                  onClick.preventDefault.mapTo(cm) --> showing.someWriter
+                )
+              )
+          }
       }
     )
   end timeline
-
-  val bus    = new EventBus[Double]
-  val logBus = new EventBus[Double]
 
   def displayJson[T: JsonValueCodec](rmsg: T) =
     val js = JSON.parse(
@@ -183,21 +198,27 @@ object Frontend:
       ),
       div(
         width := "30%",
-        child <-- bus.events.startWith(Date.now()).flatMap { _ =>
-          Signal
-            .fromFuture(Api.all)
-            .map(_.toVector.flatten)
-            .map(timeline)
-        }
+        input(
+          margin       := "auto",
+          padding      := "5px",
+          fontSize     := "1.3rem",
+          placeholder  := "filter...",
+          borderRadius := "2px",
+          border       := "2px solid lightgrey",
+          onInput.mapToValue.map(s =>
+            Option.when(s.nonEmpty)(s.trim.toLowerCase)
+          ) --> commandFilter.writer
+        ),
+        child <-- bus.events
+          .startWith(Date.now())
+          .flatMap { _ =>
+            Signal
+              .fromFuture(Api.all)
+              .map(_.toVector.flatten)
+              .map(timeline)
+          }
       )
     )
-
-  enum Page:
-    case Logs, Commands
-
-  val page = Var(Page.Commands)
-
-  val logs = Var(Vector.empty[String])
 
   val switcher =
     inline def thing(name: String, set: Page) =
@@ -233,12 +254,30 @@ object Frontend:
       fontSize := "1.3rem",
       padding  := "10px",
       overflow.scroll,
-      pre(code(children <-- logs.signal.map { lines =>
-        lines.map(p(_))
-      }))
+      input(
+        margin       := "auto",
+        padding      := "5px",
+        fontSize     := "1.3rem",
+        placeholder  := "filter...",
+        borderRadius := "2px",
+        border       := "2px solid lightgrey",
+        onInput.mapToValue.map(s =>
+          Option.when(s.nonEmpty)(s.trim.toLowerCase)
+        ) --> logFilter.writer
+      ),
+      pre(
+        code(
+          children <--
+            logs.signal.combineWith(logFilter.signal).map { case (lines, f) =>
+              lines
+                .filter(l => f.isEmpty || f.exists(l.toLowerCase().contains))
+                .map(p(_))
+            }
+        )
+      )
     )
 
-  val myApp =
+  val app =
     div(
       fontFamily := "'Wotfard',Futura,-apple-system,sans-serif",
       div(
@@ -274,6 +313,6 @@ object Frontend:
                 case TracerEvent.LogLines(l) =>
                   logs.update(v => v.drop(v.length + l.length - 1000) ++ l)
       )
-      render(dom.document.getElementById("appContainer"), myApp)
+      render(dom.document.getElementById("appContainer"), app)
     }(unsafeWindowOwner)
 end Frontend

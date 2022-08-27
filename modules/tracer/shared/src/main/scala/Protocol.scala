@@ -36,6 +36,11 @@ enum Message:
       error: Option[ErrorPayload],
       direction: Direction
   ) extends Message
+
+  def methodName: Option[String] = this match
+    case r: Request      => Some(r.method)
+    case r: Notification => Some(r.method)
+    case _               => None
 end Message
 
 object Message:
