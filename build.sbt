@@ -39,6 +39,7 @@ val V = new {
   val fs2        = "3.2.12"
   val http4s     = "0.23.15"
   val laminar    = "0.14.2"
+  val decline    = "2.2.0"
 }
 
 lazy val noPublishing = Seq(
@@ -56,6 +57,7 @@ lazy val root = project
   .aggregate(lsp.projectRefs*)
   .aggregate(tracer.projectRefs*)
   .aggregate(tracerShared.projectRefs*)
+  .aggregate(tracerTests.projectRefs*)
   .settings(noPublishing)
 
 lazy val meta = projectMatrix
@@ -103,19 +105,37 @@ lazy val generate = projectMatrix
 lazy val tracer = projectMatrix
   .in(file("modules/tracer/backend"))
   .dependsOn(lsp, tracerShared)
+  .enablePlugins(JavaAppPackaging)
   .defaultAxes(default*)
   .settings(
     name                                   := "langoustine-tracer",
     libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2" % V.jsonrpclib,
     libraryDependencies += "co.fs2"       %%% "fs2-io"         % V.fs2,
-    libraryDependencies += "org.http4s" %%% "http4s-ember-server" % V.http4s,
-    libraryDependencies += "org.http4s" %%% "http4s-dsl"          % V.http4s,
+    libraryDependencies += "org.http4s"   %%% "http4s-ember-server" % V.http4s,
+    libraryDependencies += "org.http4s"   %%% "http4s-dsl"          % V.http4s,
+    libraryDependencies += "com.monovore" %%% "decline"             % V.decline,
     // embedding frontend in backend's resources
     Compile / resourceGenerators += {
       Def.task[Seq[File]] {
         val (_, location) = (ThisBuild / frontendOutput).value
-
+        val indexFile =
+          (ThisBuild / baseDirectory).value / "modules" / "tracer" / "frontend" / "index.html"
         val outDir = (Compile / resourceManaged).value / "assets"
+
+        val indexFileContents = {
+          val lines = IO.readLines(indexFile)
+
+          val newLines = lines.collect {
+            case l if l.contains("<!-- REPLACE -->") =>
+              """<script type="text/javascript" src="/assets/main.js"></script>"""
+            case l => l
+          }
+
+          newLines.mkString(System.lineSeparator())
+        }
+
+        IO.write(outDir / "index.html", indexFileContents)
+
         IO.listFiles(location).toList.map { file =>
           val (name, ext) = file.baseAndExt
           val out         = outDir / (name + "." + ext)
@@ -123,7 +143,7 @@ lazy val tracer = projectMatrix
           IO.copyFile(file, out)
 
           out
-        }
+        } :+ (outDir / "index.html")
       }
     }
   )
@@ -167,6 +187,19 @@ lazy val tracerShared = projectMatrix
   )
   .jsPlatform(scalaVersions)
   .jvmPlatform(scalaVersions)
+
+lazy val tracerTests = projectMatrix
+  .in(file("modules/tracer/tests"))
+  .defaultAxes(default*)
+  .dependsOn(tracer)
+  .settings(
+    libraryDependencies += "org.http4s" %%% "http4s-ember-client" % V.http4s % Test,
+    libraryDependencies += "com.disneystreaming" %% "weaver-cats" % "0.7.15" % Test,
+    libraryDependencies += "org.http4s" %% "http4s-jdk-http-client" % "0.7.0" % Test,
+    testFrameworks += new TestFramework("weaver.framework.CatsEffect")
+  )
+  .jvmPlatform(scalaVersions)
+  .settings(noPublishing)
 
 lazy val docs = projectMatrix
   .in(file("docs"))

@@ -2,9 +2,8 @@ package langoustine
 package tracer
 
 import jsonrpclib.fs2.*
-import cats.effect.IOApp
-import cats.effect.ExitCode
-import cats.effect.IO
+import cats.effect.*
+import cats.syntax.all.*
 import fs2.Chunk
 
 import org.http4s.EntityEncoder
@@ -14,58 +13,64 @@ import jsonrpclib.CallId
 
 object Tracer extends IOApp:
   def run(args: List[String]): IO[ExitCode] =
-    val in  = fs2.io.stdin[IO](512)
-    val out = fs2.io.stdout[IO]
+    Config.command.parse(args, sys.env) match
+      case Left(help) =>
+        if help.errors.isEmpty then
+          IO.consoleForIO.errorln(help).as(ExitCode.Success)
+        else IO.consoleForIO.errorln(help).as(ExitCode.Error)
 
-    val tracerArgs = args.takeWhile(_.startsWith("!")).map(_.drop(1))
+      case Right(c) =>
+        Launch(c)
 
-    val restArgs = args.drop(tracerArgs.length)
-
-    val argMap = tracerArgs
-      .grouped(2)
-      .collect { case k :: v :: Nil =>
-        k -> v
-      }
-      .toMap
-
-    val byteTopic =
-      fs2.Stream.eval(fs2.concurrent.Channel.unbounded[IO, Chunk[Byte]])
-
-    byteTopic
-      .flatMap { inBytes =>
-        byteTopic.flatMap { outBytes =>
-          byteTopic.flatMap { errBytes =>
-            ChildProcess
-              .spawn[IO](restArgs*)
-              .flatMap { child =>
-
-                val redirectInput =
-                  in.chunks.evalTap(inBytes.send).unchunks.through(child.stdin)
-
-                val redirectOutput =
-                  child.stdout.chunks
-                    .evalTap(outBytes.send)
-                    .unchunks
-                    .through(out)
-
-                redirectInput
-                  .concurrently(redirectOutput)
-                  .concurrently(child.stderr.chunks.evalTap(errBytes.send))
-                  .concurrently(
-                    TracerServer
-                      .create(
-                        inBytes.stream.unchunks,
-                        outBytes.stream.unchunks,
-                        errBytes.stream.unchunks
-                      )
-                      .run(argMap)
-                  )
-              }
-          }
-        }
-      }
-      .compile
-      .drain
-      .as(ExitCode(0))
   end run
 end Tracer
+
+def Launch(config: Config) =
+  val byteTopic =
+    Resource.eval(fs2.concurrent.Channel.synchronous[IO, Chunk[Byte]])
+
+  val in  = fs2.io.stdin[IO](512)
+  val out = fs2.io.stdout[IO]
+
+  (byteTopic, byteTopic, byteTopic).parTupled
+    .flatMap { case (inBytes, outBytes, errBytes) =>
+      ChildProcess.resource[IO](config.cmd.toList*).flatMap { child =>
+        val redirectInput =
+          in.chunks
+            .evalTap(inBytes.send)
+            .unchunks
+            .through(child.stdin)
+            .compile
+            .drain
+            .background
+
+        val redirectOutput =
+          child.stdout.chunks
+            .evalTap(outBytes.send)
+            .unchunks
+            .through(out)
+            .compile
+            .drain
+            .background
+
+        val redirectLogs =
+          child.stderr.chunks
+            .evalTap(errBytes.send)
+            .compile
+            .drain
+            .background
+
+        val server = TracerServer
+          .create(
+            inBytes.stream.unchunks,
+            outBytes.stream.unchunks,
+            errBytes.stream.unchunks
+          )
+          .runResource(config)
+
+        (redirectInput, redirectOutput, redirectLogs, server).parTupled
+      }
+    }
+    .useForever
+    .as(ExitCode.Success)
+end Launch

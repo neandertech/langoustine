@@ -16,6 +16,9 @@ object ChildProcess:
   def spawn[F[_]: Async](command: String*): Stream[F, ChildProcess[F]] =
     Stream.bracket(start[F](command))(_._2).map(_._1)
 
+  def resource[F[_]: Async](command: String*): Resource[F, ChildProcess[F]] =
+    Resource.make(start[F](command))(_._2).map(_._1)
+
   val readBufferSize = 512
   private def start[F[_]: Async](command: Seq[String]) =
     Async[F].interruptible {

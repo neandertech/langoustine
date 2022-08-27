@@ -1,64 +1,41 @@
 package langoustine.tracer
 
-import com.raquo.laminar.api.L.*
-import org.scalajs.dom
-import org.scalajs.dom.Fetch.fetch
-
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.concurrent.duration.*
+import scala.scalajs.js
+import scala.scalajs.js.Thenable.Implicits.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
-import langoustine.tracer.Message
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
+import com.raquo.laminar.api.L.*
 import jsonrpclib.CallId
-import scala.scalajs.js.JSON
-import scala.scalajs.js.Date
-import org.scalajs.dom.WebSocket
+import langoustine.tracer.Message
+import org.scalajs.dom
 import org.scalajs.dom.Event
+import org.scalajs.dom.Fetch.fetch
 import org.scalajs.dom.MessageEvent
+import org.scalajs.dom.WebSocket
+import scala.scalajs.js.Date
+import scala.scalajs.js.JSON
+import scala.scalajs.js.annotation.JSGlobal
 
-object Api:
-  import scala.concurrent.ExecutionContext.Implicits.global
-  import scala.concurrent.Future
-  import scala.concurrent.duration.*
-  import scala.scalajs.js
-  import scala.scalajs.js.Thenable.Implicits.*
+@js.native
+@JSGlobal
+object hljs extends js.Object:
+  def highlightAll(): Unit = js.native
 
-  given JsonValueCodec[Vector[Message]]        = JsonCodecMaker.make
-  given rw: JsonValueCodec[Vector[RawMessage]] = JsonCodecMaker.make
-
-  def all: Future[Vector[Message]] =
-    fetch("/api/all")
-      .flatMap(_.text())
-      .map(str => readFromStringReentrant[Vector[Message]](str))
-
-  def rawAll: Future[Vector[RawMessage]] =
-    fetch("/api/raw/all")
-      .flatMap(_.text())
-      .map(str => readFromStringReentrant[Vector[RawMessage]](str))
-
-  def request(id: String): Future[Option[RawMessage]] =
-    fetch(s"/api/raw/request/$id")
-      .flatMap(resp =>
-        if resp.status == 200 then
-          resp
-            .text()
-            .map(readFromStringReentrant[RawMessage](_))
-            .map(Option.apply)
-        else Future.successful(None)
-      )
-  def response(id: String): Future[Option[RawMessage]] =
-    fetch(s"/api/raw/response/$id")
-      .flatMap(resp =>
-        if resp.status == 200 then
-          resp
-            .text()
-            .map(readFromStringReentrant[RawMessage](_))
-            .map(Option.apply)
-        else Future.successful(None)
-      )
-end Api
+enum Page:
+  case Logs, Commands
 
 object Frontend:
 
-  val showing = Var(Option.empty[Message.Request | Message.Response])
+  val showing       = Var(Option.empty[Message])
+  val page          = Var(Page.Commands)
+  val logs          = Var(Vector.empty[String])
+  val commandFilter = Var(Option.empty[String])
+  val logFilter     = Var(Option.empty[String])
+  val bus           = new EventBus[Double]
+  val logBus        = new EventBus[Double]
 
   def cid(c: CallId) = c match
     case CallId.NumberId(n) => n.toString
@@ -102,102 +79,146 @@ object Frontend:
         div(base, h2("client", marginTop := "0px")),
         div(base, h2("server", marginTop := "0px"), textAlign.right)
       ),
-      msgs.reverse.collect {
-        case rq @ Request(method, callId) =>
-          div(
-            base,
-            fromClient,
-            select(rq),
-            button(
-              noBorder,
-              request,
-              b(method),
-              ": ",
-              cid(callId),
-              onClick.preventDefault.mapTo(rq) --> showing.someWriter
+      children <-- commandFilter.signal.map { filter =>
+        msgs
+          .filter(m =>
+            filter.isEmpty || m.methodName.exists(
+              _.toLowerCase.contains(filter.getOrElse(""))
             )
           )
-        case rp @ Response(id) =>
-          div(
-            select(rp),
-            base,
-            fromServer,
-            button(
-              noBorder,
-              request,
-              b("Response for"),
-              ": ",
-              cid(id),
-              onClick.preventDefault.mapTo(rp) --> showing.someWriter
-            )
-          )
-        case ClientNotification(method) =>
-          div(base, button(noBorder, notif, fromClient, method))
-        case ServerNotification(method) =>
-          div(base, button(noBorder, notif, fromServer, method))
+          .reverse
+          .collect {
+            case rq: Request =>
+              div(
+                base,
+                fromClient,
+                select(rq),
+                button(
+                  noBorder,
+                  request,
+                  b(rq.method),
+                  ": ",
+                  cid(rq.id),
+                  onClick.preventDefault.mapTo(rq) --> showing.someWriter
+                )
+              )
+            case rp: Response =>
+              div(
+                select(rp),
+                base,
+                fromServer,
+                button(
+                  noBorder,
+                  request,
+                  b("Response for"),
+                  ": ",
+                  cid(rp.id),
+                  onClick.preventDefault.mapTo(rp) --> showing.someWriter
+                )
+              )
+            case cm: Notification =>
+              div(
+                select(cm),
+                base,
+                if (cm.direction == Direction.ToClient)
+                then fromServer
+                else fromClient,
+                button(
+                  noBorder,
+                  notif,
+                  cm.method,
+                  onClick.preventDefault.mapTo(cm) --> showing.someWriter
+                )
+              )
+          }
       }
     )
   end timeline
 
-  val bus    = new EventBus[Double]
-  val logBus = new EventBus[Double]
+  def displayJson[T: JsonValueCodec](rmsg: T) =
+    val js = JSON.parse(
+      writeToStringReentrant(
+        rmsg
+      )
+    )
+
+    pre(
+      code(
+        className := "language-json",
+        JSON.stringify(js, space = 2),
+        onMountCallback(ctx => hljs.highlightAll())
+      )
+    )
+  end displayJson
+
+  import jsonrpclib.{ErrorPayload, Payload}
+
+  def displayErr(ep: ErrorPayload) =
+    div(b(color := "pink", "Error"), displayJson(ep))
+
+  given JsonValueCodec[Option[Payload]] = JsonCodecMaker.make
+
+  def displayPayload(name: String, op: Option[Payload]) =
+    div(b(color := "lightgreen", name, displayJson(op)))
 
   val commandTracer =
     div(
       styleAttr := "display:flex; align-content:stretch; gap: 15px; height: 100%;",
       div(
-        width           := "100%",
+        width           := "70%",
         borderRadius    := "5px",
-        backgroundColor := "black",
+        backgroundColor := "#0d1117",
         color.white,
         fontSize := "1.3rem",
         padding  := "10px",
+        position := "sticky",
+        top      := "0",
         overflow.scroll,
-        child <-- showing.signal.flatMap {
-          case None => Signal.fromValue(p(""))
+        child <-- showing.signal.map {
+          case None => i("Select any operation on the right to see its result")
+
           case Some(req: Message.Request) =>
-            Signal.fromFuture(Api.request(cid(req.id))).map(_.flatten).map {
-              case None => i("not found...")
-              case Some(rmsg) =>
-                val js = JSON.parse(
-                  writeToStringReentrant(
-                    rmsg
-                  )
-                )
+            displayPayload("Params", req.params)
 
-                pre(JSON.stringify(js, space = 2))
-            }
           case Some(req: Message.Response) =>
-            Signal.fromFuture(Api.response(cid(req.id))).map(_.flatten).map {
-              case None => i("not found...")
-              case Some(rmsg) =>
-                val js = JSON.parse(
-                  writeToStringReentrant(
-                    rmsg
-                  )
-                )
+            req.result match
+              case Left(ep) =>
+                displayErr(ep)
+              case Right(op) =>
+                displayPayload("Result", op)
 
-                pre(JSON.stringify(js, space = 2))
-            }
+          case Some(cm: Message.Notification) =>
+            (cm.params, cm.error) match
+              case (None, None) => i("no error or payload")
+              case (_, Some(err)) =>
+                displayErr(err)
+              case (p, None) =>
+                displayPayload("Params", p)
         }
       ),
       div(
-        width := "100%",
-        child <-- bus.events.startWith(Date.now()).flatMap { _ =>
-          Signal
-            .fromFuture(Api.all)
-            .map(_.toVector.flatten)
-            .map(timeline)
-        }
+        width := "30%",
+        input(
+          margin       := "auto",
+          padding      := "5px",
+          fontSize     := "1.3rem",
+          placeholder  := "filter...",
+          borderRadius := "2px",
+          border       := "2px solid lightgrey",
+          onInput.mapToValue.map(s =>
+            Option.when(s.nonEmpty)(s.trim.toLowerCase)
+          ) --> commandFilter.writer
+        ),
+        child <-- bus.events
+          .startWith(Date.now())
+          .flatMap { _ =>
+            Signal
+              .fromFuture(Api.all)
+              .map(_.toVector.flatten)
+              .map(timeline)
+          }
       )
     )
-
-  enum Page:
-    case Logs, Commands
-
-  val page = Var(Page.Commands)
-
-  val logs = Var(Vector.empty[String])
 
   val switcher =
     inline def thing(name: String, set: Page) =
@@ -233,16 +254,38 @@ object Frontend:
       fontSize := "1.3rem",
       padding  := "10px",
       overflow.scroll,
-      pre(code(children <-- logs.signal.map { lines =>
-        lines.map(p(_))
-      }))
+      input(
+        margin       := "auto",
+        padding      := "5px",
+        fontSize     := "1.3rem",
+        placeholder  := "filter...",
+        borderRadius := "2px",
+        border       := "2px solid lightgrey",
+        onInput.mapToValue.map(s =>
+          Option.when(s.nonEmpty)(s.trim.toLowerCase)
+        ) --> logFilter.writer
+      ),
+      pre(
+        code(
+          children <--
+            logs.signal.combineWith(logFilter.signal).map { case (lines, f) =>
+              lines
+                .filter(l => f.isEmpty || f.exists(l.toLowerCase().contains))
+                .map(p(_))
+            }
+        )
+      )
     )
 
-  val myApp =
+  val app =
     div(
       fontFamily := "'Wotfard',Futura,-apple-system,sans-serif",
-      h1("Langoustine tracer"),
-      p("welcome to the future of LSP tooling"),
+      div(
+        display.flex,
+        alignItems.center,
+        h1("Langoustine tracer"),
+        p(marginLeft := "15px", "welcome to the future of LSP tooling")
+      ),
       switcher,
       child <-- page.signal.map {
         case Page.Commands =>
@@ -270,6 +313,6 @@ object Frontend:
                 case TracerEvent.LogLines(l) =>
                   logs.update(v => v.drop(v.length + l.length - 1000) ++ l)
       )
-      render(dom.document.getElementById("appContainer"), myApp)
+      render(dom.document.getElementById("appContainer"), app)
     }(unsafeWindowOwner)
 end Frontend

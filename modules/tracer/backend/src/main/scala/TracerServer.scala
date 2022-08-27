@@ -1,41 +1,30 @@
 package langoustine.tracer
 
-import jsonrpclib.fs2.*
-import cats.effect.IOApp
-import cats.effect.ExitCode
 import cats.effect.IO
-import fs2.Chunk
-import org.http4s.EntityEncoder
-import jsonrpclib.Payload
-import jsonrpclib.ErrorPayload
-import jsonrpclib.CallId
-import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
-import cats.effect.kernel.Ref
 import cats.effect.std.Console
-import jsonrpclib.Codec
+import cats.effect.Ref
+import cats.effect.kernel.Clock
+import com.comcast.ip4s.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 import com.github.plokhotnyuk.jsoniter_scala.macros.*
-import org.http4s.headers.*
-
-import org.http4s.*
-import org.http4s.headers.`Content-Type`
-import org.http4s.dsl.*
-
-import org.http4s.ember.server.EmberServerBuilder
-import cats.effect.IO
-import org.http4s.HttpApp
-import scala.concurrent.duration.*
-
-import com.comcast.ip4s.*
-import org.http4s.server.Router
-
+import fs2.concurrent.Channel
+import fs2.concurrent.SignallingRef
+import fs2.text
+import jsonrpclib.CallId
+import jsonrpclib.Codec
+import jsonrpclib.Payload
+import jsonrpclib.fs2.lsp
 import langoustine.tracer.{Message as LspMessage}
+import org.http4s.*
+import org.http4s.HttpApp
+import org.http4s.dsl.*
+import org.http4s.ember.server.EmberServerBuilder
+import org.http4s.headers.`Content-Type`
+import org.http4s.server.Router
 import org.http4s.server.websocket.WebSocketBuilder2
 import org.http4s.websocket.WebSocketFrame
-import cats.effect.kernel.Clock
-import fs2.concurrent.SignallingRef
-import fs2.concurrent.Channel
-import fs2.text
+import scala.concurrent.duration.*
+import cats.effect.kernel.Resource
 
 class TracerServer private (
     in: fs2.Stream[IO, Byte],
@@ -46,14 +35,10 @@ class TracerServer private (
     import state.*
     in
       .through(lsp.decodePayloads[IO])
-      .evalMap(p =>
-        IO.monotonic
-          .map(_.toMillis.toLong)
-          .flatMap(lng =>
-            IO.fromEither(Codec.decode[RawMessage](Some(p)))
-              .map(Received(lng, _))
-          )
-      )
+      .evalMap(decodeRaw(_, state))
+      .collect { case Some(v) =>
+        v
+      }
       .evalTap(rw => raw.update(_ :+ rw))
       .evalMap(rm =>
         rf.update(
@@ -64,18 +49,21 @@ class TracerServer private (
       )
   end dumpRequests
 
+  def decodeRaw(p: Payload, st: State) =
+    IO(Codec.decode[RawMessage](Some(p))).flatMap {
+      case Left(err) =>
+        st.ch.send(s"[Tracer] hard failed to decode $p, error: $err").as(None)
+      case Right(v) => Received.capture(v).map(Option.apply)
+    }
+
   def dumpResponses(state: State) =
     import state.*
     out
       .through(lsp.decodePayloads[IO])
-      .evalMap(p =>
-        IO.monotonic
-          .map(_.toMillis.toLong)
-          .flatMap(lng =>
-            IO.fromEither(Codec.decode[RawMessage](Some(p)))
-              .map(Received(lng, _))
-          )
-      )
+      .evalMap(decodeRaw(_, state))
+      .collect { case Some(v) =>
+        v
+      }
       .evalTap(rw => raw.update(_ :+ rw))
       .evalMap(rm =>
         rf.update(
@@ -124,29 +112,38 @@ class TracerServer private (
         ch     <- Channel.bounded[IO, String](128)
       yield State(ch, rf, raw, logBuf)
 
-  def run(argMap: Map[String, String]) =
-    fs2.Stream.eval(State.create).flatMap { state =>
-      fs2.Stream
-        .resource(
-          Server(
-            wbs =>
-              ErrorHandling
-                .httpApp(handleErrors(app(wbs, state))),
-            argMap
-          )
-        )
-        .flatMap { _ =>
-          dumpRequests(state)
-            .concurrently(dumpResponses(state))
-            .concurrently(dumpLogs(state))
-        }
+  def runStream(config: Config) =
+    fs2.Stream.resource(runResource(config))
+
+  def runResource(config: Config) =
+    Resource.eval(State.create).flatMap { state =>
+      val run = Server(
+        wbs =>
+          ErrorHandling
+            .httpApp(handleErrors(app(wbs, state))),
+        config
+      )
+      val dump = dumpRequests(state)
+        .concurrently(dumpResponses(state))
+        .concurrently(dumpLogs(state))
+        .compile
+        .drain
+        .background
+
+      (run, dump).parMapN((s, _) => s)
     }
+
+  import org.http4s.dsl.io.*
 
   import org.http4s.dsl.io.*
 
   import TracerServer.given
 
   case class Received[T](timestamp: Long, value: T)
+  object Received:
+    def capture[T](t: T) = IO.monotonic.map(lng => Received(lng.toMillis, t))
+    def captureF[T](t: IO[T]) =
+      IO.monotonic.flatMap(lng => t.map(Received(lng.toMillis, _)))
 
   def app(
       wbs: WebSocketBuilder2[IO],
@@ -179,6 +176,9 @@ class TracerServer private (
       case GET -> Root / "all" =>
         rf.get.map(_.sortBy(_.timestamp).map(_.value)).flatMap(Ok(_))
 
+      case GET -> Root / "logs" =>
+        logBuf.get.flatMap(Ok(_))
+
       case GET -> Root / "raw" / "all" =>
         raw.get.map(_.sortBy(_.timestamp).map(_.value)).flatMap(Ok(_))
 
@@ -188,7 +188,10 @@ class TracerServer private (
 
         raw.get.flatMap { messages =>
           val found = messages.collectFirst {
-            case Received(_, r) if asLong == r.id || r.id.contains(asStr) =>
+            case Received(_, r)
+                if (asLong == r.id || r.id.contains(
+                  asStr
+                )) && r.method.nonEmpty =>
               r
           }
 
@@ -219,12 +222,12 @@ class TracerServer private (
 
   def Server(
       app: WebSocketBuilder2[IO] => HttpApp[IO],
-      argMap: Map[String, String]
-  ) =
+      config: Config
+  ): Resource[cats.effect.IO, server.Server] =
     EmberServerBuilder
       .default[IO]
       .withPort(
-        argMap.get("--port").flatMap(Port.fromString).getOrElse(port"9977")
+        Port.fromInt(config.port).get
       )
       .withHost(host"localhost")
       .withShutdownTimeout(1.second)
@@ -237,6 +240,7 @@ object TracerServer:
   given msg: JsonValueCodec[Vector[LspMessage]] = JsonCodecMaker.make
   given raw: JsonValueCodec[Vector[RawMessage]] = JsonCodecMaker.make
 
+  given JsonValueCodec[Vector[String]] = JsonCodecMaker.make
   given jsonEncoder[T: JsonValueCodec]: EntityEncoder[IO, T] =
     EntityEncoder
       .byteArrayEncoder[IO]
@@ -244,6 +248,9 @@ object TracerServer:
       .withContentType(
         `Content-Type`(MediaType.application.json, Some(Charset.`UTF-8`))
       )
+
+  given jsonDecoder[T: JsonValueCodec]: EntityDecoder[IO, T] =
+    EntityDecoder.byteArrayDecoder[IO].map(readFromArray[T](_))
 
   def create(
       in: fs2.Stream[IO, Byte],
