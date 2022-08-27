@@ -9,7 +9,7 @@ It doesn't matter what the target LSP is implemented with, as we only intercept 
 
 Currently, primary method of distribution is via [Coursier](https://get-coursier.io/docs/overview).
 
-To integrate with an LSP of your choosing, you need to have access to the CLI command that launches is.
+To integrate with an LSP of your choosing, you need to have access to the CLI command that launches it.
 
 The principle remains the same regardless of the editor:
 
@@ -29,7 +29,7 @@ cs boostrap tech.neander:langoustine-tracer_3:latest.release -f -o langoustine-t
 # now you can use ./langoustine-tracer,
 # put it somewhere on your PATH so that it's globally avalable
 # and use it like this:
-langoustine-tracer --port 9911 my-awesome lsp --stdin true
+langoustine-tracer my-awesome lsp --stdin true
 ```
 
 Alternatively, if your system was setup with coursier (i.e. the path where it puts 
@@ -48,14 +48,11 @@ For example, if your command to launch the LSP is `my-awesome lsp --stdin true`,
 langoustine-tracer my-awesome lsp --stdin true
 ```
 
-Tracer will interpret everything after the **first `--`** as the command that launches your LSP.
-Everything **before first `--`** will be used to configure the tracer itself.
-
 ## Tips
 
 ### Changing port
 
-By default, it will start the server at the port **9977** but you can change that using the `--port` argument:
+By default, it will start the server at random port, but you can change that using the `--port` argument:
 
 ```
 langoustine-tracer --port 9911 my-awesome lsp --stdin true
@@ -70,3 +67,17 @@ alias langoustine-tracer=<path-to-langoustine>/modules/tracer/backend/target/jvm
 ```
 
 That launcher is created by running `sbt tracer/stage`
+
+If your focus is on the frontend, you can speed up your development
+cycle considerably by doing the following:
+
+1. Start your traced LSP somehow (doesn't matter if it's a coursier-installed one 
+   or your local) 
+2. Take note of the port number 
+3. `cd modules/tracer/frontend`
+4. `LANGOUSTINE_PORT=<port> npm run dev`
+5. In a separate terminal, run `sbt ~tracerFrontendJS/fastLinkJS`
+
+Now you can edit just the frontend code and Vite will automatically refresh 
+the page - no need to restart the LSP to pick up changes.
+

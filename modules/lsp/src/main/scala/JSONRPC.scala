@@ -23,7 +23,7 @@ import upickle.default.*
 
 import util.chaining.*
 
-private[lsp] object jsonrpcIntegration:
+private[langoustine] object jsonrpcIntegration:
   given codec[T: Reader: Writer]: Codec[T] =
     new Codec[T]:
       override def decode(

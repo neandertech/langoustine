@@ -12,8 +12,7 @@ object Config:
     val portHelo = "Port to start Tracer on"
     Opts
       .option[Int]("port", portHelo)
-      .orElse(Opts.env[Int]("PORT", portHelo))
-      .withDefault(9977)
+      .withDefault(0)
 
   val lsp = Opts.arguments[String]("lspCommand")
 
