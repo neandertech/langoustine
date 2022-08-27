@@ -29,7 +29,7 @@ cs boostrap tech.neander:langoustine-tracer_3:latest.release -f -o langoustine-t
 # now you can use ./langoustine-tracer,
 # put it somewhere on your PATH so that it's globally avalable
 # and use it like this:
-langoustine-tracer --port 9911 my-awesome lsp --stdin true
+langoustine-tracer my-awesome lsp --stdin true
 ```
 
 Alternatively, if your system was setup with coursier (i.e. the path where it puts 
@@ -55,7 +55,7 @@ Everything **before first `--`** will be used to configure the tracer itself.
 
 ### Changing port
 
-By default, it will start the server at the port **9977** but you can change that using the `--port` argument:
+By default, it will start the server at random port, but you can change that using the `--port` argument:
 
 ```
 langoustine-tracer --port 9911 my-awesome lsp --stdin true

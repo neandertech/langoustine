@@ -10,6 +10,10 @@ import org.http4s.EntityEncoder
 import jsonrpclib.Payload
 import jsonrpclib.ErrorPayload
 import jsonrpclib.CallId
+import langoustine.lsp.requests.textDocument
+import langoustine.lsp.requests.window
+import langoustine.lsp.structures.ShowMessageParams
+import com.github.plokhotnyuk.jsoniter_scala.core.*
 
 object Tracer extends IOApp:
   def run(args: List[String]): IO[ExitCode] =
@@ -29,12 +33,43 @@ def Launch(config: Config) =
   val byteTopic =
     Resource.eval(fs2.concurrent.Channel.synchronous[IO, Chunk[Byte]])
 
-  val in  = fs2.io.stdin[IO](512)
-  val out = fs2.io.stdout[IO]
+  val latch =
+    Resource.eval(IO.deferred[org.http4s.Uri])
 
-  (byteTopic, byteTopic, byteTopic).parTupled
-    .flatMap { case (inBytes, outBytes, errBytes) =>
+  val in             = fs2.io.stdin[IO](512)
+  val out            = fs2.io.stdout[IO]
+  val currentFolder  = System.getProperty("user.dir")
+  val currentCommand = config.cmd.toList
+  val summary        = Summary(currentFolder, currentCommand)
+
+  (byteTopic, byteTopic, byteTopic, latch).parTupled
+    .flatMap { case (inBytes, outBytes, errBytes, outLatch) =>
       ChildProcess.resource[IO](config.cmd.toList*).flatMap { child =>
+
+        import langoustine.lsp.jsonrpcIntegration.given
+
+        def msg(uri: org.http4s.Uri) =
+          s"Langoustine Tracer started at ${uri}"
+
+        def sendHello(uri: org.http4s.Uri) =
+          val params = ShowMessageParams(
+            langoustine.lsp.enumerations.MessageType.Info,
+            msg(uri)
+          )
+          val serialised = jsonrpclib.Codec.encode(params)
+          val asStr      = writeToStringReentrant(serialised)
+          val preamble =
+            s"""{"method": "window/showMessage", "params": $asStr}"""
+          val length  = preamble.getBytes.length
+          val message = s"Content-Length: $length\r\n\r\n$preamble"
+
+          fs2.Stream
+            .chunk(Chunk.array(message.getBytes))
+            .through(out)
+            .compile
+            .drain
+        end sendHello
+
         val redirectInput =
           in.chunks
             .evalTap(inBytes.send)
@@ -45,13 +80,13 @@ def Launch(config: Config) =
             .background
 
         val redirectOutput =
-          child.stdout.chunks
-            .evalTap(outBytes.send)
-            .unchunks
-            .through(out)
-            .compile
-            .drain
-            .background
+          (outLatch.get.flatMap(sendHello) *>
+            child.stdout.chunks
+              .evalTap(outBytes.send)
+              .unchunks
+              .through(out)
+              .compile
+              .drain).background
 
         val redirectLogs =
           child.stderr.chunks
@@ -66,7 +101,11 @@ def Launch(config: Config) =
             outBytes.stream.unchunks,
             errBytes.stream.unchunks
           )
-          .runResource(config)
+          .runResource(config, summary)
+          .evalTap(server =>
+            IO.consoleForIO.errorln(msg(server.baseUri)) *>
+              outLatch.complete(server.baseUri)
+          )
 
         (redirectInput, redirectOutput, redirectLogs, server).parTupled
       }

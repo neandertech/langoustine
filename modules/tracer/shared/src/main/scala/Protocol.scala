@@ -82,3 +82,7 @@ object RawMessage:
   ) =
     RawMessage("2.0", method, result, error, params, id)
 end RawMessage
+
+case class Summary(workingFolder: String, serverCommand: List[String])
+object Summary:
+  given JsonValueCodec[Summary] = JsonCodecMaker.make

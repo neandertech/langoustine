@@ -280,11 +280,25 @@ object Frontend:
   val app =
     div(
       fontFamily := "'Wotfard',Futura,-apple-system,sans-serif",
+      margin     := "10px",
       div(
         display.flex,
-        alignItems.center,
-        h1("Langoustine tracer"),
-        p(marginLeft := "15px", "welcome to the future of LSP tooling")
+        justifyContent.spaceBetween,
+        div(
+          h1(marginTop := "0px", "Langoustine tracer"),
+          p(
+            "welcome to the future of LSP tooling"
+          )
+        ),
+        child.maybe <-- Signal.fromFuture(Api.summary).map {
+          _.map { summary =>
+            div(
+              marginLeft := "15px",
+              p(b("In folder: "), summary.workingFolder),
+              p(b("LSP command: "), summary.serverCommand.mkString(" "))
+            )
+          }
+        }
       ),
       switcher,
       child <-- page.signal.map {

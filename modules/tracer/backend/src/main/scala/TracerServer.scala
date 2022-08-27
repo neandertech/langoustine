@@ -112,15 +112,12 @@ class TracerServer private (
         ch     <- Channel.bounded[IO, String](128)
       yield State(ch, rf, raw, logBuf)
 
-  def runStream(config: Config) =
-    fs2.Stream.resource(runResource(config))
-
-  def runResource(config: Config) =
+  def runResource(config: Config, summary: Summary) =
     Resource.eval(State.create).flatMap { state =>
       val run = Server(
         wbs =>
           ErrorHandling
-            .httpApp(handleErrors(app(wbs, state))),
+            .httpApp(handleErrors(app(wbs, state, summary))),
         config
       )
       val dump = dumpRequests(state)
@@ -147,10 +144,14 @@ class TracerServer private (
 
   def app(
       wbs: WebSocketBuilder2[IO],
-      state: State
+      state: State,
+      summary: Summary
   ) =
     import state.*
     val apiRoutes = HttpRoutes.of[IO] {
+      case GET -> Root / "summary" =>
+        Ok(summary)
+
       case GET -> Root / "ws" / "events" =>
         val continuous =
           rf.discrete
