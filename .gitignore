@@ -21,3 +21,5 @@ target
 
 project/metals.sbt
 website
+node_modules
+.scala-build

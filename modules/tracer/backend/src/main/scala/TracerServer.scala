@@ -1,41 +1,29 @@
 package langoustine.tracer
 
-import jsonrpclib.fs2.*
-import cats.effect.IOApp
-import cats.effect.ExitCode
 import cats.effect.IO
-import fs2.Chunk
-import org.http4s.EntityEncoder
-import jsonrpclib.Payload
-import jsonrpclib.ErrorPayload
-import jsonrpclib.CallId
-import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
-import cats.effect.kernel.Ref
 import cats.effect.std.Console
-import jsonrpclib.Codec
+import cats.effect.Ref
+import cats.effect.kernel.Clock
+import com.comcast.ip4s.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 import com.github.plokhotnyuk.jsoniter_scala.macros.*
-import org.http4s.headers.*
-
-import org.http4s.*
-import org.http4s.headers.`Content-Type`
-import org.http4s.dsl.*
-
-import org.http4s.ember.server.EmberServerBuilder
-import cats.effect.IO
-import org.http4s.HttpApp
-import scala.concurrent.duration.*
-
-import com.comcast.ip4s.*
-import org.http4s.server.Router
-
+import fs2.concurrent.Channel
+import fs2.concurrent.SignallingRef
+import fs2.text
+import jsonrpclib.CallId
+import jsonrpclib.Codec
+import jsonrpclib.Payload
+import jsonrpclib.fs2.lsp
 import langoustine.tracer.{Message as LspMessage}
+import org.http4s.*
+import org.http4s.HttpApp
+import org.http4s.dsl.*
+import org.http4s.ember.server.EmberServerBuilder
+import org.http4s.headers.`Content-Type`
+import org.http4s.server.Router
 import org.http4s.server.websocket.WebSocketBuilder2
 import org.http4s.websocket.WebSocketFrame
-import cats.effect.kernel.Clock
-import fs2.concurrent.SignallingRef
-import fs2.concurrent.Channel
-import fs2.text
+import scala.concurrent.duration.*
 
 class TracerServer private (
     in: fs2.Stream[IO, Byte],
@@ -46,14 +34,10 @@ class TracerServer private (
     import state.*
     in
       .through(lsp.decodePayloads[IO])
-      .evalMap(p =>
-        IO.monotonic
-          .map(_.toMillis.toLong)
-          .flatMap(lng =>
-            IO.fromEither(Codec.decode[RawMessage](Some(p)))
-              .map(Received(lng, _))
-          )
-      )
+      .evalMap(decodeRaw(_, state))
+      .collect { case Some(v) =>
+        v
+      }
       .evalTap(rw => raw.update(_ :+ rw))
       .evalMap(rm =>
         rf.update(
@@ -64,18 +48,21 @@ class TracerServer private (
       )
   end dumpRequests
 
+  def decodeRaw(p: Payload, st: State) =
+    IO(Codec.decode[RawMessage](Some(p))).flatMap {
+      case Left(err) =>
+        st.ch.send(s"[Tracer] hard failed to decode $p, error: $err").as(None)
+      case Right(v) => Received.capture(v).map(Option.apply)
+    }
+
   def dumpResponses(state: State) =
     import state.*
     out
       .through(lsp.decodePayloads[IO])
-      .evalMap(p =>
-        IO.monotonic
-          .map(_.toMillis.toLong)
-          .flatMap(lng =>
-            IO.fromEither(Codec.decode[RawMessage](Some(p)))
-              .map(Received(lng, _))
-          )
-      )
+      .evalMap(decodeRaw(_, state))
+      .collect { case Some(v) =>
+        v
+      }
       .evalTap(rw => raw.update(_ :+ rw))
       .evalMap(rm =>
         rf.update(
@@ -147,6 +134,10 @@ class TracerServer private (
   import TracerServer.given
 
   case class Received[T](timestamp: Long, value: T)
+  object Received:
+    def capture[T](t: T) = IO.monotonic.map(lng => Received(lng.toMillis, t))
+    def captureF[T](t: IO[T]) =
+      IO.monotonic.flatMap(lng => t.map(Received(lng.toMillis, _)))
 
   def app(
       wbs: WebSocketBuilder2[IO],

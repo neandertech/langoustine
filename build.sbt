@@ -103,6 +103,7 @@ lazy val generate = projectMatrix
 lazy val tracer = projectMatrix
   .in(file("modules/tracer/backend"))
   .dependsOn(lsp, tracerShared)
+  .enablePlugins(JavaAppPackaging)
   .defaultAxes(default*)
   .settings(
     name                                   := "langoustine-tracer",
@@ -114,8 +115,27 @@ lazy val tracer = projectMatrix
     Compile / resourceGenerators += {
       Def.task[Seq[File]] {
         val (_, location) = (ThisBuild / frontendOutput).value
-
+        val indexFile =
+          (ThisBuild / baseDirectory).value / "modules" / "tracer" / "frontend" / "index.html"
         val outDir = (Compile / resourceManaged).value / "assets"
+
+        val indexFileContents = {
+          val lines = IO.readLines(indexFile)
+
+          val newLines = lines.collect {
+            case l if l.contains("<!-- REPLACE -->") =>
+              """<script type="text/javascript" src="/assets/main.js"></script>"""
+            case l => l
+          }
+
+          newLines.mkString(System.lineSeparator())
+        }
+
+        IO.write(outDir / "index.html", indexFileContents)
+
+        println(outDir / "index.html")
+        println(indexFileContents)
+
         IO.listFiles(location).toList.map { file =>
           val (name, ext) = file.baseAndExt
           val out         = outDir / (name + "." + ext)
@@ -123,7 +143,7 @@ lazy val tracer = projectMatrix
           IO.copyFile(file, out)
 
           out
-        }
+        } :+ (outDir / "index.html")
       }
     }
   )

@@ -1,25 +1,25 @@
 package langoustine.tracer
 
-import com.raquo.laminar.api.L.*
-import org.scalajs.dom
-import org.scalajs.dom.Fetch.fetch
-
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.concurrent.duration.*
+import scala.scalajs.js
+import scala.scalajs.js.Thenable.Implicits.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
-import langoustine.tracer.Message
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
+import com.raquo.laminar.api.L.*
 import jsonrpclib.CallId
-import scala.scalajs.js.JSON
-import scala.scalajs.js.Date
-import org.scalajs.dom.WebSocket
+import langoustine.tracer.Message
+import org.scalajs.dom
 import org.scalajs.dom.Event
+import org.scalajs.dom.Fetch.fetch
 import org.scalajs.dom.MessageEvent
+import org.scalajs.dom.WebSocket
+import scala.scalajs.js.Date
+import scala.scalajs.js.JSON
+import scala.scalajs.js.annotation.JSGlobal
 
 object Api:
-  import scala.concurrent.ExecutionContext.Implicits.global
-  import scala.concurrent.Future
-  import scala.concurrent.duration.*
-  import scala.scalajs.js
-  import scala.scalajs.js.Thenable.Implicits.*
 
   given JsonValueCodec[Vector[Message]]        = JsonCodecMaker.make
   given rw: JsonValueCodec[Vector[RawMessage]] = JsonCodecMaker.make
@@ -55,6 +55,11 @@ object Api:
         else Future.successful(None)
       )
 end Api
+
+@js.native
+@JSGlobal
+object hljs extends js.Object:
+  def highlightAll(): Unit = js.native
 
 object Frontend:
 
@@ -146,12 +151,14 @@ object Frontend:
     div(
       styleAttr := "display:flex; align-content:stretch; gap: 15px; height: 100%;",
       div(
-        width           := "100%",
+        width           := "70%",
         borderRadius    := "5px",
-        backgroundColor := "black",
+        backgroundColor := "#0d1117",
         color.white,
         fontSize := "1.3rem",
         padding  := "10px",
+        position := "sticky",
+        top      := "0",
         overflow.scroll,
         child <-- showing.signal.flatMap {
           case None => Signal.fromValue(p(""))
@@ -165,7 +172,13 @@ object Frontend:
                   )
                 )
 
-                pre(JSON.stringify(js, space = 2))
+                pre(
+                  code(
+                    className := "language-json",
+                    JSON.stringify(js, space = 2),
+                    onMountCallback(ctx => hljs.highlightAll())
+                  )
+                )
             }
           case Some(req: Message.Response) =>
             Signal.fromFuture(Api.response(cid(req.id))).map(_.flatten).map {
@@ -177,12 +190,18 @@ object Frontend:
                   )
                 )
 
-                pre(JSON.stringify(js, space = 2))
+                pre(
+                  code(
+                    className := "language-json",
+                    JSON.stringify(js, space = 2),
+                    onMountCallback(ctx => hljs.highlightAll())
+                  )
+                )
             }
         }
       ),
       div(
-        width := "100%",
+        width := "30%",
         child <-- bus.events.startWith(Date.now()).flatMap { _ =>
           Signal
             .fromFuture(Api.all)
