@@ -14,6 +14,7 @@ import TracerServer.{*, given}
 import org.http4s.Uri
 import org.http4s.ember.client.*
 import org.http4s.client.websocket.*
+import cats.data.NonEmptyList
 
 abstract class ServerSpec extends IOSuite:
   type Res = Feed
@@ -28,7 +29,7 @@ abstract class ServerSpec extends IOSuite:
             out = out.stream.unchunks,
             err = err.stream.unchunks
           )
-          .runResource(Map("--port" -> "9914"))
+          .runResource(Config(9914, NonEmptyList.of("echo")))
 
         import org.http4s.jdkhttpclient.*
 
