@@ -39,7 +39,7 @@ val V = new {
   val fs2        = "3.2.12"
   val http4s     = "0.23.15"
   val laminar    = "0.14.2"
-  val decline    = "2.2.0"
+  val decline    = "2.3.0"
 }
 
 lazy val noPublishing = Seq(
