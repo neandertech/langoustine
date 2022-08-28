@@ -54,7 +54,7 @@ class TracerServer private (
         .drain
         .background
 
-      (run, dump).parMapN((s, _) => s)
+      dump *> run
     }
 
   private def dumpRequests(state: State)  = dump(in, state, Direction.ToServer)
