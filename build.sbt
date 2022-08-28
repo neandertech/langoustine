@@ -180,8 +180,8 @@ lazy val tracerShared = projectMatrix
   .settings(
     name := "langoustine-tracer-shared",
     libraryDependencies ++= Seq(
-      "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-core" % "2.15.0",
-      "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-macros" % "2.15.0" % "compile-internal",
+      "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-core" % "2.16.0",
+      "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-macros" % "2.16.0" % "compile-internal",
       "tech.neander" %%% "jsonrpclib-core" % V.jsonrpclib
     )
   )
