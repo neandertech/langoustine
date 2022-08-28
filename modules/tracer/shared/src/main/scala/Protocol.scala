@@ -4,14 +4,15 @@ import com.github.plokhotnyuk.jsoniter_scala.core.*
 import com.github.plokhotnyuk.jsoniter_scala.macros.*
 
 import jsonrpclib.*
+import scala.util.Try
 
-case class RawMessage private (
+case class RawMessage(
     jsonrpc: String,
     method: Option[String] = None,
     result: Option[Payload] = None,
     error: Option[ErrorPayload] = None,
     params: Option[Payload] = None,
-    id: Option[CallId] = None
+    id: Option[MessageId] = None
 )
 
 enum Direction:
@@ -26,14 +27,13 @@ object TracerEvent:
   given JsonValueCodec[TracerEvent] = JsonCodecMaker.make
 
 enum Message:
-  case Request(method: String, id: CallId, params: Option[Payload])
-      extends Message
-  case Response(id: CallId, result: Either[ErrorPayload, Option[Payload]])
-      extends Message
+  case Request(method: String, id: MessageId) extends Message
+
+  case Response(id: MessageId) extends Message
+
   case Notification(
+      generatedId: MessageId,
       method: String,
-      params: Option[Payload],
-      error: Option[ErrorPayload],
       direction: Direction
   ) extends Message
 
@@ -46,31 +46,58 @@ end Message
 object Message:
   given JsonValueCodec[Message] = JsonCodecMaker.make
 
-  def makeResult(rm: RawMessage): Either[ErrorPayload, Option[Payload]] =
-    rm.error match
-      case None     => Right(rm.result)
-      case Some(er) => Left(er)
-
-  def from(raw: RawMessage, direction: Direction): Option[Message] =
+  def from(
+      raw: RawMessage,
+      direction: Direction,
+      generatedId: MessageId
+  ): Option[Message] =
     raw.id match
       // notification
       case None =>
         raw.method.map(
-          Message.Notification(_, raw.params, raw.error, direction)
+          Message.Notification(generatedId, _, direction)
         )
       case Some(id) =>
         direction match
           case Direction.ToServer =>
-            raw.method.map(Message.Request.apply(_, id, raw.params))
+            raw.method.map(Message.Request.apply(_, id))
           case Direction.ToClient =>
             raw.method match
-              case None       => Some(Message.Response(id, makeResult(raw)))
+              case None       => Some(Message.Response(id))
               case Some(what) => None
 
 end Message
 
+enum MessageId:
+  case StringId(id: String)
+  case NumberId(id: Long)
+  case NullId
+
+object MessageId:
+  given JsonValueCodec[MessageId] = new JsonValueCodec[MessageId]:
+    def decodeValue(in: JsonReader, default: MessageId): MessageId =
+      Try(in.readLong())
+        .map(MessageId.NumberId.apply)
+        .orElse(Try {
+          in.rollbackToken()
+          in.readString(null)
+        }.map(MessageId.StringId.apply))
+        .orElse(scala.util.Success(default))
+        .get
+
+    import MessageId.*
+
+    def encodeValue(x: MessageId, out: JsonWriter): Unit = x match
+      case NumberId(long)   => out.writeVal(long)
+      case StringId(string) => out.writeVal(string)
+      case NullId           => out.writeNull()
+
+    def nullValue: MessageId = MessageId.NullId
+end MessageId
+
 object RawMessage:
   import com.github.plokhotnyuk.jsoniter_scala.macros.*
+
   given JsonValueCodec[RawMessage] = JsonCodecMaker.make
 
   def create(
@@ -78,7 +105,7 @@ object RawMessage:
       result: Option[Payload] = None,
       error: Option[ErrorPayload] = None,
       params: Option[Payload] = None,
-      id: Option[CallId] = None
+      id: Option[MessageId] = None
   ) =
     RawMessage("2.0", method, result, error, params, id)
 end RawMessage

@@ -8,7 +8,6 @@ import _root_.fs2.*
 import cats.syntax.all.*
 import langoustine.tracer.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
-import jsonrpclib.CallId.NumberId
 import org.http4s.client.*
 import TracerServer.{*, given}
 import org.http4s.Uri
@@ -20,7 +19,7 @@ case class Feed(
     out: Chan[IO, Chunk[Byte]],
     err: Chan[IO, Chunk[Byte]],
     front: Front,
-    genId: IO[Option[CallId]]
+    genId: IO[Option[MessageId]]
 ):
   def send(f: this.type => Chan[IO, Chunk[Byte]], rm: RawMessage) =
     val ser = writeToStringReentrant(rm)

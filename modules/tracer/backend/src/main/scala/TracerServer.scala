@@ -10,7 +10,6 @@ import com.github.plokhotnyuk.jsoniter_scala.macros.*
 import fs2.concurrent.Channel
 import fs2.concurrent.SignallingRef
 import fs2.text
-import jsonrpclib.CallId
 import jsonrpclib.Codec
 import jsonrpclib.Payload
 import jsonrpclib.fs2.lsp
@@ -25,92 +24,20 @@ import org.http4s.server.websocket.WebSocketBuilder2
 import org.http4s.websocket.WebSocketFrame
 import scala.concurrent.duration.*
 import cats.effect.kernel.Resource
+import cats.effect.std.Random
+import cats.effect.std.UUIDGen
+import java.util.UUID
+import org.http4s.server.middleware.ErrorHandling
+import cats.syntax.all.*
+import cats.data.Kleisli
+import org.http4s.server.middleware.ErrorHandling
+import TracerServer.{*, given}
 
 class TracerServer private (
     in: fs2.Stream[IO, Byte],
     out: fs2.Stream[IO, Byte],
     err: fs2.Stream[IO, Byte]
 ):
-  def dumpRequests(state: State) =
-    import state.*
-    in
-      .through(lsp.decodePayloads[IO])
-      .evalMap(decodeRaw(_, state))
-      .collect { case Some(v) =>
-        v
-      }
-      .evalTap(rw => raw.update(_ :+ rw))
-      .evalMap(rm =>
-        rf.update(
-          _ ++ LspMessage
-            .from(rm.value, Direction.ToServer)
-            .map(Received(rm.timestamp, _))
-        )
-      )
-  end dumpRequests
-
-  def decodeRaw(p: Payload, st: State) =
-    IO(Codec.decode[RawMessage](Some(p))).flatMap {
-      case Left(err) =>
-        st.ch.send(s"[Tracer] hard failed to decode $p, error: $err").as(None)
-      case Right(v) => Received.capture(v).map(Option.apply)
-    }
-
-  def dumpResponses(state: State) =
-    import state.*
-    out
-      .through(lsp.decodePayloads[IO])
-      .evalMap(decodeRaw(_, state))
-      .collect { case Some(v) =>
-        v
-      }
-      .evalTap(rw => raw.update(_ :+ rw))
-      .evalMap(rm =>
-        rf.update(
-          _ ++ LspMessage
-            .from(rm.value, Direction.ToClient)
-            .map(Received(rm.timestamp, _))
-        )
-      )
-  end dumpResponses
-
-  def dumpLogs(state: State) =
-    err
-      .through(text.utf8.decode[IO])
-      .through(text.lines)
-      .chunks
-      .evalTap { chunk =>
-        state.logBuf.update { lines =>
-          lines.drop(lines.size + chunk.size - 10000) ++ chunk.toVector
-        }
-      }
-      .unchunks
-      .through(state.ch.sendAll)
-
-  import cats.syntax.all.*
-  import cats.data.Kleisli
-  import org.http4s.server.middleware.ErrorHandling
-
-  def handleErrors(routes: HttpRoutes[IO]) =
-    routes.orNotFound.onError { exc =>
-      Kleisli(request => Console[IO].errorln(s"FAILED $request: $exc"))
-    }
-
-  case class State(
-      ch: Channel[IO, String],
-      rf: SignallingRef[IO, Vector[Received[LspMessage]]],
-      raw: SignallingRef[IO, Vector[Received[RawMessage]]],
-      logBuf: Ref[IO, Vector[String]]
-  )
-
-  object State:
-    def create =
-      for
-        raw    <- SignallingRef[IO].of(Vector.empty[Received[RawMessage]])
-        rf     <- SignallingRef[IO].of(Vector.empty[Received[LspMessage]])
-        logBuf <- IO.ref(Vector.empty[String])
-        ch     <- Channel.bounded[IO, String](128)
-      yield State(ch, rf, raw, logBuf)
 
   def runResource(config: Config, summary: Summary) =
     Resource.eval(State.create).flatMap { state =>
@@ -130,19 +57,30 @@ class TracerServer private (
       (run, dump).parMapN((s, _) => s)
     }
 
-  import org.http4s.dsl.io.*
+  private def dumpRequests(state: State)  = dump(in, state, Direction.ToServer)
+  private def dumpResponses(state: State) = dump(out, state, Direction.ToClient)
+
+  private def dumpLogs(state: State) =
+    err
+      .through(text.utf8.decode[IO])
+      .through(text.lines)
+      .chunks
+      .evalTap { chunk =>
+        state.logBuf.update { lines =>
+          lines.drop(lines.size + chunk.size - 10000) ++ chunk.toVector
+        }
+      }
+      .unchunks
+      .through(state.ch.sendAll)
+
+  private def handleErrors(routes: HttpRoutes[IO]) =
+    routes.orNotFound.onError { exc =>
+      Kleisli(request => Console[IO].errorln(s"FAILED $request: $exc"))
+    }
 
   import org.http4s.dsl.io.*
 
-  import TracerServer.given
-
-  case class Received[T](timestamp: Long, value: T)
-  object Received:
-    def capture[T](t: T) = IO.monotonic.map(lng => Received(lng.toMillis, t))
-    def captureF[T](t: IO[T]) =
-      IO.monotonic.flatMap(lng => t.map(Received(lng.toMillis, _)))
-
-  def app(
+  private def app(
       wbs: WebSocketBuilder2[IO],
       state: State,
       summary: Summary
@@ -184,15 +122,15 @@ class TracerServer private (
         raw.get.map(_.sortBy(_.timestamp).map(_.value)).flatMap(Ok(_))
 
       case GET -> Root / "raw" / "request" / id =>
-        val asLong = id.toLongOption.map(CallId.NumberId.apply)
-        val asStr  = CallId.StringId(id)
+        val asLong = id.toLongOption.map(MessageId.NumberId.apply)
+        val asStr  = MessageId.StringId(id)
+
+        inline def idMatches(idOpt: Option[MessageId]) =
+          (asLong == idOpt || idOpt.contains(asStr))
 
         raw.get.flatMap { messages =>
           val found = messages.collectFirst {
-            case Received(_, r)
-                if (asLong == r.id || r.id.contains(
-                  asStr
-                )) && r.method.nonEmpty =>
+            case Received(_, r) if idMatches(r.id) && r.method.nonEmpty =>
               r
           }
 
@@ -200,16 +138,34 @@ class TracerServer private (
             case Some(rm) => Ok(rm)
             case None     => NotFound()
         }
+
       case GET -> Root / "raw" / "response" / id =>
-        val asLong = id.toLongOption.map(CallId.NumberId.apply)
-        val asStr  = CallId.StringId(id)
+        val asLong = id.toLongOption.map(MessageId.NumberId.apply)
+        val asStr  = MessageId.StringId(id)
+
+        inline def idMatches(idOpt: Option[MessageId]) =
+          (asLong == idOpt || idOpt.contains(asStr))
 
         raw.get.flatMap { messages =>
           val found = messages.collectFirst {
-            case Received(_, r)
-                if (asLong == r.id || r.id.contains(asStr))
-                  && r.method.isEmpty =>
+            case Received(_, r) if idMatches(r.id) && r.method.isEmpty =>
               r
+          }
+
+          found match
+            case Some(rm) => Ok(rm)
+            case None     => NotFound()
+        }
+
+      case GET -> Root / "raw" / "notification" / id =>
+        val asStr = MessageId.StringId(id)
+
+        inline def idMatches(idOpt: Option[MessageId]) =
+          idOpt.contains(asStr)
+
+        raw.get.flatMap { messages =>
+          val found = messages.collectFirst {
+            case Received(_, r) if idMatches(r.id) => r
           }
 
           found match
@@ -221,7 +177,7 @@ class TracerServer private (
     Router("/api" -> apiRoutes) <+> Static.routes
   end app
 
-  def Server(
+  private def Server(
       app: WebSocketBuilder2[IO] => HttpApp[IO],
       config: Config
   ): Resource[cats.effect.IO, server.Server] =
@@ -238,8 +194,8 @@ class TracerServer private (
 end TracerServer
 
 object TracerServer:
-  given msg: JsonValueCodec[Vector[LspMessage]] = JsonCodecMaker.make
-  given raw: JsonValueCodec[Vector[RawMessage]] = JsonCodecMaker.make
+  given msgCodec: JsonValueCodec[Vector[LspMessage]] = JsonCodecMaker.make
+  given rawCodec: JsonValueCodec[Vector[RawMessage]] = JsonCodecMaker.make
 
   given JsonValueCodec[Vector[String]] = JsonCodecMaker.make
   given jsonEncoder[T: JsonValueCodec]: EntityEncoder[IO, T] =
@@ -259,4 +215,61 @@ object TracerServer:
       err: fs2.Stream[IO, Byte]
   ): TracerServer =
     TracerServer(in, out, err)
+
+  case class State(
+      ch: Channel[IO, String],
+      rf: SignallingRef[IO, Vector[Received[LspMessage]]],
+      raw: SignallingRef[IO, Vector[Received[RawMessage]]],
+      logBuf: Ref[IO, Vector[String]],
+      random: UUIDGen[IO]
+  )
+
+  object State:
+    def create =
+      for
+        raw    <- SignallingRef[IO].of(Vector.empty[Received[RawMessage]])
+        rf     <- SignallingRef[IO].of(Vector.empty[Received[LspMessage]])
+        logBuf <- IO.ref(Vector.empty[String])
+        ch     <- Channel.bounded[IO, String](128)
+      yield State(ch, rf, raw, logBuf, UUIDGen[IO])
+  end State
+
+  def dump(stream: fs2.Stream[IO, Byte], state: State, direction: Direction) =
+    import state.*
+    stream
+      .through(lsp.decodePayloads[IO])
+      .evalMap(decodeRaw(_, state))
+      .collect { case Some(v) =>
+        v
+      }
+      .evalTap { rw =>
+        random.randomUUID
+          .map(u => MessageId.StringId("generated-" + u.toString))
+          .flatMap { generatedId =>
+            val rawMessage = rw.copy(value =
+              rw.value.copy(id = rw.value.id.orElse(Some(generatedId)))
+            )
+            raw.update(_ :+ rawMessage) *>
+              rf.update(
+                _ ++ LspMessage
+                  .from(rw.value, direction, generatedId)
+                  .map(Received(rw.timestamp, _))
+              )
+          }
+      }
+  end dump
+
+  case class Received[T](timestamp: Long, value: T)
+  object Received:
+    def capture[T](t: T) = IO.monotonic.map(lng => Received(lng.toMillis, t))
+    def captureF[T](t: IO[T]) =
+      IO.monotonic.flatMap(lng => t.map(Received(lng.toMillis, _)))
+
+  def decodeRaw(p: Payload, st: State) =
+    IO(Codec.decode[RawMessage](Some(p))).flatMap {
+      case Left(err) =>
+        st.ch.send(s"[Tracer] hard failed to decode $p, error: $err").as(None)
+      case Right(v) => Received.capture(v).map(Option.apply)
+    }
+
 end TracerServer

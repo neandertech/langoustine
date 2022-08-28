@@ -8,7 +8,6 @@ import scala.scalajs.js.Thenable.Implicits.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 import com.raquo.laminar.api.L.*
-import jsonrpclib.CallId
 import langoustine.tracer.Message
 import org.scalajs.dom
 import org.scalajs.dom.Event
@@ -37,26 +36,14 @@ object Frontend:
   val bus           = new EventBus[Double]
   val logBus        = new EventBus[Double]
 
-  def cid(c: CallId) = c match
-    case CallId.NumberId(n) => n.toString
-    case CallId.StringId(s) => s
+  def cid(c: MessageId) = c match
+    case MessageId.NumberId(n) => n.toString
+    case MessageId.StringId(s) => s
 
   def timeline(msgs: Vector[Message]) =
     import Message.*
     val fromClient = textAlign.left
     val fromServer = textAlign.right
-
-    val request = Seq(
-      padding         := "8px",
-      backgroundColor := "lightgreen",
-      fontSize        := "1.3rem"
-    )
-    val notif =
-      Seq(padding := "8px", backgroundColor := "yellow", fontSize := "1.3rem")
-
-    val base = Seq(borderBottom := "1px dotted lightgrey", width := "100%")
-
-    import jsonrpclib.CallId
 
     inline def select(req: Message) =
       backgroundColor <-- showing.signal.map {
@@ -64,20 +51,18 @@ object Frontend:
         case _           => ""
       }
 
-    val noBorder = border := "1px solid darkgrey"
-
     div(
       display.flex,
       flexDirection.column,
-      alignContent.stretch,
       borderLeft  := "1px solid black",
       borderRight := "1px solid black",
+      overflow.scroll,
       div(
         width := "100%",
         display.flex,
         alignContent.spaceBetween,
-        div(base, h2("client", marginTop := "0px")),
-        div(base, h2("server", marginTop := "0px"), textAlign.right)
+        div(h2("client", marginTop := "0px"), width                  := "100%"),
+        div(h2("server", marginTop := "0px"), textAlign.right, width := "100%")
       ),
       children <-- commandFilter.signal.map { filter =>
         msgs
@@ -90,12 +75,11 @@ object Frontend:
           .collect {
             case rq: Request =>
               div(
-                base,
+                Styles.timeline.row,
                 fromClient,
                 select(rq),
                 button(
-                  noBorder,
-                  request,
+                  Styles.timeline.requestButton,
                   b(rq.method),
                   ": ",
                   cid(rq.id),
@@ -105,11 +89,10 @@ object Frontend:
             case rp: Response =>
               div(
                 select(rp),
-                base,
+                Styles.timeline.row,
                 fromServer,
                 button(
-                  noBorder,
-                  request,
+                  Styles.timeline.requestButton,
                   b("Response for"),
                   ": ",
                   cid(rp.id),
@@ -119,13 +102,12 @@ object Frontend:
             case cm: Notification =>
               div(
                 select(cm),
-                base,
+                Styles.timeline.row,
                 if (cm.direction == Direction.ToClient)
                 then fromServer
                 else fromClient,
                 button(
-                  noBorder,
-                  notif,
+                  Styles.timeline.notificationButton,
                   cm.method,
                   onClick.preventDefault.mapTo(cm) --> showing.someWriter
                 )
@@ -136,16 +118,16 @@ object Frontend:
   end timeline
 
   def displayJson[T: JsonValueCodec](rmsg: T) =
-    val js = JSON.parse(
-      writeToStringReentrant(
-        rmsg
+    val js =
+      writeToString(
+        rmsg,
+        WriterConfig.withIndentionStep(4)
       )
-    )
 
     pre(
       code(
         className := "language-json",
-        JSON.stringify(js, space = 2),
+        JSON.stringify(JSON.parse(js), space = 2),
         onMountCallback(ctx => hljs.highlightAll())
       )
     )
@@ -163,48 +145,71 @@ object Frontend:
 
   val commandTracer =
     div(
-      styleAttr := "display:flex; align-content:stretch; gap: 15px; height: 100%;",
+      display.flex,
+      alignItems.flexStart,
+      columnGap := "15px",
       div(
-        width           := "70%",
-        borderRadius    := "5px",
-        backgroundColor := "#0d1117",
-        color.white,
-        fontSize := "1.3rem",
-        padding  := "10px",
-        position := "sticky",
-        top      := "0",
+        Styles.jsonViewer,
+        display <-- showing.signal
+          .map(_.isDefined)
+          .map(if (_) then "block" else "none"),
         overflow.scroll,
-        child <-- showing.signal.map {
-          case None => i("Select any operation on the right to see its result")
+        child <-- showing.signal.flatMap {
+          case None =>
+            Signal.fromValue(
+              i("Select any operation on the right to see its result")
+            )
 
           case Some(req: Message.Request) =>
-            displayPayload("Params", req.params)
+            Signal
+              .fromFuture(Api.request(cid(req.id)))
+              .map(_.flatten)
+              .map { raw =>
+                displayPayload("Params", raw.flatMap(_.params))
+              }
 
           case Some(req: Message.Response) =>
-            req.result match
-              case Left(ep) =>
-                displayErr(ep)
-              case Right(op) =>
-                displayPayload("Result", op)
+            Signal
+              .fromFuture(Api.response(cid(req.id)))
+              .map(_.flatten)
+              .map {
+                case None => i("...")
+                case Some(raw) =>
+                  def makeResult(
+                      rm: RawMessage
+                  ): Either[ErrorPayload, Option[Payload]] =
+                    rm.error match
+                      case None     => Right(rm.result)
+                      case Some(er) => Left(er)
+                  makeResult(raw) match
+                    case Left(ep) =>
+                      displayErr(ep)
+                    case Right(op) =>
+                      displayPayload("Result", op)
+              }
 
           case Some(cm: Message.Notification) =>
-            (cm.params, cm.error) match
-              case (None, None) => i("no error or payload")
-              case (_, Some(err)) =>
-                displayErr(err)
-              case (p, None) =>
-                displayPayload("Params", p)
+            Signal
+              .fromFuture(Api.notification(cid(cm.generatedId)))
+              .map(_.flatten)
+              .map {
+                case None => i("...")
+                case Some(raw) =>
+                  (raw.params, raw.error) match
+                    case (None, None) => i("no error or payload")
+                    case (_, Some(err)) =>
+                      displayErr(err)
+                    case (p, None) =>
+                      displayPayload("Params", p)
+              }
         }
       ),
       div(
-        width := "30%",
+        width <-- showing.signal
+          .map(_.isDefined)
+          .map(if (_) then "30%" else "100%"),
         input(
-          margin       := "auto",
-          padding      := "5px",
-          fontSize     := "1.3rem",
-          placeholder  := "filter...",
-          borderRadius := "2px",
-          border       := "2px solid lightgrey",
+          Styles.filterBox,
           onInput.mapToValue.map(s =>
             Option.when(s.nonEmpty)(s.trim.toLowerCase)
           ) --> commandFilter.writer
@@ -255,12 +260,7 @@ object Frontend:
       padding  := "10px",
       overflow.scroll,
       input(
-        margin       := "auto",
-        padding      := "5px",
-        fontSize     := "1.3rem",
-        placeholder  := "filter...",
-        borderRadius := "2px",
-        border       := "2px solid lightgrey",
+        Styles.filterBox,
         onInput.mapToValue.map(s =>
           Option.when(s.nonEmpty)(s.trim.toLowerCase)
         ) --> logFilter.writer
@@ -280,7 +280,9 @@ object Frontend:
   val app =
     div(
       fontFamily := "'Wotfard',Futura,-apple-system,sans-serif",
-      margin     := "10px",
+      margin     := "0px",
+      padding    := "0px",
+      height     := "100vh",
       div(
         display.flex,
         justifyContent.spaceBetween,
