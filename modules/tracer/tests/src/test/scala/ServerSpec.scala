@@ -8,7 +8,6 @@ import _root_.fs2.*
 import cats.syntax.all.*
 import langoustine.tracer.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
-import jsonrpclib.CallId.NumberId
 import org.http4s.client.*
 import TracerServer.{*, given}
 import org.http4s.Uri
@@ -45,7 +44,7 @@ abstract class ServerSpec extends IOSuite:
 
         (server, client, idState, ws).parMapN { case (s, c, ref, w) =>
           val genId =
-            ref.getAndUpdate(_ + 1).map(CallId.NumberId.apply).map(Some(_))
+            ref.getAndUpdate(_ + 1).map(MessageId.NumberId.apply).map(Some(_))
 
           Feed(in, out, err, Front(c, s.baseUri, w), genId)
         }

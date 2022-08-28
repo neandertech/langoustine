@@ -29,87 +29,103 @@ object Tracer extends IOApp:
   end run
 end Tracer
 
-def Launch(config: Config) =
+def Launch(
+    config: Config,
+    in: fs2.Stream[IO, Byte] = fs2.io.stdin[IO](512),
+    out: fs2.Pipe[IO, Byte, Nothing] = fs2.io.stdout[IO]
+) =
   val byteTopic =
     Resource.eval(fs2.concurrent.Channel.synchronous[IO, Chunk[Byte]])
 
   val latch =
     Resource.eval(IO.deferred[org.http4s.Uri])
 
-  val in             = fs2.io.stdin[IO](512)
-  val out            = fs2.io.stdout[IO]
+  val exitLatch = IO.deferred[Boolean]
+
   val currentFolder  = System.getProperty("user.dir")
   val currentCommand = config.cmd.toList
   val summary        = Summary(currentFolder, currentCommand)
 
-  (byteTopic, byteTopic, byteTopic, latch).parTupled
-    .flatMap { case (inBytes, outBytes, errBytes, outLatch) =>
-      ChildProcess.resource[IO](config.cmd.toList*).flatMap { child =>
+  exitLatch
+    .flatMap { exits =>
+      (byteTopic, byteTopic, byteTopic, latch).parTupled
+        .flatMap { case (inBytes, outBytes, errBytes, outLatch) =>
+          ChildProcess.resource[IO](config.cmd.toList*).flatMap { child =>
 
-        import langoustine.lsp.jsonrpcIntegration.given
+            import langoustine.lsp.jsonrpcIntegration.given
 
-        def msg(uri: org.http4s.Uri) =
-          s"Langoustine Tracer started at ${uri}"
+            def msg(uri: org.http4s.Uri) =
+              s"Langoustine Tracer started at ${uri}"
 
-        def sendHello(uri: org.http4s.Uri) =
-          val params = ShowMessageParams(
-            langoustine.lsp.enumerations.MessageType.Info,
-            msg(uri)
-          )
-          val serialised = jsonrpclib.Codec.encode(params)
-          val asStr      = writeToStringReentrant(serialised)
-          val preamble =
-            s"""{"method": "window/showMessage", "params": $asStr}"""
-          val length  = preamble.getBytes.length
-          val message = s"Content-Length: $length\r\n\r\n$preamble"
+            def sendHello(uri: org.http4s.Uri) =
+              val params = ShowMessageParams(
+                langoustine.lsp.enumerations.MessageType.Info,
+                msg(uri)
+              )
+              val serialised = jsonrpclib.Codec.encode(params)
+              val asStr      = writeToStringReentrant(serialised)
+              val preamble =
+                s"""{"method": "window/showMessage", "params": $asStr}"""
+              val length  = preamble.getBytes.length
+              val message = s"Content-Length: $length\r\n\r\n$preamble"
 
-          fs2.Stream
-            .chunk(Chunk.array(message.getBytes))
-            .through(out)
-            .compile
-            .drain
-        end sendHello
+              fs2.Stream
+                .chunk(Chunk.array(message.getBytes))
+                .through(out)
+                .compile
+                .drain
+            end sendHello
 
-        val redirectInput =
-          in.chunks
-            .evalTap(inBytes.send)
-            .unchunks
-            .through(child.stdin)
-            .compile
-            .drain
-            .background
+            def log(msg: String) =
+              errBytes.send(Chunk.array(("[tracer] " + msg + "\n").getBytes))
 
-        val redirectOutput =
-          (outLatch.get.flatMap(sendHello) *>
-            child.stdout.chunks
-              .evalTap(outBytes.send)
-              .unchunks
-              .through(out)
-              .compile
-              .drain).background
+            val redirectInput =
+              in.chunks
+                .evalTap(inBytes.send)
+                .unchunks
+                .through(child.stdin)
+                .compile
+                .drain
+                .flatTap(_ =>
+                  log("process stdin finished, shutting down tracer") *>
+                    exits.complete(true)
+                )
+                .background
 
-        val redirectLogs =
-          child.stderr.chunks
-            .evalTap(errBytes.send)
-            .compile
-            .drain
-            .background
+            val redirectOutput =
+              (outLatch.get.flatMap(sendHello) *>
+                child.stdout.chunks
+                  .evalTap(outBytes.send)
+                  .unchunks
+                  .through(out)
+                  .compile
+                  .drain
+                  .flatTap(_ => log("process stdout finished"))).background
 
-        val server = TracerServer
-          .create(
-            inBytes.stream.unchunks,
-            outBytes.stream.unchunks,
-            errBytes.stream.unchunks
-          )
-          .runResource(config, summary)
-          .evalTap(server =>
-            IO.consoleForIO.errorln(msg(server.baseUri)) *>
-              outLatch.complete(server.baseUri)
-          )
+            val redirectLogs =
+              child.stderr.chunks
+                .evalTap(errBytes.send)
+                .compile
+                .drain
+                .flatTap(_ => log("process stderr finished"))
+                .background
 
-        (redirectInput, redirectOutput, redirectLogs, server).parTupled
-      }
+            val server = TracerServer
+              .create(
+                inBytes.stream.unchunks,
+                outBytes.stream.unchunks,
+                errBytes.stream.unchunks
+              )
+              .runResource(config, summary)
+              .evalTap(server =>
+                IO.consoleForIO.errorln(msg(server.baseUri)) *>
+                  outLatch.complete(server.baseUri)
+              )
+
+            (redirectInput, redirectOutput, redirectLogs).parTupled *> server
+          }
+        }
+        .use(_ => exits.get)
     }
-    .useForever
     .as(ExitCode.Success)
 end Launch

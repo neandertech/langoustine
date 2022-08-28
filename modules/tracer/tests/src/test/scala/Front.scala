@@ -8,7 +8,6 @@ import _root_.fs2.*
 import cats.syntax.all.*
 import langoustine.tracer.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
-import jsonrpclib.CallId.NumberId
 import org.http4s.client.*
 import TracerServer.{*, given}
 import org.http4s.Uri
@@ -21,13 +20,13 @@ case class Front(client: Client[IO], base: Uri, ws: WSClient[IO]):
   def request(id: String) =
     client.expect[RawMessage](base.withPath(s"/api/raw/request/$id"))
 
-  def request(callId: CallId) =
+  def request(callId: MessageId) =
     client.expect[RawMessage](base.withPath(s"/api/raw/request/${cid(callId)}"))
 
   def summary =
     client.expect[Summary](base.withPath(s"/api/summary"))
 
-  def request(callId: Option[CallId]) =
+  def request(callId: Option[MessageId]) =
     client.expect[RawMessage](
       base.withPath(s"/api/raw/request/${cid(callId.get)}")
     )
@@ -35,12 +34,12 @@ case class Front(client: Client[IO], base: Uri, ws: WSClient[IO]):
   def response(id: String) =
     client.expect[RawMessage](base.withPath(s"/api/raw/response/$id"))
 
-  def response(callId: CallId) =
+  def response(callId: MessageId) =
     client.expect[RawMessage](
       base.withPath(s"/api/raw/response/${cid(callId)}")
     )
 
-  def response(callId: Option[CallId]) =
+  def response(callId: Option[MessageId]) =
     client.expect[RawMessage](
       base.withPath(s"/api/raw/response/${cid(callId.get)}")
     )
@@ -51,7 +50,7 @@ case class Front(client: Client[IO], base: Uri, ws: WSClient[IO]):
   def allRaw =
     client.expect[Vector[RawMessage]](base.withPath(s"/api/raw/all"))
 
-  private def cid(c: CallId) = c match
-    case CallId.NumberId(n) => n.toString
-    case CallId.StringId(s) => s
+  private def cid(c: MessageId) = c match
+    case MessageId.NumberId(n) => n.toString
+    case MessageId.StringId(s) => s
 end Front

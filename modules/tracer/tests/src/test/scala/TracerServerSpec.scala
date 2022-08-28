@@ -7,7 +7,6 @@ import cats.syntax.all.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 import java.util.Base64
 import jsonrpclib.*
-import jsonrpclib.CallId.NumberId
 import org.http4s.Uri
 import org.http4s.client.*
 import org.http4s.client.websocket.*

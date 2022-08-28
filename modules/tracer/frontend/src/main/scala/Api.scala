@@ -60,4 +60,15 @@ object Api:
             .map(Option.apply)
         else Future.successful(None)
       )
+
+  def notification(id: String): Future[Option[RawMessage]] =
+    fetch(s"/api/raw/notification/$id")
+      .flatMap(resp =>
+        if resp.status == 200 then
+          resp
+            .text()
+            .map(readFromStringReentrant[RawMessage](_))
+            .map(Option.apply)
+        else Future.successful(None)
+      )
 end Api
