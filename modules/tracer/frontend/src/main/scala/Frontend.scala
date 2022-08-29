@@ -24,7 +24,7 @@ object hljs extends js.Object:
   def highlightAll(): Unit = js.native
 
 enum Page:
-  case Logs, Commands
+  case Logs, Commands, Summary
 
 object Frontend:
 
@@ -233,20 +233,22 @@ object Frontend:
         child <-- page.signal.map {
           case `set` => b(name)
           case other =>
-            a(
-              href := "#",
-              onClick.preventDefault.mapTo(set) --> page.writer,
-              name
+            b(
+              a(
+                href := "#",
+                onClick.preventDefault.mapTo(set) --> page.writer,
+                name
+              )
             )
         }
       )
 
     div(
       display.flex,
-      maxWidth := "300px",
       alignContent.stretch,
       thing("Interactions", Page.Commands),
-      thing("Logs", Page.Logs)
+      thing("Logs", Page.Logs),
+      thing("Server summary", Page.Summary)
     )
   end switcher
 
@@ -277,6 +279,20 @@ object Frontend:
       )
     )
 
+  val summaryPage = div(
+    child.maybe <-- Signal.fromFuture(Api.summary).map {
+      _.map { summary =>
+        val cmd = summary.serverCommand.mkString(" ")
+        dom.document.title = s"Tracer: $cmd"
+        div(
+          marginLeft := "15px",
+          p(b("In folder: "), summary.workingFolder),
+          p(b("LSP command: "), cmd)
+        )
+      }
+    }
+  )
+
   val app =
     div(
       fontFamily := "'Wotfard',Futura,-apple-system,sans-serif",
@@ -287,29 +303,18 @@ object Frontend:
         display.flex,
         justifyContent.spaceBetween,
         div(
-          h1(marginTop := "0px", "Langoustine tracer"),
-          p(
-            "welcome to the future of LSP tooling"
-          )
+          h1(marginTop := "0px", "Langoustine tracer")
         ),
-        child.maybe <-- Signal.fromFuture(Api.summary).map {
-          _.map { summary =>
-            val cmd = summary.serverCommand.mkString(" ")
-            dom.document.title = s"Tracer: $cmd"
-            div(
-              marginLeft := "15px",
-              p(b("In folder: "), summary.workingFolder),
-              p(b("LSP command: "), cmd)
-            )
-          }
-        }
+        switcher
       ),
-      switcher,
       child <-- page.signal.map {
         case Page.Commands =>
           commandTracer
         case Page.Logs =>
           logTracer
+
+        case Page.Summary =>
+          summaryPage
       }
     )
 
