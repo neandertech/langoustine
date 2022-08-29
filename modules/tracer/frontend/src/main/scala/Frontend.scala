@@ -2,7 +2,7 @@ package langoustine.tracer
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.concurrent.duration.*
+import scala.concurrent.duration.given
 import scala.scalajs.js
 import scala.scalajs.js.Thenable.Implicits.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
@@ -24,7 +24,7 @@ object hljs extends js.Object:
   def highlightAll(): Unit = js.native
 
 enum Page:
-  case Logs, Commands
+  case Logs, Commands, Summary
 
 object Frontend:
 
@@ -46,23 +46,28 @@ object Frontend:
     val fromServer = textAlign.right
 
     inline def select(req: Message) =
-      backgroundColor <-- showing.signal.map {
-        case Some(`req`) => "black"
-        case _           => ""
-      }
+      Seq(
+        background <-- showing.signal.map {
+          case Some(`req`) =>
+            "repeating-linear-gradient(45deg, #ededed, #ededed 10px, white 10px, white 20px)"
+          case _ => ""
+        }
+      )
 
     div(
       display.flex,
       flexDirection.column,
-      borderLeft  := "1px solid black",
-      borderRight := "1px solid black",
-      overflow.scroll,
+      overflow.auto,
       div(
-        width := "100%",
-        display.flex,
-        alignContent.spaceBetween,
+        Styles.timeline.clientServerHeader,
         div(h2("client", marginTop := "0px"), width                  := "100%"),
         div(h2("server", marginTop := "0px"), textAlign.right, width := "100%")
+      ),
+      input(
+        Styles.filterBox,
+        onInput.mapToValue.map(s =>
+          Option.when(s.nonEmpty)(s.trim.toLowerCase)
+        ) --> commandFilter.writer
       ),
       children <-- commandFilter.signal.map { filter =>
         msgs
@@ -84,19 +89,55 @@ object Frontend:
                   ": ",
                   cid(rq.id),
                   onClick.preventDefault.mapTo(rq) --> showing.someWriter
-                )
+                ),
+                Option.when(rq.responded) {
+                  p(
+                    margin := "0px",
+                    a(
+                      Styles.timeline.seeLink,
+                      href := "#",
+                      small("see response"),
+                      onClick.preventDefault.mapTo(
+                        Response(rq.id, method = Some(rq.method))
+                      ) --> showing.someWriter
+                    )
+                  )
+                }
               )
             case rp: Response =>
               div(
                 select(rp),
                 Styles.timeline.row,
                 fromServer,
-                button(
-                  Styles.timeline.requestButton,
-                  b("Response for"),
-                  ": ",
-                  cid(rp.id),
-                  onClick.preventDefault.mapTo(rp) --> showing.someWriter
+                div(
+                  button(
+                    Styles.timeline.requestButton,
+                    rp.method match
+                      case Some(m) =>
+                        span(
+                          b(m),
+                          " response"
+                        )
+                      case None =>
+                        b(s"Response for ${cid(rp.id)}")
+                    ,
+                    onClick.preventDefault.mapTo(rp) --> showing.someWriter
+                  ),
+                  Option.when(rp.method.isDefined) {
+                    p(
+                      margin := "0px",
+                      a(
+                        Styles.timeline.seeLink,
+                        href := "#",
+                        small("see request ", b(cid(rp.id))),
+                        onClick.preventDefault.mapTo(
+                          rp.method.map(method =>
+                            Request(method, rp.id, responded = true)
+                          )
+                        ) --> showing.writer
+                      )
+                    )
+                  }
                 )
               )
             case cm: Notification =>
@@ -145,15 +186,13 @@ object Frontend:
 
   val commandTracer =
     div(
-      display.flex,
-      alignItems.flexStart,
-      columnGap := "15px",
+      Styles.commandTracer.container,
       div(
-        Styles.jsonViewer,
+        flexGrow := 0,
+        Styles.commandTracer.jsonViewer,
         display <-- showing.signal
           .map(_.isDefined)
           .map(if (_) then "block" else "none"),
-        overflow.scroll,
         child <-- showing.signal.flatMap {
           case None =>
             Signal.fromValue(
@@ -207,13 +246,7 @@ object Frontend:
       div(
         width <-- showing.signal
           .map(_.isDefined)
-          .map(if (_) then "30%" else "100%"),
-        input(
-          Styles.filterBox,
-          onInput.mapToValue.map(s =>
-            Option.when(s.nonEmpty)(s.trim.toLowerCase)
-          ) --> commandFilter.writer
-        ),
+          .map(if (_) then "40%" else "100%"),
         child <-- bus.events
           .startWith(Date.now())
           .flatMap { _ =>
@@ -228,37 +261,35 @@ object Frontend:
   val switcher =
     inline def thing(name: String, set: Page) =
       div(
-        fontSize := "1.5rem",
-        padding  := "10px",
         child <-- page.signal.map {
-          case `set` => b(name)
+          case `set` => div(Styles.pageSwitcher.focused, name)
           case other =>
-            a(
-              href := "#",
-              onClick.preventDefault.mapTo(set) --> page.writer,
-              name
+            div(
+              Styles.pageSwitcher.unfocused,
+              a(
+                Styles.pageSwitcher.link,
+                href := "#",
+                onClick.preventDefault.mapTo(set) --> page.writer,
+                name
+              )
             )
         }
       )
 
     div(
       display.flex,
-      maxWidth := "300px",
-      alignContent.stretch,
+      alignContent.flexEnd,
+      columnGap := "10px",
+      flexGrow := 0,
       thing("Interactions", Page.Commands),
-      thing("Logs", Page.Logs)
+      thing("Logs", Page.Logs),
+      thing("Server summary", Page.Summary)
     )
   end switcher
 
   val logTracer =
     div(
-      width           := "95%",
-      borderRadius    := "5px",
-      backgroundColor := "black",
-      color.white,
-      fontSize := "1.3rem",
-      padding  := "10px",
-      overflow.scroll,
+      Styles.logTracer.container,
       input(
         Styles.filterBox,
         onInput.mapToValue.map(s =>
@@ -277,40 +308,43 @@ object Frontend:
       )
     )
 
+  val summaryPage = div(
+    Styles.summaryPage.container,
+    child.maybe <-- Signal.fromFuture(Api.summary).map {
+      _.map { summary =>
+        val cmd = summary.serverCommand.mkString(" ")
+        dom.document.title = s"Tracer: $cmd"
+        div(
+          marginLeft := "15px",
+          p(b("In folder: "), summary.workingFolder),
+          p(b("LSP command: "), cmd)
+        )
+      }
+    }
+  )
+
   val app =
     div(
-      fontFamily := "'Wotfard',Futura,-apple-system,sans-serif",
-      margin     := "0px",
-      padding    := "0px",
-      height     := "100vh",
+      Styles.staticContainer,
       div(
-        display.flex,
-        justifyContent.spaceBetween,
+        Styles.dynamicContainer,
         div(
-          h1(marginTop := "0px", "Langoustine tracer"),
-          p(
-            "welcome to the future of LSP tooling"
-          )
+          display.flex,
+          justifyContent.spaceBetween,
+          div(
+            h1(marginTop := "0px", "Langoustine tracer")
+          ),
+          switcher
         ),
-        child.maybe <-- Signal.fromFuture(Api.summary).map {
-          _.map { summary =>
-            val cmd = summary.serverCommand.mkString(" ")
-            dom.document.title = s"Tracer: $cmd"
-            div(
-              marginLeft := "15px",
-              p(b("In folder: "), summary.workingFolder),
-              p(b("LSP command: "), cmd)
-            )
-          }
+        child <-- page.signal.map {
+          case Page.Commands =>
+            commandTracer
+          case Page.Logs =>
+            logTracer
+          case Page.Summary =>
+            summaryPage
         }
-      ),
-      switcher,
-      child <-- page.signal.map {
-        case Page.Commands =>
-          commandTracer
-        case Page.Logs =>
-          logTracer
-      }
+      )
     )
 
   def main(args: Array[String]): Unit =
