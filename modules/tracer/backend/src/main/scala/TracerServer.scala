@@ -221,6 +221,7 @@ object TracerServer:
       rf: SignallingRef[IO, Vector[Received[LspMessage]]],
       raw: SignallingRef[IO, Vector[Received[RawMessage]]],
       logBuf: Ref[IO, Vector[String]],
+      responseIdMapping: Ref[IO, Map[MessageId, String]],
       random: UUIDGen[IO]
   )
 
@@ -231,7 +232,8 @@ object TracerServer:
         rf     <- SignallingRef[IO].of(Vector.empty[Received[LspMessage]])
         logBuf <- IO.ref(Vector.empty[String])
         ch     <- Channel.bounded[IO, String](128)
-      yield State(ch, rf, raw, logBuf, UUIDGen[IO])
+        rpid   <- IO.ref(Map.empty[MessageId, String])
+      yield State(ch, rf, raw, logBuf, rpid, UUIDGen[IO])
   end State
 
   def dump(stream: fs2.Stream[IO, Byte], state: State, direction: Direction) =
@@ -242,19 +244,52 @@ object TracerServer:
       .collect { case Some(v) =>
         v
       }
-      .evalTap { rw =>
+      .evalTap { rawMessage =>
         random.randomUUID
           .map(u => MessageId.StringId("generated-" + u.toString))
           .flatMap { generatedId =>
-            val rawMessage = rw.copy(value =
-              rw.value.copy(id = rw.value.id.orElse(Some(generatedId)))
+            val receivedRawMessage = rawMessage.copy(value =
+              rawMessage.value
+                .copy(id = rawMessage.value.id.orElse(Some(generatedId)))
             )
-            raw.update(_ :+ rawMessage) *>
-              rf.update(
-                _ ++ LspMessage
-                  .from(rw.value, direction, generatedId)
-                  .map(Received(rw.timestamp, _))
-              )
+            raw.update(_ :+ receivedRawMessage) *> {
+              val msg = LspMessage
+                .from(rawMessage.value, direction, generatedId)
+              val receivedMsg = msg.map(Received(rawMessage.timestamp, _))
+
+              LspMessage
+                .from(rawMessage.value, direction, generatedId)
+                .map { lspMessage =>
+
+                  val withUpdatedMapping = lspMessage match
+                    case LspMessage.Request(method, id, _) =>
+                      responseIdMapping
+                        .update(_.updated(id, method))
+                        .as(lspMessage)
+
+                    case LspMessage.Response(id, _) =>
+                      rf.update { received =>
+                        received.collect {
+                          case Received(ts, req: LspMessage.Request)
+                              if req.id == id =>
+                            Received(ts, req.copy(responded = true))
+                          case other => other
+                        }
+                      } *>
+                        responseIdMapping.get
+                          .map(_.get(id))
+                          .map(LspMessage.Response(id, _))
+
+                    case other => IO.pure(other)
+
+                  withUpdatedMapping
+                    .flatMap(msg =>
+                      rf.update(_ :+ Received(rawMessage.timestamp, msg))
+                    )
+
+                }
+                .getOrElse(IO.unit)
+            }
           }
       }
   end dump

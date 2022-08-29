@@ -26,21 +26,24 @@ enum TracerEvent:
 object TracerEvent:
   given JsonValueCodec[TracerEvent] = JsonCodecMaker.make
 
-enum Message:
-  case Request(method: String, id: MessageId) extends Message
+enum Message(val id: MessageId):
+  case Request(method: String, override val id: MessageId, responded: Boolean)
+      extends Message(id)
 
-  case Response(id: MessageId) extends Message
+  case Response(override val id: MessageId, method: Option[String])
+      extends Message(id)
 
   case Notification(
       generatedId: MessageId,
       method: String,
       direction: Direction
-  ) extends Message
+  ) extends Message(generatedId)
 
   def methodName: Option[String] = this match
     case r: Request      => Some(r.method)
     case r: Notification => Some(r.method)
-    case _               => None
+    case r: Response     => r.method
+
 end Message
 
 object Message:
@@ -60,10 +63,10 @@ object Message:
       case Some(id) =>
         direction match
           case Direction.ToServer =>
-            raw.method.map(Message.Request.apply(_, id))
+            raw.method.map(Message.Request.apply(_, id, responded = false))
           case Direction.ToClient =>
             raw.method match
-              case None       => Some(Message.Response(id))
+              case None       => Some(Message.Response(id, None))
               case Some(what) => None
 
 end Message
