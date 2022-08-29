@@ -53,7 +53,10 @@ object Styles:
       fontSize := "1.3rem",
       padding  := "10px",
       position := "sticky",
-      top      := "0"
+      top      := "0",
+      overflowX.scroll,
+      overflowY.scroll,
+      maxHeight := "80vh"
     )
   end commandTracer
 

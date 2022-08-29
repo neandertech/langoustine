@@ -188,11 +188,11 @@ object Frontend:
     div(
       Styles.commandTracer.container,
       div(
+        flexGrow := 0,
         Styles.commandTracer.jsonViewer,
         display <-- showing.signal
           .map(_.isDefined)
           .map(if (_) then "block" else "none"),
-        overflow.auto,
         child <-- showing.signal.flatMap {
           case None =>
             Signal.fromValue(
@@ -280,6 +280,7 @@ object Frontend:
       display.flex,
       alignContent.flexEnd,
       columnGap := "10px",
+      flexGrow := 0,
       thing("Interactions", Page.Commands),
       thing("Logs", Page.Logs),
       thing("Server summary", Page.Summary)
