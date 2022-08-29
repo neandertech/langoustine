@@ -228,11 +228,11 @@ object TracerServer:
   object State:
     def create =
       for
-        raw      <- SignallingRef[IO].of(Vector.empty[Received[RawMessage]])
-        rf       <- SignallingRef[IO].of(Vector.empty[Received[LspMessage]])
-        logBuf   <- IO.ref(Vector.empty[String])
-        ch       <- Channel.bounded[IO, String](128)
-        rpid     <- IO.ref(Map.empty[MessageId, String])
+        raw    <- SignallingRef[IO].of(Vector.empty[Received[RawMessage]])
+        rf     <- SignallingRef[IO].of(Vector.empty[Received[LspMessage]])
+        logBuf <- IO.ref(Vector.empty[String])
+        ch     <- Channel.bounded[IO, String](128)
+        rpid   <- IO.ref(Map.empty[MessageId, String])
       yield State(ch, rf, raw, logBuf, rpid, UUIDGen[IO])
   end State
 

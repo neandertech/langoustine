@@ -30,7 +30,8 @@ enum Message(val id: MessageId):
   case Request(method: String, override val id: MessageId, responded: Boolean)
       extends Message(id)
 
-  case Response(override val id: MessageId, method: Option[String]) extends Message(id)
+  case Response(override val id: MessageId, method: Option[String])
+      extends Message(id)
 
   case Notification(
       generatedId: MessageId,

@@ -20,81 +20,83 @@ def renderMessage(
     )
 
   println(s"Being called for $id")
-  div(child <-- stream.map {
-    case rq: Request =>
-      div(
-        Styles.timeline.row,
-        fromClient,
-        select(rq),
-        button(
-          Styles.timeline.requestButton,
-          b(rq.method),
-          ": ",
-          cid(rq.id),
-          onClick.preventDefault.mapTo(rq) --> showing.someWriter
-        ),
-        Option.when(rq.responded) {
-          p(
-            margin := "0px",
-            a(
-              Styles.timeline.seeLink,
-              href := "#",
-              small("see response"),
-              onClick.preventDefault.mapTo(
-                Response(rq.id, method = Some(rq.method))
-              ) --> showing.someWriter
-            )
-          )
-        }
-      )
-    case rp: Response =>
-      div(
-        select(rp),
-        Styles.timeline.row,
-        fromServer,
+  div(
+    child <-- stream.map {
+      case rq: Request =>
         div(
+          Styles.timeline.row,
+          fromClient,
+          select(rq),
           button(
             Styles.timeline.requestButton,
-            rp.method match
-              case Some(m) =>
-                span(
-                  b(m),
-                  " response"
-                )
-              case None =>
-                b(s"Response for ${cid(rp.id)}")
-            ,
-            onClick.preventDefault.mapTo(rp) --> showing.someWriter
+            b(rq.method),
+            ": ",
+            cid(rq.id),
+            onClick.preventDefault.mapTo(rq) --> showing.someWriter
           ),
-          Option.when(rp.method.isDefined) {
+          Option.when(rq.responded) {
             p(
               margin := "0px",
               a(
                 Styles.timeline.seeLink,
                 href := "#",
-                small("see request ", b(cid(rp.id))),
+                small("see response"),
                 onClick.preventDefault.mapTo(
-                  rp.method.map(method =>
-                    Request(method, rp.id, responded = true)
-                  )
-                ) --> showing.writer
+                  Response(rq.id, method = Some(rq.method))
+                ) --> showing.someWriter
               )
             )
           }
         )
-      )
-    case cm: Notification =>
-      div(
-        select(cm),
-        Styles.timeline.row,
-        if (cm.direction == Direction.ToClient)
-        then fromServer
-        else fromClient,
-        button(
-          Styles.timeline.notificationButton,
-          cm.method,
-          onClick.preventDefault.mapTo(cm) --> showing.someWriter
+      case rp: Response =>
+        div(
+          select(rp),
+          Styles.timeline.row,
+          fromServer,
+          div(
+            button(
+              Styles.timeline.requestButton,
+              rp.method match
+                case Some(m) =>
+                  span(
+                    b(m),
+                    " response"
+                  )
+                case None =>
+                  b(s"Response for ${cid(rp.id)}")
+              ,
+              onClick.preventDefault.mapTo(rp) --> showing.someWriter
+            ),
+            Option.when(rp.method.isDefined) {
+              p(
+                margin := "0px",
+                a(
+                  Styles.timeline.seeLink,
+                  href := "#",
+                  small("see request ", b(cid(rp.id))),
+                  onClick.preventDefault.mapTo(
+                    rp.method.map(method =>
+                      Request(method, rp.id, responded = true)
+                    )
+                  ) --> showing.writer
+                )
+              )
+            }
+          )
         )
-      )
-  })
+      case cm: Notification =>
+        div(
+          select(cm),
+          Styles.timeline.row,
+          if (cm.direction == Direction.ToClient)
+          then fromServer
+          else fromClient,
+          button(
+            Styles.timeline.notificationButton,
+            cm.method,
+            onClick.preventDefault.mapTo(cm) --> showing.someWriter
+          )
+        )
+    }
+  )
 end renderMessage
