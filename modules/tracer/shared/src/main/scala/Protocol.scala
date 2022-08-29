@@ -26,22 +26,23 @@ enum TracerEvent:
 object TracerEvent:
   given JsonValueCodec[TracerEvent] = JsonCodecMaker.make
 
-enum Message:
-  case Request(method: String, id: MessageId, responded: Boolean)
-      extends Message
+enum Message(val id: MessageId):
+  case Request(method: String, override val id: MessageId, responded: Boolean)
+      extends Message(id)
 
-  case Response(id: MessageId, method: Option[String]) extends Message
+  case Response(override val id: MessageId, method: Option[String]) extends Message(id)
 
   case Notification(
       generatedId: MessageId,
       method: String,
       direction: Direction
-  ) extends Message
+  ) extends Message(generatedId)
 
   def methodName: Option[String] = this match
     case r: Request      => Some(r.method)
     case r: Notification => Some(r.method)
     case r: Response     => r.method
+
 end Message
 
 object Message:

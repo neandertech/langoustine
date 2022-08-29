@@ -17,6 +17,7 @@ import org.scalajs.dom.WebSocket
 import scala.scalajs.js.Date
 import scala.scalajs.js.JSON
 import scala.scalajs.js.annotation.JSGlobal
+import com.raquo.airstream.core.Signal
 
 @js.native
 @JSGlobal
@@ -26,33 +27,40 @@ object hljs extends js.Object:
 enum Page:
   case Logs, Commands, Summary
 
+def cid(c: MessageId) = c match
+  case MessageId.NumberId(n) => n.toString
+  case MessageId.StringId(s) => s
+
 object Frontend:
 
   val showing       = Var(Option.empty[Message])
   val page          = Var(Page.Commands)
   val logs          = Var(Vector.empty[String])
-  val commandFilter = Var(Option.empty[String])
   val logFilter     = Var(Option.empty[String])
   val bus           = new EventBus[Double]
   val logBus        = new EventBus[Double]
+  val commandFilter = Var(Option.empty[String])
 
-  def cid(c: MessageId) = c match
-    case MessageId.NumberId(n) => n.toString
-    case MessageId.StringId(s) => s
-
-  def timeline(msgs: Vector[Message]) =
+  def timeline(msgs: Signal[Vector[Message]]) =
     import Message.*
-    val fromClient = textAlign.left
-    val fromServer = textAlign.right
 
-    inline def select(req: Message) =
-      Seq(
-        background <-- showing.signal.map {
-          case Some(`req`) =>
-            "repeating-linear-gradient(45deg, #ededed, #ededed 10px, white 10px, white 20px)"
-          case _ => ""
-        }
-      )
+    import scala.util.chaining.*
+
+    val filteredMessages: Signal[Vector[Message]] =
+      msgs.combineWithFn(commandFilter.signal) { (messages, filter) =>
+        messages
+          .filter(m =>
+            filter.isEmpty || m.methodName.exists(
+              _.toLowerCase.contains(filter.getOrElse(""))
+            )
+          )
+          .reverse
+      }
+
+    val splitStream =
+      msgs
+        .split(e => cid(e.id))(renderMessage(showing))
+        .debugSpyEvents(els => println(els.length))
 
     div(
       display.flex,
@@ -69,92 +77,7 @@ object Frontend:
           Option.when(s.nonEmpty)(s.trim.toLowerCase)
         ) --> commandFilter.writer
       ),
-      children <-- commandFilter.signal.map { filter =>
-        msgs
-          .filter(m =>
-            filter.isEmpty || m.methodName.exists(
-              _.toLowerCase.contains(filter.getOrElse(""))
-            )
-          )
-          .reverse
-          .collect {
-            case rq: Request =>
-              div(
-                Styles.timeline.row,
-                fromClient,
-                select(rq),
-                button(
-                  Styles.timeline.requestButton,
-                  b(rq.method),
-                  ": ",
-                  cid(rq.id),
-                  onClick.preventDefault.mapTo(rq) --> showing.someWriter
-                ),
-                Option.when(rq.responded) {
-                  p(
-                    margin := "0px",
-                    a(
-                      Styles.timeline.seeLink,
-                      href := "#",
-                      small("see response"),
-                      onClick.preventDefault.mapTo(
-                        Response(rq.id, method = Some(rq.method))
-                      ) --> showing.someWriter
-                    )
-                  )
-                }
-              )
-            case rp: Response =>
-              div(
-                select(rp),
-                Styles.timeline.row,
-                fromServer,
-                div(
-                  button(
-                    Styles.timeline.requestButton,
-                    rp.method match
-                      case Some(m) =>
-                        span(
-                          b(m),
-                          " response"
-                        )
-                      case None =>
-                        b(s"Response for ${cid(rp.id)}")
-                    ,
-                    onClick.preventDefault.mapTo(rp) --> showing.someWriter
-                  ),
-                  Option.when(rp.method.isDefined) {
-                    p(
-                      margin := "0px",
-                      a(
-                        Styles.timeline.seeLink,
-                        href := "#",
-                        small("see request ", b(cid(rp.id))),
-                        onClick.preventDefault.mapTo(
-                          rp.method.map(method =>
-                            Request(method, rp.id, responded = true)
-                          )
-                        ) --> showing.writer
-                      )
-                    )
-                  }
-                )
-              )
-            case cm: Notification =>
-              div(
-                select(cm),
-                Styles.timeline.row,
-                if (cm.direction == Direction.ToClient)
-                then fromServer
-                else fromClient,
-                button(
-                  Styles.timeline.notificationButton,
-                  cm.method,
-                  onClick.preventDefault.mapTo(cm) --> showing.someWriter
-                )
-              )
-          }
-      }
+      children <-- splitStream
     )
   end timeline
 
@@ -247,14 +170,15 @@ object Frontend:
         width <-- showing.signal
           .map(_.isDefined)
           .map(if (_) then "40%" else "100%"),
-        child <-- bus.events
-          .startWith(Date.now())
-          .flatMap { _ =>
-            Signal
-              .fromFuture(Api.all)
-              .map(_.toVector.flatten)
-              .map(timeline)
-          }
+        timeline {
+          bus.events
+            .startWith(Date.now())
+            .flatMap { _ =>
+              Signal
+                .fromFuture(Api.all)
+                .map(_.toVector.flatten)
+            }
+        }
       )
     )
 
@@ -280,7 +204,7 @@ object Frontend:
       display.flex,
       alignContent.flexEnd,
       columnGap := "10px",
-      flexGrow := 0,
+      flexGrow  := 0,
       thing("Interactions", Page.Commands),
       thing("Logs", Page.Logs),
       thing("Server summary", Page.Summary)
