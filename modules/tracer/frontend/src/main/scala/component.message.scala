@@ -10,93 +10,129 @@ def renderMessage(
 )(id: String, initial: Message, stream: Signal[Message]) =
   import Message.*
 
-  inline def select(req: Message) =
-    Seq(
-      background <-- showing.signal.map {
-        case Some(`req`) =>
-          "repeating-linear-gradient(45deg, #ededed, #ededed 10px, white 10px, white 20px)"
-        case _ => ""
-      }
-    )
+  initial match
+    case rq: Request =>
+      renderRequest(
+        rq,
+        stream.changes.collect { case rq: Request => rq },
+        showing
+      )
+    case rp: Response =>
+      renderResponse(
+        rp,
+        stream.changes.collect { case rp: Response => rp },
+        showing
+      )
+    case cm: Notification =>
+      renderNotification(
+        cm,
+        stream.changes.collect { case nt: Notification => nt },
+        showing
+      )
+  end match
+end renderMessage
 
-  println(s"Being called for $id")
-  div(
-    child <-- stream.map {
-      case rq: Request =>
-        div(
-          Styles.timeline.row,
-          fromClient,
-          select(rq),
-          button(
-            Styles.timeline.requestButton,
-            b(rq.method),
-            ": ",
-            cid(rq.id),
-            onClick.preventDefault.mapTo(rq) --> showing.someWriter
-          ),
-          Option.when(rq.responded) {
-            p(
-              margin := "0px",
-              a(
-                Styles.timeline.seeLink,
-                href := "#",
-                small("see response"),
-                onClick.preventDefault.mapTo(
-                  Response(rq.id, method = Some(rq.method))
-                ) --> showing.someWriter
-              )
-            )
-          }
-        )
-      case rp: Response =>
-        div(
-          select(rp),
-          Styles.timeline.row,
-          fromServer,
-          div(
-            button(
-              Styles.timeline.requestButton,
-              rp.method match
-                case Some(m) =>
-                  span(
-                    b(m),
-                    " response"
-                  )
-                case None =>
-                  b(s"Response for ${cid(rp.id)}")
-              ,
-              onClick.preventDefault.mapTo(rp) --> showing.someWriter
-            ),
-            Option.when(rp.method.isDefined) {
-              p(
-                margin := "0px",
-                a(
-                  Styles.timeline.seeLink,
-                  href := "#",
-                  small("see request ", b(cid(rp.id))),
-                  onClick.preventDefault.mapTo(
-                    rp.method.map(method =>
-                      Request(method, rp.id, responded = true)
-                    )
-                  ) --> showing.writer
-                )
-              )
-            }
-          )
-        )
-      case cm: Notification =>
-        div(
-          select(cm),
-          Styles.timeline.row,
-          if (cm.direction == Direction.ToClient)
-          then fromServer
-          else fromClient,
-          button(
-            Styles.timeline.notificationButton,
-            cm.method,
-            onClick.preventDefault.mapTo(cm) --> showing.someWriter
-          )
-        )
+import Message.*
+
+inline def select(req: Message, showing: Var[Option[Message]]) =
+  Seq(
+    background <-- showing.signal.map {
+      case Some(`req`) =>
+        "repeating-linear-gradient(45deg, #ededed, #ededed 10px, white 10px, white 20px)"
+      case _ => ""
     }
   )
-end renderMessage
+
+def renderNotification(
+    nt: Notification,
+    changes: EventStream[Notification],
+    showing: Var[Option[Message]]
+) =
+  div(
+    select(nt, showing),
+    Styles.timeline.row,
+    if (nt.direction == Direction.ToClient)
+    then fromServer
+    else fromClient,
+    button(
+      Styles.timeline.notificationButton,
+      nt.method,
+      onClick.preventDefault.mapTo(nt) --> showing.someWriter
+    )
+  )
+
+def renderRequest(
+    rq: Request,
+    changes: EventStream[Request],
+    showing: Var[Option[Message]]
+) =
+  div(
+    Styles.timeline.row,
+    fromClient,
+    select(rq, showing),
+    button(
+      Styles.timeline.requestButton,
+      b(rq.method),
+      ": ",
+      cid(rq.id),
+      onClick.preventDefault.mapTo(rq) --> showing.someWriter
+    ),
+    child.maybe <-- changes.startWith(rq).map { rq =>
+      Option.when(rq.responded) {
+        p(
+          margin := "0px",
+          a(
+            Styles.timeline.seeLink,
+            href := "#",
+            small("see response"),
+            onClick.preventDefault.mapTo(
+              Response(rq.id, method = Some(rq.method))
+            ) --> showing.someWriter
+          )
+        )
+      }
+    }
+  )
+
+def renderResponse(
+    rp: Response,
+    changes: EventStream[Response],
+    showing: Var[Option[Message]]
+) =
+  div(
+    select(rp, showing),
+    Styles.timeline.row,
+    fromServer,
+    div(
+      button(
+        Styles.timeline.requestButton,
+        rp.method match
+          case Some(m) =>
+            span(
+              b(m),
+              " response"
+            )
+          case None =>
+            b(s"Response for ${cid(rp.id)}")
+        ,
+        onClick.preventDefault.mapTo(rp) --> showing.someWriter
+      ),
+      child.maybe <-- changes.startWith(rp).map { rp =>
+        Option.when(rp.method.isDefined) {
+          p(
+            margin := "0px",
+            a(
+              Styles.timeline.seeLink,
+              href := "#",
+              small("see request ", b(cid(rp.id))),
+              onClick.preventDefault.mapTo(
+                rp.method.map(method =>
+                  Request(method, rp.id, responded = true)
+                )
+              ) --> showing.writer
+            )
+          )
+        }
+      }
+    )
+  )
