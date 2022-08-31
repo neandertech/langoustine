@@ -299,10 +299,3 @@ lazy val docsSettings = Seq(
     out
   }
 )
-
-/* ThisBuild / version := { */
-/*   sys.env.get("VERSION_OVERRIDE") match { */
-/*     case None        => version.value */
-/*     case Some(value) => value */
-/*   } */
-/* } */

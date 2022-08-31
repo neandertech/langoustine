@@ -25,26 +25,35 @@ import langoustine.meta.*
 
   given Render.Config(indents = Indentation(0), indentSize = IndentationSize(2))
 
-  def inFile(s: File)(f: LineBuilder => Unit) =
+  def inFile(s: String)(f: LineBuilder => Unit) =
     val out = Render.LineBuilder()
+    out.appendLine(Constants.LICENCE)
+    out.appendLine("")
+
     f(out)
-    Using.resource(new FileWriter(s)) { fw =>
+    Using.resource(new FileWriter(Paths.get(path, s).toFile())) { fw =>
       fw.write(out.result)
     }
+  end inFile
 
-  inFile(Paths.get(path, "requests.scala").toFile()) { out =>
-    re.requests(out)
-  }
+  inFile("codecs.scala") { codecsOut =>
 
-  inFile(Paths.get(path, "structures.scala").toFile()) { out =>
-    re.structures(out)
-  }
+    re.codecsPrelude(codecsOut)
 
-  inFile(Paths.get(path, "aliases.scala").toFile()) { out =>
-    re.aliases(out)
-  }
+    inFile("requests.scala") { out =>
+      re.requests(out, codecsOut)
+    }
 
-  inFile(Paths.get(path, "enumerations.scala").toFile()) { out =>
-    re.enumerations(out)
+    inFile("structures.scala") { out =>
+      re.structures(out, codecsOut)
+    }
+
+    inFile("aliases.scala") { out =>
+      re.aliases(out, codecsOut)
+    }
+
+    inFile("enumerations.scala") { out =>
+      re.enumerations(out)
+    }
   }
 end run

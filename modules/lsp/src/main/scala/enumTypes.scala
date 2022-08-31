@@ -16,6 +16,8 @@
 
 package langoustine.lsp
 
+import runtime.*
+
 import upickle.default.*
 import scala.reflect.*
 
@@ -49,7 +51,7 @@ private[lsp] trait StringEnum[T](using ev: T =:= String):
     n.asInstanceOf[T]
 end StringEnum
 
-private[lsp] trait UIntEnum[T](using ev: T =:= RuntimeBase.uinteger):
+private[lsp] trait UIntEnum[T](using ev: T =:= uinteger):
   private val intCodec = upickle.default.readwriter[Int]
 
   given reader: Reader[T] = intCodec.asInstanceOf[Reader[T]]
@@ -58,9 +60,9 @@ private[lsp] trait UIntEnum[T](using ev: T =:= RuntimeBase.uinteger):
   given Typeable[T] with
     def unapply(s: Any): Option[s.type & T] =
       s match
-        case c: RuntimeBase.uinteger => Some(c.asInstanceOf[s.type & T])
-        case _                       => Option.empty
+        case c: uinteger => Some(c.asInstanceOf[s.type & T])
+        case _           => Option.empty
 
   protected inline def entry(n: Int): T =
-    RuntimeBase.uinteger(n).asInstanceOf[T]
+    uinteger(n).asInstanceOf[T]
 end UIntEnum

@@ -7,20 +7,38 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
   import Render.*
   import Types.*
 
-  def requests(builder: LineBuilder, subPackage: String = "requests")(using
+  def codecsPrelude(out: LineBuilder)(using Config): Unit =
+    inline def line: Config ?=> Appender = to(out)
+    line(s"package $packageName")
+    line(s"package codecs")
+    line("")
+    line("import upickle.default.*")
+    line("import structures.*")
+    line("import aliases.*")
+    line("import requests.*")
+    line("import json.{*, given}")
+    line("import runtime.{*, given}")
+  end codecsPrelude
+
+  def requests(out: LineBuilder, codecsOut: LineBuilder)(using
       Config
   ): Unit =
-    inline def line: Config ?=> Appender = to(builder)
+    inline def line: Config ?=> Appender       = to(out)
+    inline def codecsLine: Config ?=> Appender = to(codecsOut)
     line(s"package $packageName")
-    line(s"package $subPackage")
     line("")
     line("import langoustine.*")
     line("import upickle.default.*")
-    line("import langoustine.lsp.json.{*, given}")
+    line("import json.{*, given}")
+    line("import runtime.{*, given}")
     line("// format: off")
     line("")
 
-    val requestPrelude = """
+    line("object requests:")
+
+    nest {
+
+      val requestPrelude = """
     |sealed abstract class LSPRequest(val requestMethod: String):
     |  type In
     |  type Out
@@ -31,11 +49,11 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     |  given outputReader: Reader[Out]
     """.stripMargin.trim
 
-    requestPrelude.linesIterator.foreach(line)
+      requestPrelude.linesIterator.foreach(line)
 
-    line("")
+      line("")
 
-    val notificationPrelude = """
+      val notificationPrelude = """
     |sealed abstract class LSPNotification(val notificationMethod: String):
     |  type In
     |
@@ -43,202 +61,254 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     |  given inputWriter: Writer[In]
     """.stripMargin.trim
 
-    notificationPrelude.linesIterator.foreach(line)
+      notificationPrelude.linesIterator.foreach(line)
 
-    line("")
+      line("")
 
-    var currentScope = List.empty[String]
+      var currentScope = List.empty[String]
 
-    given Context = Context.global(manager, "requests")
+      given Context = Context.global(manager, List("requests"))
 
-    extension (req: Notification | Request)
-      def segs =
-        req.methodName.value.split("/").toList
+      extension (req: Notification | Request)
+        def segs =
+          req.methodName.value.split("/").toList
 
-      def name = req.segs.last
+        def name = req.segs.last
 
-      def methodName: RequestMethod =
-        req match
-          case n: Notification => n.method
-          case r: Request      => r.method
-    end extension
+        def methodName: RequestMethod =
+          req match
+            case n: Notification => n.method
+            case r: Request      => r.method
+      end extension
 
-    def renderParams(p: ParamsType) =
-      p match
-        case ParamsType.None      => "Unit"
-        case ParamsType.Single(t) => renderType(t)
-        case ParamsType.Many(t)   => t.map(renderType).mkString("(", ", ", ")")
+      def renderParams(p: ParamsType) =
+        p match
+          case ParamsType.None      => "Unit"
+          case ParamsType.Single(t) => renderType(t)
+          case ParamsType.Many(t) => t.map(renderType).mkString("(", ", ", ")")
 
-    def renderReq(req: Request)(using Config) =
-      req.documentation.toOption.foreach { doc =>
-        commentWriter(builder) { cw =>
-          import cw.*
+      def renderReq(req: Request)(using Config) =
+        req.documentation.toOption.foreach { doc =>
+          commentWriter(out) { cw =>
+            import cw.*
 
-          commentLine(doc.value)
+            commentLine(doc.value)
+          }
+
         }
 
-      }
-      line(s"object ${req.name} extends LSPRequest(\"${req.method.value}\"):")
-      nest {
-        line(s"type In = ${renderParams(req.params)}")
-        line(s"type Out = ${renderType(req.result)}")
-        line("")
-
-        val reader = req.params match
-          case ParamsType.None      => WriterDefinition.Expression("unitReader")
-          case ParamsType.Single(t) => upickleReader1(t, "In")
-          case ParamsType.Many(t) =>
-            WriterDefinition.Expression("Pickle.macroR")
-
-        line(s"given inputReader: Reader[In] = ")
-        nest {
-          reader.write(builder)
-        }
-
-        line("")
-
-        line(s"given inputWriter: Writer[In] = ")
-        nest {
-          req.params match
-            case ParamsType.None => line("unitWriter")
-            case ParamsType.Single(t) =>
-              upickleWriter(t, Some("In")).write(builder)
-            case ParamsType.Many(t) => line("Pickle.macroR")
-        }
-
-        line("")
-
-        line(s"given outputWriter: Writer[Out] =")
-        nest {
-          upickleWriter(req.result, Some("Out")).write(builder)
-        }
-
-        line("")
+        val codecTraitName = s"requests_${req.method.value.replace('/', '_')}"
 
         line(
-          s"given outputReader: Reader[Out] ="
+          s"object ${req.name} extends LSPRequest(\"${req.method.value}\") with codecs.$codecTraitName:"
         )
         nest {
-          upickleReader1(req.result, "Out").write(builder)
-        }
-      }
-      line("")
-    end renderReq
+          line(s"type In = ${renderParams(req.params)}")
+          line(s"type Out = ${renderType(req.result)}")
+          line("")
 
-    def renderNotification(req: Notification)(using Config) =
-      req.documentation.toOption.foreach { doc =>
-        commentWriter(builder) { cw =>
-          import cw.*
+          codecsOut.topLevel {
+            val path = req.segs
+              .collect {
+                case "$" => "$DOLLAR"
+                case o   => o
+              }
+              .mkString(".")
 
-          commentLine(doc.value)
-        }
-      }
-      line(
-        s"object ${req.name} extends LSPNotification(\"${req.method.value}\"):"
-      )
-      nest {
-        line(s"type In = ${renderParams(req.params)}")
-        line("")
+            codecsLine("")
+            codecsLine(
+              s"private[lsp] trait $codecTraitName:"
+            )
+            nest {
 
-        val reader = req.params match
-          case ParamsType.None      => WriterDefinition.Expression("unitReader")
-          case ParamsType.Single(t) => upickleReader1(t, "In")
-          case ParamsType.Many(t) =>
-            WriterDefinition.Expression("Pickle.macroR")
+              codecsLine(s"import $path.{In, Out}")
 
-        line(s"given inputReader: Reader[In] = ")
-        nest {
-          reader.write(builder)
-        }
-        line(s"given inputWriter: Writer[In] = ")
-        nest {
-          req.params match
-            case ParamsType.None => line("unitWriter")
-            case ParamsType.Single(t) =>
-              upickleWriter(t, Some("In")).write(builder)
-            case ParamsType.Many(t) => line("Pickle.macroR")
-        }
-      }
-      line("")
-    end renderNotification
+              val reader = req.params match
+                case ParamsType.None =>
+                  WriterDefinition.Expression("unitReader")
+                case ParamsType.Single(t) => upickleReader1(t, "In")
+                case ParamsType.Many(t) =>
+                  WriterDefinition.Expression("Pickle.macroR")
 
-    def rec(segments: List[String])(using Config): Unit =
-      segments match
-        case Nil => ()
-        case h :: t =>
-          val scopeName =
-            h match
-              case "$"   => "$DOLLAR"
-              case other => other
-          line(s"object $scopeName:")
-          nest { rec(t) }
+              codecsLine(s"given inputReader: Reader[In] = ")
+              nest {
+                reader.write(codecsOut)
+              }
 
-    extension [A](value: A) def unionise[T] = value.asInstanceOf[A | T]
+              codecsLine("")
 
-    val sorted =
-      (manager.requests.map(_.unionise[Notification]) ++
-        manager.notifications.map(_.unionise[Request]))
-        .sortBy(_.methodName.value)
+              codecsLine(s"given inputWriter: Writer[In] = ")
+              nest {
+                req.params match
+                  case ParamsType.None => codecsLine("unitWriter")
+                  case ParamsType.Single(t) =>
+                    upickleWriter(t, Some("In")).write(codecsOut)
+                  case ParamsType.Many(t) => codecsLine("Pickle.macroR")
+              }
 
-    val names = sorted.map(_.segs).toSet
+              codecsLine("")
 
-    inline def render(r: Notification | Request)(using Config) =
-      r match
-        case n: Notification => renderNotification(n)
-        case r: Request      => renderReq(r)
+              codecsLine(s"given outputWriter: Writer[Out] =")
+              nest {
+                upickleWriter(req.result, Some("Out")).write(codecsOut)
+              }
 
-    sorted.zipWithIndex.foreach { (req, i) =>
-      val segs = req.segs
-      scribe.info(s"$segs")
+              codecsLine("")
 
-      val next = if i < sorted.size - 1 then Some(sorted(i + 1)) else None
+              codecsLine(
+                s"given outputReader: Reader[Out] ="
+              )
+              nest {
+                upickleReader1(req.result, "Out").write(codecsOut)
+              }
 
-      if segs.size == 1 then render(req)
-      else
-        val last :: reversedFront = segs.reverse
-        val front                 = reversedFront.reverse
-
-        if front != currentScope then
-          val same =
-            currentScope.zip(front).takeWhile((a, b) => a == b).map(_._1)
-
-          val nein =
-            val prev = segs.dropRight(1)
-            if names.contains(prev) then 1
-            else 0
-
-          deep(same.size) {
-            rec(front.drop(same.size).dropRight(nein))
+            }
           }
-          currentScope = front
-        end if
-
-        deep(currentScope.size) {
-          render(req)
         }
-      end if
+        line("")
+      end renderReq
+
+      def renderNotification(req: Notification)(using Config) =
+        req.documentation.toOption.foreach { doc =>
+          commentWriter(out) { cw =>
+            import cw.*
+
+            commentLine(doc.value)
+          }
+        }
+        val codecTraitName =
+          s"notifications_${req.method.value.replace('/', '_')}"
+        line(
+          s"object ${req.name} extends LSPNotification(\"${req.method.value}\") with codecs.$codecTraitName:"
+        )
+        nest {
+          line(s"type In = ${renderParams(req.params)}")
+          line("")
+          codecsOut.topLevel {
+            codecsLine("")
+
+            val path = req.segs
+              .collect {
+                case "$" => "$DOLLAR"
+                case o   => o
+              }
+              .mkString(".")
+
+            codecsLine("")
+            codecsLine(
+              s"private[lsp] trait $codecTraitName:"
+            )
+            nest {
+              codecsLine(s"import $path.In")
+
+              val reader = req.params match
+                case ParamsType.None =>
+                  WriterDefinition.Expression("unitReader")
+                case ParamsType.Single(t) => upickleReader1(t, "In")
+                case ParamsType.Many(t) =>
+                  WriterDefinition.Expression("Pickle.macroR")
+
+              codecsLine(s"given inputReader: Reader[In] = ")
+              nest {
+                reader.write(codecsOut)
+              }
+              codecsLine(s"given inputWriter: Writer[In] = ")
+              nest {
+                req.params match
+                  case ParamsType.None => codecsLine("unitWriter")
+                  case ParamsType.Single(t) =>
+                    upickleWriter(t, Some("In")).write(codecsOut)
+                  case ParamsType.Many(t) => codecsLine("Pickle.macroR")
+              }
+            }
+          }
+        }
+        line("")
+      end renderNotification
+
+      def rec(segments: List[String])(using Config): Unit =
+        segments match
+          case Nil => ()
+          case h :: t =>
+            val scopeName =
+              h match
+                case "$"   => "$DOLLAR"
+                case other => other
+            line(s"object $scopeName:")
+            nest { rec(t) }
+
+      extension [A](value: A) def unionise[T] = value.asInstanceOf[A | T]
+
+      val sorted =
+        (manager.requests.map(_.unionise[Notification]) ++
+          manager.notifications.map(_.unionise[Request]))
+          .sortBy(_.methodName.value)
+
+      val names = sorted.map(_.segs).toSet
+
+      inline def render(r: Notification | Request)(using Config) =
+        r match
+          case n: Notification => renderNotification(n)
+          case r: Request      => renderReq(r)
+
+      sorted.zipWithIndex.foreach { (req, i) =>
+        val segs = req.segs
+        scribe.info(s"$segs")
+
+        val next = if i < sorted.size - 1 then Some(sorted(i + 1)) else None
+
+        if segs.size == 1 then render(req)
+        else
+          val last :: reversedFront = segs.reverse
+          val front                 = reversedFront.reverse
+
+          if front != currentScope then
+            val same =
+              currentScope.zip(front).takeWhile((a, b) => a == b).map(_._1)
+
+            val nein =
+              val prev = segs.dropRight(1)
+              if names.contains(prev) then 1
+              else 0
+
+            deep(same.size) {
+              rec(front.drop(same.size).dropRight(nein))
+            }
+            currentScope = front
+          end if
+
+          deep(currentScope.size) {
+            render(req)
+          }
+        end if
+      }
     }
 
   end requests
 
-  def structures(builder: LineBuilder, subPackage: String = "structures")(using
-      Config
-  ): Unit =
-    inline def line: Config ?=> Appender = to(builder)
+  def structures(
+      out: LineBuilder,
+      codecsOut: LineBuilder
+  )(using Config): Unit =
+    inline def line: Config ?=> Appender = to(out)
     line(s"package $packageName")
-    line(s"package $subPackage")
     line("")
     line("import langoustine.*")
     line("import upickle.default.*")
-    line("import langoustine.lsp.json.{*, given}")
+    line("import json.{*, given}")
+    line("import runtime.{*, given}")
     line("// format: off")
     line("")
 
-    given Context = Context.global(manager, "structures")
+    given Context = Context.global(manager, List("structures"))
 
-    manager.structures.foreach { s =>
-      structure(s, builder)
-      line("")
+    line("object structures:")
+
+    nest {
+      manager.structures.foreach { s =>
+        structure(s, out, codecsOut)
+        line("")
+      }
     }
   end structures
 
@@ -341,9 +411,9 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line(" */")
   end commentWriter
 
-  def structure(s: Structure, builder: LineBuilder)(using Config)(using
-      ctx: Context
-  ): Unit =
+  def structure(s: Structure, builder: LineBuilder, codecsOut: LineBuilder)(
+      using Config
+  )(using ctx: Context): Unit =
     val props = Vector.newBuilder[String]
     val inlineStructures =
       Map.newBuilder[Type.ReferenceType, (String, Type.StructureLiteralType)]
@@ -438,32 +508,51 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
       }
     }
     line(")")
-    val stls = inlineStructures.result()
-    line(s"object ${s.name}:")
+    val stls          = inlineStructures.result()
+    val fqf           = (ctx.definitionScope :+ s.name).mkString(".")
+    val fqfUnderscore = (ctx.definitionScope :+ s.name).mkString("_")
+
+    if stls.nonEmpty then
+      line(s"object ${s.name} extends codecs.$fqfUnderscore:")
+    else line(s"object ${s.name} extends codecs.$fqfUnderscore")
+
     nest {
       val allUnions = propTypes.result().flatMap(collectOrTypes)
 
-      allUnions.distinct.zipWithIndex.foreach {
-        case (NullableType(_), _) =>
-        case (ot, idx) =>
-          val union = renderType(ot)
-          line(
-            s"private given rd$idx: Reader[$union] = "
+      inline def codecsLine: Config ?=> Appender = to(codecsOut)
+
+      codecsOut.topLevel {
+        codecsLine("")
+        codecsLine(s"private[lsp] trait $fqfUnderscore:")
+        nest {
+          ctx.definitionScope match
+            case Nil =>
+            case scope =>
+              codecsLine(s"import ${scope.mkString(".")}.*")
+          allUnions.distinct.zipWithIndex.foreach {
+            case (NullableType(_), _) =>
+            case (ot, idx) =>
+              val union = renderType(ot)
+              codecsLine(
+                s"private given rd$idx: Reader[$union] = "
+              )
+              nest {
+                upickleReader1(ot, union).write(codecsOut)
+              }
+              codecsLine(s"private given wt$idx: Writer[$union] = ")
+              nest {
+                upickleWriter(ot, Some(union)).write(codecsOut)
+              }
+          }
+          codecsLine(
+            s"given reader: Reader[$fqf] = Pickle.macroR"
           )
-          nest {
-            upickleReader1(ot, union).write(builder)
-          }
-          line(s"private given wt$idx: Writer[$union] = ")
-          nest {
-            upickleWriter(ot, Some(union)).write(builder)
-          }
+          codecsLine(
+            s"given writer: Writer[$fqf] = upickle.default.macroW"
+          )
+        }
+        codecsLine("")
       }
-      line(
-        s"given reader: Reader[${ctx.definitionScope}.${s.name}] = Pickle.macroR"
-      )
-      line(
-        s"given writer: Writer[${ctx.definitionScope}.${s.name}] = upickle.default.macroW"
-      )
       stls.foreach { case (rt, (newName, stl)) =>
         val struct = Structure(
           `extends` = Vector.empty,
@@ -473,19 +562,20 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         )
 
         given Context =
-          ctx.copy(definitionScope = ctx.definitionScope + "." + s.name.value)
+          ctx.copy(definitionScope = ctx.definitionScope :+ s.name.value)
 
-        this.structure(struct, builder)
+        this.structure(struct, builder, codecsOut)
       }
     }
   end structure
 
-  def upickleReader1(t: Type, widen: String)(using
+  def upickleReader1(t: Type, widen: String, cast: Option[String] = None)(using
       Context,
       Config
   ): WriterDefinition =
     import WriterDefinition.*
     import Type.*
+    val asInst = cast.map(s => s".asInstanceOf[Reader[$s]]").getOrElse("")
     t match
       case ot: OrType =>
         val constituents = ot.items.map(upickleReader(_))
@@ -500,15 +590,15 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
             }
           }
 
-          line(constituents.mkString(s"badMerge[$widen](", ", ", ")"))
+          line(constituents.mkString(s"badMerge[$widen](", ", ", s")$asInst"))
         }
       case BaseType(BaseTypes.NULL)    => Expression("nullReadWriter")
-      case BaseType(BaseTypes.string)  => Expression("stringCodec")
-      case BaseType(BaseTypes.integer) => Expression("intCodec")
+      case BaseType(BaseTypes.string)  => Expression(s"stringCodec$asInst")
+      case BaseType(BaseTypes.integer) => Expression(s"intCodec$asInst")
       case rt @ ReferenceType(ref) if ref.value == "LSPAny" =>
         Expression("jsReader")
       case rt @ ReferenceType(ref) =>
-        Expression(summon[Context].resolve(rt).value + ".reader")
+        Expression(summon[Context].resolve(rt).value + s".reader$asInst")
       case _: AndType => Expression(s"??? /* TODO: $t  */")
       case at: ArrayType =>
         Definition { out =>
@@ -521,9 +611,9 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
             }
           }
 
-          line(s"vectorReader[${renderType(at.element)}]")
+          line(s"vectorReader[${renderType(at.element)}]$asInst")
         }
-      case t => Expression(s"upickle.default.reader[${renderType(t)}]")
+      case t => Expression(s"upickle.default.reader[${renderType(t)}]$asInst")
     end match
   end upickleReader1
 
@@ -557,22 +647,27 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         case Expression(str) => to(out)(str)
         case Definition(f)   => f(out)
 
-  def upickleWriter(t: Type, widen: Option[String] = None)(using
+  def upickleWriter(
+      t: Type,
+      widen: Option[String] = None,
+      cast: Option[String] = None
+  )(using
       Context,
       Config
   ): WriterDefinition =
     import Type.*
+    val asInst = cast.map(s => s".asInstanceOf[Writer[$s]]").getOrElse("")
     import WriterDefinition.*
     t match
       case BaseType(BaseTypes.NULL)    => Expression("nullReadWriter")
-      case BaseType(BaseTypes.string)  => Expression("stringCodec")
-      case BaseType(BaseTypes.integer) => Expression("intCodec")
+      case BaseType(BaseTypes.string)  => Expression(s"stringCodec$asInst")
+      case BaseType(BaseTypes.integer) => Expression(s"intCodec$asInst")
       case rt @ ReferenceType(ref) if ref.value == "LSPAny" =>
         Expression("jsWriter")
       case rt: ReferenceType =>
-        Expression(summon[Context].resolve(rt).value + ".writer")
+        Expression(summon[Context].resolve(rt).value + s".writer$asInst")
       case _: BaseType | _: BooleanLiteralType | _: StringLiteralType =>
-        Expression(s"upickle.default.writer[${renderType(t)}]")
+        Expression(s"upickle.default.writer[${renderType(t)}]$asInst")
       case other =>
         val allOrs = collectOrTypes(other).distinct
         other match
@@ -607,7 +702,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
                 }
               }
 
-              line("}")
+              line(s"}$asInst")
 
             }
           case ot: ArrayType =>
@@ -621,41 +716,45 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
                 }
               }
 
-              line(s"vectorWriter[${renderType(ot.element)}]")
+              line(s"vectorWriter[${renderType(ot.element)}]$asInst")
             }
           case _ => Expression("???")
         end match
     end match
   end upickleWriter
 
-  def aliases(out: LineBuilder, subPackage: String = "aliases")(using Config) =
+  def aliases(
+      out: LineBuilder,
+      codecsOut: LineBuilder
+  )(using Config) =
     inline def line: Config ?=> Appender = to(out)
 
     line(s"package $packageName")
     line("")
     line("import langoustine.*")
-    line("import langoustine.lsp.json.{*, given}")
+    line("import json.{*, given}")
+    line("import runtime.{*, given}")
     line("import upickle.default.*")
     line("import scala.reflect.*")
     line("// format: off")
     line("")
 
-    given ctx: Context = Context.global(manager, "aliases")
+    given ctx: Context = Context.global(manager, List("aliases"))
 
-    line(s"object $subPackage: ")
+    line(s"object aliases: ")
     nest {
-      manager.aliases.foreach { a =>
+      manager.aliases.foreach { alias =>
         val inlineStructures =
           Map
             .newBuilder[Type.ReferenceType, (String, Type.StructureLiteralType)]
 
         var inlineAnonymousStructures = 0
-        val newType = a.`type`.traverse {
+        val newType = alias.`type`.traverse {
           case stl: Type.StructureLiteralType =>
             val newTypeName = "S" + inlineAnonymousStructures
             val newType: Type.ReferenceType = Type.ReferenceType(
               TypeName(
-                a.name.value + "." + newTypeName
+                alias.name.value + "." + newTypeName
               )
             )
 
@@ -666,12 +765,47 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
           case other => TypeTraversal.Skip
         }
 
-        if a.name.value == "LSPArray" then
+        if alias.name.value == "LSPArray" then
           line(s"case class LSPArray(elements: ${renderType(newType)})")
-        else line(s"opaque type ${a.name} = ${renderType(newType)}")
+        else line(s"opaque type ${alias.name} = ${renderType(newType)}")
+
+        val fqf           = (ctx.definitionScope :+ alias.name).mkString(".")
+        val fqfUnderscore = (ctx.definitionScope :+ alias.name).mkString("_")
 
         val stls = inlineStructures.result()
-        line(s"object ${a.name}:")
+
+        line(s"object ${alias.name} extends codecs.$fqfUnderscore:")
+
+        inline def codecsLine: Config ?=> Appender = to(codecsOut)
+
+        codecsOut.topLevel {
+          codecsLine("")
+          codecsLine(s"private[lsp] trait $fqfUnderscore:")
+          nest {
+            codecsLine("")
+
+            codecsLine(s"given reader: Reader[${alias.name}] = ")
+            nest {
+              upickleReader1(
+                newType,
+                alias.name.value,
+                cast = Some(alias.name.value)
+              ).write(codecsOut)
+            }
+
+            codecsLine("")
+
+            codecsLine(s"given writer: Writer[${alias.name}] =")
+            nest {
+              upickleWriter(
+                newType,
+                Some(alias.name.value),
+                cast = Some(alias.name.value)
+              ).write(codecsOut)
+            }
+          }
+        }
+
         nest {
           import Type.*
           val constituents =
@@ -680,29 +814,12 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
               case other         => Vector(other)
 
           constituents.foreach { tpe =>
-            line(s"inline def apply(v: ${renderType(tpe)}): ${a.name} = v")
+            line(s"inline def apply(v: ${renderType(tpe)}): ${alias.name} = v")
           }
 
           line("")
 
-          line(s"given reader: Reader[${a.name}] = ")
-          nest {
-            upickleReader1(newType, a.name.value).write(out)
-          }
-
-          line("")
-
-          line(s"given writer: Writer[${a.name}] =")
-          nest {
-            upickleWriter(
-              newType,
-              Some(a.name.value)
-            ).write(out)
-          }
-
-          line("")
-
-          typeTestRender(a.name.into(TypeName), newType).write(out)
+          typeTestRender(alias.name.into(TypeName), newType).write(out)
 
           stls.foreach { case (rt, (newName, stl)) =>
             val struct = Structure(
@@ -712,11 +829,12 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
               name = StructureName(newName)
             )
 
-            given Context = ctx.copy(definitionScope =
-              ctx.definitionScope + "." + a.name.value
-            )
+            given Context =
+              ctx.copy(definitionScope =
+                ctx.definitionScope :+ alias.name.value
+              )
 
-            this.structure(struct, out)
+            this.structure(struct, out, codecsOut)
           }
         }
         line("")
@@ -731,12 +849,13 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
 
     line(s"package $packageName")
     line("")
-    line("import langoustine.*")
+    line("import runtime.{*, given}")
+    line("import json.{*, given}")
     line("import scala.reflect.Typeable")
     line("// format: off")
     line("")
 
-    given ctx: Context = Context.global(manager, "enumerations")
+    given ctx: Context = Context.global(manager, List("enumerations"))
 
     line(s"object $subPackage: ")
     nest {
@@ -802,6 +921,10 @@ object Render:
       def emptyLine: LineBuilder             = lb.append(SEP)
       def emptyLines(n: Int): LineBuilder    = lb.append(SEP * n)
       def append(s: String): LineBuilder     = lb.append(s)
+      def topLevel(f: Config ?=> Unit)(using c: Config) =
+        f(using c.copy(indents = Indentation(0)))
+      def appender: Config ?=> Appender = to(lb)
+  end LineBuilder
 
   case class Config(indents: Indentation, indentSize: IndentationSize)
 
@@ -832,11 +955,11 @@ end Render
 object Types:
   case class Context(
       resolve: Type.ReferenceType => TypeName,
-      definitionScope: String
+      definitionScope: List[String]
   )
 
   object Context:
-    def global(manager: Manager, scope: String) =
+    def global(manager: Manager, scope: List[String]) =
       val rtFallback = (rt: Type.ReferenceType) =>
         manager
           .get(rt.name.value)
@@ -856,14 +979,14 @@ object Types:
   def renderBase(bt: Type.BaseType) =
     bt.name match
       case BaseTypes.NULL        => "Null"
-      case BaseTypes.DocumentUri => "RuntimeBase.DocumentUri"
-      case BaseTypes.Uri         => "RuntimeBase.DocumentUri"
-      case BaseTypes.RegExp      => "RuntimeBase.RegExp"
+      case BaseTypes.DocumentUri => "runtime.DocumentUri"
+      case BaseTypes.Uri         => "runtime.Uri"
+      case BaseTypes.RegExp      => "RegExp"
       case BaseTypes.string      => "String"
       case BaseTypes.boolean     => "Boolean"
       case BaseTypes.integer     => "Int"
       case BaseTypes.decimal     => "Float"
-      case BaseTypes.uinteger    => "RuntimeBase.uinteger"
+      case BaseTypes.uinteger    => "runtime.uinteger"
 
   object NullableType:
     def unapply(tpe: Type): Option[Type] =
@@ -942,3 +1065,24 @@ object Types:
     if prohibited(name) then s"`$name`" else name
   end sanitise
 end Types
+
+object Constants:
+  val LICENCE =
+    """
+    |/*
+    | * Copyright 2022 Neandertech
+    | *
+    | * Licensed under the Apache License, Version 2.0 (the "License");
+    | * you may not use this file except in compliance with the License.
+    | * You may obtain a copy of the License at
+    | *
+    | *     http://www.apache.org/licenses/LICENSE2.0
+    | *
+    | * Unless required by applicable law or agreed to in writing, software
+    | * distributed under the License is distributed on an "AS IS" BASIS,
+    | * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    | * See the License for the specific language governing permissions and
+    | * limitations under the License.
+    | */
+    |""".stripMargin.trim
+end Constants

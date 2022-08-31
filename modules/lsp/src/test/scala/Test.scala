@@ -4,9 +4,7 @@ import jsonrpclib.Monadic
 import scala.util.*
 import cats.MonadThrow
 
-import structures.*
-import enumerations.*
-import langoustine.lsp.json.*
+import langoustine.lsp.all.*
 import cats.Monad
 
 def basicServer[F[_]: Monadic] =
@@ -18,7 +16,6 @@ object LSPSuite extends verify.BasicTestSuite:
   test("initialize") {
 
     import requests.*
-    import RuntimeBase.*
 
     val capabilities =
       ServerCapabilities(
@@ -49,7 +46,6 @@ object LSPSuite extends verify.BasicTestSuite:
 
   test("didOpen") {
     import requests.*
-    import RuntimeBase.*
 
     val server = basicServer[Try].handleNotification(textDocument.didOpen) {
       in =>

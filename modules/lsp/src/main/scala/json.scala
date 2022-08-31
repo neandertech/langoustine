@@ -20,7 +20,7 @@ import langoustine.*
 import upickle.default.*
 import scala.util.NotGiven
 
-object json:
+private[lsp] object json:
   val valueReader = upickle.default.readwriter[ujson.Value]
   def badMerge[T](r1: => Reader[?], rest: Reader[?]*): Reader[T] =
     valueReader.map { json =>
@@ -64,31 +64,6 @@ object json:
 
   def vectorWriter[T: Writer]: Writer[Vector[T]] = summon[Writer[Vector[T]]]
   def vectorReader[T: Reader]: Reader[Vector[T]] = summon[Reader[Vector[T]]]
-
-  opaque type Opt[+A] = A | Null
-  object Opt:
-    inline def empty: Opt[Nothing]    = null
-    inline def apply[A](a: A): Opt[A] = a
-
-    given [A]: CanEqual[Opt[A], Null] = CanEqual.canEqualAny
-
-    given [A](using
-        rd: Reader[A]
-    ): Reader[Opt[A]] =
-      jsReader.map[Opt[A]] {
-        case ujson.Null => empty
-        case other      => upickle.default.read(other)(using rd)
-      }
-
-    given [A](using
-        wt: Writer[A]
-    ): Writer[Opt[A]] =
-      jsWriter.comap[Opt[A]] {
-        case other => upickle.default.writeJs(other.asInstanceOf[A])(using wt)
-        case null  => ujson.Null
-      }
-
-  end Opt
 
 end json
 
