@@ -26,7 +26,6 @@ def timeline(
   val splitStream =
     filteredMessages
       .split(e => uniqueId(e))(renderMessage(showing))
-      .debugSpyEvents(els => println(els.length))
 
   div(
     display.flex,

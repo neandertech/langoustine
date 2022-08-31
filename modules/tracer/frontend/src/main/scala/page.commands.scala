@@ -23,9 +23,9 @@ def commandTracer(
         .debounce(500)
         .startWith(Date.now())
         .flatMap { _ =>
-          Signal
+          EventStream
             .fromFuture(Api.all)
-            .map(_.toVector.flatten.reverse)
+            .map(_.reverse)
         } --> messagesState.writer,
       timeline(messagesState, commandFilter, showing)
     )
