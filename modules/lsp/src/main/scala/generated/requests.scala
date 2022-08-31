@@ -59,7 +59,7 @@ object requests:
     /**
      *  A request to resolve the incoming calls for a given `CallHierarchyItem`.
      *  
-     *  @since 3.16.0
+     *  since 3.16.0
      */
     object incomingCalls extends LSPRequest("callHierarchy/incomingCalls") with codecs.requests_callHierarchy_incomingCalls:
       type In = structures.CallHierarchyIncomingCallsParams
@@ -69,7 +69,7 @@ object requests:
     /**
      *  A request to resolve the outgoing calls for a given `CallHierarchyItem`.
      *  
-     *  @since 3.16.0
+     *  since 3.16.0
      */
     object outgoingCalls extends LSPRequest("callHierarchy/outgoingCalls") with codecs.requests_callHierarchy_outgoingCalls:
       type In = structures.CallHierarchyOutgoingCallsParams
@@ -172,7 +172,7 @@ object requests:
      *  The request's parameter is of type [InlayHint](#InlayHint), the response is
      *  of type [InlayHint](#InlayHint) or a Thenable that resolves to such.
      *  
-     *  @since 3.17.0
+     *  since 3.17.0
      */
     object resolve extends LSPRequest("inlayHint/resolve") with codecs.requests_inlayHint_resolve:
       type In = structures.InlayHint
@@ -302,7 +302,7 @@ object requests:
     /**
      *  The document diagnostic request definition.
      *  
-     *  @since 3.17.0
+     *  since 3.17.0
      */
     object diagnostic extends LSPRequest("textDocument/diagnostic") with codecs.requests_textDocument_diagnostic:
       type In = structures.DocumentDiagnosticParams
@@ -438,7 +438,7 @@ object requests:
      *  type [InlayHintsParams](#InlayHintsParams), the response is of type
      *  [InlayHint[]](#InlayHint[]) or a Thenable that resolves to such.
      *  
-     *  @since 3.17.0
+     *  since 3.17.0
      */
     object inlayHint extends LSPRequest("textDocument/inlayHint") with codecs.requests_textDocument_inlayHint:
       type In = structures.InlayHintParams
@@ -450,7 +450,7 @@ object requests:
      *  type [InlineValueParams](#InlineValueParams), the response is of type
      *  [InlineValue[]](#InlineValue[]) or a Thenable that resolves to such.
      *  
-     *  @since 3.17.0
+     *  since 3.17.0
      */
     object inlineValue extends LSPRequest("textDocument/inlineValue") with codecs.requests_textDocument_inlineValue:
       type In = structures.InlineValueParams
@@ -460,7 +460,7 @@ object requests:
     /**
      *  A request to provide ranges that can be edited together.
      *  
-     *  @since 3.16.0
+     *  since 3.16.0
      */
     object linkedEditingRange extends LSPRequest("textDocument/linkedEditingRange") with codecs.requests_textDocument_linkedEditingRange:
       type In = structures.LinkedEditingRangeParams
@@ -489,7 +489,7 @@ object requests:
      *  A request to result a `CallHierarchyItem` in a document at a given position.
      *  Can be used as an input to an incoming or outgoing call hierarchy.
      *  
-     *  @since 3.16.0
+     *  since 3.16.0
      */
     object prepareCallHierarchy extends LSPRequest("textDocument/prepareCallHierarchy") with codecs.requests_textDocument_prepareCallHierarchy:
       type In = structures.CallHierarchyPrepareParams
@@ -499,7 +499,7 @@ object requests:
     /**
      *  A request to test and perform the setup necessary for a rename.
      *  
-     *  @since 3.16 - support for default behavior
+     *  since 3.16 - support for default behavior
      */
     object prepareRename extends LSPRequest("textDocument/prepareRename") with codecs.requests_textDocument_prepareRename:
       type In = structures.PrepareRenameParams
@@ -510,7 +510,7 @@ object requests:
      *  A request to result a `TypeHierarchyItem` in a document at a given position.
      *  Can be used as an input to a subtypes or supertypes type hierarchy.
      *  
-     *  @since 3.17.0
+     *  since 3.17.0
      */
     object prepareTypeHierarchy extends LSPRequest("textDocument/prepareTypeHierarchy") with codecs.requests_textDocument_prepareTypeHierarchy:
       type In = structures.TypeHierarchyPrepareParams
@@ -565,7 +565,7 @@ object requests:
     
     object semanticTokens:
       /**
-       *  @since 3.16.0
+       *  since 3.16.0
        */
       object full extends LSPRequest("textDocument/semanticTokens/full") with codecs.requests_textDocument_semanticTokens_full:
         type In = structures.SemanticTokensParams
@@ -573,7 +573,7 @@ object requests:
         
       
         /**
-         *  @since 3.16.0
+         *  since 3.16.0
          */
         object delta extends LSPRequest("textDocument/semanticTokens/full/delta") with codecs.requests_textDocument_semanticTokens_full_delta:
           type In = structures.SemanticTokensDeltaParams
@@ -581,7 +581,7 @@ object requests:
           
         
       /**
-       *  @since 3.16.0
+       *  since 3.16.0
        */
       object range extends LSPRequest("textDocument/semanticTokens/range") with codecs.requests_textDocument_semanticTokens_range:
         type In = structures.SemanticTokensRangeParams
@@ -629,7 +629,7 @@ object requests:
     /**
      *  A request to resolve the subtypes for a given `TypeHierarchyItem`.
      *  
-     *  @since 3.17.0
+     *  since 3.17.0
      */
     object subtypes extends LSPRequest("typeHierarchy/subtypes") with codecs.requests_typeHierarchy_subtypes:
       type In = structures.TypeHierarchySubtypesParams
@@ -639,7 +639,7 @@ object requests:
     /**
      *  A request to resolve the supertypes for a given `TypeHierarchyItem`.
      *  
-     *  @since 3.17.0
+     *  since 3.17.0
      */
     object supertypes extends LSPRequest("typeHierarchy/supertypes") with codecs.requests_typeHierarchy_supertypes:
       type In = structures.TypeHierarchySupertypesParams
@@ -661,7 +661,7 @@ object requests:
      *  For example a request to open `https://code.visualstudio.com/`
      *  will very likely open the URI in a WEB browser.
      *  
-     *  @since 3.16.0
+     *  since 3.16.0
      */
     object showDocument extends LSPRequest("window/showDocument") with codecs.requests_window_showDocument:
       type In = structures.ShowDocumentParams
@@ -716,7 +716,7 @@ object requests:
       /**
        *  A request to refresh all code actions
        *  
-       *  @since 3.16.0
+       *  since 3.16.0
        */
       object refresh extends LSPRequest("workspace/codeLens/refresh") with codecs.requests_workspace_codeLens_refresh:
         type In = Unit
@@ -740,7 +740,7 @@ object requests:
     /**
      *  The workspace diagnostic request definition.
      *  
-     *  @since 3.17.0
+     *  since 3.17.0
      */
     object diagnostic extends LSPRequest("workspace/diagnostic") with codecs.requests_workspace_diagnostic:
       type In = structures.WorkspaceDiagnosticParams
@@ -750,7 +750,7 @@ object requests:
       /**
        *  The diagnostic refresh request definition.
        *  
-       *  @since 3.17.0
+       *  since 3.17.0
        */
       object refresh extends LSPRequest("workspace/diagnostic/refresh") with codecs.requests_workspace_diagnostic_refresh:
         type In = Unit
@@ -823,7 +823,7 @@ object requests:
     
     object inlayHint:
       /**
-       *  @since 3.17.0
+       *  since 3.17.0
        */
       object refresh extends LSPRequest("workspace/inlayHint/refresh") with codecs.requests_workspace_inlayHint_refresh:
         type In = Unit
@@ -832,7 +832,7 @@ object requests:
       
     object inlineValue:
       /**
-       *  @since 3.17.0
+       *  since 3.17.0
        */
       object refresh extends LSPRequest("workspace/inlineValue/refresh") with codecs.requests_workspace_inlineValue_refresh:
         type In = Unit
@@ -841,7 +841,7 @@ object requests:
       
     object semanticTokens:
       /**
-       *  @since 3.16.0
+       *  since 3.16.0
        */
       object refresh extends LSPRequest("workspace/semanticTokens/refresh") with codecs.requests_workspace_semanticTokens_refresh:
         type In = Unit
@@ -854,7 +854,7 @@ object requests:
      *  of type [SymbolInformation[]](#SymbolInformation) or a Thenable that
      *  resolves to such.
      *  
-     *  @since 3.17.0 - support for WorkspaceSymbol in the returned data. Clients
+     *  since 3.17.0 - support for WorkspaceSymbol in the returned data. Clients
      *   need to advertise support for WorkspaceSymbols via the client capability
      *   `workspace.symbol.resolveSupport`.
      */
@@ -867,7 +867,7 @@ object requests:
      *  The will create files request is sent from the client to the server before files are actually
      *  created as long as the creation is triggered from within the client.
      *  
-     *  @since 3.16.0
+     *  since 3.16.0
      */
     object willCreateFiles extends LSPRequest("workspace/willCreateFiles") with codecs.requests_workspace_willCreateFiles:
       type In = structures.CreateFilesParams
@@ -878,7 +878,7 @@ object requests:
      *  The did delete files notification is sent from the client to the server when
      *  files were deleted from within the client.
      *  
-     *  @since 3.16.0
+     *  since 3.16.0
      */
     object willDeleteFiles extends LSPRequest("workspace/willDeleteFiles") with codecs.requests_workspace_willDeleteFiles:
       type In = structures.DeleteFilesParams
@@ -889,7 +889,7 @@ object requests:
      *  The will rename files request is sent from the client to the server before files are actually
      *  renamed as long as the rename is triggered from within the client.
      *  
-     *  @since 3.16.0
+     *  since 3.16.0
      */
     object willRenameFiles extends LSPRequest("workspace/willRenameFiles") with codecs.requests_workspace_willRenameFiles:
       type In = structures.RenameFilesParams
@@ -909,7 +909,7 @@ object requests:
      *  A request to resolve the range inside the workspace
      *  symbol's location.
      *  
-     *  @since 3.17.0
+     *  since 3.17.0
      */
     object resolve extends LSPRequest("workspaceSymbol/resolve") with codecs.requests_workspaceSymbol_resolve:
       type In = structures.WorkspaceSymbol

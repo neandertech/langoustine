@@ -92,7 +92,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
           commentWriter(out) { cw =>
             import cw.*
 
-            commentLine(doc.value)
+            commentLine(doc.value.replace("@since", "since"))
           }
 
         }
@@ -411,8 +411,12 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line(" */")
   end commentWriter
 
-  def structure(s: Structure, builder: LineBuilder, codecsOut: LineBuilder)(
-      using Config
+  def structure(
+      structure: Structure,
+      builder: LineBuilder,
+      codecsOut: LineBuilder
+  )(using
+      Config
   )(using ctx: Context): Unit =
     val props = Vector.newBuilder[String]
     val inlineStructures =
@@ -435,9 +439,9 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         case _ => Vector.empty
 
     val allProperties =
-      s.properties ++
-        s.`extends`.flatMap(refProperties) ++
-        s.mixins.flatMap(refProperties)
+      structure.properties ++
+        structure.`extends`.flatMap(refProperties) ++
+        structure.mixins.flatMap(refProperties)
 
     val propTypes = Vector.newBuilder[Type]
 
@@ -447,7 +451,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
           val newTypeName = p.name.value.capitalize
           val newType: Type.ReferenceType = Type.ReferenceType(
             TypeName(
-              s.name.value + "." + newTypeName
+              structure.name.value + "." + newTypeName
             )
           )
           propTypes += newType
@@ -459,7 +463,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
               val newTypeName = "S" + inlineAnonymousStructures
               val newType: Type.ReferenceType = Type.ReferenceType(
                 TypeName(
-                  s.name.value + "." + newTypeName
+                  structure.name.value + "." + newTypeName
                 )
               )
 
@@ -475,13 +479,13 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
 
     val finalProperties = props.result()
 
-    val hasDocs = s.documentation != Opt.empty ||
+    val hasDocs = structure.documentation != Opt.empty ||
       allProperties.exists(_.documentation != Opt.empty)
 
     if hasDocs then
       commentWriter(builder) { cw =>
         import cw.*
-        s.documentation.toOption.foreach { d =>
+        structure.documentation.toOption.foreach { d =>
           commentLine(d.value)
           line("")
         }
@@ -492,7 +496,8 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
           )
           prop.documentation.toOption.foreach { d =>
             d.value.linesIterator.foreach { l =>
-              commentLine(s"  $l")
+              val escaped = l.replace("@since", "since")
+              commentLine(s"  $escaped")
             }
             line("")
           }
@@ -500,7 +505,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
       }
     end if
 
-    line(s"case class ${s.name}(")
+    line(s"case class ${structure.name}(")
     nest {
       finalProperties.zipWithIndex.foreach { (propLine, idx) =>
         if idx != finalProperties.length - 1 then line(propLine + ",")
@@ -509,12 +514,22 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     }
     line(")")
     val stls          = inlineStructures.result()
-    val fqf           = (ctx.definitionScope :+ s.name).mkString(".")
-    val fqfUnderscore = (ctx.definitionScope :+ s.name).mkString("_")
+    val fqf           = (ctx.definitionScope :+ structure.name).mkString(".")
+    val fqfUnderscore = (ctx.definitionScope :+ structure.name).mkString("_")
+
+    val extensions =
+      if ctx.definitionScope == List(
+          "structures"
+        ) && structure.name.value == "Position"
+      then " with extensions.PositionSyntax"
+      else ""
 
     if stls.nonEmpty then
-      line(s"object ${s.name} extends codecs.$fqfUnderscore:")
-    else line(s"object ${s.name} extends codecs.$fqfUnderscore")
+      line(
+        s"object ${structure.name} extends codecs.$fqfUnderscore$extensions:"
+      )
+    else
+      line(s"object ${structure.name} extends codecs.$fqfUnderscore$extensions")
 
     nest {
       val allUnions = propTypes.result().flatMap(collectOrTypes)
@@ -562,7 +577,9 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         )
 
         given Context =
-          ctx.copy(definitionScope = ctx.definitionScope :+ s.name.value)
+          ctx.copy(definitionScope =
+            ctx.definitionScope :+ structure.name.value
+          )
 
         this.structure(struct, builder, codecsOut)
       }
@@ -686,12 +703,39 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
               nest {
                 line("(_v: @unchecked) match ")
                 nest {
-                  ot.items.map {
-                    case at: ArrayType =>
+                  val (vectors, nonVectors) = ot.items.partition {
+                    case at: ArrayType => true
+                    case _             => false
+                  }
+
+                  vectors.collect { case at: ArrayType => at }.toList match
+                    case Nil =>
+                    case at :: Nil =>
                       val typeName = renderType(at)
                       line(
                         s"case v: Vector[?] => writeJs[$typeName](v.asInstanceOf[$typeName])"
                       )
+                    case many @ (at :: _) =>
+                      val first = renderType(at)
+                      line("case v: Vector[?] => ")
+                      nest {
+                        line("v.headOption match")
+                        nest {
+                          line(
+                            s"case None => writeJs[$first](v.asInstanceOf[$first])"
+                          )
+                          many.foreach { arrayType =>
+                            val rendered        = renderType(arrayType)
+                            val renderedElement = renderType(arrayType.element)
+                            line(
+                              s"case Some(_: $renderedElement) => writeJs[$rendered](v.asInstanceOf[$rendered])"
+                            )
+                          }
+                        }
+                      }
+                  end match
+
+                  nonVectors.map {
                     case BaseType(BaseTypes.NULL) =>
                       line("case a if a == Opt.empty => ujson.Null")
                     case t =>
