@@ -362,8 +362,8 @@ private[lsp] trait requests_textDocument_declaration:
   given outputWriter: Writer[Out] =
     upickle.default.writer[ujson.Value].comap[Out] { _v => 
       (_v: @unchecked) match 
-        case v: aliases.Declaration => writeJs[aliases.Declaration](v)
         case v: Vector[?] => writeJs[Vector[aliases.DeclarationLink]](v.asInstanceOf[Vector[aliases.DeclarationLink]])
+        case v: aliases.Declaration => writeJs[aliases.Declaration](v)
         case a if a == Opt.empty => ujson.Null
     }
   
@@ -381,8 +381,8 @@ private[lsp] trait requests_textDocument_definition:
   given outputWriter: Writer[Out] =
     upickle.default.writer[ujson.Value].comap[Out] { _v => 
       (_v: @unchecked) match 
-        case v: aliases.Definition => writeJs[aliases.Definition](v)
         case v: Vector[?] => writeJs[Vector[aliases.DefinitionLink]](v.asInstanceOf[Vector[aliases.DefinitionLink]])
+        case v: aliases.Definition => writeJs[aliases.Definition](v)
         case a if a == Opt.empty => ujson.Null
     }
   
@@ -496,8 +496,11 @@ private[lsp] trait requests_textDocument_documentSymbol:
   given outputWriter: Writer[Out] =
     upickle.default.writer[ujson.Value].comap[Out] { _v => 
       (_v: @unchecked) match 
-        case v: Vector[?] => writeJs[Vector[structures.SymbolInformation]](v.asInstanceOf[Vector[structures.SymbolInformation]])
-        case v: Vector[?] => writeJs[Vector[structures.DocumentSymbol]](v.asInstanceOf[Vector[structures.DocumentSymbol]])
+        case v: Vector[?] => 
+          v.headOption match
+            case None => writeJs[Vector[structures.SymbolInformation]](v.asInstanceOf[Vector[structures.SymbolInformation]])
+            case Some(_: structures.SymbolInformation) => writeJs[Vector[structures.SymbolInformation]](v.asInstanceOf[Vector[structures.SymbolInformation]])
+            case Some(_: structures.DocumentSymbol) => writeJs[Vector[structures.DocumentSymbol]](v.asInstanceOf[Vector[structures.DocumentSymbol]])
         case a if a == Opt.empty => ujson.Null
     }
   
@@ -569,8 +572,8 @@ private[lsp] trait requests_textDocument_implementation:
   given outputWriter: Writer[Out] =
     upickle.default.writer[ujson.Value].comap[Out] { _v => 
       (_v: @unchecked) match 
-        case v: aliases.Definition => writeJs[aliases.Definition](v)
         case v: Vector[?] => writeJs[Vector[aliases.DefinitionLink]](v.asInstanceOf[Vector[aliases.DefinitionLink]])
+        case v: aliases.Definition => writeJs[aliases.Definition](v)
         case a if a == Opt.empty => ujson.Null
     }
   
@@ -885,8 +888,8 @@ private[lsp] trait requests_textDocument_typeDefinition:
   given outputWriter: Writer[Out] =
     upickle.default.writer[ujson.Value].comap[Out] { _v => 
       (_v: @unchecked) match 
-        case v: aliases.Definition => writeJs[aliases.Definition](v)
         case v: Vector[?] => writeJs[Vector[aliases.DefinitionLink]](v.asInstanceOf[Vector[aliases.DefinitionLink]])
+        case v: aliases.Definition => writeJs[aliases.Definition](v)
         case a if a == Opt.empty => ujson.Null
     }
   
@@ -1214,8 +1217,11 @@ private[lsp] trait requests_workspace_symbol:
   given outputWriter: Writer[Out] =
     upickle.default.writer[ujson.Value].comap[Out] { _v => 
       (_v: @unchecked) match 
-        case v: Vector[?] => writeJs[Vector[structures.SymbolInformation]](v.asInstanceOf[Vector[structures.SymbolInformation]])
-        case v: Vector[?] => writeJs[Vector[structures.WorkspaceSymbol]](v.asInstanceOf[Vector[structures.WorkspaceSymbol]])
+        case v: Vector[?] => 
+          v.headOption match
+            case None => writeJs[Vector[structures.SymbolInformation]](v.asInstanceOf[Vector[structures.SymbolInformation]])
+            case Some(_: structures.SymbolInformation) => writeJs[Vector[structures.SymbolInformation]](v.asInstanceOf[Vector[structures.SymbolInformation]])
+            case Some(_: structures.WorkspaceSymbol) => writeJs[Vector[structures.WorkspaceSymbol]](v.asInstanceOf[Vector[structures.WorkspaceSymbol]])
         case a if a == Opt.empty => ujson.Null
     }
   
@@ -1725,8 +1731,8 @@ private[lsp] trait structures_InlayHint:
   private given wt0: Writer[(String | Vector[structures.InlayHintLabelPart])] = 
     upickle.default.writer[ujson.Value].comap[(String | Vector[structures.InlayHintLabelPart])] { _v => 
       (_v: @unchecked) match 
-        case v: String => writeJs[String](v)
         case v: Vector[?] => writeJs[Vector[structures.InlayHintLabelPart]](v.asInstanceOf[Vector[structures.InlayHintLabelPart]])
+        case v: String => writeJs[String](v)
     }
   private given rd1: Reader[(String | structures.MarkupContent)] = 
     badMerge[(String | structures.MarkupContent)](stringCodec, structures.MarkupContent.reader)
@@ -1891,8 +1897,8 @@ private[lsp] trait structures_DidChangeConfigurationRegistrationOptions:
   private given wt0: Writer[(String | Vector[String])] = 
     upickle.default.writer[ujson.Value].comap[(String | Vector[String])] { _v => 
       (_v: @unchecked) match 
-        case v: String => writeJs[String](v)
         case v: Vector[?] => writeJs[Vector[String]](v.asInstanceOf[Vector[String]])
+        case v: String => writeJs[String](v)
     }
   given reader: Reader[structures.DidChangeConfigurationRegistrationOptions] = Pickle.macroR
   given writer: Writer[structures.DidChangeConfigurationRegistrationOptions] = upickle.default.macroW
@@ -2067,9 +2073,9 @@ private[lsp] trait structures_Hover:
   private given wt0: Writer[(structures.MarkupContent | aliases.MarkedString | Vector[aliases.MarkedString])] = 
     upickle.default.writer[ujson.Value].comap[(structures.MarkupContent | aliases.MarkedString | Vector[aliases.MarkedString])] { _v => 
       (_v: @unchecked) match 
+        case v: Vector[?] => writeJs[Vector[aliases.MarkedString]](v.asInstanceOf[Vector[aliases.MarkedString]])
         case v: structures.MarkupContent => writeJs[structures.MarkupContent](v)
         case v: aliases.MarkedString => writeJs[aliases.MarkedString](v)
-        case v: Vector[?] => writeJs[Vector[aliases.MarkedString]](v.asInstanceOf[Vector[aliases.MarkedString]])
     }
   given reader: Reader[structures.Hover] = Pickle.macroR
   given writer: Writer[structures.Hover] = upickle.default.macroW
@@ -4035,8 +4041,8 @@ private[lsp] trait aliases_Definition:
   given writer: Writer[Definition] =
     upickle.default.writer[ujson.Value].comap[Definition] { _v => 
       (_v: @unchecked) match 
-        case v: structures.Location => writeJs[structures.Location](v)
         case v: Vector[?] => writeJs[Vector[structures.Location]](v.asInstanceOf[Vector[structures.Location]])
+        case v: structures.Location => writeJs[structures.Location](v)
     }.asInstanceOf[Writer[Definition]]
 
 private[lsp] trait aliases_DefinitionLink:
@@ -4055,8 +4061,8 @@ private[lsp] trait aliases_Declaration:
   given writer: Writer[Declaration] =
     upickle.default.writer[ujson.Value].comap[Declaration] { _v => 
       (_v: @unchecked) match 
-        case v: structures.Location => writeJs[structures.Location](v)
         case v: Vector[?] => writeJs[Vector[structures.Location]](v.asInstanceOf[Vector[structures.Location]])
+        case v: structures.Location => writeJs[structures.Location](v)
     }.asInstanceOf[Writer[Declaration]]
 
 private[lsp] trait aliases_DeclarationLink:

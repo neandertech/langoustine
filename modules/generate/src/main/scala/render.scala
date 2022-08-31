@@ -703,12 +703,39 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
               nest {
                 line("(_v: @unchecked) match ")
                 nest {
-                  ot.items.map {
-                    case at: ArrayType =>
+                  val (vectors, nonVectors) = ot.items.partition {
+                    case at: ArrayType => true
+                    case _             => false
+                  }
+
+                  vectors.collect { case at: ArrayType => at }.toList match
+                    case Nil =>
+                    case at :: Nil =>
                       val typeName = renderType(at)
                       line(
                         s"case v: Vector[?] => writeJs[$typeName](v.asInstanceOf[$typeName])"
                       )
+                    case many @ (at :: _) =>
+                      val first = renderType(at)
+                      line("case v: Vector[?] => ")
+                      nest {
+                        line("v.headOption match")
+                        nest {
+                          line(
+                            s"case None => writeJs[$first](v.asInstanceOf[$first])"
+                          )
+                          many.foreach { arrayType =>
+                            val rendered        = renderType(arrayType)
+                            val renderedElement = renderType(arrayType.element)
+                            line(
+                              s"case Some(_: $renderedElement) => writeJs[$rendered](v.asInstanceOf[$rendered])"
+                            )
+                          }
+                        }
+                      }
+                  end match
+
+                  nonVectors.map {
                     case BaseType(BaseTypes.NULL) =>
                       line("case a if a == Opt.empty => ujson.Null")
                     case t =>
