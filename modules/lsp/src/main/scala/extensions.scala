@@ -23,3 +23,5 @@ private[lsp] object extensions:
   trait PositionSyntax:
     def apply(line: Int, character: Int): Position =
       new Position(line = uinteger(line), character = uinteger(character))
+
+    def documentBeginning: Position = Position(0, 0)
