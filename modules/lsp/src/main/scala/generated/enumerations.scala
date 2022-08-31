@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,8 @@
 
 package langoustine.lsp
 
-import langoustine.*
+import runtime.{*, given}
+import json.{*, given}
 import scala.reflect.Typeable
 // format: off
 
@@ -198,7 +199,7 @@ object enumerations:
   /**
    *  A symbol kind.
    */
-  opaque type SymbolKind = RuntimeBase.uinteger
+  opaque type SymbolKind = runtime.uinteger
   object SymbolKind extends UIntEnum[SymbolKind]:
     val File = entry(1)
     val Module = entry(2)
@@ -232,7 +233,7 @@ object enumerations:
    *  
    *  @since 3.16
    */
-  opaque type SymbolTag = RuntimeBase.uinteger
+  opaque type SymbolTag = runtime.uinteger
   object SymbolTag extends UIntEnum[SymbolTag]:
     /**
      *  Render a symbol as obsolete, usually using a strike-out.
@@ -293,7 +294,7 @@ object enumerations:
    *  
    *  @since 3.17.0
    */
-  opaque type InlayHintKind = RuntimeBase.uinteger
+  opaque type InlayHintKind = runtime.uinteger
   object InlayHintKind extends UIntEnum[InlayHintKind]:
     /**
      *  An inlay hint that for a type annotation.
@@ -307,7 +308,7 @@ object enumerations:
   /**
    *  The message type
    */
-  opaque type MessageType = RuntimeBase.uinteger
+  opaque type MessageType = runtime.uinteger
   object MessageType extends UIntEnum[MessageType]:
     /**
      *  An error message.
@@ -330,7 +331,7 @@ object enumerations:
    *  Defines how the host (editor) should sync
    *  document changes to the language server.
    */
-  opaque type TextDocumentSyncKind = RuntimeBase.uinteger
+  opaque type TextDocumentSyncKind = runtime.uinteger
   object TextDocumentSyncKind extends UIntEnum[TextDocumentSyncKind]:
     /**
      *  Documents should not be synced at all.
@@ -351,7 +352,7 @@ object enumerations:
   /**
    *  Represents reasons why a text document is saved.
    */
-  opaque type TextDocumentSaveReason = RuntimeBase.uinteger
+  opaque type TextDocumentSaveReason = runtime.uinteger
   object TextDocumentSaveReason extends UIntEnum[TextDocumentSaveReason]:
     /**
      *  Manually triggered, e.g. by the user pressing save, by starting debugging,
@@ -370,7 +371,7 @@ object enumerations:
   /**
    *  The kind of a completion entry.
    */
-  opaque type CompletionItemKind = RuntimeBase.uinteger
+  opaque type CompletionItemKind = runtime.uinteger
   object CompletionItemKind extends UIntEnum[CompletionItemKind]:
     val Text = entry(1)
     val Method = entry(2)
@@ -404,7 +405,7 @@ object enumerations:
    *  
    *  @since 3.15.0
    */
-  opaque type CompletionItemTag = RuntimeBase.uinteger
+  opaque type CompletionItemTag = runtime.uinteger
   object CompletionItemTag extends UIntEnum[CompletionItemTag]:
     /**
      *  Render a completion as obsolete, usually using a strike-out.
@@ -415,7 +416,7 @@ object enumerations:
    *  Defines whether the insert text in a completion item should be interpreted as
    *  plain text or a snippet.
    */
-  opaque type InsertTextFormat = RuntimeBase.uinteger
+  opaque type InsertTextFormat = runtime.uinteger
   object InsertTextFormat extends UIntEnum[InsertTextFormat]:
     /**
      *  The primary text to be inserted is treated as a plain string.
@@ -439,7 +440,7 @@ object enumerations:
    *  
    *  @since 3.16.0
    */
-  opaque type InsertTextMode = RuntimeBase.uinteger
+  opaque type InsertTextMode = runtime.uinteger
   object InsertTextMode extends UIntEnum[InsertTextMode]:
     /**
      *  The insertion or replace strings is taken as it is. If the
@@ -463,7 +464,7 @@ object enumerations:
   /**
    *  A document highlight kind.
    */
-  opaque type DocumentHighlightKind = RuntimeBase.uinteger
+  opaque type DocumentHighlightKind = runtime.uinteger
   object DocumentHighlightKind extends UIntEnum[DocumentHighlightKind]:
     /**
      *  A textual occurrence.
@@ -614,7 +615,7 @@ object enumerations:
   /**
    *  The file event type
    */
-  opaque type FileChangeType = RuntimeBase.uinteger
+  opaque type FileChangeType = runtime.uinteger
   object FileChangeType extends UIntEnum[FileChangeType]:
     /**
      *  The file got created.
@@ -629,7 +630,7 @@ object enumerations:
      */
     val Deleted = entry(3)
   
-  opaque type WatchKind = RuntimeBase.uinteger
+  opaque type WatchKind = runtime.uinteger
   object WatchKind extends UIntEnum[WatchKind]:
     /**
      *  Interested in create events.
@@ -647,7 +648,7 @@ object enumerations:
   /**
    *  The diagnostic's severity.
    */
-  opaque type DiagnosticSeverity = RuntimeBase.uinteger
+  opaque type DiagnosticSeverity = runtime.uinteger
   object DiagnosticSeverity extends UIntEnum[DiagnosticSeverity]:
     /**
      *  Reports an error.
@@ -671,7 +672,7 @@ object enumerations:
    *  
    *  @since 3.15.0
    */
-  opaque type DiagnosticTag = RuntimeBase.uinteger
+  opaque type DiagnosticTag = runtime.uinteger
   object DiagnosticTag extends UIntEnum[DiagnosticTag]:
     /**
      *  Unused or unnecessary code.
@@ -690,7 +691,7 @@ object enumerations:
   /**
    *  How a completion was triggered
    */
-  opaque type CompletionTriggerKind = RuntimeBase.uinteger
+  opaque type CompletionTriggerKind = runtime.uinteger
   object CompletionTriggerKind extends UIntEnum[CompletionTriggerKind]:
     /**
      *  Completion was triggered by typing an identifier (24x7 code
@@ -712,7 +713,7 @@ object enumerations:
    *  
    *  @since 3.15.0
    */
-  opaque type SignatureHelpTriggerKind = RuntimeBase.uinteger
+  opaque type SignatureHelpTriggerKind = runtime.uinteger
   object SignatureHelpTriggerKind extends UIntEnum[SignatureHelpTriggerKind]:
     /**
      *  Signature help was invoked manually by the user or by a command.
@@ -732,7 +733,7 @@ object enumerations:
    *  
    *  @since 3.17.0
    */
-  opaque type CodeActionTriggerKind = RuntimeBase.uinteger
+  opaque type CodeActionTriggerKind = runtime.uinteger
   object CodeActionTriggerKind extends UIntEnum[CodeActionTriggerKind]:
     /**
      *  Code actions were explicitly requested by the user or by an extension.
@@ -768,7 +769,7 @@ object enumerations:
    *  
    *  @since 3.17.0
    */
-  opaque type NotebookCellKind = RuntimeBase.uinteger
+  opaque type NotebookCellKind = runtime.uinteger
   object NotebookCellKind extends UIntEnum[NotebookCellKind]:
     /**
      *  A markup-cell is formatted source that is used for display.
@@ -818,7 +819,7 @@ object enumerations:
      */
     val Undo = entry("undo")
   
-  opaque type PrepareSupportDefaultBehavior = RuntimeBase.uinteger
+  opaque type PrepareSupportDefaultBehavior = runtime.uinteger
   object PrepareSupportDefaultBehavior extends UIntEnum[PrepareSupportDefaultBehavior]:
     /**
      *  The client's default behavior is to select the identifier
