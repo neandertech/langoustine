@@ -336,7 +336,7 @@ object structures:
    *    collapsed. If not defined or not supported by the client, a default
    *    will be chosen by the client.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    */
   case class FoldingRange(
@@ -971,7 +971,7 @@ object structures:
    *    
    *    Whether clients honor this property depends on the client capability `workspace.changeAnnotationSupport`.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    */
   case class WorkspaceEdit(
@@ -1619,7 +1619,7 @@ object structures:
    *  @param clientInfo
    *    Information about the client
    *    
-   *    @since 3.15.0
+   *    since 3.15.0
   
    *  @param locale
    *    The locale the client is currently showing the user interface
@@ -1629,7 +1629,7 @@ object structures:
    *    Uses IETF language tags as the value's syntax
    *    (See https://en.wikipedia.org/wiki/IETF_language_tag)
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param rootPath
    *    The rootPath of the workspace. Is null
@@ -1660,7 +1660,7 @@ object structures:
    *    It can be `null` if the client supports workspace folders but none are
    *    configured.
    *    
-   *    @since 3.6.0
+   *    since 3.6.0
   
    */
   case class InitializeParams(
@@ -1698,7 +1698,7 @@ object structures:
    *  @param serverInfo
    *    Information about the server.
    *    
-   *    @since 3.15.0
+   *    since 3.15.0
   
    */
   case class InitializeResult(
@@ -1987,7 +1987,7 @@ object structures:
    *  @param version
    *    Optional the version number of the document the diagnostics are published for.
    *    
-   *    @since 3.15.0
+   *    since 3.15.0
   
    *  @param diagnostics
    *    An array of diagnostic information items.
@@ -2046,7 +2046,7 @@ object structures:
    *  @param labelDetails
    *    Additional details for the label
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    *  @param kind
    *    The kind of this completion item. Based of the kind
@@ -2055,7 +2055,7 @@ object structures:
    *  @param tags
    *    Tags for this completion item.
    *    
-   *    @since 3.15.0
+   *    since 3.15.0
   
    *  @param detail
    *    A human-readable string with additional information
@@ -2111,7 +2111,7 @@ object structures:
    *    item insertion. If not provided the clients default value depends on
    *    the `textDocument.completion.insertTextMode` client capability.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param textEdit
    *    An [edit](#TextEdit) which is applied to a document when selecting
@@ -2133,7 +2133,7 @@ object structures:
    *    must be a prefix of the edit's replace range, that means it must be
    *    contained and starting at the same position.
    *    
-   *    @since 3.16.0 additional type `InsertReplaceEdit`
+   *    since 3.16.0 additional type `InsertReplaceEdit`
   
    *  @param textEditText
    *    The edit text used if the completion item is part of a CompletionList and
@@ -2145,7 +2145,7 @@ object structures:
    *    If not provided and a list's default range is provided the label
    *    property is used as a text.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    *  @param additionalTextEdits
    *    An optional array of additional [text edits](#TextEdit) that are applied when
@@ -2217,7 +2217,7 @@ object structures:
    *    signals support for this via the `completionList.itemDefaults`
    *    capability.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    *  @param items
    *    The completion items.
@@ -2233,27 +2233,27 @@ object structures:
      *  @param commitCharacters
      *    A default commit character set.
      *    
-     *    @since 3.17.0
+     *    since 3.17.0
     
      *  @param editRange
      *    A default edit range.
      *    
-     *    @since 3.17.0
+     *    since 3.17.0
     
      *  @param insertTextFormat
      *    A default insert text format.
      *    
-     *    @since 3.17.0
+     *    since 3.17.0
     
      *  @param insertTextMode
      *    A default insert text mode.
      *    
-     *    @since 3.17.0
+     *    since 3.17.0
     
      *  @param data
      *    A default data value.
      *    
-     *    @since 3.17.0
+     *    since 3.17.0
     
      */
     case class ItemDefaults(
@@ -2295,7 +2295,7 @@ object structures:
    *    If a server provides both `allCommitCharacters` and commit characters on an individual
    *    completion item the ones on the completion item win.
    *    
-   *    @since 3.2.0
+   *    since 3.2.0
   
    *  @param resolveProvider
    *    The server provides support to resolve additional
@@ -2305,7 +2305,7 @@ object structures:
    *    The server supports the following `CompletionItem` specific
    *    capabilities.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    */
   case class CompletionRegistrationOptions(
@@ -2322,7 +2322,7 @@ object structures:
      *    details (see also `CompletionItemLabelDetails`) when
      *    receiving a completion item in a resolve call.
      *    
-     *    @since 3.17.0
+     *    since 3.17.0
     
      */
     case class CompletionItem(
@@ -2387,7 +2387,7 @@ object structures:
    *    The signature help context. This is only available if the client specifies
    *    to send this using the client capability `textDocument.signatureHelp.contextSupport === true`
    *    
-   *    @since 3.15.0
+   *    since 3.15.0
   
    *  @param textDocument
    *    The text document.
@@ -2459,7 +2459,7 @@ object structures:
    *    These trigger characters are only active when signature help is already showing. All trigger characters
    *    are also counted as re-trigger characters.
    *    
-   *    @since 3.15.0
+   *    since 3.15.0
   
    */
   case class SignatureHelpRegistrationOptions(
@@ -2653,7 +2653,7 @@ object structures:
    *  @param tags
    *    Tags for this symbol.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param containerName
    *    The name of the symbol containing this symbol. This information is for
@@ -2691,7 +2691,7 @@ object structures:
    *  @param tags
    *    Tags for this document symbol.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param deprecated
    *    Indicates if this symbol is deprecated.
@@ -2734,7 +2734,7 @@ object structures:
    *    A human-readable string that is shown when multiple outlines trees
    *    are shown for the same document.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    */
   case class DocumentSymbolRegistrationOptions(
@@ -2820,7 +2820,7 @@ object structures:
    *    A quick fix should be marked preferred if it properly addresses the underlying error.
    *    A refactoring should be marked preferred if it is the most reasonable choice of actions to take.
    *    
-   *    @since 3.15.0
+   *    since 3.15.0
   
    *  @param disabled
    *    Marks that the code action cannot currently be applied.
@@ -2837,7 +2837,7 @@ object structures:
    *        that auto applies a code action and only disabled code actions are returned, the client should show the user an
    *        error message with `reason` in the editor.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param edit
    *    The workspace edit this code action performs.
@@ -2851,7 +2851,7 @@ object structures:
    *    A data entry field that is preserved on a code action between
    *    a `textDocument/codeAction` and a `codeAction/resolve` request.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    */
   case class CodeAction(
@@ -2894,7 +2894,7 @@ object structures:
    *    The server provides support to resolve additional
    *    information for a code action.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    */
   case class CodeActionRegistrationOptions(
@@ -2953,7 +2953,7 @@ object structures:
    *  @param tags
    *    Tags for this symbol.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param containerName
    *    The name of the symbol containing this symbol. This information is for
@@ -2983,7 +2983,7 @@ object structures:
    *    The server provides support to resolve additional
    *    information for a workspace symbol.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    */
   case class WorkspaceSymbolRegistrationOptions(
@@ -3093,7 +3093,7 @@ object structures:
    *    trigger the link, such as `{0} (ctrl + click)`. The specific instructions vary depending on OS,
    *    user settings, and localization.
    *    
-   *    @since 3.15.0
+   *    since 3.15.0
   
    *  @param data
    *    A data entry field that is preserved on a document link between a
@@ -3281,7 +3281,7 @@ object structures:
    *  @param prepareProvider
    *    Renames should be checked and tested before being executed.
    *    
-   *    @since version 3.12.0
+   *    since version 3.12.0
   
    */
   case class RenameRegistrationOptions(
@@ -3740,7 +3740,7 @@ object structures:
     line: runtime.uinteger,
     character: runtime.uinteger
   )
-  object Position extends codecs.structures_Position
+  object Position extends codecs.structures_Position with extensions.PositionSyntax
   
   case class SelectionRangeOptions(
     workDoneProgress: Opt[Boolean] = Opt.empty
@@ -3845,7 +3845,7 @@ object structures:
    *  @param edits
    *    The edits to be applied.
    *    
-   *    @since 3.16.0 - support for AnnotatedTextEdit. This is guarded using a
+   *    since 3.16.0 - support for AnnotatedTextEdit. This is guarded using a
    *    client capability.
   
    */
@@ -3873,7 +3873,7 @@ object structures:
    *  @param annotationId
    *    An optional annotation identifier describing the operation.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    */
   case class CreateFile(
@@ -3905,7 +3905,7 @@ object structures:
    *  @param annotationId
    *    An optional annotation identifier describing the operation.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    */
   case class RenameFile(
@@ -3935,7 +3935,7 @@ object structures:
    *  @param annotationId
    *    An optional annotation identifier describing the operation.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    */
   case class DeleteFile(
@@ -4240,7 +4240,7 @@ object structures:
    *    such a language is C/C++ where marco definitions in a file
    *    a.cpp and result in errors in a header file b.hpp.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    *  @param kind
    *    A full document diagnostic report.
@@ -4274,7 +4274,7 @@ object structures:
    *    such a language is C/C++ where marco definitions in a file
    *    a.cpp and result in errors in a header file b.hpp.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    *  @param kind
    *    A document diagnostic report indicating
@@ -4592,7 +4592,7 @@ object structures:
    *  @param clientInfo
    *    Information about the client
    *    
-   *    @since 3.15.0
+   *    since 3.15.0
   
    *  @param locale
    *    The locale the client is currently showing the user interface
@@ -4602,7 +4602,7 @@ object structures:
    *    Uses IETF language tags as the value's syntax
    *    (See https://en.wikipedia.org/wiki/IETF_language_tag)
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param rootPath
    *    The rootPath of the workspace. Is null
@@ -4664,7 +4664,7 @@ object structures:
    *    It can be `null` if the client supports workspace folders but none are
    *    configured.
    *    
-   *    @since 3.6.0
+   *    since 3.6.0
   
    */
   case class WorkspaceFoldersInitializeParams(
@@ -4685,7 +4685,7 @@ object structures:
    *    
    *    If omitted it defaults to 'utf-16'.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    *  @param textDocumentSync
    *    Defines how text documents are synced. Is either a detailed structure
@@ -4695,7 +4695,7 @@ object structures:
    *  @param notebookDocumentSync
    *    Defines how notebook documents are synced.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    *  @param completionProvider
    *    The server provides completion support.
@@ -4770,42 +4770,42 @@ object structures:
    *  @param callHierarchyProvider
    *    The server provides call hierarchy support.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param linkedEditingRangeProvider
    *    The server provides linked editing range support.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param semanticTokensProvider
    *    The server provides semantic tokens support.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param monikerProvider
    *    The server provides moniker support.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param typeHierarchyProvider
    *    The server provides type hierarchy support.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    *  @param inlineValueProvider
    *    The server provides inline values.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    *  @param inlayHintProvider
    *    The server provides inlay hints.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    *  @param diagnosticProvider
    *    The server has support for pull model diagnostics.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    *  @param workspace
    *    Workspace specific server capabilities.
@@ -4856,12 +4856,12 @@ object structures:
      *  @param workspaceFolders
      *    The server supports workspace folder.
      *    
-     *    @since 3.6.0
+     *    since 3.6.0
     
      *  @param fileOperations
      *    The server is interested in notifications/requests for operations on files.
      *    
-     *    @since 3.16.0
+     *    since 3.16.0
     
      */
     case class Workspace(
@@ -4918,7 +4918,7 @@ object structures:
    *  @param globPattern
    *    The glob pattern to watch. See {@link GlobPattern glob pattern} for more detail.
    *    
-   *    @since 3.17.0 support for relative patterns.
+   *    since 3.17.0 support for relative patterns.
   
    *  @param kind
    *    The kind of events of interest. If omitted it defaults
@@ -4950,7 +4950,7 @@ object structures:
    *    An optional property to describe the error code.
    *    Requires the code field (above) to be present/not null.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param source
    *    A human-readable string describing the source of this
@@ -4963,7 +4963,7 @@ object structures:
    *  @param tags
    *    Additional metadata about the diagnostic.
    *    
-   *    @since 3.15.0
+   *    since 3.15.0
   
    *  @param relatedInformation
    *    An array of related diagnostic information, e.g. when symbol-names within
@@ -4973,7 +4973,7 @@ object structures:
    *    A data entry field that is preserved between a `textDocument/publishDiagnostics`
    *    notification and `textDocument/codeAction` request.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    */
   case class Diagnostic(
@@ -5069,7 +5069,7 @@ object structures:
    *    If a server provides both `allCommitCharacters` and commit characters on an individual
    *    completion item the ones on the completion item win.
    *    
-   *    @since 3.2.0
+   *    since 3.2.0
   
    *  @param resolveProvider
    *    The server provides support to resolve additional
@@ -5079,7 +5079,7 @@ object structures:
    *    The server supports the following `CompletionItem` specific
    *    capabilities.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    *  @param workDoneProgress
    */
@@ -5097,7 +5097,7 @@ object structures:
      *    details (see also `CompletionItemLabelDetails`) when
      *    receiving a completion item in a resolve call.
      *    
-     *    @since 3.17.0
+     *    since 3.17.0
     
      */
     case class CompletionItem(
@@ -5170,7 +5170,7 @@ object structures:
    *    
    *    If provided, this is used in place of `SignatureHelp.activeParameter`.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    */
   case class SignatureInformation(
@@ -5193,7 +5193,7 @@ object structures:
    *    These trigger characters are only active when signature help is already showing. All trigger characters
    *    are also counted as re-trigger characters.
    *    
-   *    @since 3.15.0
+   *    since 3.15.0
   
    *  @param workDoneProgress
    */
@@ -5259,7 +5259,7 @@ object structures:
    *  @param tags
    *    Tags for this symbol.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param containerName
    *    The name of the symbol containing this symbol. This information is for
@@ -5283,7 +5283,7 @@ object structures:
    *    A human-readable string that is shown when multiple outlines trees
    *    are shown for the same document.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param workDoneProgress
    */
@@ -5313,7 +5313,7 @@ object structures:
    *  @param triggerKind
    *    The reason why code actions were requested.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    */
   case class CodeActionContext(
@@ -5336,7 +5336,7 @@ object structures:
    *    The server provides support to resolve additional
    *    information for a code action.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param workDoneProgress
    */
@@ -5354,7 +5354,7 @@ object structures:
    *    The server provides support to resolve additional
    *    information for a workspace symbol.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    *  @param workDoneProgress
    */
@@ -5404,17 +5404,17 @@ object structures:
    *  @param trimTrailingWhitespace
    *    Trim trailing whitespace on a line.
    *    
-   *    @since 3.15.0
+   *    since 3.15.0
   
    *  @param insertFinalNewline
    *    Insert a newline character at the end of the file if one does not exist.
    *    
-   *    @since 3.15.0
+   *    since 3.15.0
   
    *  @param trimFinalNewlines
    *    Trim all newlines after the final newline at the end of the file.
    *    
-   *    @since 3.15.0
+   *    since 3.15.0
   
    */
   case class FormattingOptions(
@@ -5468,7 +5468,7 @@ object structures:
    *  @param prepareProvider
    *    Renames should be checked and tested before being executed.
    *    
-   *    @since version 3.12.0
+   *    since version 3.12.0
   
    *  @param workDoneProgress
    */
@@ -5561,7 +5561,7 @@ object structures:
    *  @param annotationId
    *    An optional annotation identifier describing the operation.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    */
   case class ResourceOperation(
@@ -5791,7 +5791,7 @@ object structures:
    *  @param notebookDocument
    *    Capabilities specific to the notebook document support.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    *  @param window
    *    Window specific client capabilities.
@@ -5799,7 +5799,7 @@ object structures:
    *  @param general
    *    General client capabilities.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param experimental
    *    Experimental client capabilities.
@@ -6172,24 +6172,24 @@ object structures:
    *  @param workspaceFolders
    *    The client has support for workspace folders.
    *    
-   *    @since 3.6.0
+   *    since 3.6.0
   
    *  @param configuration
    *    The client supports `workspace/configuration` requests.
    *    
-   *    @since 3.6.0
+   *    since 3.6.0
   
    *  @param semanticTokens
    *    Capabilities specific to the semantic token requests scoped to the
    *    workspace.
    *    
-   *    @since 3.16.0.
+   *    since 3.16.0.
   
    *  @param codeLens
    *    Capabilities specific to the code lens requests scoped to the
    *    workspace.
    *    
-   *    @since 3.16.0.
+   *    since 3.16.0.
   
    *  @param fileOperations
    *    The client has support for file notifications/requests for user operations on files.
@@ -6200,19 +6200,19 @@ object structures:
    *    Capabilities specific to the inline values requests scoped to the
    *    workspace.
    *    
-   *    @since 3.17.0.
+   *    since 3.17.0.
   
    *  @param inlayHint
    *    Capabilities specific to the inlay hint requests scoped to the
    *    workspace.
    *    
-   *    @since 3.17.0.
+   *    since 3.17.0.
   
    *  @param diagnostics
    *    Capabilities specific to the diagnostic requests scoped to the
    *    workspace.
    *    
-   *    @since 3.17.0.
+   *    since 3.17.0.
   
    */
   case class WorkspaceClientCapabilities(
@@ -6251,7 +6251,7 @@ object structures:
    *  @param declaration
    *    Capabilities specific to the `textDocument/declaration` request.
    *    
-   *    @since 3.14.0
+   *    since 3.14.0
   
    *  @param definition
    *    Capabilities specific to the `textDocument/definition` request.
@@ -6259,12 +6259,12 @@ object structures:
    *  @param typeDefinition
    *    Capabilities specific to the `textDocument/typeDefinition` request.
    *    
-   *    @since 3.6.0
+   *    since 3.6.0
   
    *  @param implementation
    *    Capabilities specific to the `textDocument/implementation` request.
    *    
-   *    @since 3.6.0
+   *    since 3.6.0
   
    *  @param references
    *    Capabilities specific to the `textDocument/references` request.
@@ -6288,7 +6288,7 @@ object structures:
    *    Capabilities specific to the `textDocument/documentColor` and the
    *    `textDocument/colorPresentation` request.
    *    
-   *    @since 3.6.0
+   *    since 3.6.0
   
    *  @param formatting
    *    Capabilities specific to the `textDocument/formatting` request.
@@ -6305,12 +6305,12 @@ object structures:
    *  @param foldingRange
    *    Capabilities specific to the `textDocument/foldingRange` request.
    *    
-   *    @since 3.10.0
+   *    since 3.10.0
   
    *  @param selectionRange
    *    Capabilities specific to the `textDocument/selectionRange` request.
    *    
-   *    @since 3.15.0
+   *    since 3.15.0
   
    *  @param publishDiagnostics
    *    Capabilities specific to the `textDocument/publishDiagnostics` notification.
@@ -6318,42 +6318,42 @@ object structures:
    *  @param callHierarchy
    *    Capabilities specific to the various call hierarchy requests.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param semanticTokens
    *    Capabilities specific to the various semantic token request.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param linkedEditingRange
    *    Capabilities specific to the `textDocument/linkedEditingRange` request.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param moniker
    *    Client capabilities specific to the `textDocument/moniker` request.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param typeHierarchy
    *    Capabilities specific to the various type hierarchy requests.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    *  @param inlineValue
    *    Capabilities specific to the `textDocument/inlineValue` request.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    *  @param inlayHint
    *    Capabilities specific to the `textDocument/inlayHint` request.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    *  @param diagnostic
    *    Capabilities specific to the diagnostic pull model.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    */
   case class TextDocumentClientCapabilities(
@@ -6398,7 +6398,7 @@ object structures:
    *  @param synchronization
    *    Capabilities specific to notebook document synchronization
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    */
   case class NotebookDocumentClientCapabilities(
@@ -6416,17 +6416,17 @@ object structures:
    *    `workDoneProgress` property in the request specific server
    *    capabilities.
    *    
-   *    @since 3.15.0
+   *    since 3.15.0
   
    *  @param showMessage
    *    Capabilities specific to the showMessage request.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param showDocument
    *    Capabilities specific to the showDocument request.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    */
   case class WindowClientCapabilities(
@@ -6447,17 +6447,17 @@ object structures:
    *    for which the client will not process the response
    *    anymore since the information is outdated).
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    *  @param regularExpressions
    *    Client capabilities specific to regular expressions.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param markdown
    *    Client capabilities specific to the client's markdown parser.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param positionEncodings
    *    The position encodings supported by the client. Client and server
@@ -6477,7 +6477,7 @@ object structures:
    *    is best done where the file is read which is usually on the server
    *    side.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    */
   case class GeneralClientCapabilities(
@@ -6532,13 +6532,13 @@ object structures:
    *    The resource operations the client supports. Clients should at least
    *    support 'create', 'rename' and 'delete' files and folders.
    *    
-   *    @since 3.13.0
+   *    since 3.13.0
   
    *  @param failureHandling
    *    The failure handling strategy of a client if applying the workspace edit
    *    fails.
    *    
-   *    @since 3.13.0
+   *    since 3.13.0
   
    *  @param normalizesLineEndings
    *    Whether the client normalizes line endings to the client specific
@@ -6547,13 +6547,13 @@ object structures:
    *    in a workspace edit to the client-specified new line
    *    character.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param changeAnnotationSupport
    *    Whether the client in general supports change annotations on text edits,
    *    create file, rename file and delete file changes.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    */
   case class WorkspaceEditClientCapabilities(
@@ -6596,7 +6596,7 @@ object structures:
    *    Whether the client has support for {@link  RelativePattern relative pattern}
    *    or not.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    */
   case class DidChangeWatchedFilesClientCapabilities(
@@ -6618,14 +6618,14 @@ object structures:
    *    The client supports tags on `SymbolInformation`.
    *    Clients supporting tags have to handle unknown tags gracefully.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param resolveSupport
    *    The client support partial workspace symbols. The client will send the
    *    request `workspaceSymbol/resolve` to the server to resolve additional
    *    properties.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    */
   case class WorkspaceSymbolClientCapabilities(
@@ -6860,7 +6860,7 @@ object structures:
    *    when accepting a completion item that uses multi line
    *    text in either `insertText` or `textEdit`.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    *  @param contextSupport
    *    The client supports to send additional context information for a
@@ -6870,7 +6870,7 @@ object structures:
    *    The client supports the following `CompletionList` specific
    *    capabilities.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    */
   case class CompletionClientCapabilities(
@@ -6910,33 +6910,33 @@ object structures:
      *    preserve unknown tags when sending a completion item back to the server in
      *    a resolve call.
      *    
-     *    @since 3.15.0
+     *    since 3.15.0
     
      *  @param insertReplaceSupport
      *    Client support insert replace edit to control different behavior if a
      *    completion item is inserted in the text or should replace text.
      *    
-     *    @since 3.16.0
+     *    since 3.16.0
     
      *  @param resolveSupport
      *    Indicates which properties a client can resolve lazily on a completion
      *    item. Before version 3.16.0 only the predefined properties `documentation`
      *    and `details` could be resolved lazily.
      *    
-     *    @since 3.16.0
+     *    since 3.16.0
     
      *  @param insertTextModeSupport
      *    The client supports the `insertTextMode` property on
      *    a completion item to override the whitespace handling mode
      *    as defined by the client (see `insertTextMode`).
      *    
-     *    @since 3.16.0
+     *    since 3.16.0
     
      *  @param labelDetailsSupport
      *    The client has support for completion item label
      *    details (see also `CompletionItemLabelDetails`).
      *    
-     *    @since 3.17.0
+     *    since 3.17.0
     
      */
     case class CompletionItem(
@@ -6999,7 +6999,7 @@ object structures:
      *    `CompletionList.itemDefaults` object. If omitted
      *    no properties are supported.
      *    
-     *    @since 3.17.0
+     *    since 3.17.0
     
      */
     case class CompletionList(
@@ -7038,7 +7038,7 @@ object structures:
    *    contextSupport will also support the `retriggerCharacters` on
    *    `SignatureHelpOptions`.
    *    
-   *    @since 3.15.0
+   *    since 3.15.0
   
    */
   case class SignatureHelpClientCapabilities(
@@ -7059,7 +7059,7 @@ object structures:
      *    The client supports the `activeParameter` property on `SignatureInformation`
      *    literal.
      *    
-     *    @since 3.16.0
+     *    since 3.16.0
     
      */
     case class SignatureInformation(
@@ -7073,7 +7073,7 @@ object structures:
        *    The client supports processing label offsets instead of a
        *    simple label string.
        *    
-       *    @since 3.14.0
+       *    since 3.14.0
       
        */
       case class ParameterInformation(
@@ -7108,7 +7108,7 @@ object structures:
    *  @param linkSupport
    *    The client supports additional metadata in the form of definition links.
    *    
-   *    @since 3.14.0
+   *    since 3.14.0
   
    */
   case class DefinitionClientCapabilities(
@@ -7148,7 +7148,7 @@ object structures:
    *  @param linkSupport
    *    The client supports additional metadata in the form of definition links.
    *    
-   *    @since 3.14.0
+   *    since 3.14.0
   
    */
   case class ImplementationClientCapabilities(
@@ -7199,13 +7199,13 @@ object structures:
    *    `DocumentSymbol` if `hierarchicalDocumentSymbolSupport` is set to true.
    *    Clients supporting tags have to handle unknown tags gracefully.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param labelSupport
    *    The client supports an additional label presented in the UI when
    *    registering a document symbol provider.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    */
   case class DocumentSymbolClientCapabilities(
@@ -7253,30 +7253,30 @@ object structures:
    *    response of the `textDocument/codeAction` request. If the property is not
    *    set the request can only return `Command` literals.
    *    
-   *    @since 3.8.0
+   *    since 3.8.0
   
    *  @param isPreferredSupport
    *    Whether code action supports the `isPreferred` property.
    *    
-   *    @since 3.15.0
+   *    since 3.15.0
   
    *  @param disabledSupport
    *    Whether code action supports the `disabled` property.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param dataSupport
    *    Whether code action supports the `data` property which is
    *    preserved between a `textDocument/codeAction` and a
    *    `codeAction/resolve` request.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param resolveSupport
    *    Whether the client supports resolving additional code action
    *    properties via a separate `codeAction/resolve` request.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param honorsChangeAnnotations
    *    Whether the client honors the change annotations in
@@ -7285,7 +7285,7 @@ object structures:
    *    the workspace edit in the user interface and asking
    *    for confirmation.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    */
   case class CodeActionClientCapabilities(
@@ -7351,7 +7351,7 @@ object structures:
    *  @param tooltipSupport
    *    Whether the client supports the `tooltip` property on `DocumentLink`.
    *    
-   *    @since 3.15.0
+   *    since 3.15.0
   
    */
   case class DocumentLinkClientCapabilities(
@@ -7416,7 +7416,7 @@ object structures:
    *    Client supports testing for validity of rename operations
    *    before execution.
    *    
-   *    @since 3.12.0
+   *    since 3.12.0
   
    *  @param prepareSupportDefaultBehavior
    *    Client supports the default behavior result.
@@ -7424,7 +7424,7 @@ object structures:
    *    The value indicates the default behavior used by the
    *    client.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param honorsChangeAnnotations
    *    Whether the client honors the change annotations in
@@ -7433,7 +7433,7 @@ object structures:
    *    the workspace edit in the user interface and asking
    *    for confirmation.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    */
   case class RenameClientCapabilities(
@@ -7464,12 +7464,12 @@ object structures:
    *  @param foldingRangeKind
    *    Specific options for the folding range kind.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    *  @param foldingRange
    *    Specific options for the folding range.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    */
   case class FoldingRangeClientCapabilities(
@@ -7497,7 +7497,7 @@ object structures:
      *    If set, the client signals that it supports setting collapsedText on
      *    folding ranges to display custom labels instead of the default text.
      *    
-     *    @since 3.17.0
+     *    since 3.17.0
     
      */
     case class FoldingRange(
@@ -7527,25 +7527,25 @@ object structures:
    *    Client supports the tag property to provide meta data about a diagnostic.
    *    Clients supporting tags have to handle unknown tags gracefully.
    *    
-   *    @since 3.15.0
+   *    since 3.15.0
   
    *  @param versionSupport
    *    Whether the client interprets the version property of the
    *    `textDocument/publishDiagnostics` notification's parameter.
    *    
-   *    @since 3.15.0
+   *    since 3.15.0
   
    *  @param codeDescriptionSupport
    *    Client supports a codeDescription property
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    *  @param dataSupport
    *    Whether code action supports the `data` property which is
    *    preserved between a `textDocument/publishDiagnostics` and
    *    `textDocument/codeAction` request.
    *    
-   *    @since 3.16.0
+   *    since 3.16.0
   
    */
   case class PublishDiagnosticsClientCapabilities(
@@ -7619,7 +7619,7 @@ object structures:
    *    LSPErrorCodes.ServerCancelled. If a server does the client
    *    needs to retrigger the request.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    *  @param augmentsSyntaxTokens
    *    Whether the client uses semantic tokens to augment existing
@@ -7631,7 +7631,7 @@ object structures:
    *    If the value is `undefined` then the client behavior is not
    *    specified.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    */
   case class SemanticTokensClientCapabilities(
@@ -7875,7 +7875,7 @@ object structures:
    *    A list of HTML tags that the client allows / supports in
    *    Markdown.
    *    
-   *    @since 3.17.0
+   *    since 3.17.0
   
    */
   case class MarkdownClientCapabilities(
