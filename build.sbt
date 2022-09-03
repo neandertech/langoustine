@@ -30,26 +30,40 @@ inThisBuild(
 )
 
 val V = new {
-  val scala      = "3.1.3"
-  val scribe     = "3.10.3"
-  val upickle    = "2.0.0"
-  val cats       = "2.8.0"
-  val munit      = "1.0.0-M6"
-  val jsonrpclib = "0.0.3"
-  val fs2        = "3.2.12"
-  val http4s     = "0.23.15"
-  val laminar    = "0.14.2"
-  val decline    = "2.3.0"
+  val scala           = "3.1.3"
+  val scalaNightly    = "3.2.1-RC1-bin-20220902-3f0c6d3-NIGHTLY"
+  val scribe          = "3.10.3"
+  val upickle         = "2.0.0"
+  val cats            = "2.8.0"
+  val munit           = "1.0.0-M6"
+  val jsonrpclib      = "0.0.3"
+  val fs2             = "3.2.12"
+  val http4s          = "0.23.15"
+  val laminar         = "0.14.2"
+  val decline         = "2.3.0"
+  val jsoniter        = "2.17.0"
+  val weaver          = "0.7.15"
+  val http4sJdkClient = "0.7.0"
+
+  /** TODO: remove all the nightly hacks once the deliciously decadent scaladoc
+    * facelift is released (3.2.1?)
+    */
+
+  private val dynScalaVersion =
+    if (sys.env.contains("USE_SCALA_NIGHTLY")) scalaNightly
+    else scala
+
+  val jvmScalaVersions = List(dynScalaVersion)
+  val scalaVersions    = List(scala)
+
+  val default =
+    Seq(VirtualAxis.scalaABIVersion(dynScalaVersion), VirtualAxis.jvm)
 }
 
 lazy val noPublishing = Seq(
   publish / skip      := true,
   publishLocal / skip := true
 )
-
-val scalaVersions = List(V.scala)
-
-val default = Seq(VirtualAxis.scalaABIVersion(V.scala), VirtualAxis.jvm)
 
 lazy val root = project
   .in(file("."))
@@ -63,10 +77,10 @@ lazy val root = project
 lazy val meta = projectMatrix
   .in(file("modules/meta"))
   .settings(name := "langoustine-meta")
-  .defaultAxes(default*)
-  .jvmPlatform(scalaVersions)
-  .jsPlatform(scalaVersions)
-  .nativePlatform(scalaVersions)
+  .defaultAxes(V.default*)
+  .jvmPlatform(V.jvmScalaVersions)
+  .jsPlatform(V.scalaVersions)
+  .nativePlatform(V.scalaVersions)
   .settings(
     libraryDependencies += "com.outr"      %%% "scribe"    % V.scribe,
     libraryDependencies += "com.lihaoyi"   %%% "upickle"   % V.upickle,
@@ -75,7 +89,7 @@ lazy val meta = projectMatrix
 
 lazy val lsp = projectMatrix
   .in(file("modules/lsp"))
-  .defaultAxes(default*)
+  .defaultAxes(V.default*)
   .settings(
     name := "langoustine-lsp",
     scalacOptions ++= Seq("-Xmax-inlines", "64"),
@@ -86,26 +100,26 @@ lazy val lsp = projectMatrix
     libraryDependencies += "tech.neander" %%% "jsonrpclib-core" % V.jsonrpclib,
     Test / fork := virtualAxes.value.contains(VirtualAxis.jvm)
   )
-  .jvmPlatform(scalaVersions)
-  .jsPlatform(scalaVersions)
-  .nativePlatform(scalaVersions)
+  .jvmPlatform(V.jvmScalaVersions)
+  .jsPlatform(V.scalaVersions)
+  .nativePlatform(V.scalaVersions)
   .settings(docsSettings)
 
 lazy val generate = projectMatrix
   .in(file("modules/generate"))
   .dependsOn(meta)
-  .defaultAxes(default*)
+  .defaultAxes(V.default*)
   .settings(
     name := "generate"
   )
-  .jvmPlatform(scalaVersions)
+  .jvmPlatform(V.jvmScalaVersions)
   .settings(noPublishing)
 
 lazy val tracer = projectMatrix
   .in(file("modules/tracer/backend"))
   .dependsOn(lsp, tracerShared)
   .enablePlugins(JavaAppPackaging)
-  .defaultAxes(default*)
+  .defaultAxes(V.default*)
   .settings(
     name                                   := "langoustine-tracer",
     libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2" % V.jsonrpclib,
@@ -146,7 +160,7 @@ lazy val tracer = projectMatrix
       }
     }
   )
-  .jvmPlatform(scalaVersions)
+  .jvmPlatform(V.jvmScalaVersions)
 
 import org.scalajs.linker.interface.Report
 lazy val frontendJS = tracerFrontend.js(V.scala)
@@ -165,46 +179,39 @@ ThisBuild / frontendOutput := {
 lazy val tracerFrontend = projectMatrix
   .in(file("modules/tracer/frontend"))
   .dependsOn(tracerShared)
-  .defaultAxes(default*)
+  .defaultAxes(V.default*)
   .settings(
     name                                := "langoustine-tracer-frontend",
     libraryDependencies += "com.raquo" %%% "laminar" % V.laminar,
     scalaJSUseMainModuleInitializer     := true
   )
-  .jsPlatform(scalaVersions)
+  .jsPlatform(V.scalaVersions)
 
 lazy val tracerShared = projectMatrix
   .in(file("modules/tracer/shared"))
-  .defaultAxes(default*)
+  .defaultAxes(V.default*)
   .settings(
     name := "langoustine-tracer-shared",
     libraryDependencies ++= Seq(
-      "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-core" % "2.17.0",
-      "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-macros" % "2.17.0" % "compile-internal",
+      "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-core" % V.jsoniter,
+      "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-macros" % V.jsoniter % "compile-internal",
       "tech.neander" %%% "jsonrpclib-core" % V.jsonrpclib
     )
   )
-  .jsPlatform(scalaVersions)
-  .jvmPlatform(scalaVersions)
+  .jsPlatform(V.scalaVersions)
+  .jvmPlatform(V.jvmScalaVersions)
 
 lazy val tracerTests = projectMatrix
   .in(file("modules/tracer/tests"))
-  .defaultAxes(default*)
+  .defaultAxes(V.default*)
   .dependsOn(tracer)
   .settings(
     libraryDependencies += "org.http4s" %%% "http4s-ember-client" % V.http4s % Test,
-    libraryDependencies += "com.disneystreaming" %% "weaver-cats" % "0.7.15" % Test,
-    libraryDependencies += "org.http4s" %% "http4s-jdk-http-client" % "0.7.0" % Test,
+    libraryDependencies += "com.disneystreaming" %% "weaver-cats" % V.weaver % Test,
+    libraryDependencies += "org.http4s" %% "http4s-jdk-http-client" % V.http4sJdkClient % Test,
     testFrameworks += new TestFramework("weaver.framework.CatsEffect")
   )
-  .jvmPlatform(scalaVersions)
-  .settings(noPublishing)
-
-lazy val docs = projectMatrix
-  .in(file("docs"))
-  .dependsOn(lsp)
-  .jvmPlatform(scalaVersions)
-  .defaultAxes(default*)
+  .jvmPlatform(V.jvmScalaVersions)
   .settings(noPublishing)
 
 val scalafixRules = Seq(
