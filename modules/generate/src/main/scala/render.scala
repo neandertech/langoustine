@@ -1,6 +1,7 @@
 package langoustine.generate
 
 import langoustine.meta.*
+import langoustine.generate.StructureRenderConfig.PrivateCodecs
 
 class Render(manager: Manager, packageName: String = "langoustine.lsp"):
   private val INDENT = "  "
@@ -99,13 +100,75 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
 
         val codecTraitName = s"requests_${req.method.value.replace('/', '_')}"
 
+        import Type.*
+
+        def rewriteAndType(at: AndType, structName: StructureName) =
+          val resolved = at.items.collect { case r: ReferenceType =>
+            manager.get(r.name.value).collect { case s: Structure =>
+              s
+            }
+
+          }.flatten
+
+          if resolved.length == at.items.length then
+            Some(Structure(name = structName, mixins = at.items))
+          else
+            scribe.error(
+              s"Found an AndType I cannot render, in request $req, resolved consistutents: $resolved"
+            )
+            None
+        end rewriteAndType
+
+        def rewriteAndParmas(p: ParamsType, structName: StructureName) =
+          p match
+            case ParamsType.Single(at: AndType) =>
+              rewriteAndType(at, structName)
+            case _ => None
+
         line(
           s"object ${req.name} extends LSPRequest(\"${req.method.value}\") with codecs.$codecTraitName:"
         )
         nest {
-          line(s"type In = ${renderParams(req.params)}")
-          line(s"type Out = ${renderType(req.result)}")
+          val inStructName =
+            StructureName(req.segs.map(_.capitalize).mkString + "Input")
+
+          val outStructName =
+            StructureName(req.segs.map(_.capitalize).mkString + "Output")
+
+          val inStruct = rewriteAndParmas(req.params, inStructName)
+          val outStruct = Option(req.result).collect { case at: AndType =>
+            rewriteAndType(at, outStructName)
+          }.flatten
+
+          inStruct match
+            case Some(structure) =>
+              line(s"type In = $inStructName")
+            case _ =>
+              line(s"type In = ${renderParams(req.params)}")
+
+          outStruct match
+            case Some(structure) =>
+              line(s"type Out = $outStructName")
+            case _ =>
+              line(s"type Out = ${renderType(req.result)}")
+
           line("")
+
+          summon[Context].inModified(
+            _.copy(definitionScope = "requests" :: req.segs)
+          ) {
+            inStruct.foreach {
+              given StructureRenderConfig = StructureRenderConfig.default
+                .copy(privateCodecs = PrivateCodecs.Yes)
+              structure(_, out, codecsOut)
+            }
+
+            outStruct.foreach {
+              given StructureRenderConfig = StructureRenderConfig.default
+                .copy(privateCodecs = PrivateCodecs.Yes)
+              structure(_, out, codecsOut)
+            }
+          }
 
           codecsOut.topLevel {
             val path = req.segs
@@ -123,12 +186,17 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
 
               codecsLine(s"import $path.{In, Out}")
 
-              val reader = req.params match
-                case ParamsType.None =>
-                  WriterDefinition.Expression("unitReader")
-                case ParamsType.Single(t) => upickleReader1(t, "In")
-                case ParamsType.Many(t) =>
-                  WriterDefinition.Expression("Pickle.macroR")
+              val reader =
+                inStruct match
+                  case None =>
+                    req.params match
+                      case ParamsType.None =>
+                        WriterDefinition.Expression("unitReader")
+                      case ParamsType.Single(t) => upickleReader1(t, "In")
+                      case ParamsType.Many(t) =>
+                        WriterDefinition.Expression("Pickle.macroR")
+                  case Some(s) =>
+                    WriterDefinition.Expression(s"$path.${s.name.value}.reader")
 
               codecsLine(s"given inputReader: Reader[In] = ")
               nest {
@@ -139,18 +207,26 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
 
               codecsLine(s"given inputWriter: Writer[In] = ")
               nest {
-                req.params match
-                  case ParamsType.None => codecsLine("unitWriter")
-                  case ParamsType.Single(t) =>
-                    upickleWriter(t, Some("In")).write(codecsOut)
-                  case ParamsType.Many(t) => codecsLine("Pickle.macroR")
+                inStruct match
+                  case None =>
+                    req.params match
+                      case ParamsType.None => codecsLine("unitWriter")
+                      case ParamsType.Single(t) =>
+                        upickleWriter(t, Some("In")).write(codecsOut)
+                      case ParamsType.Many(t) => codecsLine("Pickle.macroR")
+                  case Some(s) =>
+                    codecsLine(s"$path.${s.name.value}.writer")
               }
 
               codecsLine("")
 
               codecsLine(s"given outputWriter: Writer[Out] =")
               nest {
-                upickleWriter(req.result, Some("Out")).write(codecsOut)
+                outStruct match
+                  case None =>
+                    upickleWriter(req.result, Some("Out")).write(codecsOut)
+                  case Some(s) =>
+                    codecsLine(s"$path.${s.name.value}.writer")
               }
 
               codecsLine("")
@@ -159,7 +235,11 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
                 s"given outputReader: Reader[Out] ="
               )
               nest {
-                upickleReader1(req.result, "Out").write(codecsOut)
+                outStruct match
+                  case None =>
+                    upickleReader1(req.result, "Out").write(codecsOut)
+                  case Some(s) =>
+                    codecsLine(s"$path.${s.name.value}.reader")
               }
 
             }
@@ -201,12 +281,13 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
             nest {
               codecsLine(s"import $path.In")
 
-              val reader = req.params match
-                case ParamsType.None =>
-                  WriterDefinition.Expression("unitReader")
-                case ParamsType.Single(t) => upickleReader1(t, "In")
-                case ParamsType.Many(t) =>
-                  WriterDefinition.Expression("Pickle.macroR")
+              val reader =
+                req.params match
+                  case ParamsType.None =>
+                    WriterDefinition.Expression("unitReader")
+                  case ParamsType.Single(t) => upickleReader1(t, "In")
+                  case ParamsType.Many(t) =>
+                    WriterDefinition.Expression("Pickle.macroR")
 
               codecsLine(s"given inputReader: Reader[In] = ")
               nest {
@@ -416,8 +497,11 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
       builder: LineBuilder,
       codecsOut: LineBuilder
   )(using
-      Config
-  )(using ctx: Context): Unit =
+      renderConfig: Config,
+      structConfig: StructureRenderConfig =
+        StructureRenderConfig(privateCodecs = PrivateCodecs.No),
+      ctx: Context
+  ): Unit =
     val props = Vector.newBuilder[String]
     val inlineStructures =
       Map.newBuilder[Type.ReferenceType, (String, Type.StructureLiteralType)]
@@ -536,6 +620,9 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
 
       inline def codecsLine: Config ?=> Appender = to(codecsOut)
 
+      val codecPublicity =
+        if structConfig.privateCodecs.yes then "private[lsp] " else ""
+
       codecsOut.topLevel {
         codecsLine("")
         codecsLine(s"private[lsp] trait $fqfUnderscore:")
@@ -560,10 +647,10 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
               }
           }
           codecsLine(
-            s"given reader: Reader[$fqf] = Pickle.macroR"
+            s"${codecPublicity}given reader: Reader[$fqf] = Pickle.macroR"
           )
           codecsLine(
-            s"given writer: Writer[$fqf] = upickle.default.macroW"
+            s"${codecPublicity}given writer: Writer[$fqf] = upickle.default.macroW"
           )
         }
         codecsLine("")
@@ -1000,7 +1087,9 @@ object Types:
   case class Context(
       resolve: Type.ReferenceType => TypeName,
       definitionScope: List[String]
-  )
+  ):
+    def inModified[A](f: Context => Context)(g: Context ?=> A) =
+      g(using f(this))
 
   object Context:
     def global(manager: Manager, scope: List[String]) =
@@ -1130,3 +1219,10 @@ object Constants:
     | */
     |""".stripMargin.trim
 end Constants
+
+case class StructureRenderConfig(privateCodecs: PrivateCodecs)
+object StructureRenderConfig:
+  inline def default = StructureRenderConfig(privateCodecs = PrivateCodecs.No)
+
+  opaque type PrivateCodecs = Boolean
+  object PrivateCodecs extends YesNo[PrivateCodecs]
