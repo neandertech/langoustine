@@ -733,9 +733,21 @@ object requests:
      *  change event and empty the cache if such an event is received.
      */
     object configuration extends LSPRequest("workspace/configuration") with codecs.requests_workspace_configuration:
-      type In = Any /*AndType(Vector(ReferenceType(ConfigurationParams), ReferenceType(PartialResultParams)))*/
+      type In = WorkspaceConfigurationInput
       type Out = Vector[ujson.Value]
       
+      /**
+       *  @param items
+       *  @param partialResultToken
+       *    An optional token that a server can use to report partial results (e.g. streaming) to
+       *    the client.
+      
+       */
+      case class WorkspaceConfigurationInput(
+        items: Vector[structures.ConfigurationItem],
+        partialResultToken: Opt[aliases.ProgressToken] = Opt.empty
+      )
+      object WorkspaceConfigurationInput extends codecs.requests_workspace_configuration_WorkspaceConfigurationInput
     
     /**
      *  The workspace diagnostic request definition.

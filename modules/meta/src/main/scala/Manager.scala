@@ -40,5 +40,8 @@ class Manager(mm: MetaModel):
     notifications
   }
 
-  def get(s: String) = index.get(s)
+  def get(
+      s: String
+  ): Option[Enumeration | TypeAlias | Structure | Request | Notification] =
+    index.get(s)
 end Manager

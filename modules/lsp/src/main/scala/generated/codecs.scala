@@ -1056,13 +1056,19 @@ private[lsp] trait requests_workspace_codeLens_refresh:
   given outputReader: Reader[Out] =
     nullReadWriter
 
+private[lsp] trait requests_workspace_configuration_WorkspaceConfigurationInput:
+  import requests.workspace.configuration.*
+  private[lsp] given reader: Reader[requests.workspace.configuration.WorkspaceConfigurationInput] = Pickle.macroR
+  private[lsp] given writer: Writer[requests.workspace.configuration.WorkspaceConfigurationInput] = upickle.default.macroW
+
+
 private[lsp] trait requests_workspace_configuration:
   import workspace.configuration.{In, Out}
   given inputReader: Reader[In] = 
-    ??? /* TODO: AndType(Vector(ReferenceType(ConfigurationParams), ReferenceType(PartialResultParams)))  */
+    workspace.configuration.WorkspaceConfigurationInput.reader
   
   given inputWriter: Writer[In] = 
-    ???
+    workspace.configuration.WorkspaceConfigurationInput.writer
   
   given outputWriter: Writer[Out] =
     vectorWriter[ujson.Value]

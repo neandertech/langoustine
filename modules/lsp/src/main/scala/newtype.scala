@@ -58,5 +58,7 @@ private[lsp] abstract class YesNo[A](using ev: Boolean =:= A):
 
   inline def apply(inline b: Boolean): A = ev.apply(b)
 
-  extension (inline a: A) inline def value: Boolean = a == Yes
+  extension (inline a: A)
+    inline def value: Boolean = a == Yes
+    inline def yes: Boolean   = a == Yes
 end YesNo

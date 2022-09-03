@@ -9,8 +9,8 @@ import cats.Monad
 
 import jsonrpclib.*
 
-object CodecTest extends verify.BasicTestSuite:
-  test("test documentSymbol codec") {
+class CodecTest() extends munit.FunSuite:
+  test("documentSymbol codec") {
 
     val out1 = Opt(
       Vector(
@@ -54,6 +54,19 @@ object CodecTest extends verify.BasicTestSuite:
 
     assertEquals(read1.toString, out1.toString)
     assertEquals(read2.toString, out2.toString)
+
+  }
+
+  test("workspace/configuration codec (and types construction)") {
+    val req = workspace.configuration
+    val in = workspace.configuration.WorkspaceConfigurationInput(
+      items = Vector(ConfigurationItem(Opt("hello"))),
+      partialResultToken = Opt(ProgressToken("helllooooo"))
+    )
+
+    import req.WorkspaceConfigurationInput
+
+    assertEquals(read[WorkspaceConfigurationInput](write(in)), in)
 
   }
 end CodecTest

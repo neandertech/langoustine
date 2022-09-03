@@ -12,7 +12,7 @@ def basicServer[F[_]: Monadic] =
 
 import jsonrpclib.*
 
-object LSPSuite extends verify.BasicTestSuite:
+class LSPSuite() extends munit.FunSuite:
   test("initialize") {
 
     import requests.*
