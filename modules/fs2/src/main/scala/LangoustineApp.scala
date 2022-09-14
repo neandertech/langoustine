@@ -29,31 +29,8 @@ trait LangoustineApp extends IOApp with LangoustineApp.Config:
       }
       .compile
       .drain
-      .guarantee(IO.consoleForIO.errorln("Terminating server"))
       .as(ExitCode.Success)
 end LangoustineApp
-
-def bind(builder: LSPBuilder[Future], to: Channel[IO]) =
-  Dispatcher[IO].evalMap { disp =>
-    val comms       = Communicate.channel(to)
-    val futureComms = DispatcherCommunicate(disp, comms)
-    val endpoints   = builder.build(futureComms)
-
-    (endpoints: @unchecked)
-      .map {
-        case n @ NotificationEndpoint[Future, Any](method, run, inCodec) =>
-          n.copy(run = (in) => IO.fromFuture(IO(n.run(in))))
-        case r @ RequestResponseEndpoint[Future, Any, Any, Any](
-              method,
-              run,
-              inCodec,
-              errCodec,
-              outCodec
-            ) =>
-          r.copy(run = (in) => IO.fromFuture(IO(r.run(in))))
-      }
-      .traverse(ep => to.mountEndpoint(ep))
-  }.void
 
 private class DispatcherCommunicate(
     disp: Dispatcher[IO],
@@ -75,13 +52,35 @@ object LangoustineApp:
   trait FromFuture extends IOApp with Config:
     def server(args: List[String]): Future[LSPBuilder[Future]]
 
+    private def bindFutureServer(builder: LSPBuilder[Future], to: Channel[IO]) =
+      Dispatcher[IO].evalMap { disp =>
+        val comms       = Communicate.channel(to)
+        val futureComms = DispatcherCommunicate(disp, comms)
+        val endpoints   = builder.build(futureComms)
+
+        (endpoints: @unchecked)
+          .map {
+            case n @ NotificationEndpoint[Future, Any](method, run, inCodec) =>
+              n.copy(run = (in) => IO.fromFuture(IO(n.run(in))))
+            case r @ RequestResponseEndpoint[Future, Any, Any, Any](
+                  method,
+                  run,
+                  inCodec,
+                  errCodec,
+                  outCodec
+                ) =>
+              r.copy(run = (in) => IO.fromFuture(IO(r.run(in))))
+          }
+          .traverse(ep => to.mountEndpoint(ep))
+      }.void
+
     override def run(args: List[String]): IO[ExitCode] =
       FS2.Stream
         .resource(
           Resource
             .eval(IO.fromFuture(IO(server(args))))
             .map { builder => (channel: Channel[IO]) =>
-              bind(builder, channel)
+              bindFutureServer(builder, channel)
             }
         )
         .flatMap { chFun =>
@@ -89,7 +88,6 @@ object LangoustineApp:
         }
         .compile
         .drain
-        .guarantee(IO.consoleForIO.errorln("Terminating server"))
         .as(ExitCode.Success)
   end FromFuture
 
