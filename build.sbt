@@ -36,8 +36,8 @@ val V = new {
   val upickle         = "2.0.0"
   val cats            = "2.8.0"
   val munit           = "1.0.0-M6"
-  val jsonrpclib      = "0.0.3-38-ad9af5-DIRTY64620322-SNAPSHOT"
-  val fs2             = "3.2.14-75-7902cbf"
+  val jsonrpclib      = "0.0.3"
+  val fs2             = "3.2.14"
   val http4s          = "0.23.15"
   val laminar         = "0.14.2"
   val decline         = "2.3.0"
@@ -119,7 +119,7 @@ lazy val fs2 = projectMatrix
   )
   .jvmPlatform(V.jvmScalaVersions)
   .jsPlatform(V.scalaVersions)
-  .nativePlatform(V.scalaVersions)
+  /* .nativePlatform(V.scalaVersions) */
   .settings(docsSettings)
 
 lazy val generate = projectMatrix
