@@ -124,13 +124,11 @@ object LangoustineApp:
           .concurrently(
             in
               .through(lsp.decodePayloads)
-              .evalTap(IO.consoleForIO.errorln(_))
               .through(channel.input)
           )
           .concurrently(
             channel.output
               .through(lsp.encodePayloads)
-              .evalTap(IO.consoleForIO.errorln(_))
               .through(out)
           )
       )
