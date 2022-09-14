@@ -36,8 +36,8 @@ val V = new {
   val upickle         = "2.0.0"
   val cats            = "2.8.0"
   val munit           = "1.0.0-M6"
-  val jsonrpclib      = "0.0.3"
-  val fs2             = "3.2.14"
+  val jsonrpclib      = "0.0.3-38-ad9af5-DIRTY64620322-SNAPSHOT"
+  val fs2             = "3.2.14-75-7902cbf"
   val http4s          = "0.23.15"
   val laminar         = "0.14.2"
   val decline         = "2.3.0"
@@ -69,6 +69,7 @@ lazy val root = project
   .in(file("."))
   .aggregate(meta.projectRefs*)
   .aggregate(lsp.projectRefs*)
+  .aggregate(fs2.projectRefs*)
   .aggregate(tracer.projectRefs*)
   .aggregate(tracerShared.projectRefs*)
   .aggregate(tracerTests.projectRefs*)
@@ -98,6 +99,22 @@ lazy val lsp = projectMatrix
     libraryDependencies += "com.lihaoyi"   %%% "upickle"   % V.upickle,
     libraryDependencies += "org.typelevel" %%% "cats-core" % V.cats,
     libraryDependencies += "tech.neander" %%% "jsonrpclib-core" % V.jsonrpclib,
+    Test / fork := virtualAxes.value.contains(VirtualAxis.jvm)
+  )
+  .jvmPlatform(V.jvmScalaVersions)
+  .jsPlatform(V.scalaVersions)
+  .nativePlatform(V.scalaVersions)
+  .settings(docsSettings)
+
+lazy val fs2 = projectMatrix
+  .in(file("modules/fs2"))
+  .dependsOn(lsp)
+  .defaultAxes(V.default*)
+  .settings(
+    name := "langoustine-fs2",
+    scalacOptions ++= Seq("-Xmax-inlines", "64"),
+    libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2" % V.jsonrpclib,
+    libraryDependencies += "co.fs2"       %%% "fs2-io"         % V.fs2,
     Test / fork := virtualAxes.value.contains(VirtualAxis.jvm)
   )
   .jvmPlatform(V.jvmScalaVersions)
