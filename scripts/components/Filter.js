@@ -4,7 +4,7 @@
  * @typedef { Record<FilterAttributes, FilterMap> } Filters
  */
 
- class Filter {
+class Filter {
   /**
    * @param value { string }
    * @param filters { Filters }
@@ -217,7 +217,7 @@
 }
 
 class FilterItem {
-  constructor(selected = false, visible = true) {
+  constructor(selected = true, visible = true) {
     this.selected = selected
     this.visible = visible
   }
