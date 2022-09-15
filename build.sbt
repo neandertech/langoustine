@@ -88,7 +88,16 @@ lazy val docs = project
         meta.projectRefs ++
         generate.projectRefs ++
         tracerFrontend.projectRefs)*
-    )
+    ),
+    Compile / unidoc := {
+      val out = (Compile / unidoc).value
+      val to  = (ThisBuild / baseDirectory).value / "website"
+      IO.copyDirectory(out.head, to)
+
+      sLog.value.info(s"The site is live at `$to`")
+
+      out
+    }
   )
   .enablePlugins(ScalaUnidocPlugin)
 
@@ -121,6 +130,7 @@ lazy val lsp = projectMatrix
   .jvmPlatform(V.jvmScalaVersions)
   .jsPlatform(V.scalaVersions)
   .nativePlatform(V.scalaVersions)
+  .settings(docsSettings)
 
 lazy val app = projectMatrix
   .in(file("modules/app"))
@@ -135,6 +145,7 @@ lazy val app = projectMatrix
   )
   .jvmPlatform(V.jvmScalaVersions)
   .jsPlatform(V.scalaVersions)
+  .settings(docsSettings)
 
 lazy val generate = projectMatrix
   .in(file("modules/generate"))
@@ -322,8 +333,6 @@ lazy val docsSettings = Seq(
     "-Ygenerate-inkuire",
     "-project-version",
     version.value,
-    /* "-project-logo", */
-    /* "docs/logo.svg", */
     "-social-links:" +
       "github::https://github.com/neandertech/langoustine",
     "-project-footer",
@@ -333,14 +342,5 @@ lazy val docsSettings = Seq(
     "-revision",
     "main",
     "-snippet-compiler:compile"
-  ),
-  Compile / unidoc := {
-    val out = (Compile / unidoc).value
-    val to  = (ThisBuild / baseDirectory).value / "website"
-    IO.copyDirectory(out.head, to)
-
-    sLog.value.info(s"The site is live at `$to`")
-
-    out
-  }
+  )
 )

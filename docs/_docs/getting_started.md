@@ -48,8 +48,8 @@ a version which uses `Future` instead.
 Here's the entire code, as a single `lsp.definition.scala` file:
 
 ```scala 
-//> using lib "tech.neander::langoustine-lsp::0.0.15"
-//> using lib "tech.neander::langoustine-app::0.0.15"
+//> using lib "tech.neander::langoustine-lsp::{{projectVersion}}"
+//> using lib "tech.neander::langoustine-app::{{projectVersion}}"
 //> using scala "3.2"
 
 import langoustine.lsp.*
@@ -120,8 +120,8 @@ use `IO`.
 Our app is therefore rewritten in this way:
 
 ```scala 
-//> using lib "tech.neander::langoustine-lsp::0.0.15"
-//> using lib "tech.neander::langoustine-app::0.0.15"
+//> using lib "tech.neander::langoustine-lsp::{{projectVersion}}"
+//> using lib "tech.neander::langoustine-app::{{projectVersion}}"
 //> using scala "3.2"
 
 import langoustine.lsp.*
