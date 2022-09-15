@@ -131,7 +131,6 @@ lazy val lsp = projectMatrix
   .jvmPlatform(V.jvmScalaVersions)
   .jsPlatform(V.scalaVersions)
   .nativePlatform(V.scalaVersions)
-  .settings(docsSettings)
 
 lazy val app = projectMatrix
   .in(file("modules/app"))
@@ -146,7 +145,6 @@ lazy val app = projectMatrix
   )
   .jvmPlatform(V.jvmScalaVersions)
   .jsPlatform(V.scalaVersions)
-  .settings(docsSettings)
 
 lazy val generate = projectMatrix
   .in(file("modules/generate"))
