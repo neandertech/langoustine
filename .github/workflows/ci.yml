@@ -34,7 +34,7 @@ jobs:
         run: sbt ci buildWebsite
 
       - name: Publish ${{ github.ref }}
-        if: startsWith(github.ref, 'refs/tags/v') 
+        if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || (github.ref == 'refs/heads/main'))
         run: sbt ci-release
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
@@ -43,7 +43,7 @@ jobs:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
 
       - name: Publish gh-pages
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || (github.ref == 'refs/heads/main'))
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
