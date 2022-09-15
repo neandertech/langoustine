@@ -48,7 +48,7 @@ a version which uses `Future` instead.
 Here's the entire code, as a single `lsp.definition.scala` file:
 
 ```scala 
-//> using repository "sonatype:snapshots"
+//> using repository "sonatype-s01:snapshots"
 //> using lib "tech.neander::langoustine-lsp::{{projectVersion}}"
 //> using lib "tech.neander::langoustine-app::{{projectVersion}}"
 //> using scala "3.2"
@@ -121,7 +121,7 @@ use `IO`.
 Our app is therefore rewritten in this way:
 
 ```scala 
-//> using repository "sonatype:snapshots"
+//> using repository "sonatype-s01:snapshots"
 //> using lib "tech.neander::langoustine-lsp::{{projectVersion}}"
 //> using lib "tech.neander::langoustine-app::{{projectVersion}}"
 //> using scala "3.2"
