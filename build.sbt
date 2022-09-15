@@ -4,7 +4,7 @@ Global / excludeLintKeys += scalaJSLinkerConfig
 
 inThisBuild(
   List(
-    scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0",
+    scalafixDependencies += "com.github.liancheng" %% "organize-imports" % V.organizeImports,
     semanticdbEnabled          := true,
     semanticdbVersion          := scalafixSemanticdb.revision,
     scalafixScalaBinaryVersion := scalaBinaryVersion.value,
@@ -31,25 +31,26 @@ inThisBuild(
 
 val V = new {
   val scala           = "3.2.0"
-  val scalaNightly    = "3.2.1-RC1-bin-20220902-3f0c6d3-NIGHTLY"
+  val scalaNightly    = "3.2.0"
   val scribe          = "3.10.3"
   val upickle         = "2.0.0"
   val cats            = "2.8.0"
   val munit           = "1.0.0-M6"
   val jsonrpclib      = "0.0.3"
-  val fs2             = "3.2.14"
+  val fs2             = "3.3.0"
   val http4s          = "0.23.15"
   val laminar         = "0.14.2"
   val decline         = "2.3.0"
   val jsoniter        = "2.17.3"
   val weaver          = "0.7.15"
   val http4sJdkClient = "0.7.0"
+  val organizeImports = "0.6.0"
 
   /** TODO: remove all the nightly hacks once the deliciously decadent scaladoc
     * facelift is released (3.2.1?)
     */
 
-  private val dynScalaVersion =
+  val dynScalaVersion =
     if (sys.env.contains("USE_SCALA_NIGHTLY")) scalaNightly
     else scala
 
@@ -69,10 +70,37 @@ lazy val root = project
   .in(file("."))
   .aggregate(meta.projectRefs*)
   .aggregate(lsp.projectRefs*)
+  .aggregate(app.projectRefs*)
   .aggregate(tracer.projectRefs*)
   .aggregate(tracerShared.projectRefs*)
   .aggregate(tracerTests.projectRefs*)
   .settings(noPublishing)
+
+lazy val docs = project
+  .in(file("target/docs"))
+  .settings(scalaVersion := V.dynScalaVersion)
+  .settings(docsSettings)
+  .dependsOn(app.jvm(V.dynScalaVersion), lsp.jvm(V.dynScalaVersion))
+  .aggregate(app.jvm(V.dynScalaVersion), lsp.jvm(V.dynScalaVersion))
+  .settings(
+    ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(
+      (tracer.projectRefs ++
+        tracerShared.projectRefs ++
+        meta.projectRefs ++
+        generate.projectRefs ++
+        tracerFrontend.projectRefs)*
+    ),
+    Compile / unidoc := {
+      val out = (Compile / unidoc).value
+      val to  = (ThisBuild / baseDirectory).value / "website"
+      IO.copyDirectory(out.head, to)
+
+      sLog.value.info(s"The site is live at `$to`")
+
+      out
+    }
+  )
+  .enablePlugins(ScalaUnidocPlugin)
 
 lazy val meta = projectMatrix
   .in(file("modules/meta"))
@@ -103,7 +131,20 @@ lazy val lsp = projectMatrix
   .jvmPlatform(V.jvmScalaVersions)
   .jsPlatform(V.scalaVersions)
   .nativePlatform(V.scalaVersions)
-  .settings(docsSettings)
+
+lazy val app = projectMatrix
+  .in(file("modules/app"))
+  .dependsOn(lsp)
+  .defaultAxes(V.default*)
+  .settings(
+    name := "langoustine-app",
+    scalacOptions ++= Seq("-Xmax-inlines", "64"),
+    libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2" % V.jsonrpclib,
+    libraryDependencies += "co.fs2"       %%% "fs2-io"         % V.fs2,
+    Test / fork := virtualAxes.value.contains(VirtualAxis.jvm)
+  )
+  .jvmPlatform(V.jvmScalaVersions)
+  .jsPlatform(V.scalaVersions)
 
 lazy val generate = projectMatrix
   .in(file("modules/generate"))
@@ -246,7 +287,7 @@ addCommandAlias(
   "generate/runMain langoustine.generate.run modules/lsp/src/main/scala/generated/"
 )
 addCommandAlias("ci", CICommands)
-addCommandAlias("checkDocs", "docs/mdoc")
+addCommandAlias("buildWebsite", "docs/unidoc")
 addCommandAlias("preCI", PrepareCICommands)
 
 import sbtwelcome.*
@@ -270,7 +311,7 @@ logo :=
 
 usefulTasks := Seq(
   UsefulTask("a", "generateLSP", "Regenerate LSP definitions"),
-  UsefulTask("a", "checkDocs", "Check documentation compiles"),
+  UsefulTask("a", "buildWebsite", "Build website"),
   UsefulTask("b", "preCI", "Reformat and apply Scalafix rules"),
   UsefulTask(
     "c",
@@ -287,21 +328,18 @@ lazy val docsSettings = Seq(
     "Langoustine",
     "-siteroot",
     "docs",
+    "-Yapi-subdirectory",
+    "-Ygenerate-inkuire",
     "-project-version",
     version.value,
-    /* "-project-logo", */
-    /* "docs/logo.svg", */
     "-social-links:" +
       "github::https://github.com/neandertech/langoustine",
     "-project-footer",
     s"Copyright (c) 2022, Neandertech",
     "-source-links:github://neandertech/langoustine",
+    "-authors",
     "-revision",
-    "master"
-  ),
-  Compile / doc := {
-    val out = (Compile / doc).value
-    IO.copyDirectory((Compile / doc / target).value, file("website"))
-    out
-  }
+    "main",
+    "-snippet-compiler:compile"
+  )
 )

@@ -1,5 +1,8 @@
 index: index.md
 subsection:
+  - title: Getting started
+    page: getting_started.md
+
   - title: Tracer
     page: tracer.md
 
