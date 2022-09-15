@@ -4,7 +4,7 @@ Global / excludeLintKeys += scalaJSLinkerConfig
 
 inThisBuild(
   List(
-    scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0",
+    scalafixDependencies += "com.github.liancheng" %% "organize-imports" % V.organizeImports,
     semanticdbEnabled          := true,
     semanticdbVersion          := scalafixSemanticdb.revision,
     scalafixScalaBinaryVersion := scalaBinaryVersion.value,
@@ -31,7 +31,7 @@ inThisBuild(
 
 val V = new {
   val scala           = "3.2.0"
-  val scalaNightly    = "3.2.1-RC1"
+  val scalaNightly    = "3.2.0"
   val scribe          = "3.10.3"
   val upickle         = "2.0.0"
   val cats            = "2.8.0"
@@ -44,6 +44,7 @@ val V = new {
   val jsoniter        = "2.17.3"
   val weaver          = "0.7.15"
   val http4sJdkClient = "0.7.0"
+  val organizeImports = "0.6.0"
 
   /** TODO: remove all the nightly hacks once the deliciously decadent scaladoc
     * facelift is released (3.2.1?)
@@ -338,7 +339,7 @@ lazy val docsSettings = Seq(
     "-project-footer",
     s"Copyright (c) 2022, Neandertech",
     "-source-links:github://neandertech/langoustine",
-    "-groups",
+    "-authors",
     "-revision",
     "main",
     "-snippet-compiler:compile"

@@ -12,8 +12,21 @@ Most of the code is generated directly from the recently published LSP specifica
 
 [![langoustine-lsp Scala version support](https://index.scala-lang.org/neandertech/langoustine/langoustine-lsp/latest.svg)](https://index.scala-lang.org/neandertech/langoustine/langoustine-lsp)
 
-* **SBT:** `libraryDependencies += "tech.neander" %% "langoustine-lsp" % "<version>"`
-* **Mill**: `ivy"tech.neander::langoustine-lsp::<version>"`
-* [**Scala CLI**](https://scala-cli.virtuslab.org) `//> using lib "tech.neander::langoustine-lsp::<version>"`
+**SBT** 
+
+```scala sc:nocompile
+libraryDependencies += "tech.neander" %% "langoustine-lsp" % "{{projectVersion}}"
+```
+
+**Mill**
+```scala sc:nocompile
+    ivy"tech.neander::langoustine-lsp::{{projectVersion}}"
+```
+
+[**Scala CLI**](https://scala-cli.virtuslab.org) 
+
+```scala sc:nocompile
+//> using lib "tech.neander::langoustine-lsp::{{projectVersion}}"
+```
 
 In all of those, [don't forget to add an extra % or : if targeting a non-JVM artifact](https://youforgotapercentagesignoracolon.com)
