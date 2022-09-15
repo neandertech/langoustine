@@ -49,12 +49,12 @@ Here's the entire code, as a single `lsp.definition.scala` file:
 
 ```scala 
 //> using lib "tech.neander::langoustine-lsp::0.0.15"
-//> using lib "tech.neander::langoustine-fs2::0.0.15"
+//> using lib "tech.neander::langoustine-app::0.0.15"
 //> using scala "3.2"
 
 import langoustine.lsp.*
 import langoustine.lsp.all.*
-import langoustine.lsp.fs2.*
+import langoustine.lsp.app.*
 import jsonrpclib.fs2.*
 
 import cats.effect.*
@@ -91,7 +91,7 @@ def sendMessage(back: Communicate[IO], msg: String) =
   )
 ```
 
-1. `langoustine-fs2` dependency brings in `LangoustineApp` trait
+1. `langoustine-app` dependency brings in `LangoustineApp` trait
     
     We are using the `LangoustineApp.Simple` variation, where server 
     definition does not depend on any of the command line arguments. 
@@ -121,12 +121,12 @@ Our app is therefore rewritten in this way:
 
 ```scala 
 //> using lib "tech.neander::langoustine-lsp::0.0.15"
-//> using lib "tech.neander::langoustine-fs2::0.0.15"
+//> using lib "tech.neander::langoustine-app::0.0.15"
 //> using scala "3.2"
 
 import langoustine.lsp.*
 import langoustine.lsp.all.*
-import langoustine.lsp.fs2.*
+import langoustine.lsp.app.*
 import scala.concurrent.Future
 
 import cats.instances.future._

@@ -1,6 +1,4 @@
-package langoustine
-package lsp
-package fs2
+package langoustine.lsp.app
 
 import cats.effect.IOApp
 import cats.effect.ExitCode
@@ -17,6 +15,8 @@ import jsonrpclib.Endpoint.RequestResponseEndpoint
 import jsonrpclib.Endpoint
 import cats.effect.kernel.Resource
 import cats.syntax.all.*
+import langoustine.lsp.LSPBuilder
+import langoustine.lsp.Communicate
 
 trait LangoustineApp extends IOApp with LangoustineApp.Config:
   def server(args: List[String]): IO[LSPBuilder[IO]]
@@ -31,18 +31,6 @@ trait LangoustineApp extends IOApp with LangoustineApp.Config:
       .drain
       .as(ExitCode.Success)
 end LangoustineApp
-
-private class DispatcherCommunicate(
-    disp: Dispatcher[IO],
-    target: Communicate[IO]
-) extends Communicate[Future]:
-  override def notification[X <: LSPNotification](
-      notif: X,
-      in: notif.In
-  ): Future[Unit] = disp.unsafeToFuture(target.notification(notif, in))
-  override def request[X <: LSPRequest](req: X, in: req.In): Future[req.Out] =
-    disp.unsafeToFuture(target.request(req, in))
-end DispatcherCommunicate
 
 object LangoustineApp:
   trait Config extends LangoustineAppPlatform:
@@ -102,7 +90,7 @@ object LangoustineApp:
     override def server(args: List[String]): IO[LSPBuilder[cats.effect.IO]] =
       server
 
-  private[fs2] def create(
+  private[app] def create(
       bufferSize: Int,
       builder: LSPBuilder[IO] | (Channel[IO] => Resource[IO, Unit]),
       in: FS2.Stream[IO, Byte],

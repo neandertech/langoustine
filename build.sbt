@@ -69,7 +69,7 @@ lazy val root = project
   .in(file("."))
   .aggregate(meta.projectRefs*)
   .aggregate(lsp.projectRefs*)
-  .aggregate(fs2.projectRefs*)
+  .aggregate(app.projectRefs*)
   .aggregate(tracer.projectRefs*)
   .aggregate(tracerShared.projectRefs*)
   .aggregate(tracerTests.projectRefs*)
@@ -79,8 +79,8 @@ lazy val docs = project
   .in(file("target/docs"))
   .settings(scalaVersion := V.dynScalaVersion)
   .settings(docsSettings)
-  .dependsOn(fs2.jvm(V.dynScalaVersion), lsp.jvm(V.dynScalaVersion))
-  .aggregate(fs2.jvm(V.dynScalaVersion), lsp.jvm(V.dynScalaVersion))
+  .dependsOn(app.jvm(V.dynScalaVersion), lsp.jvm(V.dynScalaVersion))
+  .aggregate(app.jvm(V.dynScalaVersion), lsp.jvm(V.dynScalaVersion))
   .settings(
     ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(
       (tracer.projectRefs ++
@@ -122,12 +122,12 @@ lazy val lsp = projectMatrix
   .jsPlatform(V.scalaVersions)
   .nativePlatform(V.scalaVersions)
 
-lazy val fs2 = projectMatrix
-  .in(file("modules/fs2"))
+lazy val app = projectMatrix
+  .in(file("modules/app"))
   .dependsOn(lsp)
   .defaultAxes(V.default*)
   .settings(
-    name := "langoustine-fs2",
+    name := "langoustine-app",
     scalacOptions ++= Seq("-Xmax-inlines", "64"),
     libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2" % V.jsonrpclib,
     libraryDependencies += "co.fs2"       %%% "fs2-io"         % V.fs2,
