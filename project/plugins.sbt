@@ -9,3 +9,5 @@ addSbtPlugin("org.scala-native"    % "sbt-scala-native"    % "0.4.7")
 addSbtPlugin("org.scalameta"       % "sbt-mdoc"            % "2.3.3")
 addSbtPlugin("com.github.reibitto" % "sbt-welcome"         % "0.2.2")
 addSbtPlugin("com.github.sbt"      % "sbt-native-packager" % "1.9.11")
+addSbtPlugin("com.github.sbt"      % "sbt-unidoc"          % "0.5.0")
+

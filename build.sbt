@@ -31,13 +31,13 @@ inThisBuild(
 
 val V = new {
   val scala           = "3.2.0"
-  val scalaNightly    = "3.2.1-RC1-bin-20220902-3f0c6d3-NIGHTLY"
+  val scalaNightly    = "3.2.1-RC1"
   val scribe          = "3.10.3"
   val upickle         = "2.0.0"
   val cats            = "2.8.0"
   val munit           = "1.0.0-M6"
   val jsonrpclib      = "0.0.3"
-  val fs2             = "3.2.14"
+  val fs2             = "3.3.0"
   val http4s          = "0.23.15"
   val laminar         = "0.14.2"
   val decline         = "2.3.0"
@@ -49,7 +49,7 @@ val V = new {
     * facelift is released (3.2.1?)
     */
 
-  private val dynScalaVersion =
+  val dynScalaVersion =
     if (sys.env.contains("USE_SCALA_NIGHTLY")) scalaNightly
     else scala
 
@@ -74,6 +74,23 @@ lazy val root = project
   .aggregate(tracerShared.projectRefs*)
   .aggregate(tracerTests.projectRefs*)
   .settings(noPublishing)
+
+lazy val docs = project
+  .in(file("target/docs"))
+  .settings(scalaVersion := V.dynScalaVersion)
+  .settings(docsSettings)
+  .dependsOn(fs2.jvm(V.dynScalaVersion), lsp.jvm(V.dynScalaVersion))
+  .aggregate(fs2.jvm(V.dynScalaVersion), lsp.jvm(V.dynScalaVersion))
+  .settings(
+    ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(
+      (tracer.projectRefs ++
+        tracerShared.projectRefs ++
+        meta.projectRefs ++
+        generate.projectRefs ++
+        tracerFrontend.projectRefs)*
+    )
+  )
+  .enablePlugins(ScalaUnidocPlugin)
 
 lazy val meta = projectMatrix
   .in(file("modules/meta"))
@@ -104,7 +121,6 @@ lazy val lsp = projectMatrix
   .jvmPlatform(V.jvmScalaVersions)
   .jsPlatform(V.scalaVersions)
   .nativePlatform(V.scalaVersions)
-  .settings(docsSettings)
 
 lazy val fs2 = projectMatrix
   .in(file("modules/fs2"))
@@ -119,8 +135,6 @@ lazy val fs2 = projectMatrix
   )
   .jvmPlatform(V.jvmScalaVersions)
   .jsPlatform(V.scalaVersions)
-  /* .nativePlatform(V.scalaVersions) */
-  .settings(docsSettings)
 
 lazy val generate = projectMatrix
   .in(file("modules/generate"))
@@ -263,7 +277,7 @@ addCommandAlias(
   "generate/runMain langoustine.generate.run modules/lsp/src/main/scala/generated/"
 )
 addCommandAlias("ci", CICommands)
-addCommandAlias("checkDocs", "docs/mdoc")
+addCommandAlias("buildWebsite", "docs/unidoc")
 addCommandAlias("preCI", PrepareCICommands)
 
 import sbtwelcome.*
@@ -287,7 +301,7 @@ logo :=
 
 usefulTasks := Seq(
   UsefulTask("a", "generateLSP", "Regenerate LSP definitions"),
-  UsefulTask("a", "checkDocs", "Check documentation compiles"),
+  UsefulTask("a", "buildWebsite", "Build website"),
   UsefulTask("b", "preCI", "Reformat and apply Scalafix rules"),
   UsefulTask(
     "c",
@@ -304,6 +318,8 @@ lazy val docsSettings = Seq(
     "Langoustine",
     "-siteroot",
     "docs",
+    "-Yapi-subdirectory",
+    "-Ygenerate-inkuire",
     "-project-version",
     version.value,
     /* "-project-logo", */
@@ -313,12 +329,18 @@ lazy val docsSettings = Seq(
     "-project-footer",
     s"Copyright (c) 2022, Neandertech",
     "-source-links:github://neandertech/langoustine",
+    "-groups",
     "-revision",
-    "master"
+    "main",
+    "-snippet-compiler:compile"
   ),
-  Compile / doc := {
-    val out = (Compile / doc).value
-    IO.copyDirectory((Compile / doc / target).value, file("website"))
+  Compile / unidoc := {
+    val out = (Compile / unidoc).value
+    val to  = (ThisBuild / baseDirectory).value / "website"
+    IO.copyDirectory(out.head, to)
+
+    sLog.value.info(s"The site is live at `$to`")
+
     out
   }
 )
