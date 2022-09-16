@@ -275,22 +275,16 @@ val scalafixRules = Seq(
 ).mkString(" ")
 
 val CICommands = Seq(
+  "scalafmtCheckAll",
   "clean",
   "compile",
-  "test",
-  /* "checkDocs", */
-  "scalafmtCheckAll"
-  /* s"scalafix --check $scalafixRules", */
-  /* "headerCheck" */
+  "test"
 ).mkString(";")
 
 val PrepareCICommands = Seq(
-  /* s"Compile/scalafix --rules $scalafixRules", */
-  /* s"Test/scalafix --rules $scalafixRules", */
   "Test/scalafmtAll",
   "Compile/scalafmtAll",
   "scalafmtSbt"
-  /* "headerCreate" */
 ).mkString(";")
 
 addCommandAlias(
