@@ -65,6 +65,12 @@ lazy val noPublishing = Seq(
   publishLocal / skip := true
 )
 
+lazy val enableSnapshots = Seq(
+  resolvers ++= Resolver
+    .sonatypeOssRepos("snapshots")
+    .filter(_ => !sys.env.contains("CI"))
+)
+
 lazy val root = project
   .in(file("."))
   .aggregate(meta.projectRefs*)
@@ -117,10 +123,10 @@ lazy val meta = projectMatrix
 lazy val lsp = projectMatrix
   .in(file("modules/lsp"))
   .defaultAxes(V.default*)
+  .settings(enableSnapshots)
   .settings(
     name := "langoustine-lsp",
     scalacOptions ++= Seq("-Xmax-inlines", "64"),
-    resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
     testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
     libraryDependencies += "com.disneystreaming" %%% "weaver-cats" % V.weaver % Test,
     libraryDependencies += "com.outr"      %%% "scribe"          % V.scribe,
@@ -137,8 +143,9 @@ lazy val app = projectMatrix
   .in(file("modules/app"))
   .dependsOn(lsp)
   .defaultAxes(V.default*)
+  .settings(enableSnapshots)
   .settings(
-    name := "langoustine-app",
+    name                                   := "langoustine-app",
     libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2" % V.jsonrpclib,
     libraryDependencies += "co.fs2"       %%% "fs2-io"         % V.fs2,
     Test / fork := virtualAxes.value.contains(VirtualAxis.jvm)
@@ -162,6 +169,7 @@ lazy val tracer = projectMatrix
   .dependsOn(lsp, tracerShared)
   .enablePlugins(JavaAppPackaging)
   .defaultAxes(V.default*)
+  .settings(enableSnapshots)
   .settings(
     name                                   := "langoustine-tracer",
     libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2" % V.jsonrpclib,
@@ -232,6 +240,7 @@ lazy val tracerFrontend = projectMatrix
 lazy val tracerShared = projectMatrix
   .in(file("modules/tracer/shared"))
   .defaultAxes(V.default*)
+  .settings(enableSnapshots)
   .settings(
     name := "langoustine-tracer-shared",
     libraryDependencies ++= Seq(
@@ -246,10 +255,10 @@ lazy val tracerShared = projectMatrix
 lazy val tracerTests = projectMatrix
   .in(file("modules/tracer/tests"))
   .defaultAxes(V.default*)
+  .settings(enableSnapshots)
   .dependsOn(tracer)
   .settings(
     libraryDependencies += "org.http4s" %%% "http4s-ember-client" % V.http4s % Test,
-    resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
     libraryDependencies += "com.disneystreaming" %% "weaver-cats" % V.weaver % Test,
     libraryDependencies += "org.http4s" %% "http4s-jdk-http-client" % V.http4sJdkClient % Test,
     testFrameworks += new TestFramework("weaver.framework.CatsEffect")
