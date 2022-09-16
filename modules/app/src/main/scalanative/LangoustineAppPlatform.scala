@@ -31,7 +31,6 @@ private[app] trait LangoustineAppPlatform:
     IO(posix.fcntl.fcntl(0, posix.fcntl.F_SETFL, posix.fcntl.O_NONBLOCK).toByte)
 
   def in: fs2.Stream[cats.effect.IO, Byte] =
-    fs2.Stream.eval(IO.consoleForIO.errorln("This is the .attempts implementation")) >>
     fs2.Stream.eval(enableNonBlocking) >>
       fs2.io
         .stdin[IO](inBufferSize)
