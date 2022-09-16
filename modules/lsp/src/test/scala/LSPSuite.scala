@@ -12,7 +12,7 @@ def basicServer[F[_]: Monadic] =
 
 import jsonrpclib.*
 
-class LSPSuite() extends munit.FunSuite:
+object LSPTests extends weaver.FunSuite:
   test("initialize") {
 
     import requests.*
@@ -40,7 +40,7 @@ class LSPSuite() extends munit.FunSuite:
       )
     ).get
 
-    assert(response.capabilities == capabilities)
+    expect.same(response.capabilities, capabilities)
 
   }
 
@@ -71,8 +71,9 @@ class LSPSuite() extends munit.FunSuite:
       )
     ).get
 
-    assert(
-      back.collect(window.showMessage).get == List(
+    expect.same(
+      back.collect(window.showMessage).get,
+      List(
         ShowMessageParams(
           MessageType.Info,
           "you opened a text document from /home/bla.txt!"
@@ -81,4 +82,4 @@ class LSPSuite() extends munit.FunSuite:
     )
 
   }
-end LSPSuite
+end LSPTests
