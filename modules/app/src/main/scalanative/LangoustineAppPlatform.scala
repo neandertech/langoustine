@@ -36,8 +36,8 @@ private[app] trait LangoustineAppPlatform:
         .stdin[IO](inBufferSize)
         .chunks
         .attempts(fs2.Stream.constant(stdinDebounceRate))
-        .collect {
-          case Right(ch) => ch
+        .collect { case Right(ch) =>
+          ch
         }
         .unchunks
 end LangoustineAppPlatform
