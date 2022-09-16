@@ -35,13 +35,13 @@ val V = new {
   val scribe          = "3.10.3"
   val upickle         = "2.0.0"
   val cats            = "2.8.0"
-  val jsonrpclib      = "0.0.3"
+  val jsonrpclib      = "0.0.3-43-976dc4-SNAPSHOT"
   val fs2             = "3.3.0"
   val http4s          = "0.23.16"
   val laminar         = "0.14.2"
   val decline         = "2.3.0"
   val jsoniter        = "2.17.3"
-  val weaver          = "0.7.15+59-853de010-SNAPSHOT"
+  val weaver          = "0.8.0"
   val http4sJdkClient = "0.7.0"
   val organizeImports = "0.6.0"
 
@@ -139,13 +139,13 @@ lazy val app = projectMatrix
   .defaultAxes(V.default*)
   .settings(
     name := "langoustine-app",
-    scalacOptions ++= Seq("-Xmax-inlines", "64"),
     libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2" % V.jsonrpclib,
     libraryDependencies += "co.fs2"       %%% "fs2-io"         % V.fs2,
     Test / fork := virtualAxes.value.contains(VirtualAxis.jvm)
   )
   .jvmPlatform(V.jvmScalaVersions)
   .jsPlatform(V.scalaVersions)
+  .nativePlatform(V.scalaVersions)
 
 lazy val generate = projectMatrix
   .in(file("modules/generate"))
