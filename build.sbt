@@ -35,14 +35,13 @@ val V = new {
   val scribe          = "3.10.3"
   val upickle         = "2.0.0"
   val cats            = "2.8.0"
-  val munit           = "1.0.0-M6"
   val jsonrpclib      = "0.0.3"
   val fs2             = "3.3.0"
   val http4s          = "0.23.16"
   val laminar         = "0.14.2"
   val decline         = "2.3.0"
   val jsoniter        = "2.17.3"
-  val weaver          = "0.7.15"
+  val weaver          = "0.7.15+59-853de010-SNAPSHOT"
   val http4sJdkClient = "0.7.0"
   val organizeImports = "0.6.0"
 
@@ -121,7 +120,9 @@ lazy val lsp = projectMatrix
   .settings(
     name := "langoustine-lsp",
     scalacOptions ++= Seq("-Xmax-inlines", "64"),
-    libraryDependencies += "org.scalameta" %%% "munit"     % V.munit % Test,
+    resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
+    testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
+    libraryDependencies += "com.disneystreaming" %%% "weaver-cats" % V.weaver % Test,
     libraryDependencies += "com.outr"      %%% "scribe"    % V.scribe,
     libraryDependencies += "com.lihaoyi"   %%% "upickle"   % V.upickle,
     libraryDependencies += "org.typelevel" %%% "cats-core" % V.cats,
@@ -248,6 +249,7 @@ lazy val tracerTests = projectMatrix
   .dependsOn(tracer)
   .settings(
     libraryDependencies += "org.http4s" %%% "http4s-ember-client" % V.http4s % Test,
+    resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
     libraryDependencies += "com.disneystreaming" %% "weaver-cats" % V.weaver % Test,
     libraryDependencies += "org.http4s" %% "http4s-jdk-http-client" % V.http4sJdkClient % Test,
     testFrameworks += new TestFramework("weaver.framework.CatsEffect")
