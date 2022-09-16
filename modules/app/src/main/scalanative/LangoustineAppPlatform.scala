@@ -17,10 +17,11 @@ private[app] trait LangoustineAppPlatform:
   def inBufferSize: Int = 512
 
   /** Overridable duration to wait if the input stream doesn't have bytes
-    * available On Scala Native it's important to have non-zero wait time
-    * otherwise the application will block and not send any output out.
+    * available. On Scala Native it's _very_ important to have non-zero wait
+    * time otherwise the application will block and not send any output out.
     *
-    * A common symptom is of issues with this value is application hanging
+    * A common symptom of issues with this value is application hanging after
+    * receiving first payload.
     *
     * @return
     *   duration of pause when non-blocking STDIN raises an error
