@@ -30,24 +30,9 @@ private[app] trait LangoustineAppPlatform:
   private val enableNonBlocking =
     IO(posix.fcntl.fcntl(0, posix.fcntl.F_SETFL, posix.fcntl.O_NONBLOCK).toByte)
 
-  // def in: Stream[IO, Byte] =
-  //   def go(in: Stream[IO, Byte]): Pull[IO, Byte, Unit] =
-  //     in.pull.uncons.attempt.flatMap {
-  //       case Right(None) => Pull.done
-  //       case Right(Some((hd, t))) =>
-  //         Pull.output(hd) >> go(in)
-  //       case Left(i: java.io.IOException) =>
-  //         Pull.eval(IO.sleep(stdinDebounceRate)) >> go(in)
-  //       case Left(otherErr) =>
-  //         Pull.raiseError(otherErr)
-  //     }
-
-  //   Stream.eval(enableNonBlocking) >>
-  //     go(fs2.io.stdin[IO](inBufferSize)).stream
-  // end in
-
   def in: fs2.Stream[cats.effect.IO, Byte] =
-    fs2.Stream.eval(enableNonBlocking) ++
+    fs2.Stream.eval(IO.consoleForIO.errorln("This is the .attempts implementation")) >>
+    fs2.Stream.eval(enableNonBlocking) >>
       fs2.io
         .stdin[IO](inBufferSize)
         .chunks
