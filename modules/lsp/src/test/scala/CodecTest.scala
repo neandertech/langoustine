@@ -53,7 +53,7 @@ object CodecTest extends weaver.FunSuite:
     val read2 = read(written2)(using unionReader)
 
     expect.same(read1, out1) and
-    expect.same(read2, out2)
+      expect.same(read2, out2)
   }
 
   test("workspace/configuration codec (and types construction)") {

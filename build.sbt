@@ -123,10 +123,10 @@ lazy val lsp = projectMatrix
     resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
     testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
     libraryDependencies += "com.disneystreaming" %%% "weaver-cats" % V.weaver % Test,
-    libraryDependencies += "com.outr"      %%% "scribe"    % V.scribe,
-    libraryDependencies += "com.lihaoyi"   %%% "upickle"   % V.upickle,
-    libraryDependencies += "org.typelevel" %%% "cats-core" % V.cats,
-    libraryDependencies += "tech.neander" %%% "jsonrpclib-core" % V.jsonrpclib,
+    libraryDependencies += "com.outr"      %%% "scribe"          % V.scribe,
+    libraryDependencies += "com.lihaoyi"   %%% "upickle"         % V.upickle,
+    libraryDependencies += "org.typelevel" %%% "cats-core"       % V.cats,
+    libraryDependencies += "tech.neander"  %%% "jsonrpclib-core" % V.jsonrpclib,
     Test / fork := virtualAxes.value.contains(VirtualAxis.jvm)
   )
   .jvmPlatform(V.jvmScalaVersions)
