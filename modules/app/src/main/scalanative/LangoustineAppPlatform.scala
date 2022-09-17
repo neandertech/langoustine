@@ -28,17 +28,35 @@ private[app] trait LangoustineAppPlatform:
     */
   def stdinDebounceRate: FiniteDuration = 50.millis
 
-  private val enableNonBlocking =
-    IO(posix.fcntl.fcntl(0, posix.fcntl.F_SETFL, posix.fcntl.O_NONBLOCK).toByte)
+  private enum State:
+    case Chunk(bytes: Array[Byte])
+    case Skip, Over
+    case Error(err: Int)
 
-  def in: fs2.Stream[cats.effect.IO, Byte] =
-    fs2.Stream.eval(enableNonBlocking) >>
-      fs2.io
-        .stdin[IO](inBufferSize)
-        .chunks
-        .attempts(fs2.Stream.constant(stdinDebounceRate))
-        .collect { case Right(ch) =>
-          ch
-        }
-        .unchunks
+  private def reader(bufSize: Int) =
+    posix.fcntl.fcntl(0, posix.fcntl.F_SETFL, posix.fcntl.O_NONBLOCK)
+    var keepGoing = true
+    val buf       = new Array[Byte](bufSize)
+    val bufPtr    = buf.asInstanceOf[ByteArray].at(0)
+    val bi        = bufSize.toUInt
+
+    fs2.Stream.repeatEval {
+      IO(unistd.read(0, bufPtr, bi)).flatMap { nread =>
+        System.err.println(nread)
+        if nread < 0 then
+          if libc.errno.errno == posix.errno.EAGAIN then
+            IO.sleep(stdinDebounceRate).as(State.Skip)
+          else IO.pure(State.Error(libc.errno.errno))
+        else if nread == 0 then IO.pure(State.Over)
+        else IO(State.Chunk(buf.take(nread)))
+      }
+    }
+  end reader
+
+  override def in = reader(inBufferSize).collectWhile {
+    case State.Chunk(ar) =>
+      fs2.Chunk.array(ar)
+    case State.Skip => fs2.Chunk.empty
+  }.unchunks
+
 end LangoustineAppPlatform
