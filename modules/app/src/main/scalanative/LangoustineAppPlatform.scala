@@ -5,6 +5,9 @@ import scala.concurrent.duration.*
 import fs2.{Chunk, Stream}
 
 import scalanative.posix
+import scalanative.libc
+import scalanative.unsigned.*
+import scala.scalanative.runtime.ByteArray
 import fs2.Pull
 
 private[app] trait LangoustineAppPlatform:
@@ -41,7 +44,7 @@ private[app] trait LangoustineAppPlatform:
     val bi        = bufSize.toUInt
 
     fs2.Stream.repeatEval {
-      IO(unistd.read(0, bufPtr, bi)).flatMap { nread =>
+      IO(posix.unistd.read(0, bufPtr, bi)).flatMap { nread =>
         System.err.println(nread)
         if nread < 0 then
           if libc.errno.errno == posix.errno.EAGAIN then
@@ -53,7 +56,7 @@ private[app] trait LangoustineAppPlatform:
     }
   end reader
 
-  override def in = reader(inBufferSize).collectWhile {
+  def in: fs2.Stream[IO, Byte] = reader(inBufferSize).collectWhile {
     case State.Chunk(ar) =>
       fs2.Chunk.array(ar)
     case State.Skip => fs2.Chunk.empty
