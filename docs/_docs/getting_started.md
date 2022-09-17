@@ -188,7 +188,7 @@ a specified command, and connecting to it via STDIN/STDOUT.
 
 As a first iteration, we can just use Scala CLI itself!
 
-```
+```text
 $ scala-cli run lsp.definition.scala
 ```
 
@@ -196,7 +196,7 @@ You could give this command to the editor of your choosing and it will launch th
 
 Note that with Scala CLI you can package it even easier into a bootstrap jar:
 
-```
+```text
 $ scli package . -f -o LSP
 ```
 
@@ -208,7 +208,7 @@ Another way is to publish our LSP server as a JVM app and use [Coursier](https:/
 
 When we publish our application to Maven Central, it can be launched as easily as 
 
-```
+```text
 $ cs launch com.example::my-lsp:latest.release
 ```
 
@@ -234,7 +234,7 @@ a JavaScript/TypeScript library for example.
 
 To package our LSP into a single uber-JS file, we can run this command:
 
-```
+```text
 $ scli package . --js --js-module-kind common -f -o LSP.js
 ```
 
@@ -267,6 +267,30 @@ produce self-contained binaries for any platform! All it needs to do is download
 correct distribution from Node.js' website.
 
 This is a very interesting distribution mechanism and that's how an LSP for Tree Sitter grammars is distributed: https://github.com/keynmol/grammar-js-lsp/releases/tag/v0.0.3
+
+### Packaging as a native application
+
+As of quite recently, foundational libraries that power the transport mechanism in langoustine have been
+published for Scala Native.
+
+With that, we can easily package our example as a truly native app, without any dependencies:
+
+```text
+$ scli package lsp.definition.scala --native -f -o LSP.native
+```
+
+We can verify that it is indeed a binary and it has no external dependencies:
+
+```text
+$ file LSP.native
+LSP.native: Mach-O 64-bit executable arm64 # on your machine it will be different
+
+$ l --no-user LSP.native
+.rwxr-xr-x 21M 17 Sep 11:58  LSP.native
+```
+
+Both Scala Native and the Langoustine support for it are experimental, so do give it a go and 
+report any issues!
 
 ## Editor integration
 
