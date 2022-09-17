@@ -35,14 +35,13 @@ val V = new {
   val scribe          = "3.10.3"
   val upickle         = "2.0.0"
   val cats            = "2.8.0"
-  val munit           = "1.0.0-M6"
-  val jsonrpclib      = "0.0.3"
+  val jsonrpclib      = "0.0.4"
   val fs2             = "3.3.0"
   val http4s          = "0.23.16"
   val laminar         = "0.14.2"
   val decline         = "2.3.0"
   val jsoniter        = "2.17.3"
-  val weaver          = "0.7.15"
+  val weaver          = "0.8.0"
   val http4sJdkClient = "0.7.0"
   val organizeImports = "0.6.0"
 
@@ -64,6 +63,12 @@ val V = new {
 lazy val noPublishing = Seq(
   publish / skip      := true,
   publishLocal / skip := true
+)
+
+lazy val enableSnapshots = Seq(
+  resolvers ++= Resolver
+    .sonatypeOssRepos("snapshots")
+    .filter(_ => !sys.env.contains("CI"))
 )
 
 lazy val root = project
@@ -118,14 +123,16 @@ lazy val meta = projectMatrix
 lazy val lsp = projectMatrix
   .in(file("modules/lsp"))
   .defaultAxes(V.default*)
+  .settings(enableSnapshots)
   .settings(
     name := "langoustine-lsp",
     scalacOptions ++= Seq("-Xmax-inlines", "64"),
-    libraryDependencies += "org.scalameta" %%% "munit"     % V.munit % Test,
-    libraryDependencies += "com.outr"      %%% "scribe"    % V.scribe,
-    libraryDependencies += "com.lihaoyi"   %%% "upickle"   % V.upickle,
-    libraryDependencies += "org.typelevel" %%% "cats-core" % V.cats,
-    libraryDependencies += "tech.neander" %%% "jsonrpclib-core" % V.jsonrpclib,
+    testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
+    libraryDependencies += "com.disneystreaming" %%% "weaver-cats" % V.weaver % Test,
+    libraryDependencies += "com.outr"      %%% "scribe"          % V.scribe,
+    libraryDependencies += "com.lihaoyi"   %%% "upickle"         % V.upickle,
+    libraryDependencies += "org.typelevel" %%% "cats-core"       % V.cats,
+    libraryDependencies += "tech.neander"  %%% "jsonrpclib-core" % V.jsonrpclib,
     Test / fork := virtualAxes.value.contains(VirtualAxis.jvm)
   )
   .jvmPlatform(V.jvmScalaVersions)
@@ -136,15 +143,16 @@ lazy val app = projectMatrix
   .in(file("modules/app"))
   .dependsOn(lsp)
   .defaultAxes(V.default*)
+  .settings(enableSnapshots)
   .settings(
-    name := "langoustine-app",
-    scalacOptions ++= Seq("-Xmax-inlines", "64"),
+    name                                   := "langoustine-app",
     libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2" % V.jsonrpclib,
     libraryDependencies += "co.fs2"       %%% "fs2-io"         % V.fs2,
     Test / fork := virtualAxes.value.contains(VirtualAxis.jvm)
   )
   .jvmPlatform(V.jvmScalaVersions)
   .jsPlatform(V.scalaVersions)
+  .nativePlatform(V.scalaVersions)
 
 lazy val generate = projectMatrix
   .in(file("modules/generate"))
@@ -161,6 +169,7 @@ lazy val tracer = projectMatrix
   .dependsOn(lsp, tracerShared)
   .enablePlugins(JavaAppPackaging)
   .defaultAxes(V.default*)
+  .settings(enableSnapshots)
   .settings(
     name                                   := "langoustine-tracer",
     libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2" % V.jsonrpclib,
@@ -231,6 +240,7 @@ lazy val tracerFrontend = projectMatrix
 lazy val tracerShared = projectMatrix
   .in(file("modules/tracer/shared"))
   .defaultAxes(V.default*)
+  .settings(enableSnapshots)
   .settings(
     name := "langoustine-tracer-shared",
     libraryDependencies ++= Seq(
@@ -245,6 +255,7 @@ lazy val tracerShared = projectMatrix
 lazy val tracerTests = projectMatrix
   .in(file("modules/tracer/tests"))
   .defaultAxes(V.default*)
+  .settings(enableSnapshots)
   .dependsOn(tracer)
   .settings(
     libraryDependencies += "org.http4s" %%% "http4s-ember-client" % V.http4s % Test,
@@ -264,22 +275,16 @@ val scalafixRules = Seq(
 ).mkString(" ")
 
 val CICommands = Seq(
+  "scalafmtCheckAll",
   "clean",
   "compile",
-  "test",
-  /* "checkDocs", */
-  "scalafmtCheckAll"
-  /* s"scalafix --check $scalafixRules", */
-  /* "headerCheck" */
+  "test"
 ).mkString(";")
 
 val PrepareCICommands = Seq(
-  /* s"Compile/scalafix --rules $scalafixRules", */
-  /* s"Test/scalafix --rules $scalafixRules", */
   "Test/scalafmtAll",
   "Compile/scalafmtAll",
   "scalafmtSbt"
-  /* "headerCreate" */
 ).mkString(";")
 
 addCommandAlias(

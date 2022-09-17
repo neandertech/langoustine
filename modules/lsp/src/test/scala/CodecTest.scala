@@ -9,7 +9,7 @@ import cats.Monad
 
 import jsonrpclib.*
 
-class CodecTest() extends munit.FunSuite:
+object CodecTest extends weaver.FunSuite:
   test("documentSymbol codec") {
 
     val out1 = Opt(
@@ -52,9 +52,8 @@ class CodecTest() extends munit.FunSuite:
     val read1 = read(written1)(using unionReader)
     val read2 = read(written2)(using unionReader)
 
-    assertEquals(read1.toString, out1.toString)
-    assertEquals(read2.toString, out2.toString)
-
+    expect.same(read1, out1) and
+      expect.same(read2, out2)
   }
 
   test("workspace/configuration codec (and types construction)") {
@@ -66,7 +65,7 @@ class CodecTest() extends munit.FunSuite:
 
     import req.WorkspaceConfigurationInput
 
-    assertEquals(read[WorkspaceConfigurationInput](write(in)), in)
+    expect.same(read[WorkspaceConfigurationInput](write(in)), in)
 
   }
 end CodecTest
