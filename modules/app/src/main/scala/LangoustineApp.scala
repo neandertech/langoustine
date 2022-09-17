@@ -95,7 +95,7 @@ object LangoustineApp:
       builder: LSPBuilder[IO] | (Channel[IO] => Resource[IO, Unit]),
       in: FS2.Stream[IO, Byte],
       out: FS2.Pipe[IO, Byte, Nothing]
-  ): FS2.Stream[cats.effect.IO, Nothing] =
+  ): FS2.Stream[cats.effect.IO, Unit] =
     FS2Channel[IO](bufferSize, None)
       .flatMap { channel =>
         builder match
@@ -105,13 +105,9 @@ object LangoustineApp:
             FS2.Stream.resource(other(channel)).as(channel)
       }
       .flatMap(channel =>
-        FS2.Stream
-          .eval(IO.never) // running the server forever
-          .concurrently(
-            in
-              .through(lsp.decodePayloads)
-              .through(channel.input)
-          )
+        in
+          .through(lsp.decodePayloads)
+          .through(channel.input)
           .concurrently(
             channel.output
               .through(lsp.encodePayloads)
