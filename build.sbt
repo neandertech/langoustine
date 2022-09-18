@@ -280,6 +280,7 @@ lazy val tracerFrontend = projectMatrix
   .dependsOn(tracerShared)
   .defaultAxes(V.default*)
   .settings(
+    Compile / doc / sources             := Seq.empty,
     name                                := "langoustine-tracer-frontend",
     libraryDependencies += "com.raquo" %%% "laminar" % V.laminar,
     scalaJSUseMainModuleInitializer     := true
