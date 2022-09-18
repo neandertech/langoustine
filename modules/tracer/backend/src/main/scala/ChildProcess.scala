@@ -1,4 +1,4 @@
-package langoustine.tracer
+package langoustine
 
 import fs2.Stream
 import cats.effect.*
@@ -10,6 +10,7 @@ trait ChildProcess[F[_]]:
   def stdin: fs2.Pipe[F, Byte, Unit]
   def stdout: Stream[F, Byte]
   def stderr: Stream[F, Byte]
+  def terminate: F[Unit]
 
 object ChildProcess:
 
@@ -20,14 +21,18 @@ object ChildProcess:
     Resource.make(start[F](command))(_._2).map(_._1)
 
   val readBufferSize = 512
-  private def start[F[_]: Async](command: Seq[String]) =
+  private def start[F[_]: Async](
+      command: Seq[String]
+  ): F[(ChildProcess[F], F[Unit])] =
     Async[F].interruptible {
       val p =
         new java.lang.ProcessBuilder(command.asJava)
           .start() // .directory(new java.io.File(wd)).start()
       val done = Async[F].fromCompletableFuture(Sync[F].delay(p.onExit()))
 
-      val terminate: F[Unit] = Sync[F].interruptible(p.destroy())
+      val terminator: F[Unit] = Sync[F].interruptible {
+        p.destroy()
+      }
 
       import cats.*
       val onGlobal = new (F ~> F):
@@ -35,9 +40,11 @@ object ChildProcess:
           Async[F].evalOn(fa, scala.concurrent.ExecutionContext.global)
 
       val cp = new ChildProcess[F]:
+        def terminate = terminator
         def stdin: fs2.Pipe[F, Byte, Unit] =
           writeOutputStreamFlushingChunks[F](
-            Sync[F].interruptible(p.getOutputStream())
+            Sync[F].interruptible(p.getOutputStream()),
+            closeAfterUse = true
           )
 
         def stdout: fs2.Stream[F, Byte] = fs2.io
@@ -45,18 +52,18 @@ object ChildProcess:
             Sync[F].interruptible(p.getInputStream()),
             chunkSize = readBufferSize
           )
-          .translate(onGlobal)
+        // .translate(onGlobal)
 
         def stderr: fs2.Stream[F, Byte] = fs2.io
           .readInputStream[F](
             Sync[F].blocking(p.getErrorStream()),
             chunkSize = readBufferSize
           )
-          .translate(onGlobal)
+          // .translate(onGlobal)
           // Avoids broken pipe - we cut off when the program ends.
           // Users can decide what to do with the error logs using the exitCode value
           .interruptWhen(done.void.attempt)
-      (cp, terminate)
+      (cp, terminator)
     }
 
   /** Adds a flush after each chunk

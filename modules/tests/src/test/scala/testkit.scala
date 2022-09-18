@@ -1,3 +1,5 @@
+package tests.core
+
 import langoustine.lsp.*
 
 import jsonrpclib.*
@@ -50,6 +52,8 @@ case class CollectNotifications[F[_]: MonadThrow] private (
   def request[X <: LSPRequest](req: X, in: req.In): F[req.Out] =
     Communicate.drop[F].request(req, in)
 
+  def shutdown = ???
+
   def collect[T <: LSPNotification](req: T): F[List[req.In]] =
     sent.get.map(_.get(req).toList.flatten.map(_.asInstanceOf[req.In]))
 end CollectNotifications
@@ -99,7 +103,7 @@ def notification[F[
     builder: LSPBuilder[F],
     req: T,
     in: req.In
-) =
+): F[CollectNotifications[F]] =
   val F = MonadThrow[F]
   CollectNotifications.create[F].flatMap { communicate =>
     builder

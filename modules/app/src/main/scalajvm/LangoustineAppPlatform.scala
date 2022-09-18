@@ -8,5 +8,6 @@ private[app] trait LangoustineAppPlatform:
 
   def inBufferSize: Int = 512
 
-  def in: FS2.Stream[cats.effect.IO, Byte] =
+  def in: fs2.Stream[IO, Byte] =
     FS2.io.stdin[IO](inBufferSize)
+end LangoustineAppPlatform

@@ -1,3 +1,5 @@
+package tests.core
+
 import upickle.default.*
 import langoustine.lsp.*
 import jsonrpclib.Monadic

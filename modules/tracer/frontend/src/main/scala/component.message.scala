@@ -126,9 +126,8 @@ def renderResponse(
               href := "#",
               small("see request ", b(cid(rp.id))),
               onClick.preventDefault.mapTo(
-                rp.method.map(method =>
-                  Request(method, rp.id, responded = true)
-                )
+                rp.method
+                  .map(method => Request(method, rp.id, responded = true))
               ) --> showing.writer
             )
           )

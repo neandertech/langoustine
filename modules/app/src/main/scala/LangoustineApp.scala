@@ -33,6 +33,10 @@ trait LangoustineApp extends IOApp with LangoustineApp.Config:
 end LangoustineApp
 
 object LangoustineApp:
+  opaque type Shutdown = IO[Unit]
+  object Shutdown:
+    extension (s: Shutdown) def initiate: IO[Unit] = s
+
   trait Config extends LangoustineAppPlatform:
     def lspBufferSize: Int                           = 2048
     def out: FS2.Pipe[cats.effect.IO, Byte, Nothing] = FS2.io.stdout[IO]
@@ -40,9 +44,13 @@ object LangoustineApp:
   trait FromFuture extends IOApp with Config:
     def server(args: List[String]): Future[LSPBuilder[Future]]
 
-    private def bindFutureServer(builder: LSPBuilder[Future], to: Channel[IO]) =
+    private def bindFutureServer(
+        builder: LSPBuilder[Future],
+        to: Channel[IO],
+        shutdown: IO[Unit]
+    ) =
       Dispatcher[IO].evalMap { disp =>
-        val comms       = Communicate.channel(to)
+        val comms       = Communicate.channel(to, shutdown)
         val futureComms = DispatcherCommunicate(disp, comms)
         val endpoints   = builder.build(futureComms)
 
@@ -63,12 +71,12 @@ object LangoustineApp:
       }.void
 
     override def run(args: List[String]): IO[ExitCode] =
-      FS2.Stream
+      fs2.Stream
         .resource(
           Resource
             .eval(IO.fromFuture(IO(server(args))))
-            .map { builder => (channel: Channel[IO]) =>
-              bindFutureServer(builder, channel)
+            .map { builder => (channel: Channel[IO], shutdown: IO[Unit]) =>
+              bindFutureServer(builder, channel, shutdown)
             }
         )
         .flatMap { chFun =>
@@ -92,30 +100,37 @@ object LangoustineApp:
 
   private[app] def create(
       bufferSize: Int,
-      builder: LSPBuilder[IO] | (Channel[IO] => Resource[IO, Unit]),
+      builder: LSPBuilder[IO] | ((Channel[IO], IO[Unit]) => Resource[IO, Unit]),
       in: FS2.Stream[IO, Byte],
       out: FS2.Pipe[IO, Byte, Nothing]
-  ): FS2.Stream[cats.effect.IO, Nothing] =
-    FS2Channel[IO](bufferSize, None)
-      .flatMap { channel =>
-        builder match
-          case l: LSPBuilder[IO] =>
-            FS2.Stream.resource(Resource.eval(l.bind(channel)))
-          case other: (Channel[IO] => Resource[IO, Unit]) =>
-            FS2.Stream.resource(other(channel)).as(channel)
+  ): FS2.Stream[cats.effect.IO, Unit] =
+    fs2.Stream
+      .eval(IO.deferred[Boolean])
+      .flatMap { latch =>
+        FS2Channel[IO](bufferSize, None)
+          .flatMap { channel =>
+            builder match
+              case l: LSPBuilder[IO] =>
+                FS2.Stream.resource(
+                  Resource.eval(l.bind(channel, latch.complete(true).void))
+                )
+              case other: ((Channel[IO], IO[Unit]) => Resource[IO, Unit]) =>
+                FS2.Stream
+                  .resource(other(channel, latch.complete(true).void))
+                  .as(channel)
+          }
+          .flatMap(channel =>
+            fs2.Stream
+              .eval(latch.get)
+              .concurrently(
+                in.through(lsp.decodePayloads).through(channel.input)
+              )
+              .concurrently(
+                channel.output
+                  .through(lsp.encodePayloads)
+                  .through(out)
+              )
+          )
       }
-      .flatMap(channel =>
-        FS2.Stream
-          .eval(IO.never) // running the server forever
-          .concurrently(
-            in
-              .through(lsp.decodePayloads)
-              .through(channel.input)
-          )
-          .concurrently(
-            channel.output
-              .through(lsp.encodePayloads)
-              .through(out)
-          )
-      )
+      .void
 end LangoustineApp

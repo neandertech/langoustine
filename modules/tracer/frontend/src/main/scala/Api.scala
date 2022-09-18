@@ -34,7 +34,6 @@ object Api:
       .flatMap(_.text())
       .map(str => readFromStringReentrant[Summary](str))
 
-
   def rawAll: Future[Vector[RawMessage]] =
     fetch("/api/raw/all")
       .flatMap(_.text())

@@ -19,4 +19,6 @@ private[app] class DispatcherCommunicate(
   ): Future[Unit] = disp.unsafeToFuture(target.notification(notif, in))
   override def request[X <: LSPRequest](req: X, in: req.In): Future[req.Out] =
     disp.unsafeToFuture(target.request(req, in))
+
+  override def shutdown: Future[Unit] = disp.unsafeToFuture(target.shutdown)
 end DispatcherCommunicate

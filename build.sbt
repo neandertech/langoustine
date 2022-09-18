@@ -40,7 +40,7 @@ val V = new {
   val http4s          = "0.23.16"
   val laminar         = "0.14.2"
   val decline         = "2.3.0"
-  val jsoniter        = "2.17.3"
+  val jsoniter        = "2.17.4"
   val weaver          = "0.8.0"
   val http4sJdkClient = "0.7.0"
   val organizeImports = "0.6.0"
@@ -78,7 +78,8 @@ lazy val root = project
   .aggregate(app.projectRefs*)
   .aggregate(tracer.projectRefs*)
   .aggregate(tracerShared.projectRefs*)
-  .aggregate(tracerTests.projectRefs*)
+  .aggregate(tracerFrontend.projectRefs*)
+  .aggregate(tests.projectRefs*)
   .settings(noPublishing)
 
 lazy val docs = project
@@ -153,6 +154,54 @@ lazy val app = projectMatrix
   .jvmPlatform(V.jvmScalaVersions)
   .jsPlatform(V.scalaVersions)
   .nativePlatform(V.scalaVersions)
+
+lazy val tests = projectMatrix
+  .in(file("modules/tests"))
+  .dependsOn(app)
+  .defaultAxes(V.default*)
+  .settings(enableSnapshots)
+  .jvmPlatform(
+    V.jvmScalaVersions,
+    Seq.empty,
+    _.dependsOn(tracer.jvm(V.dynScalaVersion))
+  )
+  .jsPlatform(V.scalaVersions)
+  .nativePlatform(V.scalaVersions)
+  .settings(noPublishing)
+  .settings(
+    libraryDependencies += "org.http4s" %% "http4s-jdk-http-client" % V.http4sJdkClient % Test,
+    libraryDependencies += "com.disneystreaming" %%% "weaver-cats" % V.weaver % Test,
+    testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
+    Test / fork := virtualAxes.value.contains(VirtualAxis.jvm),
+    Test / envVars := Map(
+      "EXAMPLE_NATIVE" -> (example.native(
+        V.dynScalaVersion
+      ) / Compile / nativeLink).value.toString,
+      "EXAMPLE_JVM" -> (example.jvm(
+        V.dynScalaVersion
+      ) / Compile / assembly).value.toString,
+      "EXAMPLE_JS" -> (example.js(
+        V.dynScalaVersion
+      ) / Compile / fastOptJS).value.data.toString
+    )
+  )
+
+lazy val example = projectMatrix
+  .in(file("modules/example"))
+  .dependsOn(app)
+  .defaultAxes(V.default*)
+  .settings(enableSnapshots)
+  .jvmPlatform(V.jvmScalaVersions)
+  .jsPlatform(
+    V.scalaVersions,
+    Seq(
+      scalaJSUseMainModuleInitializer := true,
+      scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule))
+    )
+  )
+  .nativePlatform(V.scalaVersions)
+  .settings(noPublishing)
+  .settings(version := "dev")
 
 lazy val generate = projectMatrix
   .in(file("modules/generate"))
@@ -231,6 +280,7 @@ lazy val tracerFrontend = projectMatrix
   .dependsOn(tracerShared)
   .defaultAxes(V.default*)
   .settings(
+    Compile / doc / sources             := Seq.empty,
     name                                := "langoustine-tracer-frontend",
     libraryDependencies += "com.raquo" %%% "laminar" % V.laminar,
     scalaJSUseMainModuleInitializer     := true
@@ -252,20 +302,6 @@ lazy val tracerShared = projectMatrix
   .jsPlatform(V.scalaVersions)
   .jvmPlatform(V.jvmScalaVersions)
 
-lazy val tracerTests = projectMatrix
-  .in(file("modules/tracer/tests"))
-  .defaultAxes(V.default*)
-  .settings(enableSnapshots)
-  .dependsOn(tracer)
-  .settings(
-    libraryDependencies += "org.http4s" %%% "http4s-ember-client" % V.http4s % Test,
-    libraryDependencies += "com.disneystreaming" %% "weaver-cats" % V.weaver % Test,
-    libraryDependencies += "org.http4s" %% "http4s-jdk-http-client" % V.http4sJdkClient % Test,
-    testFrameworks += new TestFramework("weaver.framework.CatsEffect")
-  )
-  .jvmPlatform(V.jvmScalaVersions)
-  .settings(noPublishing)
-
 val scalafixRules = Seq(
   "OrganizeImports",
   "DisableSyntax",
@@ -278,7 +314,9 @@ val CICommands = Seq(
   "scalafmtCheckAll",
   "clean",
   "compile",
-  "test"
+  "tests/test",
+  "testsJS/test",
+  "testsNative/test"
 ).mkString(";")
 
 val PrepareCICommands = Seq(
@@ -294,6 +332,9 @@ addCommandAlias(
 addCommandAlias("ci", CICommands)
 addCommandAlias("buildWebsite", "docs/unidoc")
 addCommandAlias("preCI", PrepareCICommands)
+addCommandAlias("testTracer", "tests/testOnly tests.tracer.*")
+addCommandAlias("testCore", "tests/testOnly tests.core.*")
+addCommandAlias("testE2E", "tests/testOnly tests.e2e.*")
 
 import sbtwelcome.*
 
@@ -315,11 +356,17 @@ logo :=
     |""".stripMargin
 
 usefulTasks := Seq(
-  UsefulTask("a", "generateLSP", "Regenerate LSP definitions"),
-  UsefulTask("a", "buildWebsite", "Build website"),
-  UsefulTask("b", "preCI", "Reformat and apply Scalafix rules"),
+  UsefulTask("gl", "generateLSP", "Regenerate LSP definitions"),
+  UsefulTask("bw", "buildWebsite", "Build website"),
+  UsefulTask("tt", "testTracer", "Run Tracer's backend tests"),
   UsefulTask(
-    "c",
+    "te",
+    "testE2E",
+    "Run LangoustineApp E2E tests that launch a separate process"
+  ),
+  UsefulTask("fx", "preCI", "Reformat and apply Scalafix rules"),
+  UsefulTask(
+    "p",
     "publishLocal",
     "Publish all modules locally"
   )
