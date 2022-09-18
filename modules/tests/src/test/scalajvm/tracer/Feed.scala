@@ -1,3 +1,5 @@
+package tests.tracer 
+
 import weaver.*
 import cats.effect.*
 import jsonrpclib.*
@@ -8,10 +10,10 @@ import _root_.fs2.*
 import cats.syntax.all.*
 import langoustine.tracer.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
+
 import org.http4s.client.*
 import TracerServer.{*, given}
 import org.http4s.Uri
-import org.http4s.ember.client.*
 import org.http4s.client.websocket.*
 
 case class Feed(

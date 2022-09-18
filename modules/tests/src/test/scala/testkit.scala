@@ -1,3 +1,5 @@
+package tests.core
+
 import langoustine.lsp.*
 
 import jsonrpclib.*
@@ -99,7 +101,7 @@ def notification[F[
     builder: LSPBuilder[F],
     req: T,
     in: req.In
-) =
+): F[CollectNotifications[F]] =
   val F = MonadThrow[F]
   CollectNotifications.create[F].flatMap { communicate =>
     builder

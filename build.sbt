@@ -154,6 +154,54 @@ lazy val app = projectMatrix
   .jsPlatform(V.scalaVersions)
   .nativePlatform(V.scalaVersions)
 
+lazy val tests = projectMatrix
+  .in(file("modules/tests"))
+  .dependsOn(app)
+  .defaultAxes(V.default*)
+  .settings(enableSnapshots)
+  .jvmPlatform(
+    V.jvmScalaVersions,
+    Seq.empty,
+    _.dependsOn(tracer.jvm(V.dynScalaVersion))
+  )
+  .jsPlatform(V.scalaVersions)
+  .nativePlatform(V.scalaVersions)
+  .settings(noPublishing)
+  .settings(
+    libraryDependencies += "org.http4s" %% "http4s-jdk-http-client" % V.http4sJdkClient % Test,
+    libraryDependencies += "com.disneystreaming" %%% "weaver-cats" % V.weaver % Test,
+    testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
+    Test / fork := virtualAxes.value.contains(VirtualAxis.jvm),
+    Test / envVars := Map(
+      "EXAMPLE_NATIVE" -> (example.native(
+        V.dynScalaVersion
+      ) / Compile / nativeLink).value.toString,
+      "EXAMPLE_JVM" -> (example.jvm(
+        V.dynScalaVersion
+      ) / Compile / assembly).value.toString,
+      "EXAMPLE_JS" -> (example.js(
+        V.dynScalaVersion
+      ) / Compile / fastOptJS).value.data.toString
+    )
+  )
+
+lazy val example = projectMatrix
+  .in(file("modules/example"))
+  .dependsOn(app)
+  .defaultAxes(V.default*)
+  .settings(enableSnapshots)
+  .jvmPlatform(V.jvmScalaVersions)
+  .jsPlatform(
+    V.scalaVersions,
+    Seq(
+      scalaJSUseMainModuleInitializer := true,
+      scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule))
+    )
+  )
+  .nativePlatform(V.scalaVersions)
+  .settings(noPublishing)
+  .settings(version := "dev")
+
 lazy val generate = projectMatrix
   .in(file("modules/generate"))
   .dependsOn(meta)
@@ -294,6 +342,9 @@ addCommandAlias(
 addCommandAlias("ci", CICommands)
 addCommandAlias("buildWebsite", "docs/unidoc")
 addCommandAlias("preCI", PrepareCICommands)
+addCommandAlias("testTracer", "tests/testOnly tests.tracer.*")
+addCommandAlias("testCore", "tests/testOnly tests.core.*")
+addCommandAlias("testE2E", "tests/testOnly tests.e2e.*")
 
 import sbtwelcome.*
 
@@ -315,11 +366,17 @@ logo :=
     |""".stripMargin
 
 usefulTasks := Seq(
-  UsefulTask("a", "generateLSP", "Regenerate LSP definitions"),
-  UsefulTask("a", "buildWebsite", "Build website"),
-  UsefulTask("b", "preCI", "Reformat and apply Scalafix rules"),
+  UsefulTask("gl", "generateLSP", "Regenerate LSP definitions"),
+  UsefulTask("bw", "buildWebsite", "Build website"),
+  UsefulTask("tt", "testTracer", "Run Tracer's backend tests"),
   UsefulTask(
-    "c",
+    "te",
+    "testE2E",
+    "Run LangoustineApp E2E tests that launch a separate process"
+  ),
+  UsefulTask("fx", "preCI", "Reformat and apply Scalafix rules"),
+  UsefulTask(
+    "p",
     "publishLocal",
     "Publish all modules locally"
   )

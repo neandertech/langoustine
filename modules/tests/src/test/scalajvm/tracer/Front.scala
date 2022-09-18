@@ -1,3 +1,5 @@
+package tests.tracer
+
 import weaver.*
 import cats.effect.*
 import jsonrpclib.*
@@ -11,7 +13,6 @@ import com.github.plokhotnyuk.jsoniter_scala.core.*
 import org.http4s.client.*
 import TracerServer.{*, given}
 import org.http4s.Uri
-import org.http4s.ember.client.*
 import org.http4s.client.websocket.*
 
 case class Front(client: Client[IO], base: Uri, ws: WSClient[IO]):

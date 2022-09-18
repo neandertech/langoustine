@@ -9,6 +9,7 @@ import scalanative.libc
 import scalanative.unsigned.*
 import scala.scalanative.runtime.ByteArray
 import fs2.Pull
+import langoustine.lsp.app.LangoustineApp.Shutdown
 
 private[app] trait LangoustineAppPlatform:
   self: LangoustineApp.Config =>
@@ -45,7 +46,6 @@ private[app] trait LangoustineAppPlatform:
 
     fs2.Stream.repeatEval {
       IO(posix.unistd.read(0, bufPtr, bi)).flatMap { nread =>
-        System.err.println(nread)
         if nread < 0 then
           if libc.errno.errno == posix.errno.EAGAIN then
             IO.sleep(stdinDebounceRate).as(State.Skip)
@@ -56,10 +56,16 @@ private[app] trait LangoustineAppPlatform:
     }
   end reader
 
-  def in: fs2.Stream[IO, Byte] = reader(inBufferSize).collectWhile {
-    case State.Chunk(ar) =>
-      fs2.Chunk.array(ar)
-    case State.Skip => fs2.Chunk.empty
-  }.unchunks
+  def in(s: Shutdown): fs2.Stream[IO, Byte] = reader(inBufferSize)
+    .evalTap {
+      case State.Over => s.initiate
+      case _          => IO.unit
+    }
+    .collectWhile {
+      case State.Chunk(ar) =>
+        fs2.Chunk.array(ar)
+      case State.Skip => fs2.Chunk.empty
+    }
+    .unchunks
 
 end LangoustineAppPlatform

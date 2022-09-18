@@ -1,3 +1,5 @@
+package tests.tracer
+
 import langoustine.tracer.*
 import TracerServer.{*, given}
 import _root_.fs2.*
@@ -10,7 +12,6 @@ import jsonrpclib.*
 import org.http4s.Uri
 import org.http4s.client.*
 import org.http4s.client.websocket.*
-import org.http4s.ember.client.*
 import weaver.*
 
 object TracerServerSpec extends ServerSpec:

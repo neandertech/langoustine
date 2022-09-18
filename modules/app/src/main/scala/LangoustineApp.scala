@@ -33,6 +33,10 @@ trait LangoustineApp extends IOApp with LangoustineApp.Config:
 end LangoustineApp
 
 object LangoustineApp:
+  opaque type Shutdown = IO[Unit]
+  object Shutdown:
+    extension (s: Shutdown) def initiate: IO[Unit] = s
+
   trait Config extends LangoustineAppPlatform:
     def lspBufferSize: Int                           = 2048
     def out: FS2.Pipe[cats.effect.IO, Byte, Nothing] = FS2.io.stdout[IO]
@@ -93,7 +97,7 @@ object LangoustineApp:
   private[app] def create(
       bufferSize: Int,
       builder: LSPBuilder[IO] | (Channel[IO] => Resource[IO, Unit]),
-      in: FS2.Stream[IO, Byte],
+      in: Shutdown => FS2.Stream[IO, Byte],
       out: FS2.Pipe[IO, Byte, Nothing]
   ): FS2.Stream[cats.effect.IO, Unit] =
     FS2Channel[IO](bufferSize, None)
@@ -105,13 +109,34 @@ object LangoustineApp:
             FS2.Stream.resource(other(channel)).as(channel)
       }
       .flatMap(channel =>
-        in
-          .through(lsp.decodePayloads)
-          .through(channel.input)
+        fs2.Stream
+          .eval(IO.never)
+          .concurrently(
+            in(IO.unit).through(lsp.decodePayloads).through(channel.input)
+          )
           .concurrently(
             channel.output
               .through(lsp.encodePayloads)
               .through(out)
           )
+
+      // fs2.Stream
+      //   .eval(IO.deferred[Boolean])
+      //   .flatMap { latch =>
+      //     fs2.Stream
+      //       .eval(latch.get)
+      //       .concurrently(
+      //         in(latch.complete(true).void)
+      //           .through(lsp.decodePayloads)
+      //           .through(channel.input)
+      //       )
+      //   }
+      //   .concurrently(
+      //     channel.output
+      //       .evalTap(IO.consoleForIO.errorln)
+      //       .through(lsp.encodePayloads)
+      //       .through(out)
+      //   )
+      //   .void
       )
 end LangoustineApp
