@@ -78,7 +78,8 @@ lazy val root = project
   .aggregate(app.projectRefs*)
   .aggregate(tracer.projectRefs*)
   .aggregate(tracerShared.projectRefs*)
-  .aggregate(tracerTests.projectRefs*)
+  .aggregate(tracerFrontend.projectRefs*)
+  .aggregate(tests.projectRefs*)
   .settings(noPublishing)
 
 lazy val docs = project
@@ -299,20 +300,6 @@ lazy val tracerShared = projectMatrix
   )
   .jsPlatform(V.scalaVersions)
   .jvmPlatform(V.jvmScalaVersions)
-
-lazy val tracerTests = projectMatrix
-  .in(file("modules/tracer/tests"))
-  .defaultAxes(V.default*)
-  .settings(enableSnapshots)
-  .dependsOn(tracer)
-  .settings(
-    libraryDependencies += "org.http4s" %%% "http4s-ember-client" % V.http4s % Test,
-    libraryDependencies += "com.disneystreaming" %% "weaver-cats" % V.weaver % Test,
-    libraryDependencies += "org.http4s" %% "http4s-jdk-http-client" % V.http4sJdkClient % Test,
-    testFrameworks += new TestFramework("weaver.framework.CatsEffect")
-  )
-  .jvmPlatform(V.jvmScalaVersions)
-  .settings(noPublishing)
 
 val scalafixRules = Seq(
   "OrganizeImports",
