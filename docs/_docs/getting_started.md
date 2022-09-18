@@ -218,7 +218,7 @@ Coursier uses.
 One benefit of this model of distribution is that new versions will be automatically downloaded, and you don't need to do any extra packaging - coursier will download 
 all the necessary dependencies.
 
-A downside is that you need both th JVM and Coursier installed on user's machine.
+A downside is that you need both the JVM and Coursier installed on user's machine.
 
 ### Packaging for Node.js and Pkg
 
