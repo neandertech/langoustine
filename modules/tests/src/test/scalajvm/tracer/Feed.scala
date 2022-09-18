@@ -1,4 +1,4 @@
-package tests.tracer 
+package tests.tracer
 
 import weaver.*
 import cats.effect.*

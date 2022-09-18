@@ -21,7 +21,7 @@ def myLSP(files: Ref[IO, Set[String]]) =
             ),
             serverInfo = Opt(InitializeResult.ServerInfo("My first LSP!"))
           )
-        } 
+        }
     }
     .handleNotification(textDocument.didOpen) { in =>
       val documentUri = in.params.textDocument.uri.value
