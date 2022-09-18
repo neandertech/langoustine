@@ -95,7 +95,9 @@ object LangoustineApp:
   trait Simple extends LangoustineApp:
     def server: IO[LSPBuilder[IO]]
 
-    override def server(args: List[String]): Resource[cats.effect.IO, LSPBuilder[cats.effect.IO]] =
+    override def server(
+        args: List[String]
+    ): Resource[cats.effect.IO, LSPBuilder[cats.effect.IO]] =
       Resource.eval(server)
 
   private[app] def create(
