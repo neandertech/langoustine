@@ -314,7 +314,9 @@ val CICommands = Seq(
   "scalafmtCheckAll",
   "clean",
   "compile",
-  "test"
+  "tests/test",
+  "testsJS/test",
+  "testsNative/test"
 ).mkString(";")
 
 val PrepareCICommands = Seq(
