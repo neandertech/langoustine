@@ -8,11 +8,6 @@ private[app] trait LangoustineAppPlatform:
 
   def inBufferSize: Int = 512
 
-  def in(
-      shutdown: LangoustineApp.Shutdown
-  ): fs2.Stream[IO, Byte] =
-    FS2.io.stdin[IO](inBufferSize) ++
-      fs2.Stream
-        .eval(shutdown.initiate)
-        .flatMap(_ => fs2.Stream.empty)
+  def in: fs2.Stream[IO, Byte] =
+    FS2.io.stdin[IO](inBufferSize)
 end LangoustineAppPlatform

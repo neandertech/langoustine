@@ -52,6 +52,8 @@ case class CollectNotifications[F[_]: MonadThrow] private (
   def request[X <: LSPRequest](req: X, in: req.In): F[req.Out] =
     Communicate.drop[F].request(req, in)
 
+  def shutdown = ???
+
   def collect[T <: LSPNotification](req: T): F[List[req.In]] =
     sent.get.map(_.get(req).toList.flatten.map(_.asInstanceOf[req.In]))
 end CollectNotifications
