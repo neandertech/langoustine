@@ -20,7 +20,7 @@ object Config:
 
   object Defaults:
     val port = port"0"
-    val host = host"0.0.0.0"
+    val host = host"localhost"
 
   private val portOpt =
     Opts
