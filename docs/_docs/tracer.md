@@ -60,6 +60,17 @@ By default, it will start the server at random port, but you can change that usi
 langoustine-tracer --port 9911 my-awesome lsp --stdin true
 ```
 
+### Changing host
+
+By default, tracer will bind to `localhost`. On some systems this may cause issues,
+for example under WSL on Windows.
+
+In this scenario you might want to change the host to `0.0.0.0` with the `--host` parameter:
+
+```
+langoustine-tracer --host 0.0.0.0 my-awesome lsp --stdin true
+```
+
 ### Local development
 
 If you are working on the tracer itself, you can globally alias `langoustine-tracer` to a local installation:

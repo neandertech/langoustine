@@ -16,6 +16,8 @@ import org.http4s.Uri
 import org.http4s.client.websocket.*
 import cats.data.NonEmptyList
 
+import com.comcast.ip4s.*
+
 abstract class ServerSpec extends IOSuite:
   type Res = Feed
   override def sharedResource: Resource[cats.effect.IO, Res] =
@@ -30,7 +32,7 @@ abstract class ServerSpec extends IOSuite:
             err = err.stream.unchunks
           )
           .runResource(
-            Config(9914, NonEmptyList.of("echo")),
+            Config.create(NonEmptyList.of("echo")),
             Summary(System.getProperty("user.dir"), List("echo", "world"))
           )
 

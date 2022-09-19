@@ -183,10 +183,8 @@ class TracerServer private (
   ): Resource[cats.effect.IO, server.Server] =
     EmberServerBuilder
       .default[IO]
-      .withPort(
-        Port.fromInt(config.port).get
-      )
-      .withHost(host"localhost")
+      .withPort(config.port)
+      .withHost(config.host)
       .withShutdownTimeout(1.second)
       .withHttpWebSocketApp(app)
       .build
