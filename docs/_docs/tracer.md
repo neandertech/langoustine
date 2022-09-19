@@ -17,7 +17,9 @@ The principle remains the same regardless of the editor:
 cs launch tech.neander:langoustine-tracer_3:latest.release -- <lsp command>
 ```
 
-where `<lsp command>` is passed as a list of arguments, **not as a string**.
+where `<lsp command>` is passed as a list of arguments, **not as a string**. 
+
+Once the tracer is launched, it'll bind itself to a random port (see below if you'd like to make it non-random) and send a message to the LSP client with the port bound. You can then reach the UI by going to `localhost:<port bound>` in your browser.
 
 ### Packaging with coursier
 
