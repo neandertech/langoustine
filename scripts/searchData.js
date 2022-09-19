@@ -2710,7 +2710,7 @@ pages = [{"l":"index.html#","e":false,"i":"","n":"Langoustine","t":"Langoustine"
 {"l":"api/langoustine/lsp/app.html#","e":false,"i":"","n":"langoustine.lsp.app","t":"langoustine.lsp.app","d":"","k":"package"},
 {"l":"api/langoustine/lsp/app/LangoustineApp.html#","e":false,"i":"","n":"LangoustineApp","t":"LangoustineApp extends IOApp with Config","d":"langoustine.lsp.app","k":"trait"},
 {"l":"api/langoustine/lsp/app/LangoustineApp.html#in-0","e":false,"i":"","n":"in","t":"in: Stream[IO, Byte]","d":"langoustine.lsp.app.LangoustineApp","k":"def"},
-{"l":"api/langoustine/lsp/app/LangoustineApp.html#server-fffffa24","e":false,"i":"","n":"server","t":"server(args: List[String]): IO[LSPBuilder[IO]]","d":"langoustine.lsp.app.LangoustineApp","k":"def"},
+{"l":"api/langoustine/lsp/app/LangoustineApp.html#server-fffffe81","e":false,"i":"","n":"server","t":"server(args: List[String]): Resource[IO, LSPBuilder[IO]]","d":"langoustine.lsp.app.LangoustineApp","k":"def"},
 {"l":"api/langoustine/lsp/app/LangoustineApp$.html#","e":false,"i":"","n":"LangoustineApp","t":"LangoustineApp","d":"langoustine.lsp.app","k":"object"},
 {"l":"api/langoustine/lsp/app/LangoustineApp$.html#Shutdown-0","e":false,"i":"","n":"Shutdown","t":"Shutdown","d":"langoustine.lsp.app.LangoustineApp","k":"type"},
 {"l":"api/langoustine/lsp/app/LangoustineApp$$Config.html#","e":false,"i":"","n":"Config","t":"Config","d":"langoustine.lsp.app.LangoustineApp","k":"trait"},
