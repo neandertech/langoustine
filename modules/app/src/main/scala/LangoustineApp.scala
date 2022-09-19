@@ -19,11 +19,11 @@ import langoustine.lsp.LSPBuilder
 import langoustine.lsp.Communicate
 
 trait LangoustineApp extends IOApp with LangoustineApp.Config:
-  def server(args: List[String]): IO[LSPBuilder[IO]]
+  def server(args: List[String]): Resource[IO, LSPBuilder[IO]]
 
   override def run(args: List[String]): IO[ExitCode] =
     FS2.Stream
-      .eval(server(args))
+      .resource(server(args))
       .flatMap { builder =>
         LangoustineApp.create(lspBufferSize, builder, in, out)
       }
@@ -95,8 +95,10 @@ object LangoustineApp:
   trait Simple extends LangoustineApp:
     def server: IO[LSPBuilder[IO]]
 
-    override def server(args: List[String]): IO[LSPBuilder[cats.effect.IO]] =
-      server
+    override def server(
+        args: List[String]
+    ): Resource[cats.effect.IO, LSPBuilder[cats.effect.IO]] =
+      Resource.eval(server)
 
   private[app] def create(
       bufferSize: Int,
