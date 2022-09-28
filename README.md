@@ -57,6 +57,16 @@ Writing a language server for:
 Even basic Go To Definition implementation for the files you work with for hours on a daily basis can have 
 an immeasurable impact on your productivity.
 
+## Do I need to write a custom extension for my editor to talk to my LSP server ?
+
+Depends on how amazing you want the UX to be really, but if you're a lazy sloth like we are, head over the following list : 
+
+* [neovim](https://neovim.io/doc/user/lsp.html), if you hate rodents 
+* [vscode](https://marketplace.visualstudio.com/items?itemName=neandertech.langoustine-vscode), if you like rodents (provided by yours truly) 
+* [intellij](https://github.com/gtache/intellij-lsp) (no commits in a few years, will need a brave soul to step-up) 
+* [emacs](https://emacs-lsp.github.io/lsp-mode/), if you have 20 fingers on each of your 8 hands 
+* [sublime](https://lsp.sublimetext.io/guides/client_configuration/), if you're a decent person who pays for software 
+
 ## Should I use it?
 
 Please refer to this helpful diagram:
