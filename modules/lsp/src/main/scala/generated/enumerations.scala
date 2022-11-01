@@ -25,7 +25,7 @@ object enumerations:
   private val stringCodec = upickle.default.readwriter[String]
   private val intCodec = upickle.default.readwriter[Int]
   import upickle.{default => up}
-  
+
   /**
    *  A set of predefined token types. This set is not fixed
    *  an clients can specify additional token types via the
@@ -65,7 +65,7 @@ object enumerations:
      *  @since 3.17.0
      */
     val decorator = entry("decorator")
-  
+
   /**
    *  A set of predefined token modifiers. This set is not fixed
    *  an clients can specify additional token types via the
@@ -85,7 +85,7 @@ object enumerations:
     val modification = entry("modification")
     val documentation = entry("documentation")
     val defaultLibrary = entry("defaultLibrary")
-  
+
   /**
    *  Predefined error codes.
    */
@@ -127,7 +127,7 @@ object enumerations:
      *  @deprecated use  jsonrpcReservedErrorRangeEnd 
      */
     val serverErrorEnd = entry(-32000)
-  
+
   opaque type LSPErrorCodes = Int
   object LSPErrorCodes extends IntEnum[LSPErrorCodes]:
     /**
@@ -177,7 +177,7 @@ object enumerations:
      *  @since 3.16.0
      */
     val lspReservedErrorRangeEnd = entry(-32800)
-  
+
   /**
    *  A set of predefined range kinds.
    */
@@ -195,7 +195,7 @@ object enumerations:
      *  Folding range for a region (e.g. `#region`)
      */
     val Region = entry("region")
-  
+
   /**
    *  A symbol kind.
    */
@@ -227,7 +227,7 @@ object enumerations:
     val Event = entry(24)
     val Operator = entry(25)
     val TypeParameter = entry(26)
-  
+
   /**
    *  Symbol tags are extra annotations that tweak the rendering of a symbol.
    *  
@@ -239,7 +239,7 @@ object enumerations:
      *  Render a symbol as obsolete, usually using a strike-out.
      */
     val Deprecated = entry(1)
-  
+
   /**
    *  Moniker uniqueness level to define scope of the moniker.
    *  
@@ -267,7 +267,7 @@ object enumerations:
      *  The moniker is globally unique
      */
     val global = entry("global")
-  
+
   /**
    *  The moniker kind.
    *  
@@ -288,7 +288,7 @@ object enumerations:
      *  variable of a function, a class not visible outside the project, ...)
      */
     val local = entry("local")
-  
+
   /**
    *  Inlay hint kinds.
    *  
@@ -304,7 +304,7 @@ object enumerations:
      *  An inlay hint that is for a parameter.
      */
     val Parameter = entry(2)
-  
+
   /**
    *  The message type
    */
@@ -326,7 +326,7 @@ object enumerations:
      *  A log message.
      */
     val Log = entry(4)
-  
+
   /**
    *  Defines how the host (editor) should sync
    *  document changes to the language server.
@@ -348,7 +348,7 @@ object enumerations:
      *  sent.
      */
     val Incremental = entry(2)
-  
+
   /**
    *  Represents reasons why a text document is saved.
    */
@@ -367,7 +367,7 @@ object enumerations:
      *  When the editor lost focus.
      */
     val FocusOut = entry(3)
-  
+
   /**
    *  The kind of a completion entry.
    */
@@ -398,7 +398,7 @@ object enumerations:
     val Event = entry(23)
     val Operator = entry(24)
     val TypeParameter = entry(25)
-  
+
   /**
    *  Completion item tags are extra annotations that tweak the rendering of a completion
    *  item.
@@ -411,7 +411,7 @@ object enumerations:
      *  Render a completion as obsolete, usually using a strike-out.
      */
     val Deprecated = entry(1)
-  
+
   /**
    *  Defines whether the insert text in a completion item should be interpreted as
    *  plain text or a snippet.
@@ -433,7 +433,7 @@ object enumerations:
      *  See also: https://microsoft.github.io/language-server-protocol/specifications/specification-current/#snippet_syntax
      */
     val Snippet = entry(2)
-  
+
   /**
    *  How whitespace and indentation is handled during completion
    *  item insertion.
@@ -460,7 +460,7 @@ object enumerations:
      *  following lines inserted will be indented using 2 tabs as well.
      */
     val adjustIndentation = entry(2)
-  
+
   /**
    *  A document highlight kind.
    */
@@ -478,7 +478,7 @@ object enumerations:
      *  Write-access of a symbol, like writing to a variable.
      */
     val Write = entry(3)
-  
+
   /**
    *  A set of predefined code action kinds
    */
@@ -551,7 +551,7 @@ object enumerations:
      *  @since 3.15.0
      */
     val SourceFixAll = entry("source.fixAll")
-  
+
   opaque type TraceValues = String
   object TraceValues extends StringEnum[TraceValues]:
     /**
@@ -566,7 +566,7 @@ object enumerations:
      *  Verbose message tracing.
      */
     val Verbose = entry("verbose")
-  
+
   /**
    *  Describes the content type that a client supports in various
    *  result literals like `Hover`, `ParameterInfo` or `CompletionItem`.
@@ -584,7 +584,7 @@ object enumerations:
      *  Markdown is supported as a content format
      */
     val Markdown = entry("markdown")
-  
+
   /**
    *  A set of predefined position encoding kinds.
    *  
@@ -611,7 +611,7 @@ object enumerations:
      *  encoding-agnostic representation of character offsets.
      */
     val UTF32 = entry("utf-32")
-  
+
   /**
    *  The file event type
    */
@@ -629,7 +629,7 @@ object enumerations:
      *  The file got deleted.
      */
     val Deleted = entry(3)
-  
+
   opaque type WatchKind = runtime.uinteger
   object WatchKind extends UIntEnum[WatchKind]:
     /**
@@ -644,7 +644,7 @@ object enumerations:
      *  Interested in delete events
      */
     val Delete = entry(4)
-  
+
   /**
    *  The diagnostic's severity.
    */
@@ -666,7 +666,7 @@ object enumerations:
      *  Reports a hint.
      */
     val Hint = entry(4)
-  
+
   /**
    *  The diagnostic tags.
    *  
@@ -687,7 +687,7 @@ object enumerations:
      *  Clients are allowed to rendered diagnostics with this tag strike through.
      */
     val Deprecated = entry(2)
-  
+
   /**
    *  How a completion was triggered
    */
@@ -707,7 +707,7 @@ object enumerations:
      *  Completion was re-triggered as current completion list is incomplete
      */
     val TriggerForIncompleteCompletions = entry(3)
-  
+
   /**
    *  How a signature help was triggered.
    *  
@@ -727,7 +727,7 @@ object enumerations:
      *  Signature help was triggered by the cursor moving or by the document content changing.
      */
     val ContentChange = entry(3)
-  
+
   /**
    *  The reason why code actions were requested.
    *  
@@ -746,7 +746,7 @@ object enumerations:
      *  also be triggered when file content changes.
      */
     val Automatic = entry(2)
-  
+
   /**
    *  A pattern kind describing if a glob pattern matches a file a folder or
    *  both.
@@ -763,7 +763,7 @@ object enumerations:
      *  The pattern matches a folder only.
      */
     val folder = entry("folder")
-  
+
   /**
    *  A notebook cell kind.
    *  
@@ -779,7 +779,7 @@ object enumerations:
      *  A code-cell is source code.
      */
     val Code = entry(2)
-  
+
   opaque type ResourceOperationKind = String
   object ResourceOperationKind extends StringEnum[ResourceOperationKind]:
     /**
@@ -794,7 +794,7 @@ object enumerations:
      *  Supports deleting existing files and folders.
      */
     val Delete = entry("delete")
-  
+
   opaque type FailureHandlingKind = String
   object FailureHandlingKind extends StringEnum[FailureHandlingKind]:
     /**
@@ -818,7 +818,7 @@ object enumerations:
      *  guarantee that this is succeeding.
      */
     val Undo = entry("undo")
-  
+
   opaque type PrepareSupportDefaultBehavior = runtime.uinteger
   object PrepareSupportDefaultBehavior extends UIntEnum[PrepareSupportDefaultBehavior]:
     /**
@@ -826,8 +826,8 @@ object enumerations:
      *  according the to language's syntax rule.
      */
     val Identifier = entry(1)
-  
+
   opaque type TokenFormat = String
   object TokenFormat extends StringEnum[TokenFormat]:
     val Relative = entry("relative")
-  
+

@@ -60,7 +60,7 @@ private[lsp] trait requests_callHierarchy_incomingCalls:
   import callHierarchy.incomingCalls.{In, Out}
   given inputReader: Reader[In] = 
     structures.CallHierarchyIncomingCallsParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.CallHierarchyIncomingCallsParams.writer
   
@@ -78,7 +78,7 @@ private[lsp] trait requests_callHierarchy_outgoingCalls:
   import callHierarchy.outgoingCalls.{In, Out}
   given inputReader: Reader[In] = 
     structures.CallHierarchyOutgoingCallsParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.CallHierarchyOutgoingCallsParams.writer
   
@@ -96,7 +96,7 @@ private[lsp] trait requests_client_registerCapability:
   import client.registerCapability.{In, Out}
   given inputReader: Reader[In] = 
     structures.RegistrationParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.RegistrationParams.writer
   
@@ -110,7 +110,7 @@ private[lsp] trait requests_client_unregisterCapability:
   import client.unregisterCapability.{In, Out}
   given inputReader: Reader[In] = 
     structures.UnregistrationParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.UnregistrationParams.writer
   
@@ -124,7 +124,7 @@ private[lsp] trait requests_codeAction_resolve:
   import codeAction.resolve.{In, Out}
   given inputReader: Reader[In] = 
     structures.CodeAction.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.CodeAction.writer
   
@@ -138,7 +138,7 @@ private[lsp] trait requests_codeLens_resolve:
   import codeLens.resolve.{In, Out}
   given inputReader: Reader[In] = 
     structures.CodeLens.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.CodeLens.writer
   
@@ -152,7 +152,7 @@ private[lsp] trait requests_completionItem_resolve:
   import completionItem.resolve.{In, Out}
   given inputReader: Reader[In] = 
     structures.CompletionItem.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.CompletionItem.writer
   
@@ -166,7 +166,7 @@ private[lsp] trait requests_documentLink_resolve:
   import documentLink.resolve.{In, Out}
   given inputReader: Reader[In] = 
     structures.DocumentLink.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.DocumentLink.writer
   
@@ -188,7 +188,7 @@ private[lsp] trait requests_initialize:
   import initialize.{In, Out}
   given inputReader: Reader[In] = 
     structures.InitializeParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.InitializeParams.writer
   
@@ -210,7 +210,7 @@ private[lsp] trait requests_inlayHint_resolve:
   import inlayHint.resolve.{In, Out}
   given inputReader: Reader[In] = 
     structures.InlayHint.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.InlayHint.writer
   
@@ -256,7 +256,7 @@ private[lsp] trait requests_shutdown:
   import shutdown.{In, Out}
   given inputReader: Reader[In] = 
     unitReader
-  
+
   given inputWriter: Writer[In] = 
     unitWriter
   
@@ -278,7 +278,7 @@ private[lsp] trait requests_textDocument_codeAction:
   import textDocument.codeAction.{In, Out}
   given inputReader: Reader[In] = 
     structures.CodeActionParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.CodeActionParams.writer
   
@@ -304,7 +304,7 @@ private[lsp] trait requests_textDocument_codeLens:
   import textDocument.codeLens.{In, Out}
   given inputReader: Reader[In] = 
     structures.CodeLensParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.CodeLensParams.writer
   
@@ -322,7 +322,7 @@ private[lsp] trait requests_textDocument_colorPresentation:
   import textDocument.colorPresentation.{In, Out}
   given inputReader: Reader[In] = 
     structures.ColorPresentationParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.ColorPresentationParams.writer
   
@@ -336,7 +336,7 @@ private[lsp] trait requests_textDocument_completion:
   import textDocument.completion.{In, Out}
   given inputReader: Reader[In] = 
     structures.CompletionParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.CompletionParams.writer
   
@@ -355,7 +355,7 @@ private[lsp] trait requests_textDocument_declaration:
   import textDocument.declaration.{In, Out}
   given inputReader: Reader[In] = 
     structures.DeclarationParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.DeclarationParams.writer
   
@@ -374,7 +374,7 @@ private[lsp] trait requests_textDocument_definition:
   import textDocument.definition.{In, Out}
   given inputReader: Reader[In] = 
     structures.DefinitionParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.DefinitionParams.writer
   
@@ -393,7 +393,7 @@ private[lsp] trait requests_textDocument_diagnostic:
   import textDocument.diagnostic.{In, Out}
   given inputReader: Reader[In] = 
     structures.DocumentDiagnosticParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.DocumentDiagnosticParams.writer
   
@@ -439,7 +439,7 @@ private[lsp] trait requests_textDocument_documentColor:
   import textDocument.documentColor.{In, Out}
   given inputReader: Reader[In] = 
     structures.DocumentColorParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.DocumentColorParams.writer
   
@@ -453,7 +453,7 @@ private[lsp] trait requests_textDocument_documentHighlight:
   import textDocument.documentHighlight.{In, Out}
   given inputReader: Reader[In] = 
     structures.DocumentHighlightParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.DocumentHighlightParams.writer
   
@@ -471,7 +471,7 @@ private[lsp] trait requests_textDocument_documentLink:
   import textDocument.documentLink.{In, Out}
   given inputReader: Reader[In] = 
     structures.DocumentLinkParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.DocumentLinkParams.writer
   
@@ -489,7 +489,7 @@ private[lsp] trait requests_textDocument_documentSymbol:
   import textDocument.documentSymbol.{In, Out}
   given inputReader: Reader[In] = 
     structures.DocumentSymbolParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.DocumentSymbolParams.writer
   
@@ -511,7 +511,7 @@ private[lsp] trait requests_textDocument_foldingRange:
   import textDocument.foldingRange.{In, Out}
   given inputReader: Reader[In] = 
     structures.FoldingRangeParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.FoldingRangeParams.writer
   
@@ -529,7 +529,7 @@ private[lsp] trait requests_textDocument_formatting:
   import textDocument.formatting.{In, Out}
   given inputReader: Reader[In] = 
     structures.DocumentFormattingParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.DocumentFormattingParams.writer
   
@@ -547,7 +547,7 @@ private[lsp] trait requests_textDocument_hover:
   import textDocument.hover.{In, Out}
   given inputReader: Reader[In] = 
     structures.HoverParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.HoverParams.writer
   
@@ -565,7 +565,7 @@ private[lsp] trait requests_textDocument_implementation:
   import textDocument.implementation.{In, Out}
   given inputReader: Reader[In] = 
     structures.ImplementationParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.ImplementationParams.writer
   
@@ -584,7 +584,7 @@ private[lsp] trait requests_textDocument_inlayHint:
   import textDocument.inlayHint.{In, Out}
   given inputReader: Reader[In] = 
     structures.InlayHintParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.InlayHintParams.writer
   
@@ -602,7 +602,7 @@ private[lsp] trait requests_textDocument_inlineValue:
   import textDocument.inlineValue.{In, Out}
   given inputReader: Reader[In] = 
     structures.InlineValueParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.InlineValueParams.writer
   
@@ -620,7 +620,7 @@ private[lsp] trait requests_textDocument_linkedEditingRange:
   import textDocument.linkedEditingRange.{In, Out}
   given inputReader: Reader[In] = 
     structures.LinkedEditingRangeParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.LinkedEditingRangeParams.writer
   
@@ -638,7 +638,7 @@ private[lsp] trait requests_textDocument_moniker:
   import textDocument.moniker.{In, Out}
   given inputReader: Reader[In] = 
     structures.MonikerParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.MonikerParams.writer
   
@@ -656,7 +656,7 @@ private[lsp] trait requests_textDocument_onTypeFormatting:
   import textDocument.onTypeFormatting.{In, Out}
   given inputReader: Reader[In] = 
     structures.DocumentOnTypeFormattingParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.DocumentOnTypeFormattingParams.writer
   
@@ -674,7 +674,7 @@ private[lsp] trait requests_textDocument_prepareCallHierarchy:
   import textDocument.prepareCallHierarchy.{In, Out}
   given inputReader: Reader[In] = 
     structures.CallHierarchyPrepareParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.CallHierarchyPrepareParams.writer
   
@@ -692,7 +692,7 @@ private[lsp] trait requests_textDocument_prepareRename:
   import textDocument.prepareRename.{In, Out}
   given inputReader: Reader[In] = 
     structures.PrepareRenameParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.PrepareRenameParams.writer
   
@@ -710,7 +710,7 @@ private[lsp] trait requests_textDocument_prepareTypeHierarchy:
   import textDocument.prepareTypeHierarchy.{In, Out}
   given inputReader: Reader[In] = 
     structures.TypeHierarchyPrepareParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.TypeHierarchyPrepareParams.writer
   
@@ -736,7 +736,7 @@ private[lsp] trait requests_textDocument_rangeFormatting:
   import textDocument.rangeFormatting.{In, Out}
   given inputReader: Reader[In] = 
     structures.DocumentRangeFormattingParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.DocumentRangeFormattingParams.writer
   
@@ -754,7 +754,7 @@ private[lsp] trait requests_textDocument_references:
   import textDocument.references.{In, Out}
   given inputReader: Reader[In] = 
     structures.ReferenceParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.ReferenceParams.writer
   
@@ -772,7 +772,7 @@ private[lsp] trait requests_textDocument_rename:
   import textDocument.rename.{In, Out}
   given inputReader: Reader[In] = 
     structures.RenameParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.RenameParams.writer
   
@@ -790,7 +790,7 @@ private[lsp] trait requests_textDocument_selectionRange:
   import textDocument.selectionRange.{In, Out}
   given inputReader: Reader[In] = 
     structures.SelectionRangeParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.SelectionRangeParams.writer
   
@@ -808,7 +808,7 @@ private[lsp] trait requests_textDocument_semanticTokens_full:
   import textDocument.semanticTokens.full.{In, Out}
   given inputReader: Reader[In] = 
     structures.SemanticTokensParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.SemanticTokensParams.writer
   
@@ -826,7 +826,7 @@ private[lsp] trait requests_textDocument_semanticTokens_full_delta:
   import textDocument.semanticTokens.full.delta.{In, Out}
   given inputReader: Reader[In] = 
     structures.SemanticTokensDeltaParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.SemanticTokensDeltaParams.writer
   
@@ -845,7 +845,7 @@ private[lsp] trait requests_textDocument_semanticTokens_range:
   import textDocument.semanticTokens.range.{In, Out}
   given inputReader: Reader[In] = 
     structures.SemanticTokensRangeParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.SemanticTokensRangeParams.writer
   
@@ -863,7 +863,7 @@ private[lsp] trait requests_textDocument_signatureHelp:
   import textDocument.signatureHelp.{In, Out}
   given inputReader: Reader[In] = 
     structures.SignatureHelpParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.SignatureHelpParams.writer
   
@@ -881,7 +881,7 @@ private[lsp] trait requests_textDocument_typeDefinition:
   import textDocument.typeDefinition.{In, Out}
   given inputReader: Reader[In] = 
     structures.TypeDefinitionParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.TypeDefinitionParams.writer
   
@@ -908,7 +908,7 @@ private[lsp] trait requests_textDocument_willSaveWaitUntil:
   import textDocument.willSaveWaitUntil.{In, Out}
   given inputReader: Reader[In] = 
     structures.WillSaveTextDocumentParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.WillSaveTextDocumentParams.writer
   
@@ -926,7 +926,7 @@ private[lsp] trait requests_typeHierarchy_subtypes:
   import typeHierarchy.subtypes.{In, Out}
   given inputReader: Reader[In] = 
     structures.TypeHierarchySubtypesParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.TypeHierarchySubtypesParams.writer
   
@@ -944,7 +944,7 @@ private[lsp] trait requests_typeHierarchy_supertypes:
   import typeHierarchy.supertypes.{In, Out}
   given inputReader: Reader[In] = 
     structures.TypeHierarchySupertypesParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.TypeHierarchySupertypesParams.writer
   
@@ -970,7 +970,7 @@ private[lsp] trait requests_window_showDocument:
   import window.showDocument.{In, Out}
   given inputReader: Reader[In] = 
     structures.ShowDocumentParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.ShowDocumentParams.writer
   
@@ -992,7 +992,7 @@ private[lsp] trait requests_window_showMessageRequest:
   import window.showMessageRequest.{In, Out}
   given inputReader: Reader[In] = 
     structures.ShowMessageRequestParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.ShowMessageRequestParams.writer
   
@@ -1018,7 +1018,7 @@ private[lsp] trait requests_window_workDoneProgress_create:
   import window.workDoneProgress.create.{In, Out}
   given inputReader: Reader[In] = 
     structures.WorkDoneProgressCreateParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.WorkDoneProgressCreateParams.writer
   
@@ -1032,7 +1032,7 @@ private[lsp] trait requests_workspace_applyEdit:
   import workspace.applyEdit.{In, Out}
   given inputReader: Reader[In] = 
     structures.ApplyWorkspaceEditParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.ApplyWorkspaceEditParams.writer
   
@@ -1046,7 +1046,7 @@ private[lsp] trait requests_workspace_codeLens_refresh:
   import workspace.codeLens.refresh.{In, Out}
   given inputReader: Reader[In] = 
     unitReader
-  
+
   given inputWriter: Writer[In] = 
     unitWriter
   
@@ -1066,7 +1066,7 @@ private[lsp] trait requests_workspace_configuration:
   import workspace.configuration.{In, Out}
   given inputReader: Reader[In] = 
     workspace.configuration.WorkspaceConfigurationInput.reader
-  
+
   given inputWriter: Writer[In] = 
     workspace.configuration.WorkspaceConfigurationInput.writer
   
@@ -1080,7 +1080,7 @@ private[lsp] trait requests_workspace_diagnostic:
   import workspace.diagnostic.{In, Out}
   given inputReader: Reader[In] = 
     structures.WorkspaceDiagnosticParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.WorkspaceDiagnosticParams.writer
   
@@ -1094,7 +1094,7 @@ private[lsp] trait requests_workspace_diagnostic_refresh:
   import workspace.diagnostic.refresh.{In, Out}
   given inputReader: Reader[In] = 
     unitReader
-  
+
   given inputWriter: Writer[In] = 
     unitWriter
   
@@ -1156,7 +1156,7 @@ private[lsp] trait requests_workspace_executeCommand:
   import workspace.executeCommand.{In, Out}
   given inputReader: Reader[In] = 
     structures.ExecuteCommandParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.ExecuteCommandParams.writer
   
@@ -1174,7 +1174,7 @@ private[lsp] trait requests_workspace_inlayHint_refresh:
   import workspace.inlayHint.refresh.{In, Out}
   given inputReader: Reader[In] = 
     unitReader
-  
+
   given inputWriter: Writer[In] = 
     unitWriter
   
@@ -1188,7 +1188,7 @@ private[lsp] trait requests_workspace_inlineValue_refresh:
   import workspace.inlineValue.refresh.{In, Out}
   given inputReader: Reader[In] = 
     unitReader
-  
+
   given inputWriter: Writer[In] = 
     unitWriter
   
@@ -1202,7 +1202,7 @@ private[lsp] trait requests_workspace_semanticTokens_refresh:
   import workspace.semanticTokens.refresh.{In, Out}
   given inputReader: Reader[In] = 
     unitReader
-  
+
   given inputWriter: Writer[In] = 
     unitWriter
   
@@ -1216,7 +1216,7 @@ private[lsp] trait requests_workspace_symbol:
   import workspace.symbol.{In, Out}
   given inputReader: Reader[In] = 
     structures.WorkspaceSymbolParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.WorkspaceSymbolParams.writer
   
@@ -1238,7 +1238,7 @@ private[lsp] trait requests_workspace_willCreateFiles:
   import workspace.willCreateFiles.{In, Out}
   given inputReader: Reader[In] = 
     structures.CreateFilesParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.CreateFilesParams.writer
   
@@ -1256,7 +1256,7 @@ private[lsp] trait requests_workspace_willDeleteFiles:
   import workspace.willDeleteFiles.{In, Out}
   given inputReader: Reader[In] = 
     structures.DeleteFilesParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.DeleteFilesParams.writer
   
@@ -1274,7 +1274,7 @@ private[lsp] trait requests_workspace_willRenameFiles:
   import workspace.willRenameFiles.{In, Out}
   given inputReader: Reader[In] = 
     structures.RenameFilesParams.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.RenameFilesParams.writer
   
@@ -1292,7 +1292,7 @@ private[lsp] trait requests_workspace_workspaceFolders:
   import workspace.workspaceFolders.{In, Out}
   given inputReader: Reader[In] = 
     unitReader
-  
+
   given inputWriter: Writer[In] = 
     unitWriter
   
@@ -1310,7 +1310,7 @@ private[lsp] trait requests_workspaceSymbol_resolve:
   import workspaceSymbol.resolve.{In, Out}
   given inputReader: Reader[In] = 
     structures.WorkspaceSymbol.reader
-  
+
   given inputWriter: Writer[In] = 
     structures.WorkspaceSymbol.writer
   
