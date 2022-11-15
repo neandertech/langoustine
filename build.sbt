@@ -30,8 +30,8 @@ inThisBuild(
 )
 
 val V = new {
-  val scala           = "3.2.0"
-  val scalaNightly    = "3.2.0"
+  val scala           = "3.2.1"
+  val scalaNightly    = "3.2.1"
   val scribe          = "3.10.3"
   val upickle         = "2.0.0"
   val cats            = "2.8.0"
