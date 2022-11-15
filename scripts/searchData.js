@@ -1,9 +1,4 @@
-pages = [{"l":"index.html#","e":false,"i":"","n":"Langoustine","t":"Langoustine","d":"","k":"static"},
-{"l":"getting_started.html#","e":false,"i":"","n":"Getting started","t":"Getting started","d":"","k":"static"},
-{"l":"tracer.html#","e":false,"i":"","n":"Tracer","t":"Tracer","d":"","k":"static"},
-{"l":"examples.html#","e":false,"i":"","n":"Examples","t":"Examples","d":"","k":"static"},
-{"l":"CONTRIBUTING.html#","e":false,"i":"","n":"Contributing guide","t":"Contributing guide","d":"","k":"static"},
-{"l":"api/index.html#","e":false,"i":"","n":"API","t":"API","d":"","k":"static"},
+pages = [{"l":"api/index.html#","e":false,"i":"","n":"Langoustine","t":"Langoustine","d":"","k":"static"},
 {"l":"api/_empty_.html#","e":false,"i":"","n":"<empty>","t":"<empty>","d":"","k":"package"},
 {"l":"api/_empty_.html#myLSP-fffffb28","e":false,"i":"","n":"myLSP","t":"myLSP(files: Ref[IO, Set[String]]): LSPBuilder[IO]","d":"<empty>","k":"def"},
 {"l":"api/_empty_.html#sendMessage-4c2","e":false,"i":"","n":"sendMessage","t":"sendMessage(back: Communicate[IO], msg: String): IO[Unit]","d":"<empty>","k":"def"},
@@ -2776,4 +2771,9 @@ pages = [{"l":"index.html#","e":false,"i":"","n":"Langoustine","t":"Langoustine"
 {"l":"api/langoustine/lsp/runtime/uinteger$.html#unapply-d26","e":false,"i":"","n":"unapply","t":"unapply(s: Int): Newtype","d":"langoustine.lsp.runtime.uinteger","k":"def"},
 {"l":"api/langoustine/lsp/runtime/uinteger$.html#value-d26","e":false,"i":"Newtype","n":"value","t":"value: Impl","d":"langoustine.lsp.runtime.uinteger","k":"def"},
 {"l":"api/langoustine/lsp/runtime/uinteger$$given_TypeTest_Any_uinteger$.html#","e":false,"i":"","n":"given_TypeTest_Any_uinteger","t":"given_TypeTest_Any_uinteger extends TypeTest[Any, uinteger]","d":"langoustine.lsp.runtime.uinteger","k":"object"},
-{"l":"api/langoustine/lsp/runtime/uinteger$$given_TypeTest_Any_uinteger$.html#unapply-fffffb50","e":false,"i":"","n":"unapply","t":"unapply(i: Any): Option[Any & uinteger]","d":"langoustine.lsp.runtime.uinteger.given_TypeTest_Any_uinteger","k":"def"}];
+{"l":"api/langoustine/lsp/runtime/uinteger$$given_TypeTest_Any_uinteger$.html#unapply-fffffb50","e":false,"i":"","n":"unapply","t":"unapply(i: Any): Option[Any & uinteger]","d":"langoustine.lsp.runtime.uinteger.given_TypeTest_Any_uinteger","k":"def"},
+{"l":"index.html#","e":false,"i":"","n":"Langoustine","t":"Langoustine","d":"","k":"static"},
+{"l":"getting_started.html#","e":false,"i":"","n":"Getting started","t":"Getting started","d":"","k":"static"},
+{"l":"tracer.html#","e":false,"i":"","n":"Tracer","t":"Tracer","d":"","k":"static"},
+{"l":"examples.html#","e":false,"i":"","n":"Examples","t":"Examples","d":"","k":"static"},
+{"l":"CONTRIBUTING.html#","e":false,"i":"","n":"Contributing guide","t":"Contributing guide","d":"","k":"static"}];
