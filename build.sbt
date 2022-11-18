@@ -32,7 +32,7 @@ inThisBuild(
 val V = new {
   val scala           = "3.2.1"
   val scalaNightly    = "3.2.1"
-  val scribe          = "3.10.4"
+  val scribe          = "3.10.5"
   val upickle         = "2.0.0"
   val cats            = "2.9.0"
   val jsonrpclib      = "0.0.4"
