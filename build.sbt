@@ -41,7 +41,7 @@ val V = new {
   val laminar         = "0.14.5"
   val decline         = "2.4.0"
   val jsoniter        = "2.17.9"
-  val weaver          = "0.8.0"
+  val weaver          = "0.8.1"
   val http4sJdkClient = "0.7.0"
   val organizeImports = "0.6.0"
 
