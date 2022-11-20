@@ -42,7 +42,7 @@ val V = new {
   val decline         = "2.4.0"
   val jsoniter        = "2.17.9"
   val weaver          = "0.8.1"
-  val http4sJdkClient = "0.7.0"
+  val http4sJdkClient = "0.8.0"
   val organizeImports = "0.6.0"
 
   /** TODO: remove all the nightly hacks once the deliciously decadent scaladoc
