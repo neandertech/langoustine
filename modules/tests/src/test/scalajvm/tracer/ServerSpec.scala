@@ -39,9 +39,9 @@ abstract class ServerSpec extends IOSuite:
         import org.http4s.jdkhttpclient.*
 
         val client =
-          JdkHttpClient.simple[IO]
+          Resource.eval(JdkHttpClient.simple[IO])
 
-        val ws = JdkWSClient.simple[IO]
+        val ws = Resource.eval(JdkWSClient.simple[IO])
 
         val idState = Resource.eval(IO.ref(0L))
 
