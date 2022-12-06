@@ -30,20 +30,20 @@ inThisBuild(
 )
 
 val V = new {
-  val scala           = "3.2.0"
-  val scalaNightly    = "3.2.0"
-  val scribe          = "3.10.3"
+  val scala           = "3.2.1"
+  val scalaNightly    = "3.2.1"
+  val scribe          = "3.10.5"
   val upickle         = "2.0.0"
-  val cats            = "2.8.0"
+  val cats            = "2.9.0"
   val jsonrpclib      = "0.0.4"
-  val fs2             = "3.3.0"
+  val fs2             = "3.4.0"
   val http4s          = "0.23.16"
   val laminar         = "0.14.5"
-  val decline         = "2.3.1"
-  val jsoniter        = "2.17.5"
-  val weaver          = "0.8.0"
+  val decline         = "2.4.0"
+  val jsoniter        = "2.19.0"
+  val weaver          = "0.8.1"
   val rendition       = "0.0.3"
-  val http4sJdkClient = "0.7.0"
+  val http4sJdkClient = "0.8.0"
   val organizeImports = "0.6.0"
 
   /** TODO: remove all the nightly hacks once the deliciously decadent scaladoc
