@@ -34,6 +34,8 @@ private[lsp] trait IntEnum[T](using ev: T =:= Int):
 
   protected inline def entry(n: Int): T =
     n.asInstanceOf[T]
+
+  extension (t: T) inline def raw: Int = t.asInstanceOf[Int]
 end IntEnum
 
 private[lsp] trait StringEnum[T](using ev: T =:= String):
@@ -49,6 +51,8 @@ private[lsp] trait StringEnum[T](using ev: T =:= String):
 
   protected inline def entry(n: String): T =
     n.asInstanceOf[T]
+
+  extension (t: T) inline def raw: String = t.asInstanceOf[String]
 end StringEnum
 
 private[lsp] trait UIntEnum[T](using ev: T =:= uinteger):
@@ -65,4 +69,8 @@ private[lsp] trait UIntEnum[T](using ev: T =:= uinteger):
 
   protected inline def entry(n: Int): T =
     uinteger(n).asInstanceOf[T]
+
+  extension (t: T)
+    inline def raw: uinteger = t.asInstanceOf[uinteger]
+    inline def rawInt: Int   = t.asInstanceOf[Int]
 end UIntEnum
