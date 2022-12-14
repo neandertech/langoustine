@@ -31,7 +31,7 @@ inThisBuild(
 
 val V = new {
   val scala           = "3.2.1"
-  val scalaNightly    = "3.2.1"
+  val scalaNightly    = "3.3.0-RC1-bin-20221209-231f9ab-NIGHTLY"
   val scribe          = "3.10.5"
   val upickle         = "2.0.0"
   val cats            = "2.9.0"
@@ -94,7 +94,8 @@ lazy val docs = project
         tracerShared.projectRefs ++
         meta.projectRefs ++
         generate.projectRefs ++
-        tracerFrontend.projectRefs)*
+        tracerFrontend.projectRefs ++ 
+        example.projectRefs)*
     ),
     Compile / unidoc := {
       val out = (Compile / unidoc).value
@@ -202,6 +203,7 @@ lazy val example = projectMatrix
   .nativePlatform(V.scalaVersions)
   .settings(noPublishing)
   .settings(version := "dev")
+  .settings(doc / sources := Seq.empty)
 
 lazy val generate = projectMatrix
   .in(file("modules/generate"))

@@ -5,6 +5,9 @@ subsection:
 
   - title: Tracer
     page: tracer.md
+  
+  - title: LSP Toolkit
+    page: toolkit.md
 
   - title: Examples
     page: examples.md
