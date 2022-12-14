@@ -27,12 +27,12 @@ object SemanticTokensEncoderTest extends weaver.FunSuite:
 
   }
 
-  test("Encode") {
-    val encoder = SemanticTokensEncoder(
-      Vector(T.property, T.`type`, T.`class`),
-      Vector(M.`declaration`, M.`static`)
-    )
+  val encoder = SemanticTokensEncoder(
+    Vector(T.property, T.`type`, T.`class`),
+    Vector(M.`declaration`, M.`static`)
+  )
 
+  test("encode") {
     val tokens = Vector(
       SemanticToken(
         Position(2, 5),
@@ -54,15 +54,59 @@ object SemanticTokensEncoderTest extends weaver.FunSuite:
       )
     )
 
-    val result = encoder.encode(tokens).data.map(_.value)
+    val result = encoder.encode(tokens).map(_.data.map(_.value))
 
     // This example is from
     // https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_semanticTokens
-    expect.eql(
+    expect.same(
       result,
-      Vector(2, 5, 3, 0, 3, // 1st token
-        0, 5, 4, 1, 0,      // 2nd token
-        3, 2, 7, 2, 0)      // 3rd token
+      Right(
+        Vector(2, 5, 3, 0, 3, // 1st token
+          0, 5, 4, 1, 0,      // 2nd token
+          3, 2, 7, 2, 0)      // 3rd token
+      )
+    )
+  }
+
+  test("encode empty") {
+    expect.same(encoder.encode(Vector.empty).map(_.data), Right(Vector.empty))
+  }
+
+  test("fail to encode unknown token") {
+    expect.same(
+      encoder.encode(
+        Vector(
+          SemanticToken(
+            Position(5, 2),
+            length = uinteger(7),
+            tokenType = T.parameter,
+            modifiers = Vector.empty
+          )
+        )
+      ),
+      Left(
+        SemanticTokensEncoder.Error
+          .UnknownToken(T.parameter, encoder.legend.tokenTypes)
+      )
+    )
+  }
+
+  test("fail to encode unknown modifier") {
+    expect.same(
+      encoder.encode(
+        Vector(
+          SemanticToken(
+            Position(5, 2),
+            length = uinteger(7),
+            tokenType = T.`class`,
+            modifiers = Vector(M.`abstract`)
+          )
+        )
+      ),
+      Left(
+        SemanticTokensEncoder.Error
+          .UnknownModifier(M.`abstract`, encoder.legend.tokenModifiers)
+      )
     )
   }
 end SemanticTokensEncoderTest
