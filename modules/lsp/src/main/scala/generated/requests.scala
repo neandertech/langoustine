@@ -31,13 +31,13 @@ object requests:
     given inputWriter: Writer[In]
     given outputWriter: Writer[Out]
     given outputReader: Reader[Out]
-  
+
   sealed abstract class LSPNotification(val notificationMethod: String):
     type In
   
     given inputReader: Reader[In]
     given inputWriter: Writer[In]
-  
+
   object $DOLLAR:
     object cancelRequest extends LSPNotification("$/cancelRequest") with codecs.notifications_$_cancelRequest:
       type In = structures.CancelParams
@@ -65,7 +65,6 @@ object requests:
       type In = structures.CallHierarchyIncomingCallsParams
       type Out = Opt[Vector[structures.CallHierarchyIncomingCall]]
       
-    
     /**
      *  A request to resolve the outgoing calls for a given `CallHierarchyItem`.
      *  
@@ -75,7 +74,6 @@ object requests:
       type In = structures.CallHierarchyOutgoingCallsParams
       type Out = Opt[Vector[structures.CallHierarchyOutgoingCall]]
       
-    
   object client:
     /**
      *  The `client/registerCapability` request is sent from the server to the client to register a new capability
@@ -85,7 +83,6 @@ object requests:
       type In = structures.RegistrationParams
       type Out = Null
       
-    
     /**
      *  The `client/unregisterCapability` request is sent from the server to the client to unregister a previously registered capability
      *  handler on the client side.
@@ -94,7 +91,6 @@ object requests:
       type In = structures.UnregistrationParams
       type Out = Null
       
-    
   object codeAction:
     /**
      *  Request to resolve additional information for a given code action.The request's
@@ -105,7 +101,6 @@ object requests:
       type In = structures.CodeAction
       type Out = structures.CodeAction
       
-    
   object codeLens:
     /**
      *  A request to resolve a command for a given code lens.
@@ -114,7 +109,6 @@ object requests:
       type In = structures.CodeLens
       type Out = structures.CodeLens
       
-    
   object completionItem:
     /**
      *  Request to resolve additional information for a given completion item.The request's
@@ -125,7 +119,6 @@ object requests:
       type In = structures.CompletionItem
       type Out = structures.CompletionItem
       
-    
   object documentLink:
     /**
      *  Request to resolve additional information for a given document link. The request's
@@ -136,7 +129,6 @@ object requests:
       type In = structures.DocumentLink
       type Out = structures.DocumentLink
       
-    
   /**
    *  The exit event is sent from the client to the server to
    *  ask the server to exit its process.
@@ -156,7 +148,6 @@ object requests:
     type In = structures.InitializeParams
     type Out = structures.InitializeResult
     
-  
   /**
    *  The initialized notification is sent from the client to the
    *  server after the client is fully initialized and the server
@@ -178,7 +169,6 @@ object requests:
       type In = structures.InlayHint
       type Out = structures.InlayHint
       
-    
   object notebookDocument:
     object didChange extends LSPNotification("notebookDocument/didChange") with codecs.notifications_notebookDocument_didChange:
       type In = structures.DidChangeNotebookDocumentParams
@@ -221,7 +211,6 @@ object requests:
     type In = Unit
     type Out = Null
     
-  
   object telemetry:
     /**
      *  The telemetry event notification is sent from the server to the client to ask
@@ -239,7 +228,6 @@ object requests:
       type In = structures.CodeActionParams
       type Out = Opt[Vector[(structures.Command | structures.CodeAction)]]
       
-    
     /**
      *  A request to provide code lens for the given text document.
      */
@@ -247,7 +235,6 @@ object requests:
       type In = structures.CodeLensParams
       type Out = Opt[Vector[structures.CodeLens]]
       
-    
     /**
      *  A request to list all presentation for a color. The request's
      *  parameter is of type [ColorPresentationParams](#ColorPresentationParams) the
@@ -258,7 +245,6 @@ object requests:
       type In = structures.ColorPresentationParams
       type Out = Vector[structures.ColorPresentation]
       
-    
     /**
      *  Request to request completion at a given text document position. The request's
      *  parameter is of type [TextDocumentPosition](#TextDocumentPosition) the response
@@ -274,7 +260,6 @@ object requests:
       type In = structures.CompletionParams
       type Out = Opt[(Vector[structures.CompletionItem] | structures.CompletionList)]
       
-    
     /**
      *  A request to resolve the type definition locations of a symbol at a given text
      *  document position. The request's parameter is of type [TextDocumentPositionParams]
@@ -286,7 +271,6 @@ object requests:
       type In = structures.DeclarationParams
       type Out = Opt[(aliases.Declaration | Vector[aliases.DeclarationLink])]
       
-    
     /**
      *  A request to resolve the definition location of a symbol at a given text
      *  document position. The request's parameter is of type [TextDocumentPosition]
@@ -298,7 +282,6 @@ object requests:
       type In = structures.DefinitionParams
       type Out = Opt[(aliases.Definition | Vector[aliases.DefinitionLink])]
       
-    
     /**
      *  The document diagnostic request definition.
      *  
@@ -308,7 +291,6 @@ object requests:
       type In = structures.DocumentDiagnosticParams
       type Out = aliases.DocumentDiagnosticReport
       
-    
     /**
      *  The document change notification is sent from the client to the server to signal
      *  changes to a text document.
@@ -362,7 +344,6 @@ object requests:
       type In = structures.DocumentColorParams
       type Out = Vector[structures.ColorInformation]
       
-    
     /**
      *  Request to resolve a [DocumentHighlight](#DocumentHighlight) for a given
      *  text document position. The request's parameter is of type [TextDocumentPosition]
@@ -373,7 +354,6 @@ object requests:
       type In = structures.DocumentHighlightParams
       type Out = Opt[Vector[structures.DocumentHighlight]]
       
-    
     /**
      *  A request to provide document links
      */
@@ -381,7 +361,6 @@ object requests:
       type In = structures.DocumentLinkParams
       type Out = Opt[Vector[structures.DocumentLink]]
       
-    
     /**
      *  A request to list all symbols found in a given text document. The request's
      *  parameter is of type [TextDocumentIdentifier](#TextDocumentIdentifier) the
@@ -392,7 +371,6 @@ object requests:
       type In = structures.DocumentSymbolParams
       type Out = Opt[(Vector[structures.SymbolInformation] | Vector[structures.DocumentSymbol])]
       
-    
     /**
      *  A request to provide folding ranges in a document. The request's
      *  parameter is of type [FoldingRangeParams](#FoldingRangeParams), the
@@ -403,7 +381,6 @@ object requests:
       type In = structures.FoldingRangeParams
       type Out = Opt[Vector[structures.FoldingRange]]
       
-    
     /**
      *  A request to to format a whole document.
      */
@@ -411,7 +388,6 @@ object requests:
       type In = structures.DocumentFormattingParams
       type Out = Opt[Vector[structures.TextEdit]]
       
-    
     /**
      *  Request to request hover information at a given text document position. The request's
      *  parameter is of type [TextDocumentPosition](#TextDocumentPosition) the response is of
@@ -421,7 +397,6 @@ object requests:
       type In = structures.HoverParams
       type Out = Opt[structures.Hover]
       
-    
     /**
      *  A request to resolve the implementation locations of a symbol at a given text
      *  document position. The request's parameter is of type [TextDocumentPositionParams]
@@ -432,7 +407,6 @@ object requests:
       type In = structures.ImplementationParams
       type Out = Opt[(aliases.Definition | Vector[aliases.DefinitionLink])]
       
-    
     /**
      *  A request to provide inlay hints in a document. The request's parameter is of
      *  type [InlayHintsParams](#InlayHintsParams), the response is of type
@@ -444,7 +418,6 @@ object requests:
       type In = structures.InlayHintParams
       type Out = Opt[Vector[structures.InlayHint]]
       
-    
     /**
      *  A request to provide inline values in a document. The request's parameter is of
      *  type [InlineValueParams](#InlineValueParams), the response is of type
@@ -456,7 +429,6 @@ object requests:
       type In = structures.InlineValueParams
       type Out = Opt[Vector[aliases.InlineValue]]
       
-    
     /**
      *  A request to provide ranges that can be edited together.
      *  
@@ -466,7 +438,6 @@ object requests:
       type In = structures.LinkedEditingRangeParams
       type Out = Opt[structures.LinkedEditingRanges]
       
-    
     /**
      *  A request to get the moniker of a symbol at a given text document position.
      *  The request parameter is of type [TextDocumentPositionParams](#TextDocumentPositionParams).
@@ -476,7 +447,6 @@ object requests:
       type In = structures.MonikerParams
       type Out = Opt[Vector[structures.Moniker]]
       
-    
     /**
      *  A request to format a document on type.
      */
@@ -484,7 +454,6 @@ object requests:
       type In = structures.DocumentOnTypeFormattingParams
       type Out = Opt[Vector[structures.TextEdit]]
       
-    
     /**
      *  A request to result a `CallHierarchyItem` in a document at a given position.
      *  Can be used as an input to an incoming or outgoing call hierarchy.
@@ -495,7 +464,6 @@ object requests:
       type In = structures.CallHierarchyPrepareParams
       type Out = Opt[Vector[structures.CallHierarchyItem]]
       
-    
     /**
      *  A request to test and perform the setup necessary for a rename.
      *  
@@ -505,7 +473,6 @@ object requests:
       type In = structures.PrepareRenameParams
       type Out = Opt[aliases.PrepareRenameResult]
       
-    
     /**
      *  A request to result a `TypeHierarchyItem` in a document at a given position.
      *  Can be used as an input to a subtypes or supertypes type hierarchy.
@@ -516,7 +483,6 @@ object requests:
       type In = structures.TypeHierarchyPrepareParams
       type Out = Opt[Vector[structures.TypeHierarchyItem]]
       
-    
     /**
      *  Diagnostics notification are sent from the server to the client to signal
      *  results of validation runs.
@@ -532,7 +498,6 @@ object requests:
       type In = structures.DocumentRangeFormattingParams
       type Out = Opt[Vector[structures.TextEdit]]
       
-    
     /**
      *  A request to resolve project-wide references for the symbol denoted
      *  by the given text document position. The request's parameter is of
@@ -543,7 +508,6 @@ object requests:
       type In = structures.ReferenceParams
       type Out = Opt[Vector[structures.Location]]
       
-    
     /**
      *  A request to rename a symbol.
      */
@@ -551,7 +515,6 @@ object requests:
       type In = structures.RenameParams
       type Out = Opt[structures.WorkspaceEdit]
       
-    
     /**
      *  A request to provide selection ranges in a document. The request's
      *  parameter is of type [SelectionRangeParams](#SelectionRangeParams), the
@@ -562,7 +525,6 @@ object requests:
       type In = structures.SelectionRangeParams
       type Out = Opt[Vector[structures.SelectionRange]]
       
-    
     object semanticTokens:
       /**
        *  since 3.16.0
@@ -571,7 +533,6 @@ object requests:
         type In = structures.SemanticTokensParams
         type Out = Opt[structures.SemanticTokens]
         
-      
         /**
          *  since 3.16.0
          */
@@ -579,7 +540,6 @@ object requests:
           type In = structures.SemanticTokensDeltaParams
           type Out = Opt[(structures.SemanticTokens | structures.SemanticTokensDelta)]
           
-        
       /**
        *  since 3.16.0
        */
@@ -587,12 +547,10 @@ object requests:
         type In = structures.SemanticTokensRangeParams
         type Out = Opt[structures.SemanticTokens]
         
-      
     object signatureHelp extends LSPRequest("textDocument/signatureHelp") with codecs.requests_textDocument_signatureHelp:
       type In = structures.SignatureHelpParams
       type Out = Opt[structures.SignatureHelp]
       
-    
     /**
      *  A request to resolve the type definition locations of a symbol at a given text
      *  document position. The request's parameter is of type [TextDocumentPositionParams]
@@ -603,7 +561,6 @@ object requests:
       type In = structures.TypeDefinitionParams
       type Out = Opt[(aliases.Definition | Vector[aliases.DefinitionLink])]
       
-    
     /**
      *  A document will save notification is sent from the client to the server before
      *  the document is actually saved.
@@ -624,7 +581,6 @@ object requests:
       type In = structures.WillSaveTextDocumentParams
       type Out = Opt[Vector[structures.TextEdit]]
       
-    
   object typeHierarchy:
     /**
      *  A request to resolve the subtypes for a given `TypeHierarchyItem`.
@@ -635,7 +591,6 @@ object requests:
       type In = structures.TypeHierarchySubtypesParams
       type Out = Opt[Vector[structures.TypeHierarchyItem]]
       
-    
     /**
      *  A request to resolve the supertypes for a given `TypeHierarchyItem`.
      *  
@@ -645,7 +600,6 @@ object requests:
       type In = structures.TypeHierarchySupertypesParams
       type Out = Opt[Vector[structures.TypeHierarchyItem]]
       
-    
   object window:
     /**
      *  The log message notification is sent from the server to the client to ask
@@ -667,7 +621,6 @@ object requests:
       type In = structures.ShowDocumentParams
       type Out = structures.ShowDocumentResult
       
-    
     /**
      *  The show message notification is sent from a server to a client to ask
      *  the client to display a particular message in the user interface.
@@ -684,7 +637,6 @@ object requests:
       type In = structures.ShowMessageRequestParams
       type Out = Opt[structures.MessageActionItem]
       
-    
     object workDoneProgress:
       /**
        *  The `window/workDoneProgress/cancel` notification is sent from  the client to the server to cancel a progress
@@ -702,7 +654,6 @@ object requests:
         type In = structures.WorkDoneProgressCreateParams
         type Out = Null
         
-      
   object workspace:
     /**
      *  A request sent from the server to the client to modified certain resources.
@@ -711,7 +662,6 @@ object requests:
       type In = structures.ApplyWorkspaceEditParams
       type Out = structures.ApplyWorkspaceEditResult
       
-    
     object codeLens:
       /**
        *  A request to refresh all code actions
@@ -722,7 +672,6 @@ object requests:
         type In = Unit
         type Out = Null
         
-      
     /**
      *  The 'workspace/configuration' request is sent from the server to the client to fetch a certain
      *  configuration setting.
@@ -748,7 +697,6 @@ object requests:
         partialResultToken: Opt[aliases.ProgressToken] = Opt.empty
       )
       object WorkspaceConfigurationInput extends codecs.requests_workspace_configuration_WorkspaceConfigurationInput
-    
     /**
      *  The workspace diagnostic request definition.
      *  
@@ -758,7 +706,6 @@ object requests:
       type In = structures.WorkspaceDiagnosticParams
       type Out = structures.WorkspaceDiagnosticReport
       
-    
       /**
        *  The diagnostic refresh request definition.
        *  
@@ -768,7 +715,6 @@ object requests:
         type In = Unit
         type Out = Null
         
-      
     /**
      *  The configuration change notification is sent from the client to the server
      *  when the client's configuration has changed. The notification contains
@@ -832,7 +778,6 @@ object requests:
       type In = structures.ExecuteCommandParams
       type Out = Opt[ujson.Value]
       
-    
     object inlayHint:
       /**
        *  since 3.17.0
@@ -841,7 +786,6 @@ object requests:
         type In = Unit
         type Out = Null
         
-      
     object inlineValue:
       /**
        *  since 3.17.0
@@ -850,7 +794,6 @@ object requests:
         type In = Unit
         type Out = Null
         
-      
     object semanticTokens:
       /**
        *  since 3.16.0
@@ -859,7 +802,6 @@ object requests:
         type In = Unit
         type Out = Null
         
-      
     /**
      *  A request to list project-wide symbols matching the query string given
      *  by the [WorkspaceSymbolParams](#WorkspaceSymbolParams). The response is
@@ -874,7 +816,6 @@ object requests:
       type In = structures.WorkspaceSymbolParams
       type Out = Opt[(Vector[structures.SymbolInformation] | Vector[structures.WorkspaceSymbol])]
       
-    
     /**
      *  The will create files request is sent from the client to the server before files are actually
      *  created as long as the creation is triggered from within the client.
@@ -885,7 +826,6 @@ object requests:
       type In = structures.CreateFilesParams
       type Out = Opt[structures.WorkspaceEdit]
       
-    
     /**
      *  The did delete files notification is sent from the client to the server when
      *  files were deleted from within the client.
@@ -896,7 +836,6 @@ object requests:
       type In = structures.DeleteFilesParams
       type Out = Opt[structures.WorkspaceEdit]
       
-    
     /**
      *  The will rename files request is sent from the client to the server before files are actually
      *  renamed as long as the rename is triggered from within the client.
@@ -907,7 +846,6 @@ object requests:
       type In = structures.RenameFilesParams
       type Out = Opt[structures.WorkspaceEdit]
       
-    
     /**
      *  The `workspace/workspaceFolders` is sent from the server to the client to fetch the open workspace folders.
      */
@@ -915,7 +853,6 @@ object requests:
       type In = Unit
       type Out = Opt[Vector[structures.WorkspaceFolder]]
       
-    
   object workspaceSymbol:
     /**
      *  A request to resolve the range inside the workspace
@@ -927,4 +864,4 @@ object requests:
       type In = structures.WorkspaceSymbol
       type Out = structures.WorkspaceSymbol
       
-    
+end requests

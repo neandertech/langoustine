@@ -9,6 +9,8 @@ import scala.reflect.TypeTest
 
 import langoustine.meta.*
 
+import rendition.*
+
 @main def run(path: String) =
   import upickle.default.*
   import json.{*, given}
@@ -23,14 +25,14 @@ import langoustine.meta.*
 
   import Render.*
 
-  given Render.Config(indents = Indentation(0), indentSize = IndentationSize(2))
-
-  def inFile(s: String)(f: LineBuilder => Unit) =
-    val out = Render.LineBuilder()
+  def inFile(s: String)(f: Rendering => Unit) =
+    val out = LineBuilder()
     out.appendLine(Constants.LICENCE)
     out.appendLine("")
 
-    f(out)
+    out.render { r =>
+      f(r)
+    }
     Using.resource(new FileWriter(Paths.get(path, s).toFile())) { fw =>
       fw.write(out.result)
     }

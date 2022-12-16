@@ -42,6 +42,7 @@ val V = new {
   val decline         = "2.4.1"
   val jsoniter        = "2.19.1"
   val weaver          = "0.8.1"
+  val rendition       = "0.0.3"
   val http4sJdkClient = "0.8.0"
   val organizeImports = "0.6.0"
 
@@ -210,7 +211,8 @@ lazy val generate = projectMatrix
   .dependsOn(meta)
   .defaultAxes(V.default*)
   .settings(
-    name := "generate"
+    name                                        := "generate",
+    libraryDependencies += "com.indoorvivants" %%% "rendition" % V.rendition
   )
   .jvmPlatform(V.jvmScalaVersions)
   .settings(noPublishing)
