@@ -82,22 +82,58 @@ def jsonViewer(showing: Var[Option[Message]]) =
   )
 
 def displayJson[T: JsonValueCodec](rmsg: T) =
-  val js =
-    writeToString(
-      rmsg,
-      WriterConfig.withIndentionStep(4)
+  val js = io.circe.scalajs
+    .decodeJs[io.circe.Json](
+      JSON.parse(
+        writeToString[T](
+          rmsg,
+          WriterConfig.withIndentionStep(0)
+        )
+      )
     )
+    .fold(throw _, identity)
+
+  org.scalajs.dom.console.log(js)
+
+  import io.circe.*
+
+  val folder = new Json.Folder[Element]:
+    override def onNull: Element                    = b("null")
+    override def onBoolean(value: Boolean): Element = b(value.toString)
+    override def onObject(value: JsonObject): Element =
+      ul(
+        value.toList.map((key, json) =>
+          val valueNode = key match
+            case "uri" if json.isString =>
+              json.asString.map {
+                case str if str.startsWith("file:") =>
+                  a(href := s"vscode://$str", str)
+                case other =>
+                  onString(other)
+              }
+
+            case _ => Some(json.foldWith(this))
+
+          li(key, ": ", valueNode)
+        )
+      )
+    override def onString(value: String): Element = b(s""" "$value" """.trim)
+    override def onNumber(value: JsonNumber): Element = b(value.toString)
+    override def onArray(value: Vector[Json]): Element =
+      ul(
+        value.map(json => li(json.foldWith(this)))
+      )
 
   pre(
     code(
-      className := "language-json",
-      JSON.stringify(JSON.parse(js), space = 2),
-      onMountCallback(ctx => hljs.highlightAll())
+      js.foldWith(folder)
     )
   )
+
 end displayJson
 
 import jsonrpclib.{ErrorPayload, Payload}
+import com.raquo.laminar.nodes.ReactiveHtmlElement
 
 def displayErr(ep: ErrorPayload) =
   div(b(color := "pink", "Error"), displayJson(ep))

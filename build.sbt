@@ -42,6 +42,7 @@ val V = new {
   val decline         = "2.4.1"
   val jsoniter        = "2.19.1"
   val weaver          = "0.8.1"
+  val circe           = "0.14.3"
   val http4sJdkClient = "0.8.0"
   val organizeImports = "0.6.0"
 
@@ -284,7 +285,8 @@ lazy val tracerFrontend = projectMatrix
   .settings(
     Compile / doc / sources             := Seq.empty,
     name                                := "langoustine-tracer-frontend",
-    libraryDependencies += "com.raquo" %%% "laminar" % V.laminar,
+    libraryDependencies += "com.raquo" %%% "laminar"       % V.laminar,
+    libraryDependencies += "io.circe"  %%% "circe-scalajs" % V.circe,
     scalaJSUseMainModuleInitializer     := true
   )
   .jsPlatform(V.scalaVersions)

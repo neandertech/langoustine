@@ -82,7 +82,7 @@ object Styles:
         borderRadius    := "5px",
         backgroundColor := "black",
         color.white,
-        fontSize := "1.3rem",
+        fontSize := "1rem",
         padding  := "10px",
         overflow.auto
       )
