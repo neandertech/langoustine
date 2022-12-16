@@ -340,6 +340,14 @@ addCommandAlias("testTracer", "tests/testOnly tests.tracer.*")
 addCommandAlias("testCore", "tests/testOnly tests.core.*")
 addCommandAlias("testE2E", "tests/testOnly tests.e2e.*")
 
+lazy val buildTracer = taskKey[Unit]("Build tracer and print out a path to it")
+
+ThisBuild / buildTracer := {
+  val loc = (tracer.jvm(V.scala) / stage).value / "bin" / "langoustine-tracer"
+
+  println(s"\n\nTracer is built, use this launcher: $loc")
+}
+
 import sbtwelcome.*
 
 logo :=
@@ -363,6 +371,7 @@ usefulTasks := Seq(
   UsefulTask("gl", "generateLSP", "Regenerate LSP definitions"),
   UsefulTask("bw", "buildWebsite", "Build website"),
   UsefulTask("tt", "testTracer", "Run Tracer's backend tests"),
+  UsefulTask("bt", "buildTracer", "Build Tracer for local usage"),
   UsefulTask(
     "te",
     "testE2E",
