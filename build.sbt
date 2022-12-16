@@ -39,7 +39,7 @@ val V = new {
   val fs2             = "3.4.0"
   val http4s          = "0.23.16"
   val laminar         = "0.14.5"
-  val decline         = "2.4.0"
+  val decline         = "2.4.1"
   val jsoniter        = "2.19.1"
   val weaver          = "0.8.1"
   val http4sJdkClient = "0.8.0"
@@ -94,7 +94,7 @@ lazy val docs = project
         tracerShared.projectRefs ++
         meta.projectRefs ++
         generate.projectRefs ++
-        tracerFrontend.projectRefs ++ 
+        tracerFrontend.projectRefs ++
         example.projectRefs)*
     ),
     Compile / unidoc := {
