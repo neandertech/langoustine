@@ -43,10 +43,13 @@ object TracerCLISpec extends weaver.SimpleIOSuite:
   pureTest("CLI sets expected defaults") {
     val withDefaults = Config.command.parse(lspCommand.toList)
 
-    expect.all(
-      withDefaults.map(_.port) == Right(Defaults.port),
-      withDefaults.map(_.host) == Right(Defaults.host),
-      withDefaults.map(_.cmd) == Right(lspCommand)
-    )
+    Config.command.parse(lspCommand.toList) match
+      case Left(value) => failure(s"got $value")
+      case Right(Config(Mode.Trace(TraceConfig(cmd)), bind)) =>
+        expect.all(
+          bind.port == Defaults.port,
+          bind.host == Defaults.host,
+          cmd == lspCommand
+        )
   }
 end TracerCLISpec

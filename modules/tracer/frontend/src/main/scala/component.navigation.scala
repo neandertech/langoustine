@@ -19,7 +19,10 @@ package langoustine.tracer
 import com.raquo.laminar.api.L.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 
-def switcher(page: Var[Page]) =
+enum DownloadEvent:
+  case Full
+
+def switcher(page: Var[Page], downloads: EventBus[DownloadEvent]) =
   inline def thing(name: String, set: Page) =
     div(
       child <-- page.signal.map {
@@ -42,6 +45,13 @@ def switcher(page: Var[Page]) =
     alignContent.flexEnd,
     columnGap := "10px",
     flexGrow  := 0,
+    div(
+      Styles.downloadLink,
+      a(
+        href := "/api/snapshot",
+        "Download snapshot"
+      )
+    ),
     thing("Interactions", Page.Commands),
     thing("Logs", Page.Logs),
     thing("Server summary", Page.Summary)

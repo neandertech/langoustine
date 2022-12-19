@@ -25,12 +25,13 @@ def commandTracer(
     bus: EventBus[Double],
     commandFilter: Var[Option[String]],
     messagesState: Var[Vector[Message]],
-    showing: Var[Option[Message]]
+    showing: Var[Option[Message]],
+    mode: Var[JsonMode]
 ) =
   import Message.*
   div(
     Styles.commandTracer.container,
-    jsonViewer(showing),
+    jsonViewer(showing, mode),
     div(
       width <-- showing.signal
         .map(_.isDefined)

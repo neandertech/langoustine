@@ -66,7 +66,7 @@ object Styles:
       borderRadius    := "5px",
       backgroundColor := "#0d1117",
       color.white,
-      fontSize := "1.3rem",
+      fontSize := "1.1rem",
       padding  := "10px",
       position := "sticky",
       top      := "0",
@@ -74,6 +74,34 @@ object Styles:
       overflowY.scroll,
       maxHeight := "80vh"
     )
+
+    object modeBar:
+      val container = Seq(
+        display.flex,
+        flexDirection.row,
+        justifyContent.spaceBetween,
+        columnGap := "15px"
+      )
+      val butt = Seq(
+        fontSize := "0.9rem",
+        color.white
+      )
+    end modeBar
+
+    val viewHeader = Seq(
+      display.flex,
+      flexDirection.row,
+      justifyContent.spaceBetween,
+      width           := "100%",
+      position        := "sticky",
+      top             := "0",
+      backgroundColor := "#0d1117"
+    )
+
+    object interactive:
+      val bool = Seq(color.aqua)
+      val str  = Seq(color.lime)
+      val num  = Seq(color := "pink", fontWeight.bold)
   end commandTracer
 
   object logTracer:
@@ -129,6 +157,11 @@ object Styles:
       borderBottom := "1px solid lightgrey"
     )
   end timeline
+
+  val downloadLink = Seq(
+    fontSize := "1.2rem",
+    padding  := "10px"
+  )
 
   object pageSwitcher:
     val focused = Seq(

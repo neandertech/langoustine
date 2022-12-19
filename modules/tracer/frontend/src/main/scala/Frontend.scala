@@ -60,6 +60,8 @@ object Frontend:
   val logFilter: Var[Option[String]]      = Var(Option.empty[String])
   val messagesState: Var[Vector[Message]] = Var(Vector.empty[Message])
   val showing: Var[Option[Message]]       = Var(Option.empty[Message])
+  val mode                                = Var(JsonMode.Details)
+  val downloadBus                         = EventBus[DownloadEvent]()
 
   val app =
     div(
@@ -72,11 +74,11 @@ object Frontend:
           div(
             h1(marginTop := "0px", "Langoustine tracer")
           ),
-          switcher(page)
+          switcher(page, downloadBus)
         ),
         child <-- page.signal.map {
           case Page.Commands =>
-            commandTracer(bus, commandFilter, messagesState, showing)
+            commandTracer(bus, commandFilter, messagesState, showing, mode)
           case Page.Logs =>
             logsTracer(logs, logFilter)
           case Page.Summary =>

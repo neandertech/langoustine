@@ -23,7 +23,47 @@ import jsonrpclib.*
 import scala.scalajs.js.JSON
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 
-def jsonViewer(showing: Var[Option[Message]]) =
+enum JsonMode:
+  case Details, Raw
+
+def jsonViewer(showing: Var[Option[Message]], mode: Var[JsonMode]) =
+  def choose(value: JsonMode, whenSelected: String, whenNot: String) =
+    mode.signal.map(v => if v == value then whenSelected else whenNot)
+
+  def bar(title: Element) = div(
+    Styles.commandTracer.viewHeader,
+    div(title),
+    div(
+      Styles.commandTracer.modeBar.container,
+      div(
+        a(
+          href := "#",
+          Styles.commandTracer.modeBar.butt,
+          textDecoration <-- choose(JsonMode.Raw, "underline", "none"),
+          onClick.preventDefault.mapTo(JsonMode.Raw) --> mode.writer,
+          "Raw JSON"
+        )
+      ),
+      div(
+        a(
+          href := "#",
+          Styles.commandTracer.modeBar.butt,
+          onClick.preventDefault.mapTo(JsonMode.Details) --> mode.writer,
+          textDecoration <-- choose(JsonMode.Details, "underline", "none"),
+          "Interactive"
+        )
+      )
+    )
+  )
+
+  def displayErr(ep: ErrorPayload) =
+    div(bar(b(color := "pink", "Error")), displayJson(ep, mode.signal))
+
+  given JsonValueCodec[Option[Payload]] = JsonCodecMaker.make
+
+  def displayPayload(name: String, op: Option[Payload]) =
+    div(bar(b(color := "lightgreen", name)), displayJson(op, mode.signal))
+
   div(
     flexGrow := 0,
     Styles.commandTracer.jsonViewer,
@@ -80,8 +120,9 @@ def jsonViewer(showing: Var[Option[Message]]) =
           }
     }
   )
+end jsonViewer
 
-def displayJson[T: JsonValueCodec](rmsg: T) =
+def displayJson[T: JsonValueCodec](rmsg: T, mode: Signal[JsonMode]) =
   val js = io.circe.scalajs
     .decodeJs[io.circe.Json](
       JSON.parse(
@@ -98,8 +139,13 @@ def displayJson[T: JsonValueCodec](rmsg: T) =
   import io.circe.*
 
   val folder = new Json.Folder[Element]:
-    override def onNull: Element                    = b("null")
-    override def onBoolean(value: Boolean): Element = b(value.toString)
+    val style = Styles.commandTracer.interactive
+
+    override def onNull: Element = i("null")
+
+    override def onBoolean(value: Boolean): Element =
+      i(style.bool, value.toString)
+
     override def onObject(value: JsonObject): Element =
       ul(
         value.toList.map((key, json) =>
@@ -107,7 +153,7 @@ def displayJson[T: JsonValueCodec](rmsg: T) =
             case "uri" if json.isString =>
               json.asString.map {
                 case str if str.startsWith("file:") =>
-                  a(href := s"vscode://$str", str)
+                  a(href := s"vscode://$str", str, color := "aqua")
                 case other =>
                   onString(other)
               }
@@ -117,28 +163,33 @@ def displayJson[T: JsonValueCodec](rmsg: T) =
           li(key, ": ", valueNode)
         )
       )
-    override def onString(value: String): Element = b(s""" "$value" """.trim)
-    override def onNumber(value: JsonNumber): Element = b(value.toString)
+    override def onString(value: String): Element =
+      code(style.str, s""" "$value" """.trim)
+
+    override def onNumber(value: JsonNumber): Element =
+      code(style.num, value.toString)
+
     override def onArray(value: Vector[Json]): Element =
-      ul(
+      ol(
         value.map(json => li(json.foldWith(this)))
       )
 
-  pre(
-    code(
-      js.foldWith(folder)
-    )
+  div(
+    child <-- mode.map {
+      case JsonMode.Raw =>
+        pre(
+          code(
+            className := "language-json",
+            js.spaces2SortKeys,
+            onMountCallback(ctx => hljs.highlightAll())
+          )
+        )
+      case JsonMode.Details =>
+        code(js.foldWith(folder))
+    }
   )
 
 end displayJson
 
 import jsonrpclib.{ErrorPayload, Payload}
 import com.raquo.laminar.nodes.ReactiveHtmlElement
-
-def displayErr(ep: ErrorPayload) =
-  div(b(color := "pink", "Error"), displayJson(ep))
-
-given JsonValueCodec[Option[Payload]] = JsonCodecMaker.make
-
-def displayPayload(name: String, op: Option[Payload]) =
-  div(b(color := "lightgreen", name, displayJson(op)))

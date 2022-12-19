@@ -48,6 +48,10 @@ import cats.syntax.all.*
 import cats.data.Kleisli
 import org.http4s.server.middleware.ErrorHandling
 import TracerServer.{*, given}
+import org.http4s.server.middleware.GZip
+import org.typelevel.ci.CIString
+import org.http4s.dsl.impl.OptionalQueryParamMatcher
+import org.http4s.dsl.impl.OptionalQueryParamDecoderMatcher
 
 class TracerServer private (
     in: fs2.Stream[IO, Byte],
@@ -55,7 +59,7 @@ class TracerServer private (
     err: fs2.Stream[IO, Byte]
 ):
 
-  def runResource(config: Config, summary: Summary) =
+  def runResource(config: BindConfig, summary: Summary) =
     Resource.eval(State.create).flatMap { state =>
       val run = Server(
         wbs =>
@@ -108,9 +112,9 @@ class TracerServer private (
 
       case GET -> Root / "ws" / "events" =>
         val continuous =
-          rf.discrete
+          messages.discrete
             .as(TracerEvent.Update)
-            .merge(raw.discrete.as(TracerEvent.Update))
+            .merge(messages.discrete.as(TracerEvent.Update))
             .merge(ch.stream.map(l => TracerEvent.LogLine(l)))
 
         val out = fs2.Stream.eval(logBuf.get).map(TracerEvent.LogLines(_))
@@ -129,13 +133,38 @@ class TracerServer private (
           .build(updates.merge(pings), _.map(_ => ()))
 
       case GET -> Root / "all" =>
-        rf.get.map(_.sortBy(_.timestamp).map(_.value)).flatMap(Ok(_))
+        messages.get.map(_.sortBy(_.timestamp).map(_.decoded)).flatMap(Ok(_))
 
       case GET -> Root / "logs" =>
         logBuf.get.flatMap(Ok(_))
 
       case GET -> Root / "raw" / "all" =>
-        raw.get.map(_.sortBy(_.timestamp).map(_.value)).flatMap(Ok(_))
+        messages.get.map(_.sortBy(_.timestamp).map(_.raw)).flatMap(Ok(_))
+
+      case GET -> Root / "snapshot" :? SnapshotNameMatcher(nameMaybe) =>
+        given JsonValueCodec[Vector[ReceivedMessage]] = JsonCodecMaker.make
+
+        val filename = nameMaybe
+          .getOrElse("langoustine-tracer-snapshot")
+          + ".jsonl.gz"
+
+        messages.get.map(_.sortBy(_.timestamp)).flatMap { received =>
+          val bytes = fs2.Stream
+            .emits(received)
+            .covary[IO]
+            .evalMap(m => IO(writeToStringReentrant(m)))
+            .intersperse("\n")
+            .through(fs2.text.utf8.encode)
+            .through(fs2.compression.Compression[IO].gzip())
+
+          Ok(
+            bytes,
+            org.http4s.headers.`Content-Disposition`(
+              s"attachment",
+              Map(CIString("filename") -> filename)
+            )
+          )
+        }
 
       case GET -> Root / "raw" / "request" / id =>
         val asLong = id.toLongOption.map(MessageId.NumberId.apply)
@@ -144,10 +173,10 @@ class TracerServer private (
         inline def idMatches(idOpt: Option[MessageId]) =
           (asLong == idOpt || idOpt.contains(asStr))
 
-        raw.get.flatMap { messages =>
+        messages.get.flatMap { messages =>
           val found = messages.collectFirst {
-            case Received(_, r) if idMatches(r.id) && r.method.nonEmpty =>
-              r
+            case rm if idMatches(rm.raw.id) && rm.raw.method.nonEmpty =>
+              rm.raw
           }
 
           found match
@@ -162,10 +191,10 @@ class TracerServer private (
         inline def idMatches(idOpt: Option[MessageId]) =
           (asLong == idOpt || idOpt.contains(asStr))
 
-        raw.get.flatMap { messages =>
+        messages.get.flatMap { messages =>
           val found = messages.collectFirst {
-            case Received(_, r) if idMatches(r.id) && r.method.isEmpty =>
-              r
+            case rm if idMatches(rm.raw.id) && rm.raw.method.isEmpty =>
+              rm.raw
           }
 
           found match
@@ -179,9 +208,9 @@ class TracerServer private (
         inline def idMatches(idOpt: Option[MessageId]) =
           idOpt.contains(asStr)
 
-        raw.get.flatMap { messages =>
+        messages.get.flatMap { messages =>
           val found = messages.collectFirst {
-            case Received(_, r) if idMatches(r.id) => r
+            case rm if idMatches(rm.raw.id) => rm.raw
           }
 
           found match
@@ -193,9 +222,12 @@ class TracerServer private (
     Router("/api" -> apiRoutes) <+> Static.routes
   end app
 
+  object SnapshotNameMatcher
+      extends OptionalQueryParamDecoderMatcher[String]("name")
+
   private def Server(
       app: WebSocketBuilder2[IO] => HttpApp[IO],
-      config: Config
+      config: BindConfig
   ): Resource[cats.effect.IO, server.Server] =
     EmberServerBuilder
       .default[IO]
@@ -232,8 +264,7 @@ object TracerServer:
 
   case class State(
       ch: Channel[IO, String],
-      rf: SignallingRef[IO, Vector[Received[LspMessage]]],
-      raw: SignallingRef[IO, Vector[Received[RawMessage]]],
+      messages: SignallingRef[IO, Vector[ReceivedMessage]],
       logBuf: Ref[IO, Vector[String]],
       responseIdMapping: Ref[IO, Map[MessageId, String]],
       random: UUIDGen[IO]
@@ -242,12 +273,11 @@ object TracerServer:
   object State:
     def create =
       for
-        raw    <- SignallingRef[IO].of(Vector.empty[Received[RawMessage]])
-        rf     <- SignallingRef[IO].of(Vector.empty[Received[LspMessage]])
-        logBuf <- IO.ref(Vector.empty[String])
-        ch     <- Channel.bounded[IO, String](128)
-        rpid   <- IO.ref(Map.empty[MessageId, String])
-      yield State(ch, rf, raw, logBuf, rpid, UUIDGen[IO])
+        messages          <- SignallingRef[IO].of(Vector.empty[ReceivedMessage])
+        logBuf            <- IO.ref(Vector.empty[String])
+        ch                <- Channel.bounded[IO, String](128)
+        responseIdMapping <- IO.ref(Map.empty[MessageId, String])
+      yield State(ch, messages, logBuf, responseIdMapping, UUIDGen[IO])
   end State
 
   def dump(stream: fs2.Stream[IO, Byte], state: State, direction: Direction) =
@@ -266,44 +296,50 @@ object TracerServer:
               rawMessage.value
                 .copy(id = rawMessage.value.id.orElse(Some(generatedId)))
             )
-            raw.update(_ :+ receivedRawMessage) *> {
-              val msg = LspMessage
-                .from(rawMessage.value, direction, generatedId)
-              val receivedMsg = msg.map(Received(rawMessage.timestamp, _))
 
-              LspMessage
-                .from(rawMessage.value, direction, generatedId)
-                .map { lspMessage =>
+            val msg = LspMessage
+              .from(rawMessage.value, direction, generatedId)
+            val receivedMsg = msg.map(Received(rawMessage.timestamp, _))
 
-                  val withUpdatedMapping = lspMessage match
-                    case LspMessage.Request(method, id, _) =>
-                      responseIdMapping
-                        .update(_.updated(id, method))
-                        .as(lspMessage)
+            LspMessage
+              .from(rawMessage.value, direction, generatedId)
+              .map { lspMessage =>
 
-                    case LspMessage.Response(id, _) =>
-                      rf.update { received =>
-                        received.collect {
-                          case Received(ts, req: LspMessage.Request)
-                              if req.id == id =>
-                            Received(ts, req.copy(responded = true))
-                          case other => other
-                        }
-                      } *>
-                        responseIdMapping.get
-                          .map(_.get(id))
-                          .map(LspMessage.Response(id, _))
+                val withUpdatedMapping = lspMessage match
+                  case LspMessage.Request(method, id, _) =>
+                    responseIdMapping
+                      .update(_.updated(id, method))
+                      .as(lspMessage)
 
-                    case other => IO.pure(other)
+                  case LspMessage.Response(id, _) =>
+                    messages.update { received =>
+                      received.collect {
+                        case ReceivedMessage(ts, raw, req: LspMessage.Request)
+                            if req.id == id =>
+                          ReceivedMessage(ts, raw, req.copy(responded = true))
+                        case other => other
+                      }
+                    } *>
+                      responseIdMapping.get
+                        .map(_.get(id))
+                        .map(LspMessage.Response(id, _))
 
-                  withUpdatedMapping
-                    .flatMap(msg =>
-                      rf.update(_ :+ Received(rawMessage.timestamp, msg))
+                  case other => IO.pure(other)
+
+                withUpdatedMapping
+                  .flatMap { msg =>
+                    messages.update(
+                      _ :+ ReceivedMessage(
+                        rawMessage.timestamp,
+                        rawMessage.value,
+                        msg
+                      )
                     )
+                  }
 
-                }
-                .getOrElse(IO.unit)
-            }
+              }
+              .getOrElse(IO.unit)
+
           }
       }
   end dump

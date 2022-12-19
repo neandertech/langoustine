@@ -19,8 +19,17 @@ package langoustine.tracer
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 import com.github.plokhotnyuk.jsoniter_scala.macros.*
 
-import jsonrpclib.*
 import scala.util.Try
+import jsonrpclib.{Payload, ErrorPayload}
+
+case class ReceivedMessage(
+    timestamp: Long,
+    raw: RawMessage,
+    decoded: Message
+)
+
+object ReceivedMessage:
+  given JsonValueCodec[ReceivedMessage] = JsonCodecMaker.make
 
 case class RawMessage(
     jsonrpc: String,
@@ -30,6 +39,21 @@ case class RawMessage(
     params: Option[Payload] = None,
     id: Option[MessageId] = None
 )
+
+object RawMessage:
+  import com.github.plokhotnyuk.jsoniter_scala.macros.*
+
+  given JsonValueCodec[RawMessage] = JsonCodecMaker.make
+
+  def create(
+      method: Option[String] = None,
+      result: Option[Payload] = None,
+      error: Option[ErrorPayload] = None,
+      params: Option[Payload] = None,
+      id: Option[MessageId] = None
+  ) =
+    RawMessage("2.0", method, result, error, params, id)
+end RawMessage
 
 enum Direction:
   case ToServer, ToClient
@@ -113,21 +137,6 @@ object MessageId:
 
     def nullValue: MessageId = MessageId.NullId
 end MessageId
-
-object RawMessage:
-  import com.github.plokhotnyuk.jsoniter_scala.macros.*
-
-  given JsonValueCodec[RawMessage] = JsonCodecMaker.make
-
-  def create(
-      method: Option[String] = None,
-      result: Option[Payload] = None,
-      error: Option[ErrorPayload] = None,
-      params: Option[Payload] = None,
-      id: Option[MessageId] = None
-  ) =
-    RawMessage("2.0", method, result, error, params, id)
-end RawMessage
 
 case class Summary(workingFolder: String, serverCommand: List[String])
 object Summary:

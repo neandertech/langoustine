@@ -32,7 +32,7 @@ abstract class ServerSpec extends IOSuite:
             err = err.stream.unchunks
           )
           .runResource(
-            Config.create(NonEmptyList.of("echo")),
+            Config.Defaults.bind,
             Summary(System.getProperty("user.dir"), List("echo", "world"))
           )
 
