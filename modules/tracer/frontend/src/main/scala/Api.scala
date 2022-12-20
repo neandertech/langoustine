@@ -25,7 +25,6 @@ import com.github.plokhotnyuk.jsoniter_scala.core.*
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 import com.raquo.laminar.api.L.*
 import jsonrpclib.CallId
-import langoustine.tracer.Message
 import org.scalajs.dom
 import org.scalajs.dom.Event
 import org.scalajs.dom.Fetch.fetch
@@ -37,13 +36,13 @@ import scala.scalajs.js.annotation.JSGlobal
 
 object Api:
 
-  given JsonValueCodec[Vector[Message]]        = JsonCodecMaker.make
+  given JsonValueCodec[Vector[LspMessage]]     = JsonCodecMaker.make
   given rw: JsonValueCodec[Vector[RawMessage]] = JsonCodecMaker.make
 
-  def all: Future[Vector[Message]] =
+  def all: Future[Vector[LspMessage]] =
     fetch("/api/all")
       .flatMap(_.text())
-      .map(str => readFromStringReentrant[Vector[Message]](str))
+      .map(str => readFromStringReentrant[Vector[LspMessage]](str))
 
   def summary: Future[Summary] =
     fetch("/api/summary")

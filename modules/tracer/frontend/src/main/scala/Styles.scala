@@ -28,6 +28,35 @@ object Styles:
       width := "100%"
     )
 
+  object modal:
+    val container = Seq(
+      position.fixed,
+      zIndex := 1,
+      left   := "0",
+      top    := "0",
+      width  := "100%",
+      height := "100%",
+      overflow.auto,
+      backgroundColor := "rgba(0,0,0,0.8)"
+    )
+
+    val content = Seq(
+      fontFamily      := "sans-serif",
+      backgroundColor := "#fefefe",
+      margin          := "15% auto",
+      padding         := "20px",
+      border          := "1px solid #888",
+      width           := "80%"
+    )
+
+    val btn = Seq(
+      backgroundColor := "darkgreen",
+      fontWeight.bold,
+      color.white,
+      padding := "10px"
+    )
+  end modal
+
   val dynamicContainer =
     Seq(
       fontFamily      := "sans-serif",
@@ -99,10 +128,13 @@ object Styles:
     )
 
     object interactive:
-      val bool = Seq(color.aqua)
-      val str  = Seq(color.lime)
-      val num  = Seq(color := "pink", fontWeight.bold)
-      val special = Seq(color := "red", fontStyle.italic)
+      val bool     = Seq(color.aqua)
+      val str      = Seq(color.lime)
+      val num      = Seq(color := "pink", fontWeight.bold)
+      val special  = Seq(color := "red", fontStyle.italic)
+      val showMore = Seq(textDecoration.none, fontWeight.bold, color.aqua)
+
+      val listElement = Seq(padding := "2px", margin := "0px")
   end commandTracer
 
   object logTracer:
@@ -165,21 +197,29 @@ object Styles:
   )
 
   object pageSwitcher:
+    private val layout = Seq(
+      display.flex,
+      alignItems.center
+    )
+
     val focused = Seq(
       fontSize        := "1.2rem",
       padding         := "10px",
       borderLeft      := "4px solid maroon",
       backgroundColor := "white"
-    )
+    ) ++ layout
+
     val unfocused = Seq(
       fontSize   := "1.2rem",
       padding    := "10px",
       borderLeft := "4px solid blue",
       textDecoration.none
-    )
+    ) ++ layout
+
     val link = Seq(
       textDecoration.none,
-      color.black
+      color.black,
+      margin := "0px"
     )
   end pageSwitcher
 end Styles

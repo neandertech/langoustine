@@ -26,7 +26,11 @@ import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 enum JsonMode:
   case Details, Raw
 
-def jsonViewer(showing: Var[Option[Message]], mode: Var[JsonMode]) =
+def jsonViewer(
+    showing: Var[Option[LspMessage]],
+    mode: Var[JsonMode],
+    modalBus: EventBus[ModalCommand]
+) =
   def choose(value: JsonMode, whenSelected: String, whenNot: String) =
     mode.signal.map(v => if v == value then whenSelected else whenNot)
 
@@ -57,12 +61,18 @@ def jsonViewer(showing: Var[Option[Message]], mode: Var[JsonMode]) =
   )
 
   def displayErr(ep: ErrorPayload) =
-    div(bar(b(color := "pink", "Error")), displayJson(ep, mode.signal))
+    div(
+      bar(b(color := "pink", "Error")),
+      displayJson(ep, mode.signal, modalBus)
+    )
 
   given JsonValueCodec[Option[Payload]] = JsonCodecMaker.make
 
   def displayPayload(name: String, op: Option[Payload]) =
-    div(bar(b(color := "lightgreen", name)), displayJson(op, mode.signal))
+    div(
+      bar(b(color := "lightgreen", name)),
+      displayJson(op, mode.signal, modalBus)
+    )
 
   div(
     flexGrow := 0,
@@ -76,7 +86,7 @@ def jsonViewer(showing: Var[Option[Message]], mode: Var[JsonMode]) =
           i("Select any operation on the right to see its result")
         )
 
-      case Some(req: Message.Request) =>
+      case Some(req: LspMessage.Request) =>
         Signal
           .fromFuture(Api.request(cid(req.id)))
           .map(_.flatten)
@@ -84,7 +94,7 @@ def jsonViewer(showing: Var[Option[Message]], mode: Var[JsonMode]) =
             displayPayload("Params", raw.flatMap(_.params))
           }
 
-      case Some(req: Message.Response) =>
+      case Some(req: LspMessage.Response) =>
         Signal
           .fromFuture(Api.response(cid(req.id)))
           .map(_.flatten)
@@ -104,7 +114,7 @@ def jsonViewer(showing: Var[Option[Message]], mode: Var[JsonMode]) =
                   displayPayload("Result", op)
           }
 
-      case Some(cm: Message.Notification) =>
+      case Some(cm: LspMessage.Notification) =>
         Signal
           .fromFuture(Api.notification(cid(cm.generatedId)))
           .map(_.flatten)
@@ -122,7 +132,11 @@ def jsonViewer(showing: Var[Option[Message]], mode: Var[JsonMode]) =
   )
 end jsonViewer
 
-def displayJson[T: JsonValueCodec](rmsg: T, mode: Signal[JsonMode]) =
+def displayJson[T: JsonValueCodec](
+    rmsg: T,
+    mode: Signal[JsonMode],
+    modalBus: EventBus[ModalCommand]
+) =
   val js = io.circe.scalajs
     .decodeJs[io.circe.Json](
       JSON.parse(
@@ -144,7 +158,7 @@ def displayJson[T: JsonValueCodec](rmsg: T, mode: Signal[JsonMode]) =
     override def onNull: Element = span(style.special, "null")
 
     override def onBoolean(value: Boolean): Element =
-      i(style.bool, value.toString)
+      span(style.bool, value.toString)
 
     override def onObject(value: JsonObject): Element =
       if value.size == 0 then span(style.special, "{empty object}")
@@ -155,18 +169,42 @@ def displayJson[T: JsonValueCodec](rmsg: T, mode: Signal[JsonMode]) =
               case "uri" if json.isString =>
                 json.asString.map {
                   case str if str.startsWith("file:") =>
-                    a(href := s"vscode://$str", str, color := "aqua")
+                    a(href := s"vscode://$str", str, color.aqua)
                   case other =>
                     onString(other)
                 }
 
               case _ => Some(json.foldWith(this))
 
-            li(key, ": ", valueNode)
+            li(style.listElement, key, ": ", valueNode)
           )
         )
     override def onString(value: String): Element =
-      code(style.str, s""" "$value" """.trim)
+      if value.length > 150 then
+        span(
+          a(
+            "📋",
+            onClick.preventDefault.mapTo(value) --> { _ =>
+              org.scalajs.dom.window.navigator.clipboard.writeText(value)
+            },
+            href := "#"
+          ),
+          " ",
+          code(
+            style.str,
+            s""" "${value.take(150).replace("\n", "\\n")}" """.trim
+          ),
+          " ",
+          a(
+            style.showMore,
+            href := "#",
+            onClick.preventDefault.mapTo(
+              ModalCommand.ShowCode(value)
+            ) --> modalBus.writer,
+            b(s"... show full (${value.length - 150} more characters)")
+          )
+        )
+      else code(style.str, s""" "$value" """.trim)
 
     override def onNumber(value: JsonNumber): Element =
       code(style.num, value.toString)
@@ -175,7 +213,7 @@ def displayJson[T: JsonValueCodec](rmsg: T, mode: Signal[JsonMode]) =
       if value.isEmpty then span(style.special, "[empty array]")
       else
         ol(
-          value.map(json => li(json.foldWith(this)))
+          value.map(json => li(style.listElement, json.foldWith(this)))
         )
 
   div(

@@ -87,8 +87,8 @@ lazy val docs = project
   .in(file("target/docs"))
   .settings(scalaVersion := V.dynScalaVersion)
   .settings(docsSettings)
-  .dependsOn(app.jvm(V.dynScalaVersion), lsp.jvm(V.dynScalaVersion))
-  .aggregate(app.jvm(V.dynScalaVersion), lsp.jvm(V.dynScalaVersion))
+  .dependsOn(app.jvm(V.scala), lsp.jvm(V.scala))
+  .aggregate(app.jvm(V.scala), lsp.jvm(V.scala))
   .settings(
     ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(
       (tracer.projectRefs ++
@@ -229,6 +229,7 @@ lazy val tracer = projectMatrix
     libraryDependencies += "org.http4s"   %%% "http4s-ember-server" % V.http4s,
     libraryDependencies += "org.http4s"   %%% "http4s-dsl"          % V.http4s,
     libraryDependencies += "com.monovore" %%% "decline"             % V.decline,
+    Compile / doc / sources                := Seq.empty,
     // embedding frontend in backend's resources
     Compile / resourceGenerators += {
       Def.task[Seq[File]] {

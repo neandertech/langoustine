@@ -25,7 +25,7 @@ import jsonrpclib.{Payload, ErrorPayload}
 case class ReceivedMessage(
     timestamp: Long,
     raw: RawMessage,
-    decoded: Message
+    decoded: LspMessage
 )
 
 object ReceivedMessage:
@@ -66,50 +66,50 @@ enum TracerEvent:
 object TracerEvent:
   given JsonValueCodec[TracerEvent] = JsonCodecMaker.make
 
-enum Message(val id: MessageId):
+enum LspMessage(val id: MessageId):
   case Request(method: String, override val id: MessageId, responded: Boolean)
-      extends Message(id)
+      extends LspMessage(id)
 
   case Response(override val id: MessageId, method: Option[String])
-      extends Message(id)
+      extends LspMessage(id)
 
   case Notification(
       generatedId: MessageId,
       method: String,
       direction: Direction
-  ) extends Message(generatedId)
+  ) extends LspMessage(generatedId)
 
   def methodName: Option[String] = this match
     case r: Request      => Some(r.method)
     case r: Notification => Some(r.method)
     case r: Response     => r.method
 
-end Message
+end LspMessage
 
-object Message:
-  given JsonValueCodec[Message] = JsonCodecMaker.make
+object LspMessage:
+  given JsonValueCodec[LspMessage] = JsonCodecMaker.make
 
   def from(
       raw: RawMessage,
       direction: Direction,
       generatedId: MessageId
-  ): Option[Message] =
+  ): Option[LspMessage] =
     raw.id match
       // notification
       case None =>
         raw.method.map(
-          Message.Notification(generatedId, _, direction)
+          LspMessage.Notification(generatedId, _, direction)
         )
       case Some(id) =>
         direction match
           case Direction.ToServer =>
-            raw.method.map(Message.Request.apply(_, id, responded = false))
+            raw.method.map(LspMessage.Request.apply(_, id, responded = false))
           case Direction.ToClient =>
             raw.method match
-              case None       => Some(Message.Response(id, None))
+              case None       => Some(LspMessage.Response(id, None))
               case Some(what) => None
 
-end Message
+end LspMessage
 
 enum MessageId:
   case StringId(id: String)

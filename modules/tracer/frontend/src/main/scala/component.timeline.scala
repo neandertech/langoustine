@@ -20,15 +20,15 @@ import com.raquo.laminar.api.L.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 
 def timeline(
-    messagesState: Var[Vector[Message]],
+    messagesState: Var[Vector[LspMessage]],
     commandFilter: Var[Option[String]],
-    showing: Var[Option[Message]]
+    showing: Var[Option[LspMessage]]
 ) =
-  import Message.*
+  import LspMessage.*
 
   import scala.util.chaining.*
 
-  val filteredMessages: Signal[Vector[Message]] =
+  val filteredMessages: Signal[Vector[LspMessage]] =
     messagesState.signal.combineWithFn(commandFilter.signal) {
       (messages, filter) =>
         messages
