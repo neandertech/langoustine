@@ -102,6 +102,7 @@ object Styles:
       val bool = Seq(color.aqua)
       val str  = Seq(color.lime)
       val num  = Seq(color := "pink", fontWeight.bold)
+      val special = Seq(color := "red", fontStyle.italic)
   end commandTracer
 
   object logTracer:

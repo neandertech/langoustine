@@ -141,28 +141,30 @@ def displayJson[T: JsonValueCodec](rmsg: T, mode: Signal[JsonMode]) =
   val folder = new Json.Folder[Element]:
     val style = Styles.commandTracer.interactive
 
-    override def onNull: Element = i("null")
+    override def onNull: Element = span(style.special, "null")
 
     override def onBoolean(value: Boolean): Element =
       i(style.bool, value.toString)
 
     override def onObject(value: JsonObject): Element =
-      ul(
-        value.toList.map((key, json) =>
-          val valueNode = key match
-            case "uri" if json.isString =>
-              json.asString.map {
-                case str if str.startsWith("file:") =>
-                  a(href := s"vscode://$str", str, color := "aqua")
-                case other =>
-                  onString(other)
-              }
+      if value.size == 0 then span(style.special, "{empty object}")
+      else
+        ul(
+          value.toList.map((key, json) =>
+            val valueNode = key match
+              case "uri" if json.isString =>
+                json.asString.map {
+                  case str if str.startsWith("file:") =>
+                    a(href := s"vscode://$str", str, color := "aqua")
+                  case other =>
+                    onString(other)
+                }
 
-            case _ => Some(json.foldWith(this))
+              case _ => Some(json.foldWith(this))
 
-          li(key, ": ", valueNode)
+            li(key, ": ", valueNode)
+          )
         )
-      )
     override def onString(value: String): Element =
       code(style.str, s""" "$value" """.trim)
 
@@ -170,9 +172,11 @@ def displayJson[T: JsonValueCodec](rmsg: T, mode: Signal[JsonMode]) =
       code(style.num, value.toString)
 
     override def onArray(value: Vector[Json]): Element =
-      ol(
-        value.map(json => li(json.foldWith(this)))
-      )
+      if value.isEmpty then span(style.special, "[empty array]")
+      else
+        ol(
+          value.map(json => li(json.foldWith(this)))
+        )
 
   div(
     child <-- mode.map {
