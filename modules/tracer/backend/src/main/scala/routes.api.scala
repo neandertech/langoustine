@@ -16,7 +16,7 @@ import cats.syntax.all.*
 object SnapshotNameMatcher
     extends OptionalQueryParamDecoderMatcher[String]("name")
 
-private object codecs:
+object codecs:
   given msgCodec: JsonValueCodec[Vector[LspMessage]] = JsonCodecMaker.make
   given rawCodec: JsonValueCodec[Vector[RawMessage]] = JsonCodecMaker.make
 
@@ -49,7 +49,9 @@ def api(
         messages.discrete
           .as(TracerEvent.Update)
           .merge(messages.discrete.as(TracerEvent.Update))
-          .merge(ch.stream.map(l => TracerEvent.LogLine(l)))
+          .merge(
+            logBuf.discrete.map(TracerEvent.LogLines(_))
+          )
 
       val out = fs2.Stream.eval(logBuf.get).map(TracerEvent.LogLines(_))
 
@@ -82,22 +84,41 @@ def api(
         .getOrElse("langoustine-tracer-snapshot")
         + ".jsonl.gz"
 
-      messages.get.map(_.sortBy(_.timestamp)).flatMap { received =>
-        val bytes = fs2.Stream
-          .emits(received)
-          .covary[IO]
-          .evalMap(m => IO(writeToStringReentrant(m)))
-          .intersperse("\n")
-          .through(fs2.text.utf8.encode)
-          .through(fs2.compression.Compression[IO].gzip())
+      val lspMessages = messages.get
+        .map(_.map { rm =>
+          // 1. Remove generated IDs from notifications, so they stop looking like
+          // requests
+          // 2. Remove request/response pair matching
+          rm.decoded match
+            case _: LspMessage.Notification =>
+              rm.copy(raw = rm.raw.copy(id = None))
+            case req: LspMessage.Request =>
+              rm.copy(decoded = req.copy(responded = false))
+            case resp: LspMessage.Response =>
+              rm.copy(decoded = resp.copy(method = None))
+        }.map(SnapshotItem.Message.apply))
 
-        Ok(
-          bytes,
-          org.http4s.headers.`Content-Disposition`(
-            s"attachment",
-            Map(ci"filename" -> filename)
+      val logs = logBuf.get.map(_.collect { case log: LogMessage.Stderr =>
+        SnapshotItem.Log(log)
+      })
+
+      lspMessages.product(logs).map(_ ++ _).map(_.sortBy(_.timestamp)).flatMap {
+        received =>
+          val bytes = fs2.Stream
+            .emits(received)
+            .covary[IO]
+            .evalMap(m => IO(writeToStringReentrant[SnapshotItem](m)))
+            .intersperse("\n")
+            .through(fs2.text.utf8.encode)
+            .through(fs2.compression.Compression[IO].gzip())
+
+          Ok(
+            bytes,
+            org.http4s.headers.`Content-Disposition`(
+              s"attachment",
+              Map(ci"filename" -> filename)
+            )
           )
-        )
       }
 
     case GET -> Root / "raw" / "request" / id =>

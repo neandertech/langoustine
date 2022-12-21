@@ -18,10 +18,6 @@ package langoustine.tracer
 
 import com.raquo.laminar.api.L.*
 
-enum ModalCommand:
-  case Close, DownloadSnapshot
-  case ShowCode(code: String)
-
 def modalWindow(
     bus: EventBus[ModalCommand]
 ) =
@@ -77,6 +73,31 @@ def modalWindow(
               },
               "Download"
             )
+          )
+
+        case ModalCommand.ShowSummary =>
+          div(
+            Styles.summaryPage.container,
+            h2("Server summary"),
+            child.maybe <-- Signal.fromFuture(Api.summary).map {
+              _.map { summary =>
+                summary match
+                  case Summary.Trace(workingFolder, serverCommand) =>
+                    val cmd = serverCommand.mkString(" ")
+                    org.scalajs.dom.document.title = s"Tracer: $cmd"
+                    div(
+                      marginLeft := "15px",
+                      p(b("In folder: "), workingFolder),
+                      p(b("LSP command: "), cmd)
+                    )
+                  case Summary.Replay(file) =>
+                    div(
+                      marginLeft := "15px",
+                      p(b("Replaying snapshot: "), file)
+                    )
+
+              }
+            }
           )
       }
     )

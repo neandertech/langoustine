@@ -2,13 +2,11 @@ package tests.tracer
 
 import langoustine.tracer.*
 import TracerServer.{*, given}
-import _root_.fs2.*
-import _root_.fs2.concurrent.Channel as Chan
+import fs2.concurrent.Channel as Chan
 import cats.effect.*
 import cats.syntax.all.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 import java.util.Base64
-import jsonrpclib.*
 import org.http4s.Uri
 import org.http4s.client.*
 import org.http4s.client.websocket.*
@@ -66,15 +64,17 @@ object TracerServerSpec extends ServerSpec:
       _    <- serv.send(_.err, "hello\n")
       _    <- serv.send(_.err, "world\n")
       logs <- serv.front.logs
-    yield expect.all(logs.containsSlice(Seq("hello", "world")))
+    yield expect.all(logs.map(_.value).containsSlice(Seq("hello", "world")))
   }
 
   test("Serves summary at /api/summary") { serv =>
-    serv.front.summary.map { summary =>
-      expect.all(
-        summary.workingFolder == System.getProperty("user.dir"),
-        summary.serverCommand == List("echo", "world")
-      )
+    serv.front.summary.map {
+      case summary: Summary.Trace =>
+        expect.all(
+          summary.workingFolder == System.getProperty("user.dir"),
+          summary.serverCommand == List("echo", "world")
+        )
+      case other => failure(s"Expected Summary.Trace got $other instead")
     }
   }
 
@@ -95,17 +95,13 @@ object TracerServerSpec extends ServerSpec:
         )
       }
   }
+
   test("sends logs over websockets") { serv =>
     def logsAreOkay(v: Vector[TracerEvent]) = expect.all(
-      v.collectFirst { case _: TracerEvent.LogLines =>
-        true
-      }.isDefined,
-      v.contains(TracerEvent.LogLine("log1")),
-      v.contains(TracerEvent.LogLine("log2")),
-      v.collect {
-        case TracerEvent.LogLines(v) => v
-        case TracerEvent.LogLine(v)  => Vector(v)
+      v.collect { case TracerEvent.LogLines(v) =>
+        v
       }.flatten
+        .map(_.value)
         .filter(v => v == "first" || v == "second")
         .toSet == Set("first", "second")
     )

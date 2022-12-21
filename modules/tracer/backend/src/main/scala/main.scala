@@ -45,7 +45,7 @@ object Main extends IOApp:
 
   end run
 
-  private def Launch(
+  def Launch(
       config: Config,
       in: fs2.Stream[IO, Byte] = fs2.io.stdin[IO](512),
       out: fs2.Pipe[IO, Byte, Nothing] = fs2.io.stdout[IO]
@@ -66,7 +66,7 @@ object Main extends IOApp:
           .flatMap { case (inBytes, outBytes, errBytes, outLatch) =>
             config.mode match
               case Mode.Replay(rc) =>
-                val summary = Summary(currentFolder, Nil)
+                val summary = Summary.Replay(rc.file.toString)
                 Replay(
                   inBytes = inBytes,
                   outBytes = outBytes,
@@ -77,7 +77,7 @@ object Main extends IOApp:
                 )
 
               case Mode.Trace(tc) =>
-                val summary = Summary(currentFolder, tc.cmd.toList)
+                val summary = Summary.Trace(currentFolder, tc.cmd.toList)
                 Trace(
                   in = in,
                   out = out,

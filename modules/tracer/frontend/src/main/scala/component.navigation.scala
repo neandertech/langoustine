@@ -20,7 +20,7 @@ import com.raquo.laminar.api.L.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 
 def switcher(page: Var[Page], modalBus: EventBus[ModalCommand]) =
-  inline def thing(name: String, set: Page) =
+  inline def pageLink(name: String, set: Page) =
     div(
       child <-- page.signal.map {
         case `set` => div(Styles.pageSwitcher.focused, name)
@@ -37,31 +37,28 @@ def switcher(page: Var[Page], modalBus: EventBus[ModalCommand]) =
       }
     )
 
-  div(
-    display.flex,
-    alignContent.flexEnd,
-    columnGap := "10px",
-    flexGrow  := 0,
+  inline def modalLink(name: String, send: ModalCommand) = div(
     div(
-      div(
-        Styles.pageSwitcher.unfocused,
-        // img(
-        //   src    := "/assets/download-icon.svg",
-        //   width  := "20px",
-        //   height := "20px"
-        // ),
-        a(
-          Styles.pageSwitcher.link,
-          onClick.preventDefault.mapTo(
-            ModalCommand.DownloadSnapshot
-          ) --> modalBus.writer,
-          href := "#",
-          " Download snapshot"
-        )
+      Styles.pageSwitcher.modal,
+      // img(
+      //   src    := "/assets/download-icon.svg",
+      //   width  := "20px",
+      //   height := "20px"
+      // ),
+      a(
+        Styles.pageSwitcher.link,
+        onClick.preventDefault.mapTo(send) --> modalBus.writer,
+        href := "#",
+        name
       )
-    ),
-    thing("Interactions", Page.Commands),
-    thing("Logs", Page.Logs),
-    thing("Server summary", Page.Summary)
+    )
+  )
+
+  div(
+    Styles.pageSwitcher.container,
+    pageLink("Interactions", Page.Commands),
+    pageLink("Logs", Page.Logs),
+    modalLink("Download snapshot", ModalCommand.DownloadSnapshot),
+    modalLink("Server summary", ModalCommand.ShowSummary)
   )
 end switcher

@@ -33,7 +33,7 @@ abstract class ServerSpec extends IOSuite:
           )
           .runResource(
             Config.Defaults.bind,
-            Summary(System.getProperty("user.dir"), List("echo", "world"))
+            Summary.Trace(System.getProperty("user.dir"), List("echo", "world"))
           )
 
         import org.http4s.jdkhttpclient.*

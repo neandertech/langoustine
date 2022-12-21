@@ -23,9 +23,6 @@ import jsonrpclib.*
 import scala.scalajs.js.JSON
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 
-enum JsonMode:
-  case Details, Raw
-
 def jsonViewer(
     showing: Var[Option[LspMessage]],
     mode: Var[JsonMode],

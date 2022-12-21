@@ -58,9 +58,18 @@ end RawMessage
 enum Direction:
   case ToServer, ToClient
 
+enum LogMessage(val value: String):
+  case Window(override val value: String, timestamp: Long)
+      extends LogMessage(value)
+  case Stderr(override val value: String, timestamp: Long)
+      extends LogMessage(value)
+
+object LogMessage:
+  given JsonValueCodec[LogMessage]         = JsonCodecMaker.make
+  given JsonValueCodec[Vector[LogMessage]] = JsonCodecMaker.make
+
 enum TracerEvent:
-  case LogLine(line: String)
-  case LogLines(lines: Vector[String])
+  case LogLines(lines: Vector[LogMessage])
   case Update
 
 object TracerEvent:
@@ -138,6 +147,12 @@ object MessageId:
     def nullValue: MessageId = MessageId.NullId
 end MessageId
 
-case class Summary(workingFolder: String, serverCommand: List[String])
+enum Summary:
+  case Trace(workingFolder: String, serverCommand: List[String])
+  case Replay(file: String)
 object Summary:
   given JsonValueCodec[Summary] = JsonCodecMaker.make
+
+// case class Summary(workingFolder: String, serverCommand: List[String])
+// object Summary:
+//   given JsonValueCodec[Summary] = JsonCodecMaker.make

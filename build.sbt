@@ -45,6 +45,7 @@ val V = new {
   val circe           = "0.14.3"
   val http4sJdkClient = "0.8.0"
   val organizeImports = "0.6.0"
+  val fansi           = "0.4.0"
 
   /** TODO: remove all the nightly hacks once the deliciously decadent scaladoc
     * facelift is released (3.2.1?)
@@ -151,6 +152,7 @@ lazy val app = projectMatrix
     name                                   := "langoustine-app",
     libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2" % V.jsonrpclib,
     libraryDependencies += "co.fs2"       %%% "fs2-io"         % V.fs2,
+    libraryDependencies += "com.outr"     %%% "scribe-cats"    % V.scribe,
     Test / fork := virtualAxes.value.contains(VirtualAxis.jvm)
   )
   .jvmPlatform(V.jvmScalaVersions)
@@ -229,6 +231,7 @@ lazy val tracer = projectMatrix
     libraryDependencies += "org.http4s"   %%% "http4s-ember-server" % V.http4s,
     libraryDependencies += "org.http4s"   %%% "http4s-dsl"          % V.http4s,
     libraryDependencies += "com.monovore" %%% "decline"             % V.decline,
+    libraryDependencies += "com.outr"     %%% "scribe-cats"         % V.scribe,
     Compile / doc / sources                := Seq.empty,
     // embedding frontend in backend's resources
     Compile / resourceGenerators += {
@@ -284,11 +287,12 @@ lazy val tracerFrontend = projectMatrix
   .dependsOn(tracerShared)
   .defaultAxes(V.default*)
   .settings(
-    Compile / doc / sources             := Seq.empty,
-    name                                := "langoustine-tracer-frontend",
-    libraryDependencies += "com.raquo" %%% "laminar"       % V.laminar,
-    libraryDependencies += "io.circe"  %%% "circe-scalajs" % V.circe,
-    scalaJSUseMainModuleInitializer     := true
+    Compile / doc / sources               := Seq.empty,
+    name                                  := "langoustine-tracer-frontend",
+    libraryDependencies += "com.raquo"   %%% "laminar"       % V.laminar,
+    libraryDependencies += "io.circe"    %%% "circe-scalajs" % V.circe,
+    libraryDependencies += "com.lihaoyi" %%% "fansi"         % V.fansi,
+    scalaJSUseMainModuleInitializer       := true
   )
   .jsPlatform(V.scalaVersions)
 

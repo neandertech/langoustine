@@ -66,7 +66,7 @@ object Styles:
       backgroundColor := "#e3e3e3",
       padding         := "15px",
       maxWidth        := "1500px",
-      width           := "100%"
+      width           := "90%"
     )
 
   val filterBox = Seq(
@@ -147,6 +147,21 @@ object Styles:
         padding  := "10px",
         overflow.auto
       )
+    val messagesContainer = Seq(
+      display.flex,
+      columnGap := "20px",
+      width     := "100%"
+    )
+
+    val logTypeStderr = Seq(
+      fontWeight.bold,
+      color.olive
+    )
+
+    val logTypeWindow = Seq(
+      fontWeight.bold,
+      color.aqua
+    )
   end logTracer
 
   object summaryPage:
@@ -197,6 +212,12 @@ object Styles:
   )
 
   object pageSwitcher:
+    val container = Seq(
+      display.flex,
+      alignContent.flexEnd,
+      columnGap := "10px",
+      flexGrow  := 0
+    )
     private val layout = Seq(
       display.flex,
       alignItems.center
@@ -213,6 +234,12 @@ object Styles:
       fontSize   := "1.2rem",
       padding    := "10px",
       borderLeft := "4px solid blue",
+      textDecoration.none
+    ) ++ layout
+
+    val modal = Seq(
+      fontSize := "1.2rem",
+      padding  := "10px",
       textDecoration.none
     ) ++ layout
 

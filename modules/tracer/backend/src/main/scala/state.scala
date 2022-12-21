@@ -7,11 +7,13 @@ import cats.effect.std.*
 import jsonrpclib.fs2.lsp
 import jsonrpclib.{Payload}
 import jsonrpclib.Codec
+import langoustine.lsp.requests.window
+import langoustine.lsp.enumerations
 
 case class State(
     ch: Channel[IO, String],
     messages: SignallingRef[IO, Vector[ReceivedMessage]],
-    logBuf: Ref[IO, Vector[String]],
+    logBuf: SignallingRef[IO, Vector[LogMessage]],
     responseIdMapping: Ref[IO, Map[MessageId, String]],
     random: UUIDGen[IO]
 ):
@@ -67,7 +69,34 @@ case class State(
                         .map(_.get(id))
                         .map(LspMessage.Response(id, _))
 
-                  case other => IO.pure(other)
+                  case notif: LspMessage.Notification =>
+                    import langoustine.lsp.jsonrpcIntegration.given
+
+                    val special =
+                      if notif.method == "window/logMessage" then
+                        IO
+                          .fromEither(
+                            Codec.decode[window.logMessage.In](
+                              rawMessage.value.params
+                            )
+                          )
+                          .flatMap(Received.capture(_))
+                          .flatMap { case Received(ts, lmp) =>
+                            if lmp.`type` == enumerations.MessageType.Log then
+                              logBuf.update(
+                                _ :+ LogMessage.Window(lmp.message, ts)
+                              )
+                            else IO.unit
+                          }
+                          .handleErrorWith { err =>
+                            Logging.io.error(
+                              s"Failed to decode ${rawMessage.value} as window/logMessage",
+                              err
+                            )
+                          }
+                      else IO.unit
+
+                    special.as(notif)
 
                 withUpdatedMapping
                   .flatMap { msg =>
@@ -91,7 +120,7 @@ object State:
   def create =
     for
       messages          <- SignallingRef[IO].of(Vector.empty[ReceivedMessage])
-      logBuf            <- IO.ref(Vector.empty[String])
+      logBuf            <- SignallingRef[IO].of(Vector.empty[LogMessage])
       ch                <- Channel.bounded[IO, String](128)
       responseIdMapping <- IO.ref(Map.empty[MessageId, String])
     yield State(ch, messages, logBuf, responseIdMapping, UUIDGen[IO])

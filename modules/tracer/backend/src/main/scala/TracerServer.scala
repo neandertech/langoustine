@@ -88,8 +88,12 @@ class TracerServer private (
       .through(text.lines)
       .chunks
       .evalTap { chunk =>
-        state.logBuf.update { lines =>
-          lines.drop(lines.size + chunk.size - 10000) ++ chunk.toVector
+        Received.capture(chunk).flatMap { chunk =>
+          state.logBuf.update { lines =>
+            lines ++
+              chunk.value.toVector
+                .map(LogMessage.Stderr(_, chunk.timestamp))
+          }
         }
       }
       .unchunks
@@ -128,6 +132,7 @@ end TracerServer
 
 case class Received[T](timestamp: Long, value: T)
 object Received:
-  def capture[T](t: T) = IO.monotonic.map(lng => Received(lng.toMillis, t))
+  def capture[T](t: T) =
+    IO.realTimeInstant.map(lng => Received(lng.toEpochMilli(), t))
   def captureF[T](t: IO[T]) =
-    IO.monotonic.flatMap(lng => t.map(Received(lng.toMillis, _)))
+    IO.realTimeInstant.flatMap(lng => t.map(Received(lng.toEpochMilli(), _)))

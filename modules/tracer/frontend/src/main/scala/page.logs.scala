@@ -20,7 +20,7 @@ import com.raquo.laminar.api.L.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 import scala.scalajs.js.Date
 
-def logsTracer(logs: Var[Vector[String]], logFilter: Var[Option[String]]) =
+def logsTracer(logs: Var[Vector[LogMessage]], logFilter: Var[Option[String]]) =
   div(
     Styles.logTracer.container,
     input(
@@ -31,13 +31,34 @@ def logsTracer(logs: Var[Vector[String]], logFilter: Var[Option[String]]) =
     ),
     pre(
       code(
-        children <--
-          logs.signal
-            .combineWithFn(logFilter.signal) { case (lines, f) =>
-              lines
-                .filter(l => f.isEmpty || f.exists(l.toLowerCase().contains))
-            }
-            .map(_.map(p(_)))
+        div(
+          children <--
+            logs.signal
+              .combineWithFn(logFilter.signal) { case (lines, f) =>
+                lines
+                  .filter(l =>
+                    f.isEmpty || f.exists(l.value.toLowerCase().contains)
+                  )
+              }
+              .map(_.map {
+                case LogMessage.Stderr(value, _) =>
+                  div(
+                    Styles.logTracer.messagesContainer,
+                    div(Styles.logTracer.logTypeStderr, "STDERR"),
+                    div(
+                      onMountCallback(_.thisNode.ref.innerHTML =
+                        Ansi2Html(value)
+                      )
+                    )
+                  )
+                case LogMessage.Window(value, _) =>
+                  div(
+                    Styles.logTracer.messagesContainer,
+                    div(Styles.logTracer.logTypeWindow, "window"),
+                    div(value)
+                  )
+              })
+        )
       )
     )
   )

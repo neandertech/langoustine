@@ -40,9 +40,6 @@ import com.raquo.airstream.core.Signal
 object hljs extends js.Object:
   def highlightAll(): Unit = js.native
 
-enum Page:
-  case Logs, Commands, Summary
-
 def cid(c: MessageId) = c match
   case MessageId.NumberId(n) => n.toString
   case MessageId.StringId(s) => s
@@ -54,7 +51,7 @@ def uniqueId(m: LspMessage) = m match
 
 object Frontend:
   val page                                   = Var(Page.Commands)
-  val logs                                   = Var(Vector.empty[String])
+  val logs                                   = Var(Vector.empty[LogMessage])
   val bus                                    = new EventBus[Double]
   val commandFilter: Var[Option[String]]     = Var(Option.empty[String])
   val logFilter: Var[Option[String]]         = Var(Option.empty[String])
@@ -90,8 +87,6 @@ object Frontend:
               )
             case Page.Logs =>
               logsTracer(logs, logFilter)
-            case Page.Summary =>
-              summaryPage
           }
         )
       )

@@ -14,7 +14,6 @@ import langoustine.lsp.structures.ShowMessageParams
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 import fs2.concurrent.Channel
 
-
 def Trace(
     in: fs2.Stream[IO, Byte],
     out: fs2.Pipe[IO, Byte, Nothing],
