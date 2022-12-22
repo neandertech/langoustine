@@ -24,13 +24,15 @@ import com.raquo.airstream.state.Var
 def commandTracer(
     bus: EventBus[Double],
     commandFilter: Var[Option[String]],
-    messagesState: Var[Vector[Message]],
-    showing: Var[Option[Message]]
+    messagesState: Var[Vector[LspMessage]],
+    showing: Var[Option[LspMessage]],
+    mode: Var[JsonMode],
+    modalBus: EventBus[ModalCommand]
 ) =
-  import Message.*
+  import LspMessage.*
   div(
     Styles.commandTracer.container,
-    jsonViewer(showing),
+    jsonViewer(showing, mode, modalBus),
     div(
       width <-- showing.signal
         .map(_.isDefined)

@@ -24,7 +24,7 @@ import scala.scalajs.js.Thenable.Implicits.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 import com.raquo.laminar.api.L.*
-import langoustine.tracer.Message
+import langoustine.tracer.LspMessage
 import org.scalajs.dom
 import org.scalajs.dom.Event
 import org.scalajs.dom.Fetch.fetch
@@ -40,48 +40,55 @@ import com.raquo.airstream.core.Signal
 object hljs extends js.Object:
   def highlightAll(): Unit = js.native
 
-enum Page:
-  case Logs, Commands, Summary
-
 def cid(c: MessageId) = c match
   case MessageId.NumberId(n) => n.toString
   case MessageId.StringId(s) => s
 
-def uniqueId(m: Message) = m match
-  case _: Message.Request      => "request-" + cid(m.id)
-  case _: Message.Response     => "response-" + cid(m.id)
-  case _: Message.Notification => "notification-" + cid(m.id)
+def uniqueId(m: LspMessage) = m match
+  case _: LspMessage.Request      => "request-" + cid(m.id)
+  case _: LspMessage.Response     => "response-" + cid(m.id)
+  case _: LspMessage.Notification => "notification-" + cid(m.id)
 
 object Frontend:
-  val page                                = Var(Page.Commands)
-  val logs                                = Var(Vector.empty[String])
-  val bus                                 = new EventBus[Double]
-  val commandFilter: Var[Option[String]]  = Var(Option.empty[String])
-  val logFilter: Var[Option[String]]      = Var(Option.empty[String])
-  val messagesState: Var[Vector[Message]] = Var(Vector.empty[Message])
-  val showing: Var[Option[Message]]       = Var(Option.empty[Message])
+  val page                                   = Var(Page.Commands)
+  val logs                                   = Var(Vector.empty[LogMessage])
+  val bus                                    = new EventBus[Double]
+  val commandFilter: Var[Option[String]]     = Var(Option.empty[String])
+  val logFilter: Var[Option[String]]         = Var(Option.empty[String])
+  val messagesState: Var[Vector[LspMessage]] = Var(Vector.empty[LspMessage])
+  val showing: Var[Option[LspMessage]]       = Var(Option.empty[LspMessage])
+  val mode                                   = Var(JsonMode.Details)
+  val modalBus                               = EventBus[ModalCommand]()
 
   val app =
     div(
-      Styles.staticContainer,
+      modalWindow(modalBus),
       div(
-        Styles.dynamicContainer,
+        Styles.staticContainer,
         div(
-          display.flex,
-          justifyContent.spaceBetween,
+          Styles.dynamicContainer,
           div(
-            h1(marginTop := "0px", "Langoustine tracer")
+            display.flex,
+            justifyContent.spaceBetween,
+            div(
+              h1(marginTop := "0px", "Langoustine tracer")
+            ),
+            switcher(page, modalBus)
           ),
-          switcher(page)
-        ),
-        child <-- page.signal.map {
-          case Page.Commands =>
-            commandTracer(bus, commandFilter, messagesState, showing)
-          case Page.Logs =>
-            logsTracer(logs, logFilter)
-          case Page.Summary =>
-            summaryPage
-        }
+          child <-- page.signal.map {
+            case Page.Commands =>
+              commandTracer(
+                bus,
+                commandFilter,
+                messagesState,
+                showing,
+                mode,
+                modalBus
+              )
+            case Page.Logs =>
+              logsTracer(logs, logFilter)
+          }
+        )
       )
     )
 

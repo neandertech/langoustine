@@ -32,8 +32,8 @@ abstract class ServerSpec extends IOSuite:
             err = err.stream.unchunks
           )
           .runResource(
-            Config.create(NonEmptyList.of("echo")),
-            Summary(System.getProperty("user.dir"), List("echo", "world"))
+            Config.Defaults.bind,
+            Summary.Trace(System.getProperty("user.dir"), List("echo", "world"))
           )
 
         import org.http4s.jdkhttpclient.*

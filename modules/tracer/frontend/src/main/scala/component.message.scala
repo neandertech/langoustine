@@ -22,9 +22,9 @@ val fromClient = textAlign.left
 val fromServer = textAlign.right
 
 def renderMessage(
-    showing: Var[Option[Message]]
-)(id: String, initial: Message, stream: Signal[Message]) =
-  import Message.*
+    showing: Var[Option[LspMessage]]
+)(id: String, initial: LspMessage, stream: Signal[LspMessage]) =
+  import LspMessage.*
 
   initial match
     case rq: Request =>
@@ -48,21 +48,29 @@ def renderMessage(
   end match
 end renderMessage
 
-import Message.*
+import LspMessage.*
 
-inline def select(req: Message, showing: Var[Option[Message]]) =
+inline def select(req: LspMessage, showing: Var[Option[LspMessage]]) =
   Seq(
     background <-- showing.signal.map {
       case Some(`req`) =>
         "repeating-linear-gradient(45deg, #ededed, #ededed 10px, white 10px, white 20px)"
       case _ => ""
+    },
+    position <-- showing.signal.map {
+      case Some(`req`) => "sticky"
+      case _           => ""
+    },
+    top <-- showing.signal.map {
+      case Some(`req`) => "0"
+      case _           => ""
     }
   )
 
 def renderNotification(
     nt: Notification,
     changes: EventStream[Notification],
-    showing: Var[Option[Message]]
+    showing: Var[Option[LspMessage]]
 ) =
   div(
     select(nt, showing),
@@ -80,7 +88,7 @@ def renderNotification(
 def renderRequest(
     rq: Request,
     changes: EventStream[Request],
-    showing: Var[Option[Message]]
+    showing: Var[Option[LspMessage]]
 ) =
   div(
     Styles.timeline.row,
@@ -113,7 +121,7 @@ def renderRequest(
 def renderResponse(
     rp: Response,
     changes: EventStream[Response],
-    showing: Var[Option[Message]]
+    showing: Var[Option[LspMessage]]
 ) =
   div(
     select(rp, showing),

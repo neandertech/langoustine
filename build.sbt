@@ -42,8 +42,10 @@ val V = new {
   val decline         = "2.4.1"
   val jsoniter        = "2.19.1"
   val weaver          = "0.8.1"
+  val circe           = "0.14.3"
   val http4sJdkClient = "0.8.0"
   val organizeImports = "0.6.0"
+  val fansi           = "0.4.0"
 
   /** TODO: remove all the nightly hacks once the deliciously decadent scaladoc
     * facelift is released (3.2.1?)
@@ -86,8 +88,8 @@ lazy val docs = project
   .in(file("target/docs"))
   .settings(scalaVersion := V.dynScalaVersion)
   .settings(docsSettings)
-  .dependsOn(app.jvm(V.dynScalaVersion), lsp.jvm(V.dynScalaVersion))
-  .aggregate(app.jvm(V.dynScalaVersion), lsp.jvm(V.dynScalaVersion))
+  .dependsOn(app.jvm(V.scala), lsp.jvm(V.scala))
+  .aggregate(app.jvm(V.scala), lsp.jvm(V.scala))
   .settings(
     ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(
       (tracer.projectRefs ++
@@ -150,6 +152,7 @@ lazy val app = projectMatrix
     name                                   := "langoustine-app",
     libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2" % V.jsonrpclib,
     libraryDependencies += "co.fs2"       %%% "fs2-io"         % V.fs2,
+    libraryDependencies += "com.outr"     %%% "scribe-cats"    % V.scribe,
     Test / fork := virtualAxes.value.contains(VirtualAxis.jvm)
   )
   .jvmPlatform(V.jvmScalaVersions)
@@ -228,6 +231,8 @@ lazy val tracer = projectMatrix
     libraryDependencies += "org.http4s"   %%% "http4s-ember-server" % V.http4s,
     libraryDependencies += "org.http4s"   %%% "http4s-dsl"          % V.http4s,
     libraryDependencies += "com.monovore" %%% "decline"             % V.decline,
+    libraryDependencies += "com.outr"     %%% "scribe-cats"         % V.scribe,
+    Compile / doc / sources                := Seq.empty,
     // embedding frontend in backend's resources
     Compile / resourceGenerators += {
       Def.task[Seq[File]] {
@@ -282,10 +287,12 @@ lazy val tracerFrontend = projectMatrix
   .dependsOn(tracerShared)
   .defaultAxes(V.default*)
   .settings(
-    Compile / doc / sources             := Seq.empty,
-    name                                := "langoustine-tracer-frontend",
-    libraryDependencies += "com.raquo" %%% "laminar" % V.laminar,
-    scalaJSUseMainModuleInitializer     := true
+    Compile / doc / sources               := Seq.empty,
+    name                                  := "langoustine-tracer-frontend",
+    libraryDependencies += "com.raquo"   %%% "laminar"       % V.laminar,
+    libraryDependencies += "io.circe"    %%% "circe-scalajs" % V.circe,
+    libraryDependencies += "com.lihaoyi" %%% "fansi"         % V.fansi,
+    scalaJSUseMainModuleInitializer       := true
   )
   .jsPlatform(V.scalaVersions)
 
@@ -338,6 +345,14 @@ addCommandAlias("testTracer", "tests/testOnly tests.tracer.*")
 addCommandAlias("testCore", "tests/testOnly tests.core.*")
 addCommandAlias("testE2E", "tests/testOnly tests.e2e.*")
 
+lazy val buildTracer = taskKey[Unit]("Build tracer and print out a path to it")
+
+ThisBuild / buildTracer := {
+  val loc = (tracer.jvm(V.scala) / stage).value / "bin" / "langoustine-tracer"
+
+  println(s"\n\nTracer is built, use this launcher: $loc")
+}
+
 import sbtwelcome.*
 
 logo :=
@@ -361,6 +376,7 @@ usefulTasks := Seq(
   UsefulTask("gl", "generateLSP", "Regenerate LSP definitions"),
   UsefulTask("bw", "buildWebsite", "Build website"),
   UsefulTask("tt", "testTracer", "Run Tracer's backend tests"),
+  UsefulTask("bt", "buildTracer", "Build Tracer for local usage"),
   UsefulTask(
     "te",
     "testE2E",

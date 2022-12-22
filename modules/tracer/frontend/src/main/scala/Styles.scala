@@ -28,6 +28,35 @@ object Styles:
       width := "100%"
     )
 
+  object modal:
+    val container = Seq(
+      position.fixed,
+      zIndex := 1,
+      left   := "0",
+      top    := "0",
+      width  := "100%",
+      height := "100%",
+      overflow.auto,
+      backgroundColor := "rgba(0,0,0,0.8)"
+    )
+
+    val content = Seq(
+      fontFamily      := "sans-serif",
+      backgroundColor := "#fefefe",
+      margin          := "15% auto",
+      padding         := "20px",
+      border          := "1px solid #888",
+      width           := "80%"
+    )
+
+    val btn = Seq(
+      backgroundColor := "darkgreen",
+      fontWeight.bold,
+      color.white,
+      padding := "10px"
+    )
+  end modal
+
   val dynamicContainer =
     Seq(
       fontFamily      := "sans-serif",
@@ -37,7 +66,7 @@ object Styles:
       backgroundColor := "#e3e3e3",
       padding         := "15px",
       maxWidth        := "1500px",
-      width           := "100%"
+      width           := "90%"
     )
 
   val filterBox = Seq(
@@ -66,7 +95,7 @@ object Styles:
       borderRadius    := "5px",
       backgroundColor := "#0d1117",
       color.white,
-      fontSize := "1.3rem",
+      fontSize := "1.1rem",
       padding  := "10px",
       position := "sticky",
       top      := "0",
@@ -74,6 +103,38 @@ object Styles:
       overflowY.scroll,
       maxHeight := "80vh"
     )
+
+    object modeBar:
+      val container = Seq(
+        display.flex,
+        flexDirection.row,
+        justifyContent.spaceBetween,
+        columnGap := "15px"
+      )
+      val butt = Seq(
+        fontSize := "0.9rem",
+        color.white
+      )
+    end modeBar
+
+    val viewHeader = Seq(
+      display.flex,
+      flexDirection.row,
+      justifyContent.spaceBetween,
+      width           := "100%",
+      position        := "sticky",
+      top             := "0",
+      backgroundColor := "#0d1117"
+    )
+
+    object interactive:
+      val bool     = Seq(color.aqua)
+      val str      = Seq(color.lime)
+      val num      = Seq(color := "pink", fontWeight.bold)
+      val special  = Seq(color := "red", fontStyle.italic)
+      val showMore = Seq(textDecoration.none, fontWeight.bold, color.aqua)
+
+      val listElement = Seq(padding := "2px", margin := "0px")
   end commandTracer
 
   object logTracer:
@@ -82,10 +143,25 @@ object Styles:
         borderRadius    := "5px",
         backgroundColor := "black",
         color.white,
-        fontSize := "1.3rem",
+        fontSize := "1rem",
         padding  := "10px",
         overflow.auto
       )
+    val messagesContainer = Seq(
+      display.flex,
+      columnGap := "20px",
+      width     := "100%"
+    )
+
+    val logTypeStderr = Seq(
+      fontWeight.bold,
+      color.olive
+    )
+
+    val logTypeWindow = Seq(
+      fontWeight.bold,
+      color.aqua
+    )
   end logTracer
 
   object summaryPage:
@@ -130,22 +206,47 @@ object Styles:
     )
   end timeline
 
+  val downloadLink = Seq(
+    fontSize := "1.2rem",
+    padding  := "10px"
+  )
+
   object pageSwitcher:
+    val container = Seq(
+      display.flex,
+      alignContent.flexEnd,
+      columnGap := "10px",
+      flexGrow  := 0
+    )
+    private val layout = Seq(
+      display.flex,
+      alignItems.center
+    )
+
     val focused = Seq(
       fontSize        := "1.2rem",
       padding         := "10px",
       borderLeft      := "4px solid maroon",
       backgroundColor := "white"
-    )
+    ) ++ layout
+
     val unfocused = Seq(
       fontSize   := "1.2rem",
       padding    := "10px",
       borderLeft := "4px solid blue",
       textDecoration.none
-    )
+    ) ++ layout
+
+    val modal = Seq(
+      fontSize := "1.2rem",
+      padding  := "10px",
+      textDecoration.none
+    ) ++ layout
+
     val link = Seq(
       textDecoration.none,
-      color.black
+      color.black,
+      margin := "0px"
     )
   end pageSwitcher
 end Styles

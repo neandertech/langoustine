@@ -21,7 +21,16 @@ import com.monovore.decline.*
 import cats.data.NonEmptyList
 import com.comcast.ip4s.*
 
-case class Config(port: Port, host: Host, cmd: NonEmptyList[String])
+case class ReplayConfig(file: fs2.io.file.Path)
+case class TraceConfig(cmd: NonEmptyList[String])
+
+enum Mode:
+  case Replay(config: ReplayConfig)
+  case Trace(config: TraceConfig)
+
+case class BindConfig(port: Port, host: Host)
+
+case class Config(mode: Mode, bind: BindConfig)
 
 object Config:
   /** Create a config instance with all optional parameters set to their default
@@ -31,43 +40,78 @@ object Config:
     * @return
     *   config
     */
-  def create(lspCommand: NonEmptyList[String]): Config =
-    Config(Defaults.port, Defaults.host, lspCommand)
+  def trace(lspCommand: NonEmptyList[String]): Config =
+    Config(Mode.Trace(TraceConfig(lspCommand)), Defaults.bind)
+
+  def replay(path: fs2.io.file.Path): Config =
+    Config(
+      Mode.Replay(ReplayConfig(path)),
+      Defaults.bind
+    )
 
   object Defaults:
     val port = port"0"
     val host = host"localhost"
+    val bind = BindConfig(port, host)
 
-  private val portOpt =
-    Opts
-      .option[Int](
-        "port",
-        "Port to bind tracer to - by default a random port will be selected"
-      )
-      .mapValidated { portNumber =>
-        Port.fromInt(portNumber).toValidNel("Invalid port number")
-      }
-      .withDefault(Defaults.port)
+  export params.command
 
-  private val hostOpt =
-    Opts
-      .option[String](
-        "host",
-        s"Host to bind tracer to - by default ${Defaults.host} is used"
-      )
-      .mapValidated { hostRaw =>
-        Host.fromString(hostRaw).toValidNel("Invalid host")
-      }
-      .withDefault(Defaults.host)
+  private object params:
+    val portOpt =
+      Opts
+        .option[Int](
+          "port",
+          "Port to bind tracer to - by default a random port will be selected"
+        )
+        .mapValidated { portNumber =>
+          Port.fromInt(portNumber).toValidNel("Invalid port number")
+        }
+        .withDefault(Defaults.port)
 
-  private val lspOpt = Opts.arguments[String]("lspCommand")
+    val hostOpt =
+      Opts
+        .option[String](
+          "host",
+          s"Host to bind tracer to - by default ${Defaults.host} is used"
+        )
+        .mapValidated { hostRaw =>
+          Host.fromString(hostRaw).toValidNel("Invalid host")
+        }
+        .withDefault(Defaults.host)
 
-  private val config = (portOpt, hostOpt, lspOpt).mapN(Config.apply)
+    val lspOpt = Opts.arguments[String]("lspCommand")
+    val pathOpt = Opts.argument[String]("tracer snapshot file").map { raw =>
+      fs2.io.file.Path(raw)
+    }
 
-  val command = Command(
-    name = "tracer",
-    header = "Launch Langoustine Tracer"
-  ) {
-    config
-  }
+    val traceCommand = Command(
+      name = "trace",
+      header =
+        "Tracing mode - runs your LSP, proxies all the requests,\n and gives you a pretty UI to look at"
+    )(lspOpt)
+      .map(TraceConfig.apply)
+      .map(Mode.Trace(_))
+
+    val replayCommand = Command(
+      name = "replay",
+      header =
+        "Replay a tracer snapshot (usually a `*.jsonl.gz` file in the interface"
+    )(pathOpt)
+      .map(ReplayConfig.apply)
+      .map(Mode.Replay(_))
+
+    val modeCommand =
+      Opts.subcommands(traceCommand, replayCommand).orElse(traceCommand.options)
+
+    val bind = (portOpt, hostOpt).mapN(BindConfig.apply)
+
+    val config = (modeCommand, bind).mapN(Config.apply)
+
+    val command = Command(
+      name = "tracer",
+      header = "Langoustine Tracer"
+    ) {
+      config
+    }
+  end params
 end Config

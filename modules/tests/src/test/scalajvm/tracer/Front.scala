@@ -14,6 +14,10 @@ import org.http4s.client.*
 import TracerServer.{*, given}
 import org.http4s.Uri
 import org.http4s.client.websocket.*
+import langoustine.tracer.codecs.given
+
+import org.http4s.dsl.io.*
+import org.http4s.client.dsl.io.*
 
 case class Front(client: Client[IO], base: Uri, ws: WSClient[IO]):
   val wsBase = base.copy(scheme = Some(Uri.Scheme.unsafeFromString("ws")))
@@ -46,10 +50,13 @@ case class Front(client: Client[IO], base: Uri, ws: WSClient[IO]):
     )
 
   def logs =
-    client.expect[Vector[String]](base.withPath("/api/logs"))
+    client.expect[Vector[LogMessage]](base.withPath("/api/logs"))
 
   def allRaw =
     client.expect[Vector[RawMessage]](base.withPath(s"/api/raw/all"))
+
+  def snapshot(name: Option[String]) =
+    client.stream(GET(base.withPath("/api/snapshot")))
 
   private def cid(c: MessageId) = c match
     case MessageId.NumberId(n) => n.toString

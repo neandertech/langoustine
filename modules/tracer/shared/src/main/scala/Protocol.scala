@@ -19,8 +19,17 @@ package langoustine.tracer
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 import com.github.plokhotnyuk.jsoniter_scala.macros.*
 
-import jsonrpclib.*
 import scala.util.Try
+import jsonrpclib.{Payload, ErrorPayload}
+
+case class ReceivedMessage(
+    timestamp: Long,
+    raw: RawMessage,
+    decoded: LspMessage
+)
+
+object ReceivedMessage:
+  given JsonValueCodec[ReceivedMessage] = JsonCodecMaker.make
 
 case class RawMessage(
     jsonrpc: String,
@@ -31,61 +40,85 @@ case class RawMessage(
     id: Option[MessageId] = None
 )
 
+object RawMessage:
+  import com.github.plokhotnyuk.jsoniter_scala.macros.*
+
+  given JsonValueCodec[RawMessage] = JsonCodecMaker.make
+
+  def create(
+      method: Option[String] = None,
+      result: Option[Payload] = None,
+      error: Option[ErrorPayload] = None,
+      params: Option[Payload] = None,
+      id: Option[MessageId] = None
+  ) =
+    RawMessage("2.0", method, result, error, params, id)
+end RawMessage
+
 enum Direction:
   case ToServer, ToClient
 
+enum LogMessage(val value: String):
+  case Window(override val value: String, timestamp: Long)
+      extends LogMessage(value)
+  case Stderr(override val value: String, timestamp: Long)
+      extends LogMessage(value)
+
+object LogMessage:
+  given JsonValueCodec[LogMessage]         = JsonCodecMaker.make
+  given JsonValueCodec[Vector[LogMessage]] = JsonCodecMaker.make
+
 enum TracerEvent:
-  case LogLine(line: String)
-  case LogLines(lines: Vector[String])
+  case LogLines(lines: Vector[LogMessage])
   case Update
 
 object TracerEvent:
   given JsonValueCodec[TracerEvent] = JsonCodecMaker.make
 
-enum Message(val id: MessageId):
+enum LspMessage(val id: MessageId):
   case Request(method: String, override val id: MessageId, responded: Boolean)
-      extends Message(id)
+      extends LspMessage(id)
 
   case Response(override val id: MessageId, method: Option[String])
-      extends Message(id)
+      extends LspMessage(id)
 
   case Notification(
       generatedId: MessageId,
       method: String,
       direction: Direction
-  ) extends Message(generatedId)
+  ) extends LspMessage(generatedId)
 
   def methodName: Option[String] = this match
     case r: Request      => Some(r.method)
     case r: Notification => Some(r.method)
     case r: Response     => r.method
 
-end Message
+end LspMessage
 
-object Message:
-  given JsonValueCodec[Message] = JsonCodecMaker.make
+object LspMessage:
+  given JsonValueCodec[LspMessage] = JsonCodecMaker.make
 
   def from(
       raw: RawMessage,
       direction: Direction,
       generatedId: MessageId
-  ): Option[Message] =
+  ): Option[LspMessage] =
     raw.id match
       // notification
       case None =>
         raw.method.map(
-          Message.Notification(generatedId, _, direction)
+          LspMessage.Notification(generatedId, _, direction)
         )
       case Some(id) =>
         direction match
           case Direction.ToServer =>
-            raw.method.map(Message.Request.apply(_, id, responded = false))
+            raw.method.map(LspMessage.Request.apply(_, id, responded = false))
           case Direction.ToClient =>
             raw.method match
-              case None       => Some(Message.Response(id, None))
+              case None       => Some(LspMessage.Response(id, None))
               case Some(what) => None
 
-end Message
+end LspMessage
 
 enum MessageId:
   case StringId(id: String)
@@ -114,21 +147,12 @@ object MessageId:
     def nullValue: MessageId = MessageId.NullId
 end MessageId
 
-object RawMessage:
-  import com.github.plokhotnyuk.jsoniter_scala.macros.*
-
-  given JsonValueCodec[RawMessage] = JsonCodecMaker.make
-
-  def create(
-      method: Option[String] = None,
-      result: Option[Payload] = None,
-      error: Option[ErrorPayload] = None,
-      params: Option[Payload] = None,
-      id: Option[MessageId] = None
-  ) =
-    RawMessage("2.0", method, result, error, params, id)
-end RawMessage
-
-case class Summary(workingFolder: String, serverCommand: List[String])
+enum Summary:
+  case Trace(workingFolder: String, serverCommand: List[String])
+  case Replay(file: String)
 object Summary:
   given JsonValueCodec[Summary] = JsonCodecMaker.make
+
+// case class Summary(workingFolder: String, serverCommand: List[String])
+// object Summary:
+//   given JsonValueCodec[Summary] = JsonCodecMaker.make

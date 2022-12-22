@@ -340,7 +340,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
 
         if segs.size == 1 then render(req)
         else
-          val last :: reversedFront = segs.reverse
+          val last :: reversedFront = segs.reverse: @unchecked
           val front                 = reversedFront.reverse
 
           if front != currentScope then
