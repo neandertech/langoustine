@@ -86,7 +86,7 @@ object Config:
     }
 
     val debugOpt =
-      Opts.flag("verbose", short = "v", help = "Enable debug logging").orFalse
+      Opts.flag("verbose", short = "v", help = "Enable debug logging").orTrue
 
     val traceCommand = Command(
       name = "trace",

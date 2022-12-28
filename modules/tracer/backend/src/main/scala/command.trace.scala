@@ -17,9 +17,16 @@ import jsonrpclib.fs2.FS2Channel
 import langoustine.lsp.Communicate
 import org.http4s.server.Server
 import jsonrpclib.fs2.lsp
+import scala.util.NotGiven
+
+extension (s: fs2.Stream[IO, Payload])
+  def debugAs(name: String) =
+    s.evalTap(el =>
+      Logging.debug(s"[$name (payload)]: ${new String(el.array)}")
+    )
 
 extension [A](s: fs2.Stream[IO, A])
-  def debugAs(name: String) =
+  inline def debugAs(name: String)(using NotGiven[A =:= Payload]) =
     s.evalTap(el => Logging.debug(s"[$name]: $el"))
 
 def Trace(
@@ -148,7 +155,7 @@ def Trace(
           .parJoinUnbounded
 
         server
-          .concurrently(redirects)
+          .concurrently(fs2.Stream.eval(outLatch.get).void ++ redirects)
           .concurrently(channel)
           .concurrently(
             fs2.Stream.eval(comms.get.parProduct(outLatch.get)).evalMap {
