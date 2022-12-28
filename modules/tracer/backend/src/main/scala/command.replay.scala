@@ -1,13 +1,16 @@
 package langoustine.tracer
+
 import fs2.*
 import fs2.concurrent.*
 import cats.effect.*
 import cats.syntax.all.*
+import com.github.plokhotnyuk.jsoniter_scala.core.*
+import jsonrpclib.Payload
 
 def Replay(
-    inBytes: Channel[IO, Chunk[Byte]],
-    outBytes: Channel[IO, Chunk[Byte]],
-    errBytes: Channel[IO, Chunk[Byte]],
+    inBytes: Topic[IO, Payload],
+    outBytes: Topic[IO, Payload],
+    errBytes: Topic[IO, Chunk[Byte]],
     replayConfig: ReplayConfig,
     bindConfig: BindConfig,
     summary: Summary
@@ -15,14 +18,16 @@ def Replay(
   val runServer =
     TracerServer
       .create(
-        inBytes.stream.unchunks,
-        outBytes.stream.unchunks,
-        errBytes.stream.unchunks
+        inBytes.subscribe(1),
+        outBytes.subscribe(1),
+        errBytes.subscribe(1).unchunks
       )
-      .runResource(bindConfig, summary)
-      .evalTap(server => IO.consoleForIO.errorln(server.baseUri))
-
-  import com.github.plokhotnyuk.jsoniter_scala.core.*
+      .run(
+        bindConfig,
+        summary,
+        await = server =>
+          Logging.info(s"Server is ready at ${server.baseUri}") *> IO.never
+      )
 
   val sendStuff =
     fs2.io.file
@@ -36,13 +41,8 @@ def Replay(
       }
       .evalMap {
         case SnapshotItem.Message(msg) =>
-          inline def redirect(stream: Channel[IO, Chunk[Byte]]) =
-            val raw     = writeToString(msg.raw)
-            val length  = raw.getBytes.length
-            val message = s"Content-Length: $length\r\n\r\n$raw"
-
-            val chunk = Chunk.array(message.getBytes())
-            stream.send(chunk)
+          inline def redirect(stream: Topic[IO, Payload]) =
+            stream.publish1(Payload(writeToString(msg.raw).getBytes))
 
           msg.decoded match
             case LspMessage.Request(method, id, responded) =>
@@ -57,9 +57,10 @@ def Replay(
         case SnapshotItem.Log(msg) =>
           msg match
             case LogMessage.Stderr(value, timestamp) =>
-              errBytes.send(Chunk.array((value + "\n").getBytes))
+              errBytes.publish1(Chunk.array((value + "\n").getBytes))
 
       }
 
-  (sendStuff.compile.drain.background, runServer).parTupled
+  runServer.concurrently(sendStuff)
+
 end Replay

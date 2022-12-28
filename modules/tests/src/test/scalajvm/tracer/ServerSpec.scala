@@ -31,10 +31,13 @@ abstract class ServerSpec extends IOSuite:
             out = out.stream.unchunks,
             err = err.stream.unchunks
           )
-          .runResource(
+          .run(
             Config.Defaults.bind,
             Summary.Trace(System.getProperty("user.dir"), List("echo", "world"))
           )
+          .compile
+          .resource
+          .lastOrError
 
         import org.http4s.jdkhttpclient.*
 
