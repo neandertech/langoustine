@@ -128,11 +128,12 @@ object Styles:
     )
 
     object interactive:
-      val bool     = Seq(color.aqua)
-      val str      = Seq(color.lime)
+      private val aqua = color("aqua")
+      val bool     = Seq(aqua)
+      val str      = Seq(color("lime"))
       val num      = Seq(color := "pink", fontWeight.bold)
       val special  = Seq(color := "red", fontStyle.italic)
-      val showMore = Seq(textDecoration.none, fontWeight.bold, color.aqua)
+      val showMore = Seq(textDecoration.none, fontWeight.bold, aqua)
 
       val listElement = Seq(padding := "2px", margin := "0px")
   end commandTracer
@@ -155,12 +156,12 @@ object Styles:
 
     val logTypeStderr = Seq(
       fontWeight.bold,
-      color.olive
+      color("olive")
     )
 
     val logTypeWindow = Seq(
       fontWeight.bold,
-      color.aqua
+      color("aqua")
     )
   end logTracer
 

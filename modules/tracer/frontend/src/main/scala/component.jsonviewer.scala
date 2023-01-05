@@ -22,6 +22,7 @@ import com.github.plokhotnyuk.jsoniter_scala.core.*
 import jsonrpclib.*
 import scala.scalajs.js.JSON
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
+import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits._
 
 def jsonViewer(
     showing: Var[Option[LspMessage]],
@@ -166,7 +167,7 @@ def displayJson[T: JsonValueCodec](
               case "uri" if json.isString =>
                 json.asString.map {
                   case str if str.startsWith("file:") =>
-                    a(href := s"vscode://$str", str, color.aqua)
+                    a(href := s"vscode://$str", str, color("aqua"))
                   case other =>
                     onString(other)
                 }

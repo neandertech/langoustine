@@ -21,6 +21,9 @@ import com.github.plokhotnyuk.jsoniter_scala.core.*
 import scala.scalajs.js.Date
 import com.raquo.airstream.state.Var
 
+import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits._
+
+
 def commandTracer(
     bus: EventBus[Double],
     commandFilter: Var[Option[String]],
@@ -44,7 +47,7 @@ def commandTracer(
           EventStream
             .fromFuture(Api.all)
             .map(_.reverse)
-        } --> messagesState.writer,
+        } --> messagesState,
       timeline(messagesState, commandFilter, showing)
     )
   )

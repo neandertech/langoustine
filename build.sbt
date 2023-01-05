@@ -38,7 +38,7 @@ val V = new {
   val jsonrpclib      = "0.0.5"
   val fs2             = "3.4.0"
   val http4s          = "0.23.16"
-  val laminar         = "0.14.5"
+  val laminar         = "15.0.0-M1"
   val decline         = "2.4.1"
   val jsoniter        = "2.20.0"
   val weaver          = "0.8.1"
@@ -47,6 +47,7 @@ val V = new {
   val organizeImports = "0.6.0"
   val fansi           = "0.4.0"
   val detective       = "0.0.2"
+  val macrotaskExecutor = "1.1.1"
 
   /** TODO: remove all the nightly hacks once the deliciously decadent scaladoc
     * facelift is released (3.2.1?)
@@ -294,7 +295,8 @@ lazy val tracerFrontend = projectMatrix
     libraryDependencies += "com.raquo"   %%% "laminar"       % V.laminar,
     libraryDependencies += "io.circe"    %%% "circe-scalajs" % V.circe,
     libraryDependencies += "com.lihaoyi" %%% "fansi"         % V.fansi,
-    scalaJSUseMainModuleInitializer       := true
+    libraryDependencies += "org.scala-js" %%% "scala-js-macrotask-executor" % V.macrotaskExecutor,
+    scalaJSUseMainModuleInitializer := true
   )
   .jsPlatform(V.scalaVersions)
 

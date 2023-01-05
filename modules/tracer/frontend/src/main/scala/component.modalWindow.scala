@@ -17,6 +17,7 @@
 package langoustine.tracer
 
 import com.raquo.laminar.api.L.*
+import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits._
 
 def modalWindow(
     bus: EventBus[ModalCommand]
@@ -31,7 +32,7 @@ def modalWindow(
       case ModalCommand.Close => "none"
       case _                  => "block"
     },
-    documentEvents.onKeyUp
+    documentEvents(_.onKeyUp)
       .filter(_.keyCode == 27)
       .mapTo(ModalCommand.Close) --> bus.writer,
     div(

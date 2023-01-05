@@ -58,7 +58,7 @@ object Frontend:
   val messagesState: Var[Vector[LspMessage]] = Var(Vector.empty[LspMessage])
   val showing: Var[Option[LspMessage]]       = Var(Option.empty[LspMessage])
   val mode                                   = Var(JsonMode.Details)
-  val modalBus                               = EventBus[ModalCommand]()
+  val modalBus                               = EventBus[ModalCommand]
 
   val app =
     div(
@@ -93,7 +93,7 @@ object Frontend:
     )
 
   def main(args: Array[String]): Unit =
-    documentEvents.onDomContentLoaded.foreach { _ =>
+    documentEvents(_.onDomContentLoaded).foreach { _ =>
       listenToWebsockets(logs, bus, dom.window.location.host)
 
       render(dom.document.getElementById("appContainer"), app)
