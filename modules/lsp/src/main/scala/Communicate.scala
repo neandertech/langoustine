@@ -33,6 +33,19 @@ trait Communicate[F[_]]:
 object Communicate:
   import jsonrpcIntegration.given
 
+  def channel[F[_]: Monadic](channel: Channel[F]) =
+    new Communicate[F]:
+      override def notification[X <: LSPNotification](
+          notif: X,
+          in: notif.In
+      ): F[Unit] =
+        channel.notificationStub(notif.notificationMethod).apply(in)
+
+      override def request[X <: LSPRequest](req: X, in: req.In): F[req.Out] =
+        channel.simpleStub(req.requestMethod).apply(in)
+
+      override def shutdown: F[Unit] = summon[Monadic[F]].doPure(())
+
   def channel[F[_]: Monadic](channel: Channel[F], initiateShutdown: F[Unit]) =
     new Communicate[F]:
       override def notification[X <: LSPNotification](

@@ -61,8 +61,8 @@ object TracerServerSpec extends ServerSpec:
 
   test("Records stderr lines") { serv =>
     for
-      _    <- serv.send(_.err, "hello\n")
-      _    <- serv.send(_.err, "world\n")
+      _    <- serv.sendLine(_.err, "hello")
+      _    <- serv.sendLine(_.err, "world")
       logs <- serv.front.logs
     yield expect.all(logs.map(_.value).containsSlice(Seq("hello", "world")))
   }

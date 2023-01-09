@@ -13,92 +13,196 @@ import langoustine.lsp.requests.window
 import langoustine.lsp.structures.ShowMessageParams
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 import fs2.concurrent.Channel
+import jsonrpclib.fs2.FS2Channel
+import langoustine.lsp.Communicate
+import org.http4s.server.Server
+import jsonrpclib.fs2.lsp
+import scala.util.NotGiven
+
+extension (s: fs2.Stream[IO, Payload])
+  def debugAs(name: String) =
+    s.evalTap(el =>
+      Logging.debug(s"[$name (payload)]: ${new String(el.array)}")
+    )
+
+extension [A](s: fs2.Stream[IO, A])
+  inline def debugAs(name: String)(using NotGiven[A =:= Payload]) =
+    s.evalTap(el => Logging.debug(s"[$name]: $el"))
 
 def Trace(
     in: fs2.Stream[IO, Byte],
     out: fs2.Pipe[IO, Byte, Nothing],
-    inBytes: Channel[IO, Chunk[Byte]],
-    outBytes: Channel[IO, Chunk[Byte]],
-    errBytes: Channel[IO, Chunk[Byte]],
+    err: fs2.Pipe[IO, Byte, Nothing],
+    inBytes: Topic[IO, Payload],
+    outBytes: Topic[IO, Payload],
+    errBytes: Topic[IO, Chunk[Byte]],
     outLatch: Deferred[IO, org.http4s.Uri],
     exits: Deferred[IO, Boolean],
     traceConfig: TraceConfig,
     bindConfig: BindConfig,
     summary: Summary
 ) =
-  langoustine.ChildProcess.resource[IO](traceConfig.cmd.toList*).flatMap {
-    child =>
+  fs2.Stream.eval(IO.deferred[Communicate[IO]]).flatMap { comms =>
+    langoustine.ChildProcess
+      .spawn[IO](traceConfig.cmd.toList*)
+      .flatMap { child =>
 
-      import langoustine.lsp.jsonrpcIntegration.given
+        import langoustine.lsp.jsonrpcIntegration.given
 
-      def msg(uri: org.http4s.Uri) =
-        s"Langoustine Tracer started at ${uri}"
+        def log(msg: String) =
+          errBytes.publish1(Chunk.array(("[tracer] " + msg + "\n").getBytes))
 
-      def sendHello(uri: org.http4s.Uri) =
-        val params = ShowMessageParams(
-          langoustine.lsp.enumerations.MessageType.Info,
-          msg(uri)
-        )
-        val serialised = jsonrpclib.Codec.encode(params)
-        val asStr      = writeToStringReentrant(serialised)
-        val preamble =
-          s"""{"method": "window/showMessage", "params": $asStr}"""
-        val length  = preamble.getBytes.length
-        val message = s"Content-Length: $length\r\n\r\n$preamble"
+        import jsonrpclib.fs2.*
 
-        fs2.Stream
-          .chunk(Chunk.array(message.getBytes))
-          .through(out)
-          .compile
-          .drain
-      end sendHello
+        val inPayloads  = inBytes.subscribe(1024)
+        val outPayloads = outBytes.subscribe(1024)
+        val errStream   = errBytes.subscribe(1024)
 
-      def log(msg: String) =
-        errBytes.send(Chunk.array(("[tracer] " + msg + "\n").getBytes))
+        val channel = FS2Channel[IO](2048, None).flatMap { rpcChannel =>
+          val communicate = Communicate.channel(rpcChannel, IO.unit)
 
-      val redirectInput =
-        in.chunks
-          .evalTap(inBytes.send)
-          .unchunks
-          .through(child.stdin)
-          .compile
-          .drain
-          .flatTap(_ =>
-            log("process stdin finished, shutting down tracer") *>
-              child.terminate *>
-              exits.complete(true)
-          )
-          .background
+          val readIn = inPayloads
+            .debugAs("payloads coming in")
+            .filter { p =>
+              val raw = readFromArrayReentrant[RawMessage](
+                p.array
+              )
 
-      val redirectOutput =
-        (outLatch.get.flatMap(sendHello) *>
-          child.stdout.chunks
-            .evalTap(outBytes.send)
-            .unchunks
+              raw.method.isEmpty || raw.method
+                .exists(_.startsWith("langoustine/"))
+
+            }
+            .evalTap { payload =>
+              Logging.info(new String(payload.array))
+            }
+            .through(rpcChannel.input)
+
+          val writeOut = rpcChannel.output
+            .debugAs("payloads going out")
+            .through(outBytes.publish)
+
+          fs2.Stream.eval(comms.complete(communicate)) ++
+            readIn
+              .concurrently(writeOut)
+        }
+
+        val captureStdin =
+          in
+            .through(lsp.decodePayloads)
+            .debugAs("stdin LSP payloads")
+            .through(inBytes.publish)
+            .onFinalize(
+              Logging.info("process stdin finished, shutting down tracer") *>
+                child.terminate *>
+                exits.complete(true).void
+            )
+
+        val redirectStdin =
+          inPayloads
+            .debugAs("writing to child stdin")
+            .through(lsp.encodePayloads)
+            .through(child.stdin)
+
+        val captureStdout =
+          child.stdout
+            .through(lsp.decodePayloads)
+            .debugAs("reading from child's stdout")
+            .through(outBytes.publish)
+
+        val redirectStdout =
+          outPayloads
+            .debugAs("writing to real stdout")
+            .through(lsp.encodePayloads)
             .through(out)
-            .compile
-            .drain
-            .flatTap(_ => log("process stdout finished"))).background
+            .onFinalize(Logging.info("process stdout finished").void)
 
-      val redirectLogs =
-        child.stderr.chunks
-          .evalTap(errBytes.send)
-          .compile
-          .drain
-          .flatTap(_ => log("process stderr finished"))
-          .background
+        val captureStderr =
+          child.stderr.chunks
+            .through(errBytes.publish)
+            .onFinalize(Logging.info("process stderr finished").void)
 
-      val server = TracerServer
-        .create(
-          inBytes.stream.unchunks,
-          outBytes.stream.unchunks,
-          errBytes.stream.unchunks
-        )
-        .runResource(bindConfig, summary)
-        .evalTap(server =>
-          IO.consoleForIO.errorln(msg(server.baseUri)) *>
-            outLatch.complete(server.baseUri)
-        )
+        val redirectStderr =
+          errStream
+            .debugAs("writing to real stderr")
+            .unchunks
+            .through(err)
 
-      (redirectInput, redirectOutput, redirectLogs).parTupled *> server
+        val server =
+          TracerServer
+            .create(
+              inPayloads,
+              outPayloads,
+              errStream.unchunks
+            )
+            .run(
+              bindConfig,
+              summary,
+              await = server =>
+                outLatch.complete(server.baseUri).attempt.void *>
+                  Logging.info(s"Server started at ${server.baseUri}") *>
+                  exits.get.void
+            )
+
+        val redirects = fs2
+          .Stream(
+            captureStdin.void,
+            captureStdout.void,
+            captureStderr.void,
+            redirectStdin.void,
+            redirectStderr.void,
+            redirectStdout.void
+          )
+          .parJoinUnbounded
+
+        server
+          .concurrently(fs2.Stream.eval(outLatch.get).void ++ redirects)
+          .concurrently(channel)
+          .concurrently(
+            fs2.Stream.eval(comms.get.parProduct(outLatch.get)).evalMap {
+              (comm, serverUri) =>
+                import langoustine.lsp.all.*
+                if canOpenBrowser then
+
+                  val open =
+                    MessageActionItem(
+                      s"Open $serverUri in the browser"
+                    )
+                  val nothing = MessageActionItem("Nothing")
+
+                  comm
+                    .request(
+                      window.showMessageRequest,
+                      ShowMessageRequestParams(
+                        langoustine.lsp.enumerations.MessageType.Info,
+                        message =
+                          s"Langoustine tracer has started on $serverUri, what would you like to do?",
+                        actions = Opt(
+                          Vector(
+                            open,
+                            nothing
+                          )
+                        )
+                      )
+                    )
+                    .flatTap { out =>
+                      Logging.info(out.toString) >> {
+                        if out == Opt(open) then
+                          openBrowser(serverUri).attempt
+                            .flatMap(r => Logging.info(r.toString))
+                        else IO.unit
+                      }
+                    }
+                else
+                  comm.notification(
+                    window.showMessage,
+                    ShowMessageParams(
+                      `type` = MessageType.Info,
+                      message = s"Langoustine tracer is live at $serverUri"
+                    )
+                  )
+                end if
+            }
+          )
+
+      }
   }

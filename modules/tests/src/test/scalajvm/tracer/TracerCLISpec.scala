@@ -45,7 +45,7 @@ object TracerCLISpec extends weaver.SimpleIOSuite:
 
     Config.command.parse(lspCommand.toList) match
       case Left(value) => failure(s"got $value")
-      case Right(Config(Mode.Trace(TraceConfig(cmd)), bind)) =>
+      case Right(Config(Mode.Trace(TraceConfig(cmd)), bind, _)) =>
         expect.all(
           bind.port == Defaults.port,
           bind.host == Defaults.host,

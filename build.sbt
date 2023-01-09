@@ -46,6 +46,7 @@ val V = new {
   val http4sJdkClient = "0.8.0"
   val organizeImports = "0.6.0"
   val fansi           = "0.4.0"
+  val detective       = "0.0.2"
 
   /** TODO: remove all the nightly hacks once the deliciously decadent scaladoc
     * facelift is released (3.2.1?)
@@ -232,7 +233,8 @@ lazy val tracer = projectMatrix
     libraryDependencies += "org.http4s"   %%% "http4s-dsl"          % V.http4s,
     libraryDependencies += "com.monovore" %%% "decline"             % V.decline,
     libraryDependencies += "com.outr"     %%% "scribe-cats"         % V.scribe,
-    Compile / doc / sources                := Seq.empty,
+    libraryDependencies += "com.indoorvivants.detective" %% "platform" % V.detective,
+    Compile / doc / sources := Seq.empty,
     // embedding frontend in backend's resources
     Compile / resourceGenerators += {
       Def.task[Seq[File]] {
