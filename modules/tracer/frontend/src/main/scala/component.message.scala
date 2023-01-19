@@ -75,7 +75,7 @@ def renderNotification(
   div(
     select(nt, showing),
     Styles.timeline.row,
-    if (nt.direction == Direction.ToClient)
+    if nt.direction == Direction.ToClient
     then fromServer
     else fromClient,
     button(
