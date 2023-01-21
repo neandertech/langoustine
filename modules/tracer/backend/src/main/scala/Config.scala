@@ -30,7 +30,7 @@ enum Mode:
 
 case class BindConfig(port: Port, host: Host)
 
-case class Config(mode: Mode, bind: BindConfig)
+case class Config(mode: Mode, bind: BindConfig, debug: Boolean)
 
 object Config:
   /** Create a config instance with all optional parameters set to their default
@@ -41,12 +41,13 @@ object Config:
     *   config
     */
   def trace(lspCommand: NonEmptyList[String]): Config =
-    Config(Mode.Trace(TraceConfig(lspCommand)), Defaults.bind)
+    Config(Mode.Trace(TraceConfig(lspCommand)), Defaults.bind, false)
 
   def replay(path: fs2.io.file.Path): Config =
     Config(
       Mode.Replay(ReplayConfig(path)),
-      Defaults.bind
+      Defaults.bind,
+      false
     )
 
   object Defaults:
@@ -84,6 +85,9 @@ object Config:
       fs2.io.file.Path(raw)
     }
 
+    val debugOpt =
+      Opts.flag("verbose", short = "v", help = "Enable debug logging").orFalse
+
     val traceCommand = Command(
       name = "trace",
       header =
@@ -105,7 +109,7 @@ object Config:
 
     val bind = (portOpt, hostOpt).mapN(BindConfig.apply)
 
-    val config = (modeCommand, bind).mapN(Config.apply)
+    val config = (modeCommand, bind, debugOpt).mapN(Config.apply)
 
     val command = Command(
       name = "tracer",

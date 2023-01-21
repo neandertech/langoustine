@@ -25,11 +25,10 @@ case class State(
     }
 
   def hydrateFrom(
-      stream: fs2.Stream[IO, Byte],
+      stream: fs2.Stream[IO, Payload],
       direction: Direction
   ): fs2.Stream[cats.effect.IO, Received[RawMessage]] =
     stream
-      .through(lsp.decodePayloads[IO])
       .evalMap(decodeRaw)
       .collect { case Some(v) =>
         v
@@ -89,7 +88,7 @@ case class State(
                             else IO.unit
                           }
                           .handleErrorWith { err =>
-                            Logging.io.error(
+                            Logging.error(
                               s"Failed to decode ${rawMessage.value} as window/logMessage",
                               err
                             )

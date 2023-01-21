@@ -16,71 +16,49 @@
 
 package langoustine.tracer
 
-import cats.effect.IO
-import cats.effect.std.Console
-import cats.effect.Ref
-import cats.effect.kernel.Clock
-import com.comcast.ip4s.*
-import com.github.plokhotnyuk.jsoniter_scala.core.*
-import com.github.plokhotnyuk.jsoniter_scala.macros.*
-import fs2.concurrent.Channel
-import fs2.concurrent.SignallingRef
-import fs2.text
-import jsonrpclib.Codec
-import jsonrpclib.Payload
-import jsonrpclib.fs2.lsp
-import org.http4s.*
-import org.http4s.HttpApp
-import org.http4s.dsl.*
-import org.http4s.ember.server.EmberServerBuilder
-import org.http4s.headers.`Content-Type`
-import org.http4s.server.Router
-import org.http4s.server.websocket.WebSocketBuilder2
-import org.http4s.websocket.WebSocketFrame
-import scala.concurrent.duration.*
-import cats.effect.kernel.Resource
-import cats.effect.std.Random
-import cats.effect.std.UUIDGen
-import java.util.UUID
-import org.http4s.server.middleware.ErrorHandling
+import cats.effect.*
 import cats.syntax.all.*
-import cats.data.Kleisli
+import fs2.text
 import org.http4s.server.middleware.ErrorHandling
-import TracerServer.{*, given}
-import org.http4s.server.middleware.GZip
-import org.typelevel.ci.CIString
-import org.http4s.dsl.impl.OptionalQueryParamMatcher
-import org.http4s.dsl.impl.OptionalQueryParamDecoderMatcher
+import org.http4s.{HttpRoutes, HttpApp}
+import cats.data.Kleisli
+import org.http4s.server.websocket.WebSocketBuilder2
+import org.http4s.ember.server.EmberServerBuilder
+import concurrent.duration.*
+import org.http4s.server
+import jsonrpclib.Payload
 
 class TracerServer private (
-    in: fs2.Stream[IO, Byte],
-    out: fs2.Stream[IO, Byte],
+    in: fs2.Stream[IO, Payload],
+    out: fs2.Stream[IO, Payload],
     err: fs2.Stream[IO, Byte]
 ):
 
-  def runResource(config: BindConfig, summary: Summary) =
-    Resource.eval(State.create).flatMap { state =>
-      val run = Server(
-        wbs =>
-          ErrorHandling
-            .httpApp(handleErrors(api(wbs, state, summary))),
-        config
-      )
+  def run(
+      config: BindConfig,
+      summary: Summary,
+      await: org.http4s.server.Server => IO[Unit]
+  ) =
+    fs2.Stream.eval(State.create).flatMap { state =>
+      val run =
+        fs2.Stream.resource(
+          Server(
+            wbs =>
+              ErrorHandling
+                .httpApp[IO](handleErrors(api(wbs, state, summary))),
+            config
+          )
+        )
 
-      val dump = dumpRequests(state)
-        .concurrently(dumpResponses(state))
+      val dumpRequests  = state.hydrateFrom(in, Direction.ToServer)
+      val dumpResponses = state.hydrateFrom(out, Direction.ToClient)
+
+      val dump = dumpRequests
+        .concurrently(dumpResponses)
         .concurrently(dumpLogs(state))
-        .compile
-        .drain
-        .background
 
-      dump *> run
+      run.evalMap(await).concurrently(dump)
     }
-
-  private def dumpRequests(state: State) =
-    state.hydrateFrom(in, Direction.ToServer)
-  private def dumpResponses(state: State) =
-    state.hydrateFrom(out, Direction.ToClient)
 
   private def dumpLogs(state: State) =
     err
@@ -101,7 +79,7 @@ class TracerServer private (
 
   private def handleErrors(routes: HttpRoutes[IO]) =
     routes.orNotFound.onError { exc =>
-      Kleisli(request => Console[IO].errorln(s"FAILED $request: $exc"))
+      Kleisli(request => Logging.error(s"FAILED $request: $exc"))
     }
 
   import org.http4s.dsl.io.*
@@ -109,12 +87,12 @@ class TracerServer private (
   private def Server(
       app: WebSocketBuilder2[IO] => HttpApp[IO],
       config: BindConfig
-  ): Resource[cats.effect.IO, server.Server] =
+  ): Resource[cats.effect.IO, org.http4s.server.Server] =
     EmberServerBuilder
       .default[IO]
       .withPort(config.port)
       .withHost(config.host)
-      .withShutdownTimeout(1.second)
+      .withShutdownTimeout(100.millis)
       .withHttpWebSocketApp(app)
       .build
 
@@ -122,8 +100,8 @@ end TracerServer
 
 object TracerServer:
   def create(
-      in: fs2.Stream[IO, Byte],
-      out: fs2.Stream[IO, Byte],
+      in: fs2.Stream[IO, Payload],
+      out: fs2.Stream[IO, Payload],
       err: fs2.Stream[IO, Byte]
   ): TracerServer =
     TracerServer(in, out, err)

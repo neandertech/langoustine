@@ -15,23 +15,23 @@ import org.http4s.client.*
 import TracerServer.{*, given}
 import org.http4s.Uri
 import org.http4s.client.websocket.*
+import _root_.fs2.concurrent.Topic
 
 case class Feed(
-    in: Chan[IO, Chunk[Byte]],
-    out: Chan[IO, Chunk[Byte]],
-    err: Chan[IO, Chunk[Byte]],
+    in: Topic[IO, Payload],
+    out: Topic[IO, Payload],
+    err: Topic[IO, Chunk[Byte]],
     front: Front,
     genId: IO[Option[MessageId]]
 ):
-  def send(f: this.type => Chan[IO, Chunk[Byte]], rm: RawMessage) =
+  def send(f: this.type => Topic[IO, Payload], rm: RawMessage) =
     val ser = writeToStringReentrant(rm)
-    val str = s"Content-Length: ${ser.getBytes.length}\r\n\r\n$ser"
 
-    f(this).send(Chunk.array(str.getBytes())).void
+    f(this).publish1(Payload(ser.getBytes()))
 
-  def send(f: this.type => Chan[IO, Chunk[Byte]], str: String) =
-    f(this).send(Chunk.array(str.getBytes))
+  def send(f: this.type => Topic[IO, Chunk[Byte]], str: String) =
+    f(this).publish1(Chunk.array(str.getBytes))
 
-  def sendLine(f: this.type => Chan[IO, Chunk[Byte]], str: String) =
-    f(this).send(Chunk.array((str + "\n").getBytes))
+  def sendLine(f: this.type => Topic[IO, Chunk[Byte]], str: String) =
+    f(this).publish1(Chunk.array((str + "\n").getBytes))
 end Feed

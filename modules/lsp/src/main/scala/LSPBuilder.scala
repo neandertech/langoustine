@@ -55,11 +55,11 @@ trait LSPBuilder[F[_]]:
 
   def build(comm: Communicate[F]): List[Endpoint[F]]
 
-  def bind[T <: Channel[F]](channel: T, shutdown: F[Unit])(using
+  def bind[T <: Channel[F]](channel: T, communicate: Communicate[F])(using
       Monadic[F]
   ): F[T] =
     val Fm        = summon[Monadic[F]]
-    val endpoints = build(Communicate.channel(channel, shutdown))
+    val endpoints = build(communicate)
 
     endpoints match
       case Nil => Fm.doPure(channel)
@@ -71,6 +71,12 @@ trait LSPBuilder[F[_]]:
 
         Fm.doFlatMap(curr)(_ => Fm.doPure(channel))
     end match
+  end bind
+
+  def bind[T <: Channel[F]](channel: T, shutdown: F[Unit])(using
+      Monadic[F]
+  ): F[T] =
+    bind(channel, Communicate.channel(channel, shutdown))
   end bind
 
 end LSPBuilder

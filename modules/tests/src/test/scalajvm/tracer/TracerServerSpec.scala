@@ -2,7 +2,6 @@ package tests.tracer
 
 import langoustine.tracer.*
 import TracerServer.{*, given}
-import fs2.concurrent.Channel as Chan
 import cats.effect.*
 import cats.syntax.all.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
@@ -10,10 +9,10 @@ import java.util.Base64
 import org.http4s.Uri
 import org.http4s.client.*
 import org.http4s.client.websocket.*
+import scala.concurrent.duration.*
 import weaver.*
 
 object TracerServerSpec extends ServerSpec:
-  import scala.concurrent.duration.*
 
   test("Records incoming requests") { serv =>
     for
@@ -42,7 +41,6 @@ object TracerServerSpec extends ServerSpec:
   test("Records outgoing responses") { serv =>
     for
       msg1 <- serv.genId.map(id => RawMessage.create(id = id))
-
       msg2 <- serv.genId.map(id => RawMessage.create(id = id))
 
       _ <- serv.send(_.out, msg1)
@@ -61,8 +59,8 @@ object TracerServerSpec extends ServerSpec:
 
   test("Records stderr lines") { serv =>
     for
-      _    <- serv.send(_.err, "hello\n")
-      _    <- serv.send(_.err, "world\n")
+      _    <- serv.sendLine(_.err, "hello")
+      _    <- serv.sendLine(_.err, "world")
       logs <- serv.front.logs
     yield expect.all(logs.map(_.value).containsSlice(Seq("hello", "world")))
   }

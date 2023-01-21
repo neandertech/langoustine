@@ -19,6 +19,7 @@ package tracer
 
 import jsonrpclib.fs2.*
 import cats.effect.*
+import cats.effect.implicits.*
 import cats.syntax.all.*
 import fs2.Chunk
 
@@ -32,7 +33,7 @@ import langoustine.lsp.structures.ShowMessageParams
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 import fs2.concurrent.Channel
 
-object Main extends IOApp:
+object LangoustineTracer extends IOApp:
   def run(args: List[String]): IO[ExitCode] =
     Config.command.parse(args, sys.env) match
       case Left(help) =>
@@ -41,61 +42,82 @@ object Main extends IOApp:
         else IO.consoleForIO.errorln(help).as(ExitCode.Error)
 
       case Right(c) =>
-        Launch(c)
+        Launch(c, in = stdin(2048)).compile.drain.as(ExitCode.Success)
 
   end run
+
+  private def stdin[F[_]](
+      bufSize: Int
+  )(implicit F: Async[F]): fs2.Stream[F, Byte] =
+    fs2.Stream.eval(Channel.synchronous[F, Chunk[Byte]]).flatMap { ch =>
+      fs2.Stream.bracket {
+        fs2.io
+          .readInputStream(F.blocking(System.in), bufSize, false)
+          .chunks
+          .through(ch.sendAll)
+          .compile
+          .drain
+          .start
+      } { fiber =>
+        // cancelation may hang so we leak :(
+        fiber.cancel.start.void
+      } >> ch.stream.unchunks
+    }
 
   def Launch(
       config: Config,
       in: fs2.Stream[IO, Byte] = fs2.io.stdin[IO](512),
-      out: fs2.Pipe[IO, Byte, Nothing] = fs2.io.stdout[IO]
+      out: fs2.Pipe[IO, Byte, Nothing] = fs2.io.stdout[IO],
+      err: fs2.Pipe[IO, Byte, Nothing] = fs2.io.stderr[IO]
   ) =
+    val payloadTopic =
+      fs2.concurrent.Topic[IO, Payload]
+
     val byteTopic =
-      Resource.eval(fs2.concurrent.Channel.synchronous[IO, Chunk[Byte]])
+      fs2.concurrent.Topic[IO, Chunk[Byte]]
 
     val latch =
-      Resource.eval(IO.deferred[org.http4s.Uri])
+      IO.deferred[org.http4s.Uri]
 
     val exitLatch = IO.deferred[Boolean]
 
     val currentFolder = System.getProperty("user.dir")
 
-    exitLatch
-      .flatMap { exits =>
-        (byteTopic, byteTopic, byteTopic, latch).parTupled
-          .flatMap { case (inBytes, outBytes, errBytes, outLatch) =>
-            config.mode match
-              case Mode.Replay(rc) =>
-                val summary = Summary.Replay(rc.file.toString)
-                Replay(
-                  inBytes = inBytes,
-                  outBytes = outBytes,
-                  errBytes = errBytes,
-                  replayConfig = rc,
-                  bindConfig = config.bind,
-                  summary = summary
-                )
+    if config.debug then
+      scribe.Logger.root.withMinimumLevel(scribe.Level.Debug).replace()
 
-              case Mode.Trace(tc) =>
-                val summary = Summary.Trace(currentFolder, tc.cmd.toList)
-                Trace(
-                  in = in,
-                  out = out,
-                  inBytes = inBytes,
-                  outBytes = outBytes,
-                  errBytes = errBytes,
-                  outLatch = outLatch,
-                  exits = exits,
-                  traceConfig = tc,
-                  bindConfig = config.bind,
-                  summary = summary
-                )
+    fs2.Stream
+      .eval(
+        (payloadTopic, payloadTopic, byteTopic, latch, exitLatch).parTupled
+      )
+      .flatMap { case (inBytes, outBytes, errBytes, outLatch, exits) =>
+        config.mode match
+          case Mode.Replay(rc) =>
+            Replay(
+              inBytes = inBytes,
+              outBytes = outBytes,
+              errBytes = errBytes,
+              replayConfig = rc,
+              bindConfig = config.bind,
+              summary = Summary.Replay(rc.file.toString)
+            )
 
-          }
-          .use(_ => exits.get)
+          case Mode.Trace(tc) =>
+            Trace(
+              in = in,
+              out = out,
+              err = err,
+              inBytes = inBytes,
+              outBytes = outBytes,
+              errBytes = errBytes,
+              outLatch = outLatch,
+              exits = exits,
+              traceConfig = tc,
+              bindConfig = config.bind,
+              summary = Summary.Trace(currentFolder, tc.cmd.toList)
+            )
       }
-      .as(ExitCode.Success)
 
   end Launch
 
-end Main
+end LangoustineTracer

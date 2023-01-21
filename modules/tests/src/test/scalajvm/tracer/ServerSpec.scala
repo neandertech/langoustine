@@ -1,56 +1,60 @@
 package tests.tracer
 
-import weaver.*
 import cats.effect.*
-import jsonrpclib.*
-import java.util.Base64
-import langoustine.tracer.RawMessage
-import _root_.fs2.concurrent.Channel as Chan
-import _root_.fs2.*
+import cats.effect.syntax.all.*
+import jsonrpclib.{Payload}
+import fs2.concurrent.Topic
 import cats.syntax.all.*
+import fs2.Chunk
 import langoustine.tracer.*
-import com.github.plokhotnyuk.jsoniter_scala.core.*
-import org.http4s.client.*
-import TracerServer.{*, given}
 import org.http4s.Uri
-import org.http4s.client.websocket.*
-import cats.data.NonEmptyList
 
-import com.comcast.ip4s.*
-
-abstract class ServerSpec extends IOSuite:
+abstract class ServerSpec extends weaver.IOSuite:
   type Res = Feed
   override def sharedResource: Resource[cats.effect.IO, Res] =
-    val create = Chan.synchronous[IO, Chunk[Byte]]
+    val create  = Topic[IO, Payload]
+    val channel = Topic[IO, Chunk[Byte]]
 
-    Resource.eval((create, create, create).parTupled).flatMap {
-      case (in, out, err) =>
-        val server = TracerServer
-          .create(
-            in = in.stream.unchunks,
-            out = out.stream.unchunks,
-            err = err.stream.unchunks
-          )
-          .runResource(
-            Config.Defaults.bind,
-            Summary.Trace(System.getProperty("user.dir"), List("echo", "world"))
-          )
+    Resource
+      .eval((create, create, channel, IO.deferred[Uri]).parTupled)
+      .flatMap { case (in, out, err, uri) =>
+        val server =
+          TracerServer
+            .create(
+              in = in.subscribe(1),
+              out = out.subscribe(1),
+              err = err.subscribe(1).unchunks
+            )
+            .run(
+              Config.Defaults.bind,
+              Summary
+                .Trace(System.getProperty("user.dir"), List("echo", "world")),
+              await = serv => uri.complete(serv.baseUri) *> IO.never
+            )
+            .compile
+            .drain
+            .background
 
         import org.http4s.jdkhttpclient.*
 
         val client =
-          Resource.eval(JdkHttpClient.simple[IO])
+          JdkHttpClient.simple[IO].toResource
 
-        val ws = Resource.eval(JdkWSClient.simple[IO])
+        val ws = JdkWSClient.simple[IO].toResource
 
-        val idState = Resource.eval(IO.ref(0L))
+        val idState = IO.ref(0L).toResource
 
-        (server, client, idState, ws).parMapN { case (s, c, ref, w) =>
-          val genId =
-            ref.getAndUpdate(_ + 1).map(MessageId.NumberId.apply).map(Some(_))
+        (client, idState, ws, uri.get.toResource)
+          .parMapN { case (c, ref, w, baseUri) =>
+            val genId =
+              ref
+                .getAndUpdate(_ + 1)
+                .map(MessageId.NumberId.apply)
+                .map(Some(_))
 
-          Feed(in, out, err, Front(c, s.baseUri, w), genId)
-        }
-    }
+            Feed(in, out, err, Front(c, baseUri, w), genId)
+          }
+          .parProductL(server)
+      }
   end sharedResource
 end ServerSpec
