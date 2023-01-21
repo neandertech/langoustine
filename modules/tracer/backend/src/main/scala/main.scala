@@ -46,7 +46,9 @@ object LangoustineTracer extends IOApp:
 
   end run
 
-  def stdin[F[_]](bufSize: Int)(implicit F: Async[F]): fs2.Stream[F, Byte] =
+  private def stdin[F[_]](
+      bufSize: Int
+  )(implicit F: Async[F]): fs2.Stream[F, Byte] =
     fs2.Stream.eval(Channel.synchronous[F, Chunk[Byte]]).flatMap { ch =>
       fs2.Stream.bracket {
         fs2.io

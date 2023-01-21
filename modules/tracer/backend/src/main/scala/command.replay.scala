@@ -15,7 +15,7 @@ def Replay(
     bindConfig: BindConfig,
     summary: Summary
 ) =
-  val runServer =
+  def runServer(latch: Deferred[IO, Boolean]) =
     TracerServer
       .create(
         inBytes.subscribe(1),
@@ -26,41 +26,44 @@ def Replay(
         bindConfig,
         summary,
         await = server =>
-          Logging.info(s"Server is ready at ${server.baseUri}") *> IO.never
+          Logging.info(s"Server is ready at ${server.baseUri}") *> latch
+            .complete(true) *> IO.never
       )
 
-  val sendStuff =
-    fs2.io.file
-      .readAll[IO](replayConfig.file.toNioPath, 2048)
-      .through(fs2.compression.Compression[IO].gunzip())
-      .flatMap(_.content)
-      .through(fs2.text.utf8.decode)
-      .through(fs2.text.lines)
-      .evalMap { line =>
-        IO(readFromStringReentrant[SnapshotItem](line))
-      }
-      .evalMap {
-        case SnapshotItem.Message(msg) =>
-          inline def redirect(stream: Topic[IO, Payload]) =
-            stream.publish1(Payload(writeToString(msg.raw).getBytes))
+  def sendStuff(latch: Deferred[IO, Boolean]) =
+    fs2.Stream.eval(latch.get) >>
+      fs2.io.file
+        .readAll[IO](replayConfig.file.toNioPath, 2048)
+        .through(fs2.compression.Compression[IO].gunzip())
+        .flatMap(_.content)
+        .through(fs2.text.utf8.decode)
+        .through(fs2.text.lines)
+        .evalMap { line =>
+          IO(readFromStringReentrant[SnapshotItem](line))
+        }
+        .evalMap {
+          case SnapshotItem.Message(msg) =>
+            inline def redirect(stream: Topic[IO, Payload]) =
+              stream.publish1(Payload(writeToString(msg.raw).getBytes))
 
-          msg.decoded match
-            case LspMessage.Request(method, id, responded) =>
-              redirect(inBytes)
-            case LspMessage.Response(id, method) =>
-              redirect(outBytes)
-            case LspMessage.Notification(generatedId, method, direction) =>
-              direction match
-                case Direction.ToServer => redirect(inBytes)
-                case Direction.ToClient => redirect(outBytes)
-          end match
-        case SnapshotItem.Log(msg) =>
-          msg match
-            case LogMessage.Stderr(value, timestamp) =>
-              errBytes.publish1(Chunk.array((value + "\n").getBytes))
+            msg.decoded match
+              case LspMessage.Request(method, id, responded) =>
+                redirect(inBytes)
+              case LspMessage.Response(id, method) =>
+                redirect(outBytes)
+              case LspMessage.Notification(generatedId, method, direction) =>
+                direction match
+                  case Direction.ToServer => redirect(inBytes)
+                  case Direction.ToClient => redirect(outBytes)
+            end match
+          case SnapshotItem.Log(msg) =>
+            msg match
+              case LogMessage.Stderr(value, timestamp) =>
+                errBytes.publish1(Chunk.array((value + "\n").getBytes))
 
-      }
-
-  runServer.concurrently(sendStuff)
+        }
+  fs2.Stream.eval(IO.deferred[Boolean]).flatMap { latch =>
+    runServer(latch).concurrently(sendStuff(latch))
+  }
 
 end Replay
