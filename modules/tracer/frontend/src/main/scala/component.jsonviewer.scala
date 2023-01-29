@@ -76,7 +76,7 @@ def jsonViewer(
     Styles.commandTracer.jsonViewer,
     display <-- showing.signal
       .map(_.isDefined)
-      .map(if (_) then "block" else "none"),
+      .map(if _ then "block" else "none"),
     child <-- showing.signal.flatMap {
       case None =>
         Signal.fromValue(

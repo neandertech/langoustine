@@ -36,7 +36,7 @@ def commandTracer(
     div(
       width <-- showing.signal
         .map(_.isDefined)
-        .map(if (_) then "40%" else "100%"),
+        .map(if _ then "40%" else "100%"),
       bus.events
         .debounce(500)
         .startWith(Date.now())
