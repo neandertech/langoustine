@@ -32,7 +32,7 @@ inThisBuild(
 val V = new {
   val scala           = "3.2.1"
   val scalaNightly    = "3.3.0-RC1-bin-20221209-231f9ab-NIGHTLY"
-  val scribe          = "3.10.6"
+  val scribe          = "3.10.7"
   val upickle         = "2.0.0"
   val cats            = "2.9.0"
   val jsonrpclib      = "0.0.5"
@@ -47,19 +47,10 @@ val V = new {
   val organizeImports = "0.6.0"
   val fansi           = "0.4.0"
 
-  /** TODO: remove all the nightly hacks once the deliciously decadent scaladoc
-    * facelift is released (3.2.1?)
-    */
-
-  val dynScalaVersion =
-    if (sys.env.contains("USE_SCALA_NIGHTLY")) scalaNightly
-    else scala
-
-  val jvmScalaVersions = List(dynScalaVersion)
   val scalaVersions    = List(scala)
 
   val default =
-    Seq(VirtualAxis.scalaABIVersion(dynScalaVersion), VirtualAxis.jvm)
+    Seq(VirtualAxis.scalaABIVersion(scala), VirtualAxis.jvm)
 }
 
 lazy val noPublishing = Seq(
@@ -86,19 +77,12 @@ lazy val root = project
 
 lazy val docs = project
   .in(file("target/docs"))
-  .settings(scalaVersion := V.dynScalaVersion)
+  .settings(scalaVersion := V.scala)
   .settings(docsSettings)
   .dependsOn(app.jvm(V.scala), lsp.jvm(V.scala))
   .aggregate(app.jvm(V.scala), lsp.jvm(V.scala))
   .settings(
-    ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(
-      (tracer.projectRefs ++
-        tracerShared.projectRefs ++
-        meta.projectRefs ++
-        generate.projectRefs ++
-        tracerFrontend.projectRefs ++
-        example.projectRefs)*
-    ),
+    ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(app.jvm(V.scala), lsp.jvm(V.scala)),
     Compile / unidoc := {
       val out = (Compile / unidoc).value
       val to  = (ThisBuild / baseDirectory).value / "website"
@@ -115,7 +99,7 @@ lazy val meta = projectMatrix
   .in(file("modules/meta"))
   .settings(name := "langoustine-meta")
   .defaultAxes(V.default*)
-  .jvmPlatform(V.jvmScalaVersions)
+  .jvmPlatform(V.scalaVersions)
   .jsPlatform(V.scalaVersions)
   .nativePlatform(V.scalaVersions)
   .settings(
@@ -139,7 +123,7 @@ lazy val lsp = projectMatrix
     libraryDependencies += "tech.neander"  %%% "jsonrpclib-core" % V.jsonrpclib,
     Test / fork := virtualAxes.value.contains(VirtualAxis.jvm)
   )
-  .jvmPlatform(V.jvmScalaVersions)
+  .jvmPlatform(V.scalaVersions)
   .jsPlatform(V.scalaVersions)
   .nativePlatform(V.scalaVersions)
 
@@ -155,7 +139,7 @@ lazy val app = projectMatrix
     libraryDependencies += "com.outr"     %%% "scribe-cats"    % V.scribe,
     Test / fork := virtualAxes.value.contains(VirtualAxis.jvm)
   )
-  .jvmPlatform(V.jvmScalaVersions)
+  .jvmPlatform(V.scalaVersions)
   .jsPlatform(V.scalaVersions)
   .nativePlatform(V.scalaVersions)
 
@@ -165,9 +149,9 @@ lazy val tests = projectMatrix
   .defaultAxes(V.default*)
   .settings(enableSnapshots)
   .jvmPlatform(
-    V.jvmScalaVersions,
+    V.scalaVersions,
     Seq.empty,
-    _.dependsOn(tracer.jvm(V.dynScalaVersion))
+    _.dependsOn(tracer.jvm(V.scala))
   )
   .jsPlatform(V.scalaVersions)
   .nativePlatform(V.scalaVersions)
@@ -179,13 +163,13 @@ lazy val tests = projectMatrix
     Test / fork := virtualAxes.value.contains(VirtualAxis.jvm),
     Test / envVars := Map(
       "EXAMPLE_NATIVE" -> (example.native(
-        V.dynScalaVersion
+        V.scala
       ) / Compile / nativeLink).value.toString,
       "EXAMPLE_JVM" -> (example.jvm(
-        V.dynScalaVersion
+        V.scala
       ) / Compile / assembly).value.toString,
       "EXAMPLE_JS" -> (example.js(
-        V.dynScalaVersion
+        V.scala
       ) / Compile / fastOptJS).value.data.toString
     )
   )
@@ -195,7 +179,7 @@ lazy val example = projectMatrix
   .dependsOn(app)
   .defaultAxes(V.default*)
   .settings(enableSnapshots)
-  .jvmPlatform(V.jvmScalaVersions)
+  .jvmPlatform(V.scalaVersions)
   .jsPlatform(
     V.scalaVersions,
     Seq(
@@ -215,7 +199,7 @@ lazy val generate = projectMatrix
   .settings(
     name := "generate"
   )
-  .jvmPlatform(V.jvmScalaVersions)
+  .jvmPlatform(V.scalaVersions)
   .settings(noPublishing)
 
 lazy val tracer = projectMatrix
@@ -266,7 +250,7 @@ lazy val tracer = projectMatrix
       }
     }
   )
-  .jvmPlatform(V.jvmScalaVersions)
+  .jvmPlatform(V.scalaVersions)
 
 import org.scalajs.linker.interface.Report
 lazy val frontendJS = tracerFrontend.js(V.scala)
@@ -309,7 +293,7 @@ lazy val tracerShared = projectMatrix
     )
   )
   .jsPlatform(V.scalaVersions)
-  .jvmPlatform(V.jvmScalaVersions)
+  .jvmPlatform(V.scalaVersions)
 
 val scalafixRules = Seq(
   "OrganizeImports",
