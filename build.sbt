@@ -105,7 +105,8 @@ lazy val meta = projectMatrix
   .settings(
     libraryDependencies += "com.outr"      %%% "scribe"    % V.scribe,
     libraryDependencies += "com.lihaoyi"   %%% "upickle"   % V.upickle,
-    libraryDependencies += "org.typelevel" %%% "cats-core" % V.cats
+    libraryDependencies += "org.typelevel" %%% "cats-core" % V.cats,
+    test := {}
   )
 
 lazy val lsp = projectMatrix
@@ -121,7 +122,7 @@ lazy val lsp = projectMatrix
     libraryDependencies += "com.lihaoyi"   %%% "upickle"         % V.upickle,
     libraryDependencies += "org.typelevel" %%% "cats-core"       % V.cats,
     libraryDependencies += "tech.neander"  %%% "jsonrpclib-core" % V.jsonrpclib,
-    Test / fork := virtualAxes.value.contains(VirtualAxis.jvm)
+    test := {}
   )
   .jvmPlatform(V.scalaVersions)
   .jsPlatform(V.scalaVersions)
@@ -137,7 +138,7 @@ lazy val app = projectMatrix
     libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2" % V.jsonrpclib,
     libraryDependencies += "co.fs2"       %%% "fs2-io"         % V.fs2,
     libraryDependencies += "com.outr"     %%% "scribe-cats"    % V.scribe,
-    Test / fork := virtualAxes.value.contains(VirtualAxis.jvm)
+    test := {}
   )
   .jvmPlatform(V.scalaVersions)
   .jsPlatform(V.scalaVersions)
@@ -397,3 +398,5 @@ lazy val docsSettings = Seq(
     "-snippet-compiler:compile"
   )
 )
+
+Global / concurrentRestrictions += Tags.limit(ScalaNativePlugin.autoImport.NativeTags.Link, 2)
