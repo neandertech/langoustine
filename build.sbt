@@ -43,12 +43,12 @@ val V = new {
   val jsoniter        = "2.20.3"
   val weaver          = "0.8.1"
   val circe           = "0.14.3"
-  val http4sJdkClient = "0.8.0"
+  val http4sJdkClient = "0.9.0"
   val organizeImports = "0.6.0"
   val fansi           = "0.4.0"
   val detective       = "0.0.2"
 
-  val scalaVersions    = List(scala)
+  val scalaVersions = List(scala)
 
   val default =
     Seq(VirtualAxis.scalaABIVersion(scala), VirtualAxis.jvm)
@@ -83,7 +83,10 @@ lazy val docs = project
   .dependsOn(app.jvm(V.scala), lsp.jvm(V.scala))
   .aggregate(app.jvm(V.scala), lsp.jvm(V.scala))
   .settings(
-    ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(app.jvm(V.scala), lsp.jvm(V.scala)),
+    ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(
+      app.jvm(V.scala),
+      lsp.jvm(V.scala)
+    ),
     Compile / unidoc := {
       val out = (Compile / unidoc).value
       val to  = (ThisBuild / baseDirectory).value / "website"
@@ -107,7 +110,7 @@ lazy val meta = projectMatrix
     libraryDependencies += "com.outr"      %%% "scribe"    % V.scribe,
     libraryDependencies += "com.lihaoyi"   %%% "upickle"   % V.upickle,
     libraryDependencies += "org.typelevel" %%% "cats-core" % V.cats,
-    test := {}
+    test                                    := {}
   )
 
 lazy val lsp = projectMatrix
@@ -123,7 +126,7 @@ lazy val lsp = projectMatrix
     libraryDependencies += "com.lihaoyi"   %%% "upickle"         % V.upickle,
     libraryDependencies += "org.typelevel" %%% "cats-core"       % V.cats,
     libraryDependencies += "tech.neander"  %%% "jsonrpclib-core" % V.jsonrpclib,
-    test := {}
+    test                                    := {}
   )
   .jvmPlatform(V.scalaVersions)
   .jsPlatform(V.scalaVersions)
@@ -139,7 +142,7 @@ lazy val app = projectMatrix
     libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2" % V.jsonrpclib,
     libraryDependencies += "co.fs2"       %%% "fs2-io"         % V.fs2,
     libraryDependencies += "com.outr"     %%% "scribe-cats"    % V.scribe,
-    test := {}
+    test                                   := {}
   )
   .jvmPlatform(V.scalaVersions)
   .jsPlatform(V.scalaVersions)
@@ -401,4 +404,7 @@ lazy val docsSettings = Seq(
   )
 )
 
-Global / concurrentRestrictions += Tags.limit(ScalaNativePlugin.autoImport.NativeTags.Link, 2)
+Global / concurrentRestrictions += Tags.limit(
+  ScalaNativePlugin.autoImport.NativeTags.Link,
+  2
+)
