@@ -55,13 +55,10 @@ object Opt:
   inline def empty: Opt[Nothing]    = null
   inline def apply[A](a: A): Opt[A] = a
 
-  extension [A](opt: Opt[A])
-    def toOption: Option[A] =
-      if opt != null then Some(opt.asInstanceOf[A]) else None
-
-    def fold[B](onNull: => B)(onValue: A => B): B =
-      if opt != null then onValue(opt.asInstanceOf[A]) else onNull
-  end extension
+  given [A]: TypeTest[Opt[A], A] with
+    def unapply(o: Opt[A]) =
+      if o != null then Some(o.asInstanceOf[o.type & A])
+      else None
 
   given [A]: CanEqual[Opt[A], Null] = CanEqual.canEqualAny
 
