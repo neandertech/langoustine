@@ -332,7 +332,8 @@ val CICommands = Seq(
   "compile",
   "tests/test",
   "testsJS/test",
-  "testsNative/test"
+  "testsNative/test",
+  "e2e-tests/test"
 ).mkString(";")
 
 val PrepareCICommands = Seq(
