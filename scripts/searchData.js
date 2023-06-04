@@ -2807,6 +2807,7 @@ pages = [{"l":"api/index.html#","e":false,"i":"","n":"Langoustine","t":"Langoust
 {"l":"api/langoustine/lsp/runtime/Opt$.html#empty-0","e":false,"i":"","n":"empty","t":"empty: Opt[Nothing]","d":"langoustine.lsp.runtime.Opt","k":"def"},
 {"l":"api/langoustine/lsp/runtime/Opt$.html#given_CanEqual_Opt_Null-fffffb7d","e":false,"i":"","n":"given_CanEqual_Opt_Null","t":"given_CanEqual_Opt_Null[A]: CanEqual[Opt[A], Null]","d":"langoustine.lsp.runtime.Opt","k":"given"},
 {"l":"api/langoustine/lsp/runtime/Opt$.html#given_Reader_Opt-fffff6f1","e":false,"i":"","n":"given_Reader_Opt","t":"given_Reader_Opt[A](using rd: Reader[A]): Reader[Opt[A]]","d":"langoustine.lsp.runtime.Opt","k":"given"},
+{"l":"api/langoustine/lsp/runtime/Opt$.html#given_TypeTest_Opt_A-5cc","e":false,"i":"","n":"given_TypeTest_Opt_A","t":"given_TypeTest_Opt_A[A]: given_TypeTest_Opt_A[A]","d":"langoustine.lsp.runtime.Opt","k":"given"},
 {"l":"api/langoustine/lsp/runtime/Opt$.html#given_Writer_Opt-fffffcf1","e":false,"i":"","n":"given_Writer_Opt","t":"given_Writer_Opt[A](using wt: Writer[A]): Writer[Opt[A]]","d":"langoustine.lsp.runtime.Opt","k":"given"},
 {"l":"api/langoustine/lsp/runtime/Uri$.html#","e":false,"i":"","n":"Uri","t":"Uri","d":"langoustine.lsp.runtime","k":"object"},
 {"l":"api/langoustine/lsp/runtime/Uri$.html#apply-d26","e":false,"i":"","n":"apply","t":"apply(s: String): Newtype","d":"langoustine.lsp.runtime.Uri","k":"def"},
