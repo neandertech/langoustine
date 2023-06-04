@@ -25,6 +25,7 @@ object Opt:
       else None
 
   given [A]: CanEqual[Opt[A], Null] = CanEqual.canEqualAny
+  given [A]: CanEqual[Opt[Nothing], Opt[A]] = CanEqual.canEqualAny
 
   given [A](using
       rd: Reader[A]
