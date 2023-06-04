@@ -1,6 +1,7 @@
 package tests.runtime
 
 import langoustine.lsp.runtime.*
+import scala.language.strictEquality
 
 object RuntimeTest extends weaver.FunSuite:
   test("Opt[A] is null at runtime"):
@@ -10,10 +11,19 @@ object RuntimeTest extends weaver.FunSuite:
         Opt("yo") != null
       )
 
-  test("Opt[A] contains the value at runtime"):
-      assert(Opt(25).asInstanceOf[Int] == 25) &&
-        assert(Opt("hello").asInstanceOf[String] == "hello") &&
-        assert(Opt("howdy").toOption.contains("howdy"))
+  test("Opt[A] is A at runtime"):
+      assert.all(
+        Opt(25).asInstanceOf[Int] == 25,
+        Opt("hello").asInstanceOf[String] == "hello"
+      )
+
+  test("Opt[A] <-> Option[A] interop"):
+      assert.all(
+        Opt("howdy").toOption.contains("howdy"),
+        Opt.empty.toOption.isEmpty,
+        Opt.fromOption(Some("yesss")) == Opt("yesss"),
+        Opt.fromOption(None) == Opt.empty
+      )
 
   test("Opt[A] can be pattern matched on"):
       Opt("yo") match
@@ -26,7 +36,6 @@ object RuntimeTest extends weaver.FunSuite:
         case Opt.empty => success
 
   test("Opt[A]: Checks under strict equality"):
-      import scala.language.strictEquality
       val patternMatchSome = Opt("yo") match
         case Opt(str)  => expect(str == "yo")
         case Opt.empty => failure("expected value to be present")
