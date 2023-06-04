@@ -8,7 +8,7 @@ object RuntimeTest extends weaver.FunSuite:
         Opt.empty == null,
         Opt(null) == null,
         Opt("yo") != null
-      ) 
+      )
 
   test("Opt[A] contains the value at runtime"):
       assert(Opt(25).asInstanceOf[Int] == 25) &&
@@ -24,9 +24,9 @@ object RuntimeTest extends weaver.FunSuite:
       Opt.empty match
         case Opt(str)  => failure("expected value to be present")
         case Opt.empty => success
-  import scala.language.strictEquality
 
   test("Opt[A]: Checks under strict equality"):
+      import scala.language.strictEquality
       val patternMatchSome = Opt("yo") match
         case Opt(str)  => expect(str == "yo")
         case Opt.empty => failure("expected value to be present")
