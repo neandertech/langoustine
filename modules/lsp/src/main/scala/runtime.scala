@@ -49,33 +49,3 @@ object uinteger extends OpaqueInt[uinteger]:
     def unapply(i: Any) =
       if i.isInstanceOf[Int] then Some(i.asInstanceOf[i.type & uinteger])
       else None
-
-opaque type Opt[+A] = A | Null
-object Opt:
-  inline def empty: Opt[Nothing]    = null
-  inline def apply[A](a: A): Opt[A] = a
-
-  given [A]: TypeTest[Opt[A], A] with
-    def unapply(o: Opt[A]) =
-      if o != null then Some(o.asInstanceOf[o.type & A])
-      else None
-
-  given [A]: CanEqual[Opt[A], Null] = CanEqual.canEqualAny
-
-  given [A](using
-      rd: Reader[A]
-  ): Reader[Opt[A]] =
-    jsReader.map[Opt[A]] {
-      case ujson.Null => empty
-      case other      => upickle.default.read(other)(using rd)
-    }
-
-  given [A](using
-      wt: Writer[A]
-  ): Writer[Opt[A]] =
-    jsWriter.comap[Opt[A]] {
-      case other => upickle.default.writeJs(other.asInstanceOf[A])(using wt)
-      case null  => ujson.Null
-    }
-
-end Opt
