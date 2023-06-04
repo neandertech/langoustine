@@ -30,8 +30,7 @@ inThisBuild(
 )
 
 val V = new {
-  val scala           = "3.2.2"
-  val scalaNightly    = "3.3.0-RC1-bin-20221209-231f9ab-NIGHTLY"
+  val scala           = "3.3.0"
   val scribe          = "3.11.1"
   val upickle         = "2.0.0"
   val cats            = "2.9.0"
@@ -74,6 +73,7 @@ lazy val root = project
   .aggregate(tracerShared.projectRefs*)
   .aggregate(tracerFrontend.projectRefs*)
   .aggregate(tests.projectRefs*)
+  .aggregate(`e2e-tests`.projectRefs*)
   .settings(noPublishing)
 
 lazy val docs = project
@@ -148,6 +148,34 @@ lazy val app = projectMatrix
   .jsPlatform(V.scalaVersions)
   .nativePlatform(V.scalaVersions)
 
+lazy val `e2e-tests` = projectMatrix
+  .in(file("modules/e2e-tests"))
+  .dependsOn(app)
+  .defaultAxes(V.default*)
+  .settings(enableSnapshots)
+  .jvmPlatform(
+    V.scalaVersions,
+    Seq.empty,
+    _.dependsOn(tracer.jvm(V.scala))
+  )
+  .settings(noPublishing)
+  .settings(
+    libraryDependencies += "org.http4s" %% "http4s-jdk-http-client" % V.http4sJdkClient % Test,
+    libraryDependencies += "com.disneystreaming" %%% "weaver-cats" % V.weaver % Test,
+    Test / fork := virtualAxes.value.contains(VirtualAxis.jvm),
+    Test / envVars := Map(
+      "EXAMPLE_NATIVE" -> (example.native(
+        V.scala
+      ) / Compile / nativeLink).value.toString,
+      "EXAMPLE_JVM" -> (example.jvm(
+        V.scala
+      ) / Compile / assembly).value.toString,
+      "EXAMPLE_JS" -> (example.js(
+        V.scala
+      ) / Compile / fastOptJS).value.data.toString
+    )
+  )
+
 lazy val tests = projectMatrix
   .in(file("modules/tests"))
   .dependsOn(app)
@@ -164,19 +192,7 @@ lazy val tests = projectMatrix
   .settings(
     libraryDependencies += "org.http4s" %% "http4s-jdk-http-client" % V.http4sJdkClient % Test,
     libraryDependencies += "com.disneystreaming" %%% "weaver-cats" % V.weaver % Test,
-    testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
-    Test / fork := virtualAxes.value.contains(VirtualAxis.jvm),
-    Test / envVars := Map(
-      "EXAMPLE_NATIVE" -> (example.native(
-        V.scala
-      ) / Compile / nativeLink).value.toString,
-      "EXAMPLE_JVM" -> (example.jvm(
-        V.scala
-      ) / Compile / assembly).value.toString,
-      "EXAMPLE_JS" -> (example.js(
-        V.scala
-      ) / Compile / fastOptJS).value.data.toString
-    )
+    Test / fork := virtualAxes.value.contains(VirtualAxis.jvm)
   )
 
 lazy val example = projectMatrix
@@ -196,6 +212,7 @@ lazy val example = projectMatrix
   .settings(noPublishing)
   .settings(version := "dev")
   .settings(doc / sources := Seq.empty)
+  .settings(nativeConfig ~= (_.withIncrementalCompilation(true)))
 
 lazy val generate = projectMatrix
   .in(file("modules/generate"))
@@ -315,7 +332,8 @@ val CICommands = Seq(
   "compile",
   "tests/test",
   "testsJS/test",
-  "testsNative/test"
+  "testsNative/test",
+  "e2e-tests/test"
 ).mkString(";")
 
 val PrepareCICommands = Seq(
@@ -333,7 +351,7 @@ addCommandAlias("buildWebsite", "docs/unidoc")
 addCommandAlias("preCI", PrepareCICommands)
 addCommandAlias("testTracer", "tests/testOnly tests.tracer.*")
 addCommandAlias("testCore", "tests/testOnly tests.core.*")
-addCommandAlias("testE2E", "tests/testOnly tests.e2e.*")
+addCommandAlias("testE2E", "e2e-tests/test")
 
 lazy val buildTracer = taskKey[Unit]("Build tracer and print out a path to it")
 
