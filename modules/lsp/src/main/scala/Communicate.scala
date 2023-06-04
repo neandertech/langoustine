@@ -31,12 +31,14 @@ trait Communicate[F[_]]:
   def request[X <: LSPRequest](req: X, in: req.In): F[req.Out]
   def shutdown: F[Unit]
 
-  def request[X <: LSPRequest](req: PreparedRequest[X]): F[req.Out] = 
+  def request[X <: LSPRequest](req: PreparedRequest[X]): F[req.Out] =
     this.request[X](req.x, req.in)
 
-  def notification[X <: LSPNotification](req: PreparedNotification[X]): F[Unit] = 
+  def notification[X <: LSPNotification](
+      req: PreparedNotification[X]
+  ): F[Unit] =
     this.notification[X](req.x, req.in)
-
+end Communicate
 
 object Communicate:
   import jsonrpcIntegration.given
