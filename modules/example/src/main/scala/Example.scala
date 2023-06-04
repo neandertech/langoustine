@@ -31,7 +31,4 @@ def myLSP(files: Ref[IO, Set[String]]) =
     }
 
 def sendMessage(back: Communicate[IO], msg: String) =
-  back.notification(
-    window.showMessage,
-    ShowMessageParams(MessageType.Info, msg)
-  )
+  back.notification(window.showMessage(ShowMessageParams(MessageType.Info, msg)))

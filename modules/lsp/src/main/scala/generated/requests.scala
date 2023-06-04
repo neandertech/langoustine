@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,6 +23,10 @@ import runtime.{*, given}
 // format: off
 
 object requests:
+  class PreparedRequest[X <: LSPRequest](val x: X, val in: x.In):
+    type Out = x.Out
+  class PreparedNotification[X <: LSPNotification](val x: X, val in: x.In):
+    type In = x.In
   sealed abstract class LSPRequest(val requestMethod: String):
     type In
     type Out
@@ -32,28 +36,36 @@ object requests:
     given outputWriter: Writer[Out]
     given outputReader: Reader[Out]
   
+    def apply(in: In): PreparedRequest[this.type] = PreparedRequest(this,in)
+  
   sealed abstract class LSPNotification(val notificationMethod: String):
     type In
   
     given inputReader: Reader[In]
     given inputWriter: Writer[In]
   
+    def apply(in: In): PreparedNotification[this.type] = PreparedNotification(this,in)
+  
   object $DOLLAR:
     object cancelRequest extends LSPNotification("$/cancelRequest") with codecs.notifications_$_cancelRequest:
       type In = structures.CancelParams
       
+      override def apply(in: structures.CancelParams): PreparedNotification[this.type] = super.apply(in)
     
     object logTrace extends LSPNotification("$/logTrace") with codecs.notifications_$_logTrace:
       type In = structures.LogTraceParams
       
+      override def apply(in: structures.LogTraceParams): PreparedNotification[this.type] = super.apply(in)
     
     object progress extends LSPNotification("$/progress") with codecs.notifications_$_progress:
       type In = structures.ProgressParams
       
+      override def apply(in: structures.ProgressParams): PreparedNotification[this.type] = super.apply(in)
     
     object setTrace extends LSPNotification("$/setTrace") with codecs.notifications_$_setTrace:
       type In = structures.SetTraceParams
       
+      override def apply(in: structures.SetTraceParams): PreparedNotification[this.type] = super.apply(in)
     
   object callHierarchy:
     /**
@@ -65,6 +77,7 @@ object requests:
       type In = structures.CallHierarchyIncomingCallsParams
       type Out = Opt[Vector[structures.CallHierarchyIncomingCall]]
       
+      override def apply(in: structures.CallHierarchyIncomingCallsParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  A request to resolve the outgoing calls for a given `CallHierarchyItem`.
@@ -75,6 +88,7 @@ object requests:
       type In = structures.CallHierarchyOutgoingCallsParams
       type Out = Opt[Vector[structures.CallHierarchyOutgoingCall]]
       
+      override def apply(in: structures.CallHierarchyOutgoingCallsParams): PreparedRequest[this.type] = super.apply(in)
     
   object client:
     /**
@@ -85,6 +99,7 @@ object requests:
       type In = structures.RegistrationParams
       type Out = Null
       
+      override def apply(in: structures.RegistrationParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  The `client/unregisterCapability` request is sent from the server to the client to unregister a previously registered capability
@@ -94,6 +109,7 @@ object requests:
       type In = structures.UnregistrationParams
       type Out = Null
       
+      override def apply(in: structures.UnregistrationParams): PreparedRequest[this.type] = super.apply(in)
     
   object codeAction:
     /**
@@ -105,6 +121,7 @@ object requests:
       type In = structures.CodeAction
       type Out = structures.CodeAction
       
+      override def apply(in: structures.CodeAction): PreparedRequest[this.type] = super.apply(in)
     
   object codeLens:
     /**
@@ -114,6 +131,7 @@ object requests:
       type In = structures.CodeLens
       type Out = structures.CodeLens
       
+      override def apply(in: structures.CodeLens): PreparedRequest[this.type] = super.apply(in)
     
   object completionItem:
     /**
@@ -125,6 +143,7 @@ object requests:
       type In = structures.CompletionItem
       type Out = structures.CompletionItem
       
+      override def apply(in: structures.CompletionItem): PreparedRequest[this.type] = super.apply(in)
     
   object documentLink:
     /**
@@ -136,6 +155,7 @@ object requests:
       type In = structures.DocumentLink
       type Out = structures.DocumentLink
       
+      override def apply(in: structures.DocumentLink): PreparedRequest[this.type] = super.apply(in)
     
   /**
    *  The exit event is sent from the client to the server to
@@ -144,6 +164,7 @@ object requests:
   object exit extends LSPNotification("exit") with codecs.notifications_exit:
     type In = Unit
     
+    override def apply(in: Unit): PreparedNotification[this.type] = super.apply(in)
   
   /**
    *  The initialize request is sent from the client to the server.
@@ -156,6 +177,7 @@ object requests:
     type In = structures.InitializeParams
     type Out = structures.InitializeResult
     
+    override def apply(in: structures.InitializeParams): PreparedRequest[this.type] = super.apply(in)
   
   /**
    *  The initialized notification is sent from the client to the
@@ -165,6 +187,7 @@ object requests:
   object initialized extends LSPNotification("initialized") with codecs.notifications_initialized:
     type In = structures.InitializedParams
     
+    override def apply(in: structures.InitializedParams): PreparedNotification[this.type] = super.apply(in)
   
   object inlayHint:
     /**
@@ -178,11 +201,13 @@ object requests:
       type In = structures.InlayHint
       type Out = structures.InlayHint
       
+      override def apply(in: structures.InlayHint): PreparedRequest[this.type] = super.apply(in)
     
   object notebookDocument:
     object didChange extends LSPNotification("notebookDocument/didChange") with codecs.notifications_notebookDocument_didChange:
       type In = structures.DidChangeNotebookDocumentParams
       
+      override def apply(in: structures.DidChangeNotebookDocumentParams): PreparedNotification[this.type] = super.apply(in)
     
     /**
      *  A notification sent when a notebook closes.
@@ -192,6 +217,7 @@ object requests:
     object didClose extends LSPNotification("notebookDocument/didClose") with codecs.notifications_notebookDocument_didClose:
       type In = structures.DidCloseNotebookDocumentParams
       
+      override def apply(in: structures.DidCloseNotebookDocumentParams): PreparedNotification[this.type] = super.apply(in)
     
     /**
      *  A notification sent when a notebook opens.
@@ -201,6 +227,7 @@ object requests:
     object didOpen extends LSPNotification("notebookDocument/didOpen") with codecs.notifications_notebookDocument_didOpen:
       type In = structures.DidOpenNotebookDocumentParams
       
+      override def apply(in: structures.DidOpenNotebookDocumentParams): PreparedNotification[this.type] = super.apply(in)
     
     /**
      *  A notification sent when a notebook document is saved.
@@ -210,6 +237,7 @@ object requests:
     object didSave extends LSPNotification("notebookDocument/didSave") with codecs.notifications_notebookDocument_didSave:
       type In = structures.DidSaveNotebookDocumentParams
       
+      override def apply(in: structures.DidSaveNotebookDocumentParams): PreparedNotification[this.type] = super.apply(in)
     
   /**
    *  A shutdown request is sent from the client to the server.
@@ -221,6 +249,7 @@ object requests:
     type In = Unit
     type Out = Null
     
+    override def apply(in: Unit): PreparedRequest[this.type] = super.apply(in)
   
   object telemetry:
     /**
@@ -230,6 +259,7 @@ object requests:
     object event extends LSPNotification("telemetry/event") with codecs.notifications_telemetry_event:
       type In = ujson.Value
       
+      override def apply(in: ujson.Value): PreparedNotification[this.type] = super.apply(in)
     
   object textDocument:
     /**
@@ -239,6 +269,7 @@ object requests:
       type In = structures.CodeActionParams
       type Out = Opt[Vector[(structures.Command | structures.CodeAction)]]
       
+      override def apply(in: structures.CodeActionParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  A request to provide code lens for the given text document.
@@ -247,6 +278,7 @@ object requests:
       type In = structures.CodeLensParams
       type Out = Opt[Vector[structures.CodeLens]]
       
+      override def apply(in: structures.CodeLensParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  A request to list all presentation for a color. The request's
@@ -258,6 +290,7 @@ object requests:
       type In = structures.ColorPresentationParams
       type Out = Vector[structures.ColorPresentation]
       
+      override def apply(in: structures.ColorPresentationParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  Request to request completion at a given text document position. The request's
@@ -274,6 +307,7 @@ object requests:
       type In = structures.CompletionParams
       type Out = Opt[(Vector[structures.CompletionItem] | structures.CompletionList)]
       
+      override def apply(in: structures.CompletionParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  A request to resolve the type definition locations of a symbol at a given text
@@ -286,6 +320,7 @@ object requests:
       type In = structures.DeclarationParams
       type Out = Opt[(aliases.Declaration | Vector[aliases.DeclarationLink])]
       
+      override def apply(in: structures.DeclarationParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  A request to resolve the definition location of a symbol at a given text
@@ -298,6 +333,7 @@ object requests:
       type In = structures.DefinitionParams
       type Out = Opt[(aliases.Definition | Vector[aliases.DefinitionLink])]
       
+      override def apply(in: structures.DefinitionParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  The document diagnostic request definition.
@@ -308,6 +344,7 @@ object requests:
       type In = structures.DocumentDiagnosticParams
       type Out = aliases.DocumentDiagnosticReport
       
+      override def apply(in: structures.DocumentDiagnosticParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  The document change notification is sent from the client to the server to signal
@@ -316,6 +353,7 @@ object requests:
     object didChange extends LSPNotification("textDocument/didChange") with codecs.notifications_textDocument_didChange:
       type In = structures.DidChangeTextDocumentParams
       
+      override def apply(in: structures.DidChangeTextDocumentParams): PreparedNotification[this.type] = super.apply(in)
     
     /**
      *  The document close notification is sent from the client to the server when
@@ -329,6 +367,7 @@ object requests:
     object didClose extends LSPNotification("textDocument/didClose") with codecs.notifications_textDocument_didClose:
       type In = structures.DidCloseTextDocumentParams
       
+      override def apply(in: structures.DidCloseTextDocumentParams): PreparedNotification[this.type] = super.apply(in)
     
     /**
      *  The document open notification is sent from the client to the server to signal
@@ -343,6 +382,7 @@ object requests:
     object didOpen extends LSPNotification("textDocument/didOpen") with codecs.notifications_textDocument_didOpen:
       type In = structures.DidOpenTextDocumentParams
       
+      override def apply(in: structures.DidOpenTextDocumentParams): PreparedNotification[this.type] = super.apply(in)
     
     /**
      *  The document save notification is sent from the client to the server when
@@ -351,6 +391,7 @@ object requests:
     object didSave extends LSPNotification("textDocument/didSave") with codecs.notifications_textDocument_didSave:
       type In = structures.DidSaveTextDocumentParams
       
+      override def apply(in: structures.DidSaveTextDocumentParams): PreparedNotification[this.type] = super.apply(in)
     
     /**
      *  A request to list all color symbols found in a given text document. The request's
@@ -362,6 +403,7 @@ object requests:
       type In = structures.DocumentColorParams
       type Out = Vector[structures.ColorInformation]
       
+      override def apply(in: structures.DocumentColorParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  Request to resolve a [DocumentHighlight](#DocumentHighlight) for a given
@@ -373,6 +415,7 @@ object requests:
       type In = structures.DocumentHighlightParams
       type Out = Opt[Vector[structures.DocumentHighlight]]
       
+      override def apply(in: structures.DocumentHighlightParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  A request to provide document links
@@ -381,6 +424,7 @@ object requests:
       type In = structures.DocumentLinkParams
       type Out = Opt[Vector[structures.DocumentLink]]
       
+      override def apply(in: structures.DocumentLinkParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  A request to list all symbols found in a given text document. The request's
@@ -392,6 +436,7 @@ object requests:
       type In = structures.DocumentSymbolParams
       type Out = Opt[(Vector[structures.SymbolInformation] | Vector[structures.DocumentSymbol])]
       
+      override def apply(in: structures.DocumentSymbolParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  A request to provide folding ranges in a document. The request's
@@ -403,6 +448,7 @@ object requests:
       type In = structures.FoldingRangeParams
       type Out = Opt[Vector[structures.FoldingRange]]
       
+      override def apply(in: structures.FoldingRangeParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  A request to to format a whole document.
@@ -411,6 +457,7 @@ object requests:
       type In = structures.DocumentFormattingParams
       type Out = Opt[Vector[structures.TextEdit]]
       
+      override def apply(in: structures.DocumentFormattingParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  Request to request hover information at a given text document position. The request's
@@ -421,6 +468,7 @@ object requests:
       type In = structures.HoverParams
       type Out = Opt[structures.Hover]
       
+      override def apply(in: structures.HoverParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  A request to resolve the implementation locations of a symbol at a given text
@@ -432,6 +480,7 @@ object requests:
       type In = structures.ImplementationParams
       type Out = Opt[(aliases.Definition | Vector[aliases.DefinitionLink])]
       
+      override def apply(in: structures.ImplementationParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  A request to provide inlay hints in a document. The request's parameter is of
@@ -444,6 +493,7 @@ object requests:
       type In = structures.InlayHintParams
       type Out = Opt[Vector[structures.InlayHint]]
       
+      override def apply(in: structures.InlayHintParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  A request to provide inline values in a document. The request's parameter is of
@@ -456,6 +506,7 @@ object requests:
       type In = structures.InlineValueParams
       type Out = Opt[Vector[aliases.InlineValue]]
       
+      override def apply(in: structures.InlineValueParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  A request to provide ranges that can be edited together.
@@ -466,6 +517,7 @@ object requests:
       type In = structures.LinkedEditingRangeParams
       type Out = Opt[structures.LinkedEditingRanges]
       
+      override def apply(in: structures.LinkedEditingRangeParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  A request to get the moniker of a symbol at a given text document position.
@@ -476,6 +528,7 @@ object requests:
       type In = structures.MonikerParams
       type Out = Opt[Vector[structures.Moniker]]
       
+      override def apply(in: structures.MonikerParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  A request to format a document on type.
@@ -484,6 +537,7 @@ object requests:
       type In = structures.DocumentOnTypeFormattingParams
       type Out = Opt[Vector[structures.TextEdit]]
       
+      override def apply(in: structures.DocumentOnTypeFormattingParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  A request to result a `CallHierarchyItem` in a document at a given position.
@@ -495,6 +549,7 @@ object requests:
       type In = structures.CallHierarchyPrepareParams
       type Out = Opt[Vector[structures.CallHierarchyItem]]
       
+      override def apply(in: structures.CallHierarchyPrepareParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  A request to test and perform the setup necessary for a rename.
@@ -505,6 +560,7 @@ object requests:
       type In = structures.PrepareRenameParams
       type Out = Opt[aliases.PrepareRenameResult]
       
+      override def apply(in: structures.PrepareRenameParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  A request to result a `TypeHierarchyItem` in a document at a given position.
@@ -516,6 +572,7 @@ object requests:
       type In = structures.TypeHierarchyPrepareParams
       type Out = Opt[Vector[structures.TypeHierarchyItem]]
       
+      override def apply(in: structures.TypeHierarchyPrepareParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  Diagnostics notification are sent from the server to the client to signal
@@ -524,6 +581,7 @@ object requests:
     object publishDiagnostics extends LSPNotification("textDocument/publishDiagnostics") with codecs.notifications_textDocument_publishDiagnostics:
       type In = structures.PublishDiagnosticsParams
       
+      override def apply(in: structures.PublishDiagnosticsParams): PreparedNotification[this.type] = super.apply(in)
     
     /**
      *  A request to to format a range in a document.
@@ -532,6 +590,7 @@ object requests:
       type In = structures.DocumentRangeFormattingParams
       type Out = Opt[Vector[structures.TextEdit]]
       
+      override def apply(in: structures.DocumentRangeFormattingParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  A request to resolve project-wide references for the symbol denoted
@@ -543,6 +602,7 @@ object requests:
       type In = structures.ReferenceParams
       type Out = Opt[Vector[structures.Location]]
       
+      override def apply(in: structures.ReferenceParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  A request to rename a symbol.
@@ -551,6 +611,7 @@ object requests:
       type In = structures.RenameParams
       type Out = Opt[structures.WorkspaceEdit]
       
+      override def apply(in: structures.RenameParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  A request to provide selection ranges in a document. The request's
@@ -562,6 +623,7 @@ object requests:
       type In = structures.SelectionRangeParams
       type Out = Opt[Vector[structures.SelectionRange]]
       
+      override def apply(in: structures.SelectionRangeParams): PreparedRequest[this.type] = super.apply(in)
     
     object semanticTokens:
       /**
@@ -571,6 +633,7 @@ object requests:
         type In = structures.SemanticTokensParams
         type Out = Opt[structures.SemanticTokens]
         
+        override def apply(in: structures.SemanticTokensParams): PreparedRequest[this.type] = super.apply(in)
       
         /**
          *  since 3.16.0
@@ -579,6 +642,7 @@ object requests:
           type In = structures.SemanticTokensDeltaParams
           type Out = Opt[(structures.SemanticTokens | structures.SemanticTokensDelta)]
           
+          override def apply(in: structures.SemanticTokensDeltaParams): PreparedRequest[this.type] = super.apply(in)
         
       /**
        *  since 3.16.0
@@ -587,11 +651,13 @@ object requests:
         type In = structures.SemanticTokensRangeParams
         type Out = Opt[structures.SemanticTokens]
         
+        override def apply(in: structures.SemanticTokensRangeParams): PreparedRequest[this.type] = super.apply(in)
       
     object signatureHelp extends LSPRequest("textDocument/signatureHelp") with codecs.requests_textDocument_signatureHelp:
       type In = structures.SignatureHelpParams
       type Out = Opt[structures.SignatureHelp]
       
+      override def apply(in: structures.SignatureHelpParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  A request to resolve the type definition locations of a symbol at a given text
@@ -603,6 +669,7 @@ object requests:
       type In = structures.TypeDefinitionParams
       type Out = Opt[(aliases.Definition | Vector[aliases.DefinitionLink])]
       
+      override def apply(in: structures.TypeDefinitionParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  A document will save notification is sent from the client to the server before
@@ -611,6 +678,7 @@ object requests:
     object willSave extends LSPNotification("textDocument/willSave") with codecs.notifications_textDocument_willSave:
       type In = structures.WillSaveTextDocumentParams
       
+      override def apply(in: structures.WillSaveTextDocumentParams): PreparedNotification[this.type] = super.apply(in)
     
     /**
      *  A document will save request is sent from the client to the server before
@@ -624,6 +692,7 @@ object requests:
       type In = structures.WillSaveTextDocumentParams
       type Out = Opt[Vector[structures.TextEdit]]
       
+      override def apply(in: structures.WillSaveTextDocumentParams): PreparedRequest[this.type] = super.apply(in)
     
   object typeHierarchy:
     /**
@@ -635,6 +704,7 @@ object requests:
       type In = structures.TypeHierarchySubtypesParams
       type Out = Opt[Vector[structures.TypeHierarchyItem]]
       
+      override def apply(in: structures.TypeHierarchySubtypesParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  A request to resolve the supertypes for a given `TypeHierarchyItem`.
@@ -645,6 +715,7 @@ object requests:
       type In = structures.TypeHierarchySupertypesParams
       type Out = Opt[Vector[structures.TypeHierarchyItem]]
       
+      override def apply(in: structures.TypeHierarchySupertypesParams): PreparedRequest[this.type] = super.apply(in)
     
   object window:
     /**
@@ -654,6 +725,7 @@ object requests:
     object logMessage extends LSPNotification("window/logMessage") with codecs.notifications_window_logMessage:
       type In = structures.LogMessageParams
       
+      override def apply(in: structures.LogMessageParams): PreparedNotification[this.type] = super.apply(in)
     
     /**
      *  A request to show a document. This request might open an
@@ -667,6 +739,7 @@ object requests:
       type In = structures.ShowDocumentParams
       type Out = structures.ShowDocumentResult
       
+      override def apply(in: structures.ShowDocumentParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  The show message notification is sent from a server to a client to ask
@@ -675,6 +748,7 @@ object requests:
     object showMessage extends LSPNotification("window/showMessage") with codecs.notifications_window_showMessage:
       type In = structures.ShowMessageParams
       
+      override def apply(in: structures.ShowMessageParams): PreparedNotification[this.type] = super.apply(in)
     
     /**
      *  The show message request is sent from the server to the client to show a message
@@ -684,6 +758,7 @@ object requests:
       type In = structures.ShowMessageRequestParams
       type Out = Opt[structures.MessageActionItem]
       
+      override def apply(in: structures.ShowMessageRequestParams): PreparedRequest[this.type] = super.apply(in)
     
     object workDoneProgress:
       /**
@@ -693,6 +768,7 @@ object requests:
       object cancel extends LSPNotification("window/workDoneProgress/cancel") with codecs.notifications_window_workDoneProgress_cancel:
         type In = structures.WorkDoneProgressCancelParams
         
+        override def apply(in: structures.WorkDoneProgressCancelParams): PreparedNotification[this.type] = super.apply(in)
       
       /**
        *  The `window/workDoneProgress/create` request is sent from the server to the client to initiate progress
@@ -702,6 +778,7 @@ object requests:
         type In = structures.WorkDoneProgressCreateParams
         type Out = Null
         
+        override def apply(in: structures.WorkDoneProgressCreateParams): PreparedRequest[this.type] = super.apply(in)
       
   object workspace:
     /**
@@ -711,6 +788,7 @@ object requests:
       type In = structures.ApplyWorkspaceEditParams
       type Out = structures.ApplyWorkspaceEditResult
       
+      override def apply(in: structures.ApplyWorkspaceEditParams): PreparedRequest[this.type] = super.apply(in)
     
     object codeLens:
       /**
@@ -722,6 +800,7 @@ object requests:
         type In = Unit
         type Out = Null
         
+        override def apply(in: Unit): PreparedRequest[this.type] = super.apply(in)
       
     /**
      *  The 'workspace/configuration' request is sent from the server to the client to fetch a certain
@@ -736,6 +815,7 @@ object requests:
       type In = WorkspaceConfigurationInput
       type Out = Vector[ujson.Value]
       
+      override def apply(in: WorkspaceConfigurationInput): PreparedRequest[this.type] = super.apply(in)
       /**
        *  @param items
        *  @param partialResultToken
@@ -758,6 +838,7 @@ object requests:
       type In = structures.WorkspaceDiagnosticParams
       type Out = structures.WorkspaceDiagnosticReport
       
+      override def apply(in: structures.WorkspaceDiagnosticParams): PreparedRequest[this.type] = super.apply(in)
     
       /**
        *  The diagnostic refresh request definition.
@@ -768,6 +849,7 @@ object requests:
         type In = Unit
         type Out = Null
         
+        override def apply(in: Unit): PreparedRequest[this.type] = super.apply(in)
       
     /**
      *  The configuration change notification is sent from the client to the server
@@ -777,6 +859,7 @@ object requests:
     object didChangeConfiguration extends LSPNotification("workspace/didChangeConfiguration") with codecs.notifications_workspace_didChangeConfiguration:
       type In = structures.DidChangeConfigurationParams
       
+      override def apply(in: structures.DidChangeConfigurationParams): PreparedNotification[this.type] = super.apply(in)
     
     /**
      *  The watched files notification is sent from the client to the server when
@@ -785,6 +868,7 @@ object requests:
     object didChangeWatchedFiles extends LSPNotification("workspace/didChangeWatchedFiles") with codecs.notifications_workspace_didChangeWatchedFiles:
       type In = structures.DidChangeWatchedFilesParams
       
+      override def apply(in: structures.DidChangeWatchedFilesParams): PreparedNotification[this.type] = super.apply(in)
     
     /**
      *  The `workspace/didChangeWorkspaceFolders` notification is sent from the client to the server when the workspace
@@ -793,6 +877,7 @@ object requests:
     object didChangeWorkspaceFolders extends LSPNotification("workspace/didChangeWorkspaceFolders") with codecs.notifications_workspace_didChangeWorkspaceFolders:
       type In = structures.DidChangeWorkspaceFoldersParams
       
+      override def apply(in: structures.DidChangeWorkspaceFoldersParams): PreparedNotification[this.type] = super.apply(in)
     
     /**
      *  The did create files notification is sent from the client to the server when
@@ -803,6 +888,7 @@ object requests:
     object didCreateFiles extends LSPNotification("workspace/didCreateFiles") with codecs.notifications_workspace_didCreateFiles:
       type In = structures.CreateFilesParams
       
+      override def apply(in: structures.CreateFilesParams): PreparedNotification[this.type] = super.apply(in)
     
     /**
      *  The will delete files request is sent from the client to the server before files are actually
@@ -813,6 +899,7 @@ object requests:
     object didDeleteFiles extends LSPNotification("workspace/didDeleteFiles") with codecs.notifications_workspace_didDeleteFiles:
       type In = structures.DeleteFilesParams
       
+      override def apply(in: structures.DeleteFilesParams): PreparedNotification[this.type] = super.apply(in)
     
     /**
      *  The did rename files notification is sent from the client to the server when
@@ -823,6 +910,7 @@ object requests:
     object didRenameFiles extends LSPNotification("workspace/didRenameFiles") with codecs.notifications_workspace_didRenameFiles:
       type In = structures.RenameFilesParams
       
+      override def apply(in: structures.RenameFilesParams): PreparedNotification[this.type] = super.apply(in)
     
     /**
      *  A request send from the client to the server to execute a command. The request might return
@@ -832,6 +920,7 @@ object requests:
       type In = structures.ExecuteCommandParams
       type Out = Opt[ujson.Value]
       
+      override def apply(in: structures.ExecuteCommandParams): PreparedRequest[this.type] = super.apply(in)
     
     object inlayHint:
       /**
@@ -841,6 +930,7 @@ object requests:
         type In = Unit
         type Out = Null
         
+        override def apply(in: Unit): PreparedRequest[this.type] = super.apply(in)
       
     object inlineValue:
       /**
@@ -850,6 +940,7 @@ object requests:
         type In = Unit
         type Out = Null
         
+        override def apply(in: Unit): PreparedRequest[this.type] = super.apply(in)
       
     object semanticTokens:
       /**
@@ -859,6 +950,7 @@ object requests:
         type In = Unit
         type Out = Null
         
+        override def apply(in: Unit): PreparedRequest[this.type] = super.apply(in)
       
     /**
      *  A request to list project-wide symbols matching the query string given
@@ -874,6 +966,7 @@ object requests:
       type In = structures.WorkspaceSymbolParams
       type Out = Opt[(Vector[structures.SymbolInformation] | Vector[structures.WorkspaceSymbol])]
       
+      override def apply(in: structures.WorkspaceSymbolParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  The will create files request is sent from the client to the server before files are actually
@@ -885,6 +978,7 @@ object requests:
       type In = structures.CreateFilesParams
       type Out = Opt[structures.WorkspaceEdit]
       
+      override def apply(in: structures.CreateFilesParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  The did delete files notification is sent from the client to the server when
@@ -896,6 +990,7 @@ object requests:
       type In = structures.DeleteFilesParams
       type Out = Opt[structures.WorkspaceEdit]
       
+      override def apply(in: structures.DeleteFilesParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  The will rename files request is sent from the client to the server before files are actually
@@ -907,6 +1002,7 @@ object requests:
       type In = structures.RenameFilesParams
       type Out = Opt[structures.WorkspaceEdit]
       
+      override def apply(in: structures.RenameFilesParams): PreparedRequest[this.type] = super.apply(in)
     
     /**
      *  The `workspace/workspaceFolders` is sent from the server to the client to fetch the open workspace folders.
@@ -915,6 +1011,7 @@ object requests:
       type In = Unit
       type Out = Opt[Vector[structures.WorkspaceFolder]]
       
+      override def apply(in: Unit): PreparedRequest[this.type] = super.apply(in)
     
   object workspaceSymbol:
     /**
@@ -927,4 +1024,5 @@ object requests:
       type In = structures.WorkspaceSymbol
       type Out = structures.WorkspaceSymbol
       
+      override def apply(in: structures.WorkspaceSymbol): PreparedRequest[this.type] = super.apply(in)
     

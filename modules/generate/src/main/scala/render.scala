@@ -39,6 +39,18 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
 
     nest {
 
+      line("class PreparedRequest[X <: LSPRequest](val x: X, val in: x.In):")
+      nest {
+        line("type Out = x.Out")
+      }
+
+      line(
+        "class PreparedNotification[X <: LSPNotification](val x: X, val in: x.In):"
+      )
+      nest {
+        line("type In = x.In")
+      }
+
       val requestPrelude = """
     |sealed abstract class LSPRequest(val requestMethod: String):
     |  type In
@@ -48,6 +60,8 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     |  given inputWriter: Writer[In]
     |  given outputWriter: Writer[Out]
     |  given outputReader: Reader[Out]
+    |
+    |  def apply(in: In): PreparedRequest[this.type] = PreparedRequest(this,in)
     """.stripMargin.trim
 
       requestPrelude.linesIterator.foreach(line)
@@ -60,6 +74,8 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     |
     |  given inputReader: Reader[In]
     |  given inputWriter: Writer[In]
+    |
+    |  def apply(in: In): PreparedNotification[this.type] = PreparedNotification(this,in)
     """.stripMargin.trim
 
       notificationPrelude.linesIterator.foreach(line)
@@ -140,11 +156,11 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
             rewriteAndType(at, outStructName)
           }.flatten
 
-          inStruct match
-            case Some(structure) =>
-              line(s"type In = $inStructName")
-            case _ =>
-              line(s"type In = ${renderParams(req.params)}")
+          val inTypeStr = inStruct match
+            case None        => renderParams(req.params)
+            case Some(value) => inStructName.value
+
+          line(s"type In = $inTypeStr")
 
           outStruct match
             case Some(structure) =>
@@ -153,6 +169,8 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
               line(s"type Out = ${renderType(req.result)}")
 
           line("")
+
+          line(s"override def apply(in: $inTypeStr): PreparedRequest[this.type] = super.apply(in)")
 
           summon[Context].inModified(
             _.copy(definitionScope = "requests" :: req.segs)
@@ -262,8 +280,13 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
           s"object ${req.name} extends LSPNotification(\"${req.method.value}\") with codecs.$codecTraitName:"
         )
         nest {
-          line(s"type In = ${renderParams(req.params)}")
+          val inTypeStr = renderParams(req.params)
+          line(s"type In = ${inTypeStr}")
+
           line("")
+
+          line(s"override def apply(in: $inTypeStr): PreparedNotification[this.type] = super.apply(in)")
+
           codecsOut.topLevel {
             codecsLine("")
 
