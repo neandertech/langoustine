@@ -55,6 +55,11 @@ object Opt:
   inline def empty: Opt[Nothing]    = null
   inline def apply[A](a: A): Opt[A] = a
 
+  given [A]: TypeTest[Opt[A], A] with
+    def unapply(o: Opt[A]) =
+      if o != null then Some(o.asInstanceOf[o.type & A])
+      else None
+
   given [A]: CanEqual[Opt[A], Null] = CanEqual.canEqualAny
 
   given [A](using
