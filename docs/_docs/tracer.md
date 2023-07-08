@@ -26,7 +26,7 @@ Once the tracer is launched, it'll bind itself to a random port (see below if yo
 You can make your life considerably easier by using the bootstrap command that Coursier provides:
 
 ```
-cs boostrap tech.neander:langoustine-tracer_3:latest.release -f -o langoustine-tracer
+cs bootstrap tech.neander:langoustine-tracer_3:latest.release -f -o langoustine-tracer
 
 # now you can use ./langoustine-tracer,
 # put it somewhere on your PATH so that it's globally avalable
