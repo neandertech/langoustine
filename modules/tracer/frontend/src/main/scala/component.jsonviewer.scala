@@ -78,11 +78,6 @@ def jsonViewer(
       .map(_.isDefined)
       .map(if _ then "block" else "none"),
     child <-- showing.signal.flatMap {
-      case None =>
-        Signal.fromValue(
-          i("Select any operation on the right to see its result")
-        )
-
       case Some(req: LspMessage.Request) =>
         Signal
           .fromFuture(Api.request(cid(req.id)))
@@ -125,6 +120,11 @@ def jsonViewer(
                 case (p, None) =>
                   displayPayload("Params", p)
           }
+      case None =>
+        Signal.fromValue(
+          i("Select any operation on the right to see its result")
+        )
+
     }
   )
 end jsonViewer

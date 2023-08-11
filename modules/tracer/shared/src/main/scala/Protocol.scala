@@ -58,6 +58,10 @@ end RawMessage
 enum Direction:
   case ToServer, ToClient
 
+  def reverse: Direction = this match
+    case ToServer => ToClient
+    case ToClient => ToServer
+
 enum LogMessage(val value: String):
   case Window(override val value: String, timestamp: Long)
       extends LogMessage(value)
@@ -76,11 +80,18 @@ object TracerEvent:
   given JsonValueCodec[TracerEvent] = JsonCodecMaker.make
 
 enum LspMessage(val id: MessageId):
-  case Request(method: String, override val id: MessageId, responded: Boolean)
-      extends LspMessage(id)
+  case Request(
+      method: String,
+      override val id: MessageId,
+      responded: Boolean,
+      direction: Direction
+  ) extends LspMessage(id)
 
-  case Response(override val id: MessageId, method: Option[String])
-      extends LspMessage(id)
+  case Response(
+      override val id: MessageId,
+      method: Option[String],
+      direction: Direction
+  ) extends LspMessage(id)
 
   case Notification(
       generatedId: MessageId,
@@ -109,14 +120,12 @@ object LspMessage:
         raw.method.map(
           LspMessage.Notification(generatedId, _, direction)
         )
-      case Some(id) =>
-        direction match
-          case Direction.ToServer =>
-            raw.method.map(LspMessage.Request.apply(_, id, responded = false))
-          case Direction.ToClient =>
-            raw.method match
-              case None       => Some(LspMessage.Response(id, None))
-              case Some(what) => None
+      case Some(id) => // it's a request/response
+        raw.method match
+          case None =>
+            Some(LspMessage.Response(id, None, direction))
+          case Some(value) =>
+            Some(LspMessage.Request(value, id, responded = false, direction))
 
 end LspMessage
 
@@ -152,7 +161,3 @@ enum Summary:
   case Replay(file: String)
 object Summary:
   given JsonValueCodec[Summary] = JsonCodecMaker.make
-
-// case class Summary(workingFolder: String, serverCommand: List[String])
-// object Summary:
-//   given JsonValueCodec[Summary] = JsonCodecMaker.make

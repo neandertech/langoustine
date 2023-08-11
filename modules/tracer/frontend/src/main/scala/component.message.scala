@@ -85,6 +85,11 @@ def renderNotification(
     )
   )
 
+def align(direction: Direction) =
+  if direction == Direction.ToClient
+  then fromServer
+  else fromClient
+
 def renderRequest(
     rq: Request,
     changes: EventStream[Request],
@@ -92,7 +97,7 @@ def renderRequest(
 ) =
   div(
     Styles.timeline.row,
-    fromClient,
+    align(rq.direction),
     select(rq, showing),
     button(
       Styles.timeline.requestButton,
@@ -110,7 +115,7 @@ def renderRequest(
             href := "#",
             small("see response"),
             onClick.preventDefault.mapTo(
-              Response(rq.id, method = Some(rq.method))
+              Response(rq.id, method = Some(rq.method), rq.direction.reverse)
             ) --> showing.someWriter
           )
         )
@@ -126,7 +131,7 @@ def renderResponse(
   div(
     select(rp, showing),
     Styles.timeline.row,
-    fromServer,
+    align(rp.direction),
     div(
       button(
         Styles.timeline.requestButton,
@@ -151,7 +156,14 @@ def renderResponse(
               small("see request ", b(cid(rp.id))),
               onClick.preventDefault.mapTo(
                 rp.method
-                  .map(method => Request(method, rp.id, responded = true))
+                  .map(method =>
+                    Request(
+                      method,
+                      rp.id,
+                      responded = true,
+                      rp.direction.reverse
+                    )
+                  )
               ) --> showing.writer
             )
           )

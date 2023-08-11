@@ -47,10 +47,19 @@ def Replay(
               stream.publish1(Payload(writeToString(msg.raw).getBytes))
 
             msg.decoded match
-              case LspMessage.Request(method, id, responded) =>
-                redirect(inBytes)
-              case LspMessage.Response(id, method) =>
-                redirect(outBytes)
+              case rq: LspMessage.Request =>
+                rq.direction match
+                  case Direction.ToServer =>
+                    redirect(inBytes)
+                  case Direction.ToClient =>
+                    redirect(outBytes)
+
+              case rp: LspMessage.Response =>
+                rp.direction match
+                  case Direction.ToServer =>
+                    redirect(inBytes)
+                  case Direction.ToClient =>
+                    redirect(outBytes)
               case LspMessage.Notification(generatedId, method, direction) =>
                 direction match
                   case Direction.ToServer => redirect(inBytes)

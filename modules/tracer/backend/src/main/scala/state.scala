@@ -50,23 +50,27 @@ case class State(
               .map { lspMessage =>
 
                 val withUpdatedMapping = lspMessage match
-                  case LspMessage.Request(method, id, _) =>
+
+                  case LspMessage.Request(method, id, _, _) =>
                     responseIdMapping
                       .update(_.updated(id, method))
                       .as(lspMessage)
 
-                  case LspMessage.Response(id, _) =>
+                  case LspMessage.Response(id, _, direction) =>
                     messages.update { received =>
                       received.collect {
-                        case ReceivedMessage(ts, raw, req: LspMessage.Request)
-                            if req.id == id =>
+                        case ReceivedMessage(
+                              ts,
+                              raw,
+                              req: LspMessage.Request
+                            ) if req.id == id =>
                           ReceivedMessage(ts, raw, req.copy(responded = true))
                         case other => other
                       }
                     } *>
                       responseIdMapping.get
                         .map(_.get(id))
-                        .map(LspMessage.Response(id, _))
+                        .map(LspMessage.Response(id, _, direction))
 
                   case notif: LspMessage.Notification =>
                     import langoustine.lsp.jsonrpcIntegration.given
@@ -96,6 +100,10 @@ case class State(
                       else IO.unit
 
                     special.as(notif)
+                  case other =>
+                    Logging
+                      .info(s"With updated mapping: ${other}")
+                      .as(lspMessage)
 
                 withUpdatedMapping
                   .flatMap { msg =>
