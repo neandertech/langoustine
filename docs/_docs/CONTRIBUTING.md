@@ -55,7 +55,7 @@ Scala-compatible domain model and subsequently Scala 3 code:
 4. Render enumerations and type aliases
 5. Selectively remove some types 
 
-   For example, LSPAny is basically a JSON structure and there's 
+   For example, `LSPAny` is basically a JSON structure and there's 
    no real reason to massage it (it's recursive, which makes things hard) 
    so we need to replace it with `ujson.Value` everywhere.
 

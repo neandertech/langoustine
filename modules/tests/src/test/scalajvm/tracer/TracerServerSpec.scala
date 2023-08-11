@@ -38,6 +38,27 @@ object TracerServerSpec extends ServerSpec:
     )
   }
 
+  test("Records outgoing requests and incoming responses") { serv =>
+    for
+      id <- serv.genId
+
+      serverReq1 = RawMessage.create(id = id, method = Some("window/howdy"))
+      _ <- serv.send(_.out, serverReq1)
+
+      clientResp1 = RawMessage.create(id = id)
+      _ <- serv.send(_.in, clientResp1)
+
+      resp1 <- serv.front.response(id)
+      req1  <- serv.front.request(id)
+      all   <- serv.front.allRaw
+    yield expect.all(
+      resp1 == clientResp1,
+      req1 == serverReq1,
+      all.contains(clientResp1),
+      all.contains(serverReq1)
+    )
+  }
+
   test("Records outgoing responses") { serv =>
     for
       msg1 <- serv.genId.map(id => RawMessage.create(id = id))

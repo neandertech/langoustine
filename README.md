@@ -7,9 +7,9 @@
 [![langoustine-lsp Scala version support](https://index.scala-lang.org/neandertech/langoustine/langoustine-lsp/latest.svg)](https://index.scala-lang.org/neandertech/langoustine/langoustine-lsp)
 
 * [API documentation](https://neandertech.github.io/langoustine/)
-* **SBT:** `libraryDependencies += "tech.neander" %% "langoustine-lsp" % "0.0.7"`
-* **Mill**: `ivy"tech.neander::langoustine-lsp::0.0.7"`
-* [**Scala CLI**](https://scala-cli.virtuslab.org) `//> using lib "tech.neander::langoustine-lsp::0.0.7"`
+* **SBT:** `libraryDependencies += "tech.neander" %% "langoustine-app" % "0.0.21"`
+* **Mill**: `ivy"tech.neander::langoustine-app::0.0.21"`
+* [**Scala CLI**](https://scala-cli.virtuslab.org) `//> using lib "tech.neander::langoustine-app::0.0.21"`
 
 ## What is it? 
 
