@@ -170,7 +170,9 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
 
           line("")
 
-          line(s"override def apply(in: $inTypeStr): PreparedRequest[this.type] = super.apply(in)")
+          line(
+            s"override def apply(in: $inTypeStr): PreparedRequest[this.type] = super.apply(in)"
+          )
 
           summon[Context].inModified(
             _.copy(definitionScope = "requests" :: req.segs)
@@ -285,7 +287,9 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
 
           line("")
 
-          line(s"override def apply(in: $inTypeStr): PreparedNotification[this.type] = super.apply(in)")
+          line(
+            s"override def apply(in: $inTypeStr): PreparedNotification[this.type] = super.apply(in)"
+          )
 
           codecsOut.topLevel {
             codecsLine("")
