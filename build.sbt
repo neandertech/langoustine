@@ -69,6 +69,7 @@ lazy val root = project
   .aggregate(meta.projectRefs*)
   .aggregate(lsp.projectRefs*)
   .aggregate(app.projectRefs*)
+  .aggregate(http4s.projectRefs*)
   .aggregate(tracer.projectRefs*)
   .aggregate(tracerShared.projectRefs*)
   .aggregate(tracerFrontend.projectRefs*)
@@ -142,6 +143,21 @@ lazy val app = projectMatrix
     libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2" % V.jsonrpclib,
     libraryDependencies += "co.fs2"       %%% "fs2-io"         % V.fs2,
     libraryDependencies += "com.outr"     %%% "scribe-cats"    % V.scribe,
+    test                                   := {}
+  )
+  .jvmPlatform(V.scalaVersions)
+  .jsPlatform(V.scalaVersions)
+  .nativePlatform(V.scalaVersions)
+
+lazy val http4s = projectMatrix
+  .in(file("modules/http4s"))
+  .dependsOn(lsp)
+  .defaultAxes(V.default*)
+  .settings(enableSnapshots)
+  .settings(
+    name                                   := "langoustine-http4s",
+    libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2" % V.jsonrpclib,
+    libraryDependencies += "org.http4s"   %%% "http4s-core"    % V.http4s,
     test                                   := {}
   )
   .jvmPlatform(V.scalaVersions)
@@ -365,14 +381,14 @@ import sbtwelcome.*
 
 logo :=
   raw"""
-    |    _                                       _   _            
-    |   | |                                     | | (_)           
-    |   | |     __ _ _ __   __ _  ___  _   _ ___| |_ _ _ __   ___ 
+    |    _                                       _   _
+    |   | |                                     | | (_)
+    |   | |     __ _ _ __   __ _  ___  _   _ ___| |_ _ _ __   ___
     |   | |    / _` | '_ \ / _` |/ _ \| | | / __| __| | '_ \ / _ \
     |   | |___| (_| | | | | (_| | (_) | |_| \__ \ |_| | | | |  __/
     |   |______\__,_|_| |_|\__, |\___/ \__,_|___/\__|_|_| |_|\___|
-    |                       __/ |                                 
-    |                      |___/                                  
+    |                       __/ |
+    |                      |___/
     |
     |${version.value}
     |
