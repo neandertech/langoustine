@@ -26,3 +26,13 @@ Designed to serve as _the_ testbed for Langoustine changes, it's a small primiti
 arithmetic language with associated set of tooling and built-in LSP.
 
 This particular example runs on the JVM and uses Scala CLI exclusively for packaging.
+
+## Another LSP for a toy language
+
+[Badlang](https://github.com/kubukoz/badlang)
+
+Made by [Jakub Kozłowski](https://twitter.com/kubukoz/) for various versions of his talk about 
+building a language and a LSP for it.
+
+Check out the [talk at Lambda Days 2023](https://www.youtube.com/watch?v=HF0xVrBZqtI) which also 
+showcases the usage of Langoustine Tracer.
