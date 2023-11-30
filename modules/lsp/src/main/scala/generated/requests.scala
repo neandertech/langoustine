@@ -38,6 +38,25 @@ object requests:
   
     def apply(in: In): PreparedRequest[this.type] = PreparedRequest(this,in)
   
+  abstract class CustomRequest[I, O](method: String)(using ir: ReadWriter[I], or: ReadWriter[O]) extends LSPRequest(method):
+     override type In = I
+     override type Out = O
+  
+     override given inputReader: Reader[In] = ir
+  
+     override given inputWriter: Writer[In] = ir
+  
+     override given outputWriter: Writer[Out] = or
+  
+     override given outputReader: Reader[Out] = or
+  
+  abstract class CustomNotification[I](method: String)(using ir: ReadWriter[I]) extends LSPNotification(method):
+     override type In = I
+  
+     override given inputReader: Reader[In] = ir
+  
+     override given inputWriter: Writer[In] = ir
+  
   sealed abstract class LSPNotification(val notificationMethod: String):
     type In
   

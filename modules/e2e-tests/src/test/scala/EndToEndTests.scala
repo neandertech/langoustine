@@ -14,14 +14,13 @@ import jsonrpclib.Payload
 
 import cats.syntax.all.*
 import scala.concurrent.Promise
-import cats.effect.std.Dispatcher.apply
-import cats.effect.std.Dispatcher
-import cats.effect.std.Semaphore.apply
-import cats.effect.std.Semaphore
+import cats.effect.std.*
 import cats.effect.kernel.Ref
 import cats.effect.kernel.Deferred
 import cats.effect.kernel.Resource
 import java.lang.management.ManagementFactory
+
+import langoustine.example.{MyCustomRequest, MyCustomNotification}
 
 case class Result(code: Int, stdout: List[String], stderr: List[String])
 
@@ -78,7 +77,10 @@ object EndToEndTests extends SimpleIOSuite:
       )
     )
 
-    val send = str + str1 + str2
+    val str3 = sendNotification(MyCustomNotification, "hello!")
+    val str4 = sendRequest(MyCustomRequest, "hello request!")
+
+    val send = str + str1 + str2 + str3 + str4
 
     val timeout = 5.seconds
 
@@ -117,6 +119,14 @@ object EndToEndTests extends SimpleIOSuite:
               ShowMessageParams(
                 MessageType.Info,
                 "In total, 2 files registered!"
+              ),
+              ShowMessageParams(
+                MessageType.Info,
+                "Received custom notification: hello!"
+              ),
+              ShowMessageParams(
+                MessageType.Info,
+                "Received custom request: hello request!"
               )
             ),
             initialized == Vector(
