@@ -52,19 +52,45 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
       }
 
       val requestPrelude = """
-    |sealed abstract class LSPRequest(val requestMethod: String):
-    |  type In
-    |  type Out
-    |
-    |  given inputReader: Reader[In]
-    |  given inputWriter: Writer[In]
-    |  given outputWriter: Writer[Out]
-    |  given outputReader: Reader[Out]
-    |
-    |  def apply(in: In): PreparedRequest[this.type] = PreparedRequest(this,in)
-    """.stripMargin.trim
+        |sealed abstract class LSPRequest(val requestMethod: String):
+        |  type In
+        |  type Out
+        |
+        |  given inputReader: Reader[In]
+        |  given inputWriter: Writer[In]
+        |  given outputWriter: Writer[Out]
+        |  given outputReader: Reader[Out]
+        |
+        |  def apply(in: In): PreparedRequest[this.type] = PreparedRequest(this,in)
+        """.stripMargin.trim
 
       requestPrelude.linesIterator.foreach(line)
+
+      line("")
+
+      val customRequestPrelude =
+        """
+        |abstract class CustomRequest[I, O](method: String)(using ir: ReadWriter[I], or: ReadWriter[O]) extends LSPRequest(method):
+        |   override type In = I
+        |   override type Out = O
+        |
+        |   override given inputReader: Reader[In] = ir
+        |
+        |   override given inputWriter: Writer[In] = ir
+        |
+        |   override given outputWriter: Writer[Out] = or
+        |
+        |   override given outputReader: Reader[Out] = or
+        |
+        |abstract class CustomNotification[I](method: String)(using ir: ReadWriter[I]) extends LSPNotification(method):
+        |   override type In = I
+        |
+        |   override given inputReader: Reader[In] = ir
+        |
+        |   override given inputWriter: Writer[In] = ir
+        """.stripMargin.trim
+
+      customRequestPrelude.linesIterator.foreach(line)
 
       line("")
 
@@ -170,7 +196,9 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
 
           line("")
 
-          line(s"override def apply(in: $inTypeStr): PreparedRequest[this.type] = super.apply(in)")
+          line(
+            s"override def apply(in: $inTypeStr): PreparedRequest[this.type] = super.apply(in)"
+          )
 
           summon[Context].inModified(
             _.copy(definitionScope = "requests" :: req.segs)
@@ -285,7 +313,9 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
 
           line("")
 
-          line(s"override def apply(in: $inTypeStr): PreparedNotification[this.type] = super.apply(in)")
+          line(
+            s"override def apply(in: $inTypeStr): PreparedNotification[this.type] = super.apply(in)"
+          )
 
           codecsOut.topLevel {
             codecsLine("")

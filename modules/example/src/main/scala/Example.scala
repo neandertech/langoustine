@@ -1,3 +1,5 @@
+package langoustine.example
+
 import langoustine.lsp.*
 import langoustine.lsp.all.*
 import langoustine.lsp.app.*
@@ -29,6 +31,20 @@ def myLSP(files: Ref[IO, Set[String]]) =
         sendMessage(in.toClient, s"In total, $count files registered!")
       }
     }
+    .handleNotification(MyCustomNotification) { in =>
+      sendMessage(in.toClient, s"Received custom notification: ${in.params}")
+    }
+    .handleRequest(MyCustomRequest) { in =>
+      sendMessage(in.toClient, s"Received custom request: ${in.params}") *>
+        files.get.map(_.size)
+    }
+
+object MyCustomNotification
+    extends CustomNotification[String]("custom/myNotification")
+
+object MyCustomRequest extends CustomRequest[String, Int]("custom/myRequest")
 
 def sendMessage(back: Communicate[IO], msg: String) =
-  back.notification(window.showMessage(ShowMessageParams(MessageType.Info, msg)))
+  back.notification(
+    window.showMessage(ShowMessageParams(MessageType.Info, msg))
+  )

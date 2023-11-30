@@ -150,7 +150,7 @@ lazy val app = projectMatrix
 
 lazy val `e2e-tests` = projectMatrix
   .in(file("modules/e2e-tests"))
-  .dependsOn(app)
+  .dependsOn(app, example)
   .defaultAxes(V.default*)
   .settings(enableSnapshots)
   .jvmPlatform(
