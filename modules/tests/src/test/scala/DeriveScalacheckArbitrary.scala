@@ -5,6 +5,7 @@ import shapeless3.deriving.*
 
 import langoustine.lsp.runtime.*
 import langoustine.lsp.Bijection
+import langoustine.lsp.aliases.*
 
 given [A](using inst: K0.ProductInstances[Arbitrary, A]): Arbitrary[A] =
   Arbitrary(
@@ -32,3 +33,15 @@ given deriveUintegerEnum[A](using bi: Bijection[A, uinteger]): Arbitrary[A] =
 
 given deriveIntegerEnum[A](using bi: Bijection[A, Int]): Arbitrary[A] =
   Arbitrary(Gen.oneOf(bi.domain))
+
+
+given Arbitrary[ProgressToken] = 
+  Arbitrary:
+    for 
+      someString <- Arbitrary.arbitrary[String].map(ProgressToken.apply)
+      someInt <- Arbitrary.arbitrary[Int].map(ProgressToken.apply)
+
+      progressToken <- Gen.oneOf(someString, someInt)
+    yield progressToken
+
+given Arbitrary[ujson.Value] = Arbitrary(ujson.Str("I'm json lol"))

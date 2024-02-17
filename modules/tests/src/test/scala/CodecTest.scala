@@ -13,19 +13,28 @@ import jsonrpclib.*
 import org.scalacheck.*
 
 object CodecTest extends weaver.FunSuite:
-  test("Snapshot test") {
 
-    given Arbitrary[String] = Arbitrary(Gen.alphaNumStr)
-    val sum = summon[org.scalacheck.Arbitrary[SymbolKind]]
+  def requestSnapshotTest[T <: LSPRequest](x: T)(using
+      arbReq: Arbitrary[x.In],
+      arbResp: Arbitrary[x.Out]
+  ) =
+    test(x.requestMethod + " request roundtrip") {
 
-    println(sum)
+      val request = arbReq.arbitrary.sample.get
+      val response    = arbResp.arbitrary.sample.get
 
-    val evenInteger = org.scalacheck.Arbitrary.arbitrary[SymbolInformation].sample
-    println(evenInteger)
+      val requestRoundtrip =
+        read[x.In](write(request))
 
-    success
-    
-  }
+      val responseRoundtrip =
+        read[x.Out](write(response))
+
+      expect.same(requestRoundtrip, request) &&
+        expect.same(responseRoundtrip, response)
+    }
+
+  requestSnapshotTest(langoustine.lsp.requests.textDocument.documentLink)
+
   test("documentSymbol codec") {
 
     val out1 = Opt(
@@ -85,3 +94,4 @@ object CodecTest extends weaver.FunSuite:
 
   }
 end CodecTest
+
