@@ -30,7 +30,9 @@ private[langoustine] object jsonrpcIntegration:
           payload: Option[Payload]
       ): Either[ProtocolError, T] =
         payload
-          .map(_.array)
+          .map:
+            case Payload.Data(array) => array
+            case Payload.NullPayload => "null".getBytes
           .flatMap { arr =>
             Try(read[T](arr, trace = true)).toOption
           }

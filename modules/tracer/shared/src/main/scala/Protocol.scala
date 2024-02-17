@@ -34,7 +34,7 @@ object ReceivedMessage:
 case class RawMessage(
     jsonrpc: String,
     method: Option[String] = None,
-    result: Option[Payload] = None,
+    result: Option[Option[Payload]] = None,
     error: Option[ErrorPayload] = None,
     params: Option[Payload] = None,
     id: Option[MessageId] = None
@@ -47,7 +47,7 @@ object RawMessage:
 
   def create(
       method: Option[String] = None,
-      result: Option[Payload] = None,
+      result: Option[Option[Payload]] = None,
       error: Option[ErrorPayload] = None,
       params: Option[Payload] = None,
       id: Option[MessageId] = None

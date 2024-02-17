@@ -18,12 +18,20 @@ import langoustine.lsp.Communicate
 import org.http4s.server.Server
 import jsonrpclib.fs2.lsp
 import scala.util.NotGiven
+import jsonrpclib.Payload.Data
+import jsonrpclib.Payload.NullPayload
 
 extension (s: fs2.Stream[IO, Payload])
   def debugAs(name: String) =
-    s.evalTap(el =>
-      Logging.debug(s"[$name (payload)]: ${new String(el.array)}")
-    )
+    s.evalTap(el => Logging.debug(s"[$name (payload)]: ${el.jsonString}"))
+
+private lazy val nullBytes = "null.getBytes"
+
+extension (p: Payload)
+  def jsonArray: Array[Byte] = p match
+    case Data(array) => array
+    case NullPayload => "null".getBytes
+  def jsonString: String = new String(p.jsonArray)
 
 extension [A](s: fs2.Stream[IO, A])
   inline def debugAs(name: String)(using NotGiven[A =:= Payload]) =
@@ -65,15 +73,12 @@ def Trace(
             .debugAs("payloads coming in")
             .filter { p =>
               val raw = readFromArrayReentrant[RawMessage](
-                p.array
+                p.jsonArray
               )
 
               raw.method.isEmpty || raw.method
                 .exists(_.startsWith("langoustine/"))
 
-            }
-            .evalTap { payload =>
-              Logging.info(new String(payload.array))
             }
             .through(rpcChannel.input)
 
