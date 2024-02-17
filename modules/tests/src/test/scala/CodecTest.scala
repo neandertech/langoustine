@@ -10,8 +10,22 @@ import langoustine.lsp.all.*
 import cats.Monad
 
 import jsonrpclib.*
+import org.scalacheck.*
 
 object CodecTest extends weaver.FunSuite:
+  test("Snapshot test") {
+
+    given Arbitrary[String] = Arbitrary(Gen.alphaNumStr)
+    val sum = summon[org.scalacheck.Arbitrary[SymbolKind]]
+
+    println(sum)
+
+    val evenInteger = org.scalacheck.Arbitrary.arbitrary[SymbolInformation].sample
+    println(evenInteger)
+
+    success
+    
+  }
   test("documentSymbol codec") {
 
     val out1 = Opt(

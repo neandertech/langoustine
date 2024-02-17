@@ -21,10 +21,28 @@ import runtime.*
 import upickle.default.*
 import scala.reflect.*
 
+trait Bijection[A, T]:
+  def apply(a: A): T
+  def reverse(a: T): A
+  def domain: Set[A]
+
+// object SameRuntimeType:
+//   def apply[A, T](f: A => T): SameRuntimeType[A, T] =
+//     new:
+//       override def apply(a: A): T = f(a)
+
 private[lsp] trait IntEnum[T](using ev: T =:= Int):
   private val intCodec    = upickle.default.readwriter[Int]
   given reader: Reader[T] = intCodec.asInstanceOf[Reader[T]]
   given writer: Writer[T] = intCodec.asInstanceOf[Writer[T]]
+
+  protected def ALL: Set[T]
+
+  given Bijection[T, Int] with
+    def apply(a: T): Int = ev.apply(a)
+    def reverse(a: Int): T =
+      ev.flip.apply(a)
+    lazy val domain = ALL
 
   given Typeable[T] with
     def unapply(s: Any): Option[s.type & T] =
@@ -42,6 +60,12 @@ private[lsp] trait StringEnum[T](using ev: T =:= String):
   private val stringCodec = upickle.default.readwriter[String]
   given reader: Reader[T] = stringCodec.asInstanceOf[Reader[T]]
   given writer: Writer[T] = stringCodec.asInstanceOf[Writer[T]]
+  protected def ALL: Set[T]
+
+  given Bijection[T, String] with
+    def apply(a: T): String   = ev.apply(a)
+    def reverse(a: String): T = ev.flip.apply(a)
+    lazy val domain           = ALL
 
   given Typeable[T] with
     def unapply(s: Any): Option[s.type & T] =
@@ -60,6 +84,14 @@ private[lsp] trait UIntEnum[T](using ev: T =:= uinteger):
 
   given reader: Reader[T] = intCodec.asInstanceOf[Reader[T]]
   given writer: Writer[T] = intCodec.asInstanceOf[Writer[T]]
+
+  protected def ALL: Set[T]
+
+  given Bijection[T, uinteger] with
+    def apply(a: T): uinteger = ev.apply(a)
+    def reverse(a: uinteger): T =
+      ev.flip.apply(a)
+    lazy val domain = ALL
 
   given Typeable[T] with
     def unapply(s: Any): Option[s.type & T] =

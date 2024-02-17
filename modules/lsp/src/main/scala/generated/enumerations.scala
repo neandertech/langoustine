@@ -65,6 +65,9 @@ object enumerations:
      *  @since 3.17.0
      */
     val decorator = entry("decorator")
+    override def ALL = Set(
+      namespace, `type`, `class`, `enum`, interface, struct, typeParameter, parameter, variable, property, enumMember, event, function, method, `macro`, keyword, modifier, comment, string, number, regexp, operator, decorator
+    )
   
   /**
    *  A set of predefined token modifiers. This set is not fixed
@@ -85,6 +88,9 @@ object enumerations:
     val modification = entry("modification")
     val documentation = entry("documentation")
     val defaultLibrary = entry("defaultLibrary")
+    override def ALL = Set(
+      declaration, definition, readonly, static, deprecated, `abstract`, async, modification, documentation, defaultLibrary
+    )
   
   /**
    *  Predefined error codes.
@@ -127,6 +133,9 @@ object enumerations:
      *  @deprecated use  jsonrpcReservedErrorRangeEnd 
      */
     val serverErrorEnd = entry(-32000)
+    override def ALL = Set(
+      ParseError, InvalidRequest, MethodNotFound, InvalidParams, InternalError, jsonrpcReservedErrorRangeStart, serverErrorStart, ServerNotInitialized, UnknownErrorCode, jsonrpcReservedErrorRangeEnd, serverErrorEnd
+    )
   
   opaque type LSPErrorCodes = Int
   object LSPErrorCodes extends IntEnum[LSPErrorCodes]:
@@ -177,6 +186,9 @@ object enumerations:
      *  @since 3.16.0
      */
     val lspReservedErrorRangeEnd = entry(-32800)
+    override def ALL = Set(
+      lspReservedErrorRangeStart, RequestFailed, ServerCancelled, ContentModified, RequestCancelled, lspReservedErrorRangeEnd
+    )
   
   /**
    *  A set of predefined range kinds.
@@ -195,6 +207,9 @@ object enumerations:
      *  Folding range for a region (e.g. `#region`)
      */
     val Region = entry("region")
+    override def ALL = Set(
+      Comment, Imports, Region
+    )
   
   /**
    *  A symbol kind.
@@ -227,6 +242,9 @@ object enumerations:
     val Event = entry(24)
     val Operator = entry(25)
     val TypeParameter = entry(26)
+    override def ALL = Set(
+      File, Module, Namespace, Package, Class, Method, Property, Field, Constructor, Enum, Interface, Function, Variable, Constant, String, Number, Boolean, Array, Object, Key, Null, EnumMember, Struct, Event, Operator, TypeParameter
+    )
   
   /**
    *  Symbol tags are extra annotations that tweak the rendering of a symbol.
@@ -239,6 +257,9 @@ object enumerations:
      *  Render a symbol as obsolete, usually using a strike-out.
      */
     val Deprecated = entry(1)
+    override def ALL = Set(
+      Deprecated
+    )
   
   /**
    *  Moniker uniqueness level to define scope of the moniker.
@@ -267,6 +288,9 @@ object enumerations:
      *  The moniker is globally unique
      */
     val global = entry("global")
+    override def ALL = Set(
+      document, project, group, scheme, global
+    )
   
   /**
    *  The moniker kind.
@@ -288,6 +312,9 @@ object enumerations:
      *  variable of a function, a class not visible outside the project, ...)
      */
     val local = entry("local")
+    override def ALL = Set(
+      `import`, `export`, local
+    )
   
   /**
    *  Inlay hint kinds.
@@ -304,6 +331,9 @@ object enumerations:
      *  An inlay hint that is for a parameter.
      */
     val Parameter = entry(2)
+    override def ALL = Set(
+      Type, Parameter
+    )
   
   /**
    *  The message type
@@ -326,6 +356,9 @@ object enumerations:
      *  A log message.
      */
     val Log = entry(4)
+    override def ALL = Set(
+      Error, Warning, Info, Log
+    )
   
   /**
    *  Defines how the host (editor) should sync
@@ -348,6 +381,9 @@ object enumerations:
      *  sent.
      */
     val Incremental = entry(2)
+    override def ALL = Set(
+      None, Full, Incremental
+    )
   
   /**
    *  Represents reasons why a text document is saved.
@@ -367,6 +403,9 @@ object enumerations:
      *  When the editor lost focus.
      */
     val FocusOut = entry(3)
+    override def ALL = Set(
+      Manual, AfterDelay, FocusOut
+    )
   
   /**
    *  The kind of a completion entry.
@@ -398,6 +437,9 @@ object enumerations:
     val Event = entry(23)
     val Operator = entry(24)
     val TypeParameter = entry(25)
+    override def ALL = Set(
+      Text, Method, Function, Constructor, Field, Variable, Class, Interface, Module, Property, Unit, Value, Enum, Keyword, Snippet, Color, File, Reference, Folder, EnumMember, Constant, Struct, Event, Operator, TypeParameter
+    )
   
   /**
    *  Completion item tags are extra annotations that tweak the rendering of a completion
@@ -411,6 +453,9 @@ object enumerations:
      *  Render a completion as obsolete, usually using a strike-out.
      */
     val Deprecated = entry(1)
+    override def ALL = Set(
+      Deprecated
+    )
   
   /**
    *  Defines whether the insert text in a completion item should be interpreted as
@@ -433,6 +478,9 @@ object enumerations:
      *  See also: https://microsoft.github.io/language-server-protocol/specifications/specification-current/#snippet_syntax
      */
     val Snippet = entry(2)
+    override def ALL = Set(
+      PlainText, Snippet
+    )
   
   /**
    *  How whitespace and indentation is handled during completion
@@ -460,6 +508,9 @@ object enumerations:
      *  following lines inserted will be indented using 2 tabs as well.
      */
     val adjustIndentation = entry(2)
+    override def ALL = Set(
+      asIs, adjustIndentation
+    )
   
   /**
    *  A document highlight kind.
@@ -478,6 +529,9 @@ object enumerations:
      *  Write-access of a symbol, like writing to a variable.
      */
     val Write = entry(3)
+    override def ALL = Set(
+      Text, Read, Write
+    )
   
   /**
    *  A set of predefined code action kinds
@@ -551,6 +605,9 @@ object enumerations:
      *  @since 3.15.0
      */
     val SourceFixAll = entry("source.fixAll")
+    override def ALL = Set(
+      Empty, QuickFix, Refactor, RefactorExtract, RefactorInline, RefactorRewrite, Source, SourceOrganizeImports, SourceFixAll
+    )
   
   opaque type TraceValues = String
   object TraceValues extends StringEnum[TraceValues]:
@@ -566,6 +623,9 @@ object enumerations:
      *  Verbose message tracing.
      */
     val Verbose = entry("verbose")
+    override def ALL = Set(
+      Off, Messages, Verbose
+    )
   
   /**
    *  Describes the content type that a client supports in various
@@ -584,6 +644,9 @@ object enumerations:
      *  Markdown is supported as a content format
      */
     val Markdown = entry("markdown")
+    override def ALL = Set(
+      PlainText, Markdown
+    )
   
   /**
    *  A set of predefined position encoding kinds.
@@ -611,6 +674,9 @@ object enumerations:
      *  encoding-agnostic representation of character offsets.
      */
     val UTF32 = entry("utf-32")
+    override def ALL = Set(
+      UTF8, UTF16, UTF32
+    )
   
   /**
    *  The file event type
@@ -629,6 +695,9 @@ object enumerations:
      *  The file got deleted.
      */
     val Deleted = entry(3)
+    override def ALL = Set(
+      Created, Changed, Deleted
+    )
   
   opaque type WatchKind = runtime.uinteger
   object WatchKind extends UIntEnum[WatchKind]:
@@ -644,6 +713,9 @@ object enumerations:
      *  Interested in delete events
      */
     val Delete = entry(4)
+    override def ALL = Set(
+      Create, Change, Delete
+    )
   
   /**
    *  The diagnostic's severity.
@@ -666,6 +738,9 @@ object enumerations:
      *  Reports a hint.
      */
     val Hint = entry(4)
+    override def ALL = Set(
+      Error, Warning, Information, Hint
+    )
   
   /**
    *  The diagnostic tags.
@@ -687,6 +762,9 @@ object enumerations:
      *  Clients are allowed to rendered diagnostics with this tag strike through.
      */
     val Deprecated = entry(2)
+    override def ALL = Set(
+      Unnecessary, Deprecated
+    )
   
   /**
    *  How a completion was triggered
@@ -707,6 +785,9 @@ object enumerations:
      *  Completion was re-triggered as current completion list is incomplete
      */
     val TriggerForIncompleteCompletions = entry(3)
+    override def ALL = Set(
+      Invoked, TriggerCharacter, TriggerForIncompleteCompletions
+    )
   
   /**
    *  How a signature help was triggered.
@@ -727,6 +808,9 @@ object enumerations:
      *  Signature help was triggered by the cursor moving or by the document content changing.
      */
     val ContentChange = entry(3)
+    override def ALL = Set(
+      Invoked, TriggerCharacter, ContentChange
+    )
   
   /**
    *  The reason why code actions were requested.
@@ -746,6 +830,9 @@ object enumerations:
      *  also be triggered when file content changes.
      */
     val Automatic = entry(2)
+    override def ALL = Set(
+      Invoked, Automatic
+    )
   
   /**
    *  A pattern kind describing if a glob pattern matches a file a folder or
@@ -763,6 +850,9 @@ object enumerations:
      *  The pattern matches a folder only.
      */
     val folder = entry("folder")
+    override def ALL = Set(
+      file, folder
+    )
   
   /**
    *  A notebook cell kind.
@@ -779,6 +869,9 @@ object enumerations:
      *  A code-cell is source code.
      */
     val Code = entry(2)
+    override def ALL = Set(
+      Markup, Code
+    )
   
   opaque type ResourceOperationKind = String
   object ResourceOperationKind extends StringEnum[ResourceOperationKind]:
@@ -794,6 +887,9 @@ object enumerations:
      *  Supports deleting existing files and folders.
      */
     val Delete = entry("delete")
+    override def ALL = Set(
+      Create, Rename, Delete
+    )
   
   opaque type FailureHandlingKind = String
   object FailureHandlingKind extends StringEnum[FailureHandlingKind]:
@@ -818,6 +914,9 @@ object enumerations:
      *  guarantee that this is succeeding.
      */
     val Undo = entry("undo")
+    override def ALL = Set(
+      Abort, Transactional, TextOnlyTransactional, Undo
+    )
   
   opaque type PrepareSupportDefaultBehavior = runtime.uinteger
   object PrepareSupportDefaultBehavior extends UIntEnum[PrepareSupportDefaultBehavior]:
@@ -826,8 +925,14 @@ object enumerations:
      *  according the to language's syntax rule.
      */
     val Identifier = entry(1)
+    override def ALL = Set(
+      Identifier
+    )
   
   opaque type TokenFormat = String
   object TokenFormat extends StringEnum[TokenFormat]:
     val Relative = entry("relative")
+    override def ALL = Set(
+      Relative
+    )
   

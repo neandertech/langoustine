@@ -30,7 +30,7 @@ inThisBuild(
 )
 
 val V = new {
-  val scala           = "3.3.0"
+  val scala           = "3.3.2"
   val scribe          = "3.11.1"
   val upickle         = "2.0.0"
   val cats            = "2.9.0"
@@ -126,11 +126,13 @@ lazy val lsp = projectMatrix
     libraryDependencies += "com.lihaoyi"   %%% "upickle"         % V.upickle,
     libraryDependencies += "org.typelevel" %%% "cats-core"       % V.cats,
     libraryDependencies += "tech.neander"  %%% "jsonrpclib-core" % V.jsonrpclib,
-    test                                    := {}
+    test                                    := {},
+    snapshotsPackageName                    := "tests.core"
   )
   .jvmPlatform(V.scalaVersions)
   .jsPlatform(V.scalaVersions)
   .nativePlatform(V.scalaVersions)
+  .enablePlugins(SnapshotsPlugin)
 
 lazy val app = projectMatrix
   .in(file("modules/app"))
@@ -192,6 +194,8 @@ lazy val tests = projectMatrix
   .settings(
     libraryDependencies += "org.http4s" %% "http4s-jdk-http-client" % V.http4sJdkClient % Test,
     libraryDependencies += "com.disneystreaming" %%% "weaver-cats" % V.weaver % Test,
+    libraryDependencies += "org.typelevel" %% "shapeless3-deriving" % "3.4.1" % Test,
+    libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.17.0" % Test,
     Test / fork := virtualAxes.value.contains(VirtualAxis.jvm)
   )
 
