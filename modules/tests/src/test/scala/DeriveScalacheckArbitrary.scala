@@ -42,13 +42,22 @@ given deriveIntegerEnum[A](using bi: Bijection[A, Int]): Arbitrary[A] =
 given Arbitrary[ProgressToken] =
   Arbitrary:
       for
-        someString <- Arbitrary.arbitrary[String].map(ProgressToken.apply)
+        someString <- Gen.alphaNumStr.map(ProgressToken.apply)
         someInt    <- Arbitrary.arbitrary[Int].map(ProgressToken.apply)
 
         progressToken <- Gen.oneOf(someString, someInt)
       yield progressToken
 
-given Arbitrary[ujson.Value] = Arbitrary(ujson.Str("I'm json lol"))
+given Arbitrary[ujson.Value] =
+  import ujson.*
+  Arbitrary(
+    Gen.oneOf(
+      Str("I'm json lol"),
+      Arr(Str("yo")),
+      Obj("a" -> Str("what"), "test" -> Obj("b" -> Arr(Num(1))))
+    )
+  )
+end given
 
 given Arbitrary[Vector[SymbolInformation] | Vector[DocumentSymbol]] =
   val l1 =

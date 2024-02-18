@@ -31,26 +31,6 @@ object CodecTest extends weaver.FunSuite, WeaverSnapshotsIntegration:
         case Opt.empty => "Opt.empty"
         case _         => x.toString()
 
-    test(x.requestMethod + " request roundtrip") {
-
-      val requests = List.fill(5)(arbReq.arbitrary.sample).flatten
-
-      forEach(requests): request =>
-        val requestRoundtrip =
-          read[x.In](write[x.In](request))
-
-        expect.same(requestRoundtrip, request)
-    }
-    test(x.requestMethod + " response roundtrip") {
-
-      val requests = List.fill(5)(arbReq.arbitrary.sample).flatten
-
-      forEach(requests): request =>
-        val requestRoundtrip =
-          read[x.In](write[x.In](request))
-        expect.same(requestRoundtrip, request)
-    }
-
     def sampleN[T](n: Int, arb: Arbitrary[T]) =
       Gen
         .listOfN(5, arb.arbitrary)
@@ -59,30 +39,35 @@ object CodecTest extends weaver.FunSuite, WeaverSnapshotsIntegration:
         .flatten
 
     test(x.requestMethod + " request snapshot") {
-      val bld = StringBuilder()
+      val bld      = StringBuilder()
+      val requests = sampleN(5, arbReq).distinct
 
-      sampleN(5, arbReq)
-        .foreach: request =>
-          val requestJson = write[x.In](request)
-          val printed     = safeToString(request)
-          bld.append(
-            printed + "\n" + requestJson + "\n" + "---------------------" + "\n"
-          )
-      expectSnapshot("request: " + x.requestMethod, bld.result())
+      forEach(requests.zipWithIndex): (request, idx) =>
+        val json         = write(request)
+        val printed      = safeToString(request)
+        val snapshotName = s"request($idx): " + x.requestMethod
+
+        expectSnapshot(snapshotName, json) &&
+        assertSnapshotContents(
+          snapshotName,
+          contents => expect.same(read[x.In](contents), request)
+        )
     }
 
     test(x.requestMethod + " response snapshot") {
-      val bld = StringBuilder()
+      val bld      = StringBuilder()
+      val requests = sampleN(5, arbResp).distinct
 
-      sampleN(5, arbResp)
-        .foreach: response =>
-          val requestJson = write[x.Out](response)
-          val printed     = safeToString(response)
-          bld.append(
-            printed + "\n" + requestJson + "\n" + "---------------------" + "\n"
-          )
-      expectSnapshot("response: " + x.requestMethod, bld.result())
+      forEach(requests.zipWithIndex): (response, idx) =>
+        val json         = write(response)
+        val printed      = safeToString(response)
+        val snapshotName = s"response($idx): " + x.requestMethod
 
+        expectSnapshot(snapshotName, json) &&
+        assertSnapshotContents(
+          snapshotName,
+          contents => expect.same(read[x.Out](contents), response)
+        )
     }
   end requestSnapshotTest
 

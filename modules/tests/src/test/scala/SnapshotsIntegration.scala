@@ -1,10 +1,12 @@
 package tests.core
 
+import weaver.Expectations
+
 // This is a sample integration for Weaver
 trait WeaverSnapshotsIntegration:
   self: weaver.FunSuite =>
 
-  def expectSnapshot(name: String, contents: String) =
+  def expectSnapshot(name: String, contents: String): Expectations =
     Snapshots.read(name) match
       case None =>
         Snapshots.write(name, contents)
@@ -21,4 +23,16 @@ trait WeaverSnapshotsIntegration:
         else
           Snapshots.clearChanges(name)
           success
+
+  def assertSnapshotContents(
+      name: String,
+      check: String => Expectations
+  ): Expectations =
+    Snapshots.read(name) match
+      case None =>
+        failure(s"Snapshot $name not found")
+
+      case Some(value) =>
+        check(value)
+
 end WeaverSnapshotsIntegration
