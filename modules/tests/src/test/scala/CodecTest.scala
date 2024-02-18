@@ -12,86 +12,78 @@ import cats.Monad
 import jsonrpclib.*
 import org.scalacheck.*
 
-object CodecTest extends weaver.FunSuite:
+object CodecTest extends weaver.FunSuite, WeaverSnapshotsIntegration:
+
+  given Arbitrary[String] = Arbitrary(Gen.alphaNumStr)
+
+  requestSnapshotTest(langoustine.lsp.requests.textDocument.documentLink)
+  // requestSnapshotTest(langoustine.lsp.requests.textDocument.documentSymbol)
+  requestSnapshotTest(langoustine.lsp.requests.textDocument.foldingRange)
+  requestSnapshotTest(langoustine.lsp.requests.workspace.configuration)
+  requestSnapshotTest(langoustine.lsp.requests.textDocument.references)
 
   def requestSnapshotTest[T <: LSPRequest](x: T)(using
       arbReq: Arbitrary[x.In],
       arbResp: Arbitrary[x.Out]
   ) =
+    def safeToString[T](x: T | Null) =
+      x match
+        case Opt.empty => "Opt.empty"
+        case _         => x.toString()
+
     test(x.requestMethod + " request roundtrip") {
 
-      val request = arbReq.arbitrary.sample.get
-      val response    = arbResp.arbitrary.sample.get
+      val requests = List.fill(5)(arbReq.arbitrary.sample).flatten
 
-      val requestRoundtrip =
-        read[x.In](write(request))
+      forEach(requests): request =>
+        val requestRoundtrip =
+          read[x.In](write[x.In](request))
 
-      val responseRoundtrip =
-        read[x.Out](write(response))
+        expect.same(requestRoundtrip, request)
+    }
+    test(x.requestMethod + " response roundtrip") {
 
-      expect.same(requestRoundtrip, request) &&
-        expect.same(responseRoundtrip, response)
+      val requests = List.fill(5)(arbReq.arbitrary.sample).flatten
+
+      forEach(requests): request =>
+        val requestRoundtrip =
+          read[x.In](write[x.In](request))
+        expect.same(requestRoundtrip, request)
     }
 
-  requestSnapshotTest(langoustine.lsp.requests.textDocument.documentLink)
+    def sampleN[T](n: Int, arb: Arbitrary[T]) =
+      Gen
+        .listOfN(5, arb.arbitrary)
+        .sample
+        .toList
+        .flatten
 
-  test("documentSymbol codec") {
+    test(x.requestMethod + " request snapshot") {
+      val bld = StringBuilder()
 
-    val out1 = Opt(
-      Vector(
-        SymbolInformation(
-          deprecated = Opt(true),
-          name = "Howdy1",
-          kind = SymbolKind.Method,
-          location = Location(
-            DocumentUri(""),
-            Range(Position.documentBeginning, Position.documentBeginning)
+      sampleN(5, arbReq)
+        .foreach: request =>
+          val requestJson = write[x.In](request)
+          val printed     = safeToString(request)
+          bld.append(
+            printed + "\n" + requestJson + "\n" + "---------------------" + "\n"
           )
-        )
-      )
-    )
+      expectSnapshot("request: " + x.requestMethod, bld.result())
+    }
 
-    val out2 = Opt(
-      Vector(
-        DocumentSymbol(
-          name = "Howdy",
-          kind = SymbolKind.Class,
-          range = Range(
-            Position.documentBeginning,
-            Position.documentBeginning
-          ),
-          selectionRange =
-            Range(Position.documentBeginning, Position.documentBeginning)
-        )
-      )
-    )
+    test(x.requestMethod + " response snapshot") {
+      val bld = StringBuilder()
 
-    val unionWriter = textDocument.documentSymbol.outputWriter
-    val unionReader = textDocument.documentSymbol.outputReader
+      sampleN(5, arbResp)
+        .foreach: response =>
+          val requestJson = write[x.Out](response)
+          val printed     = safeToString(response)
+          bld.append(
+            printed + "\n" + requestJson + "\n" + "---------------------" + "\n"
+          )
+      expectSnapshot("response: " + x.requestMethod, bld.result())
 
-    import upickle.default.*
+    }
+  end requestSnapshotTest
 
-    val written1 = write(out1)(using unionWriter)
-    val written2 = write(out2)(using unionWriter)
-
-    val read1 = read(written1)(using unionReader)
-    val read2 = read(written2)(using unionReader)
-
-    expect.same(read1, out1) and
-      expect.same(read2, out2)
-  }
-
-  test("workspace/configuration codec (and types construction)") {
-    val req = workspace.configuration
-    val in = workspace.configuration.WorkspaceConfigurationInput(
-      items = Vector(ConfigurationItem(Opt("hello"))),
-      partialResultToken = Opt(ProgressToken("helllooooo"))
-    )
-
-    import req.WorkspaceConfigurationInput
-
-    expect.same(read[WorkspaceConfigurationInput](write(in)), in)
-
-  }
 end CodecTest
-

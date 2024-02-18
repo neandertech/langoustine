@@ -1,0 +1,15 @@
+DocumentLinkParams(TextDocumentIdentifier(file1),凇뙑엸䝡럓젨돟딖墦삭痚Ù㡦뒹氯‸й⮴Պ鱀俘ཀྵ궐봒餥⵹脑唔釖ۑ韆◭摯㢥莟犒秳剴觞萦ឱ鿨ᑬ뒀懥剽㏿ᐥ᳟Ᵹ㌂犤雁駒瞧嫼ꐽꈉꜶ拁ꈁ뻓蠈떯ૹ釡䓚屚뇣豐铹꤀脋뒔竟Ｆ,봮ࠗ짔暧貤ⅻ䄙ꨮ碡듘敒溷텛甚惙휙꺢뮷찾ⲁ㐐驩瞶죊湪祸⻎ⅶ䩸妖ꙋ栋ꯈ졮焼ᤝ릌씓〡跿薽)
+{"textDocument":{"uri":"file1"},"workDoneToken":"凇뙑엸䝡럓젨돟딖墦삭痚Ù㡦뒹氯‸й⮴Պ鱀俘ཀྵ궐봒餥⵹脑唔釖ۑ韆◭摯㢥莟犒秳剴觞萦ឱ鿨ᑬ뒀懥剽㏿ᐥ᳟Ᵹ㌂犤雁駒瞧嫼ꐽꈉꜶ拁ꈁ뻓蠈떯ૹ釡䓚屚뇣豐铹꤀脋뒔竟Ｆ","partialResultToken":"봮ࠗ짔暧貤ⅻ䄙ꨮ碡듘敒溷텛甚惙휙꺢뮷찾ⲁ㐐驩瞶죊湪祸⻎ⅶ䩸妖ꙋ栋ꯈ졮焼ᤝ릌씓〡跿薽"}
+---------------------
+DocumentLinkParams(TextDocumentIdentifier(file2),韵硠趣ꏱ黟滍떆੦혽㲰䬒↽Ṟᐫ꜀璬䍅뜝㻠・뒨뢾ᷓ,1534272523)
+{"textDocument":{"uri":"file2"},"workDoneToken":"韵硠趣ꏱ黟滍떆੦혽㲰䬒↽Ṟᐫ꜀璬䍅뜝㻠・뒨뢾ᷓ","partialResultToken":1534272523}
+---------------------
+DocumentLinkParams(TextDocumentIdentifier(file1),1346632011,-2147483648)
+{"textDocument":{"uri":"file1"},"workDoneToken":1346632011,"partialResultToken":-2147483648}
+---------------------
+DocumentLinkParams(TextDocumentIdentifier(file2),null,)
+{"textDocument":{"uri":"file2"},"partialResultToken":""}
+---------------------
+DocumentLinkParams(TextDocumentIdentifier(file1),null,null)
+{"textDocument":{"uri":"file1"}}
+---------------------

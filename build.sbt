@@ -126,13 +126,11 @@ lazy val lsp = projectMatrix
     libraryDependencies += "com.lihaoyi"   %%% "upickle"         % V.upickle,
     libraryDependencies += "org.typelevel" %%% "cats-core"       % V.cats,
     libraryDependencies += "tech.neander"  %%% "jsonrpclib-core" % V.jsonrpclib,
-    test                                    := {},
-    snapshotsPackageName                    := "tests.core"
+    test                                    := {}
   )
   .jvmPlatform(V.scalaVersions)
   .jsPlatform(V.scalaVersions)
   .nativePlatform(V.scalaVersions)
-  .enablePlugins(SnapshotsPlugin)
 
 lazy val app = projectMatrix
   .in(file("modules/app"))
@@ -194,10 +192,14 @@ lazy val tests = projectMatrix
   .settings(
     libraryDependencies += "org.http4s" %% "http4s-jdk-http-client" % V.http4sJdkClient % Test,
     libraryDependencies += "com.disneystreaming" %%% "weaver-cats" % V.weaver % Test,
+    libraryDependencies += "com.lihaoyi" %%% "pprint" % "0.7.0" % Test,
     libraryDependencies += "org.typelevel" %% "shapeless3-deriving" % "3.4.1" % Test,
     libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.17.0" % Test,
-    Test / fork := virtualAxes.value.contains(VirtualAxis.jvm)
+    Test / fork             := virtualAxes.value.contains(VirtualAxis.jvm),
+    snapshotsPackageName    := "tests.core",
+    snapshotsForceOverwrite := !sys.env.contains("CI")
   )
+  .enablePlugins(SnapshotsPlugin)
 
 lazy val example = projectMatrix
   .in(file("modules/example"))

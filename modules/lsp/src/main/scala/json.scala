@@ -24,24 +24,25 @@ private[lsp] object json:
   val valueReader = upickle.default.readwriter[ujson.Value]
   def badMerge[T](r1: => Reader[?], rest: Reader[?]*): Reader[T] =
     valueReader.map { json =>
-      var t: T | Null = null
-      val stack       = Vector.newBuilder[Throwable]
+      var t     = Option.empty[T]
+      val stack = Vector.newBuilder[Throwable]
 
       (r1 +: rest).foreach { reader =>
-        if t == null then
+        if t.isEmpty then
           try
-            t =
+            t = Some(
               read[T](json, trace = true)(using reader.asInstanceOf[Reader[T]])
+            )
           catch
             case exc =>
               stack += exc
       }
-      if t != null then t.nn
-      else
+      t.getOrElse(
         throw new LangoustineError.FailureParsing(
           json,
           stack.result().headOption.getOrElse(null)
         )
+      )
     }
 
   extension [T](r: Reader[T]) def widen[K >: T] = r.map(_.asInstanceOf[K])
