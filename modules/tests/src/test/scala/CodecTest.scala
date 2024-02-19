@@ -11,10 +11,13 @@ import cats.Monad
 
 import jsonrpclib.*
 import org.scalacheck.*
+import org.scalacheck.rng.Seed
 
 object CodecTest extends weaver.FunSuite, WeaverSnapshotsIntegration:
 
   given Arbitrary[String] = Arbitrary(Gen.alphaNumStr)
+
+  val SEED = 120312937L
 
   requestSnapshotTest(langoustine.lsp.requests.textDocument.documentLink)
   // requestSnapshotTest(langoustine.lsp.requests.textDocument.documentSymbol)
@@ -34,7 +37,7 @@ object CodecTest extends weaver.FunSuite, WeaverSnapshotsIntegration:
     def sampleN[T](n: Int, arb: Arbitrary[T]) =
       Gen
         .listOfN(5, arb.arbitrary)
-        .sample
+        .apply(Gen.Parameters.default.withInitialSeed(Seed(SEED)), Seed(SEED))
         .toList
         .flatten
 

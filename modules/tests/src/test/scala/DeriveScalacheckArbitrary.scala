@@ -42,7 +42,7 @@ given deriveIntegerEnum[A](using bi: Bijection[A, Int]): Arbitrary[A] =
 given Arbitrary[ProgressToken] =
   Arbitrary:
       for
-        someString <- Gen.alphaNumStr.map(ProgressToken.apply)
+        someString <- Arbitrary.arbitrary[String].map(ProgressToken.apply)
         someInt    <- Arbitrary.arbitrary[Int].map(ProgressToken.apply)
 
         progressToken <- Gen.oneOf(someString, someInt)
