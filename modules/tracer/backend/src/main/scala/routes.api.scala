@@ -12,6 +12,7 @@ import com.github.plokhotnyuk.jsoniter_scala.macros.*
 import concurrent.duration.*
 import org.typelevel.ci.*
 import cats.syntax.all.*
+import jsonrpclib.CallId
 
 object SnapshotNameMatcher
     extends OptionalQueryParamDecoderMatcher[String]("name")
@@ -122,10 +123,10 @@ def api(
       }
 
     case GET -> Root / "raw" / "request" / id =>
-      val asLong = id.toLongOption.map(MessageId.NumberId.apply)
-      val asStr  = MessageId.StringId(id)
+      val asLong = id.toLongOption.map(CallId.NumberId.apply)
+      val asStr  = CallId.StringId(id)
 
-      inline def idMatches(idOpt: Option[MessageId]) =
+      inline def idMatches(idOpt: Option[CallId]) =
         (asLong == idOpt || idOpt.contains(asStr))
 
       messages.get.flatMap { messages =>
@@ -140,10 +141,10 @@ def api(
       }
 
     case GET -> Root / "raw" / "response" / id =>
-      val asLong = id.toLongOption.map(MessageId.NumberId.apply)
-      val asStr  = MessageId.StringId(id)
+      val asLong = id.toLongOption.map(CallId.NumberId.apply)
+      val asStr  = CallId.StringId(id)
 
-      inline def idMatches(idOpt: Option[MessageId]) =
+      inline def idMatches(idOpt: Option[CallId]) =
         (asLong == idOpt || idOpt.contains(asStr))
 
       messages.get.flatMap { messages =>
@@ -158,9 +159,9 @@ def api(
       }
 
     case GET -> Root / "raw" / "notification" / id =>
-      val asStr = MessageId.StringId(id)
+      val asStr = CallId.StringId(id)
 
-      inline def idMatches(idOpt: Option[MessageId]) =
+      inline def idMatches(idOpt: Option[CallId]) =
         idOpt.contains(asStr)
 
       messages.get.flatMap { messages =>

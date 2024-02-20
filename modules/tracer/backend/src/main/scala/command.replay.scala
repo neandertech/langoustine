@@ -6,10 +6,11 @@ import cats.effect.*
 import cats.syntax.all.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 import jsonrpclib.Payload
+import jsonrpclib.Message
 
 def Replay(
-    inBytes: Topic[IO, Payload],
-    outBytes: Topic[IO, Payload],
+    inBytes: Topic[IO, Message],
+    outBytes: Topic[IO, Message],
     errBytes: Topic[IO, Chunk[Byte]],
     replayConfig: ReplayConfig,
     bindConfig: BindConfig,
@@ -43,8 +44,13 @@ def Replay(
         }
         .evalMap {
           case SnapshotItem.Message(msg) =>
-            inline def redirect(stream: Topic[IO, Payload]) =
-              stream.publish1(Payload(writeToString(msg.raw).getBytes))
+            inline def redirect(stream: Topic[IO, Message]) =
+              msg.raw.toMessage match
+                case None =>
+                  Logging.error(
+                    s"Failed to construct a jsonrpclib Message from ${msg.raw}"
+                  )
+                case Some(m) => stream.publish1(m)
 
             msg.decoded match
               case rq: LspMessage.Request =>

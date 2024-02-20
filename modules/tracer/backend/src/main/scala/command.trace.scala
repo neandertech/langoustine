@@ -18,6 +18,7 @@ import langoustine.lsp.Communicate
 import org.http4s.server.Server
 import jsonrpclib.fs2.lsp
 import scala.util.NotGiven
+import jsonrpclib.Message
 
 extension (s: fs2.Stream[IO, Payload])
   def debugAs(name: String) =
@@ -33,8 +34,8 @@ def Trace(
     in: fs2.Stream[IO, Byte],
     out: fs2.Pipe[IO, Byte, Nothing],
     err: fs2.Pipe[IO, Byte, Nothing],
-    inBytes: Topic[IO, Payload],
-    outBytes: Topic[IO, Payload],
+    inBytes: Topic[IO, Message],
+    outBytes: Topic[IO, Message],
     errBytes: Topic[IO, Chunk[Byte]],
     outLatch: Deferred[IO, org.http4s.Uri],
     exits: Deferred[IO, Boolean],
@@ -63,17 +64,11 @@ def Trace(
 
           val readIn = inPayloads
             .debugAs("payloads coming in")
-            .filter { p =>
-              val raw = readFromArrayReentrant[RawMessage](
-                p.array
-              )
+            .filter {
+              case msg: jsonrpclib.InputMessage =>
+                msg.method.startsWith("langoustine/")
+              case _ => true
 
-              raw.method.isEmpty || raw.method
-                .exists(_.startsWith("langoustine/"))
-
-            }
-            .evalTap { payload =>
-              Logging.info(new String(payload.array))
             }
             .through(rpcChannel.input)
 
@@ -88,7 +83,12 @@ def Trace(
 
         val captureStdin =
           in
-            .through(lsp.decodePayloads)
+            .through(lsp.decodeMessages)
+            .evalMap {
+              case Left(err) => Logging.error(s"Failed to decode message from stdin: $err").as(None)
+              case Right(payload) => IO.pure(Some(payload))
+            }
+            .unNone
             .debugAs("stdin LSP payloads")
             .through(inBytes.publish)
             .onFinalize(
@@ -100,19 +100,24 @@ def Trace(
         val redirectStdin =
           inPayloads
             .debugAs("writing to child stdin")
-            .through(lsp.encodePayloads)
+            .through(lsp.encodeMessages)
             .through(child.stdin)
 
         val captureStdout =
           child.stdout
-            .through(lsp.decodePayloads)
+            .through(lsp.decodeMessages)
+            .evalMap {
+              case Left(err) => Logging.error(s"Failed to decode message from target LSP's stdout: $err").as(None)
+              case Right(payload) => IO.pure(Some(payload))
+            }
+            .unNone
             .debugAs("reading from child's stdout")
             .through(outBytes.publish)
 
         val redirectStdout =
           outPayloads
             .debugAs("writing to real stdout")
-            .through(lsp.encodePayloads)
+            .through(lsp.encodeMessages)
             .through(out)
             .onFinalize(Logging.info("process stdout finished").void)
 

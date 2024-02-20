@@ -34,6 +34,7 @@ object LSPTests extends weaver.FunSuite:
 
     val (response, _) = request(
       server,
+      CallId.StringId("resp1"),
       initialize,
       InitializeParams(
         processId = Opt(25),

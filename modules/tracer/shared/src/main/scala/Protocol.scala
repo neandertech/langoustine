@@ -21,6 +21,10 @@ import com.github.plokhotnyuk.jsoniter_scala.macros.*
 
 import scala.util.Try
 import jsonrpclib.{Payload, ErrorPayload}
+import jsonrpclib.CallId
+import jsonrpclib.InputMessage.*
+import jsonrpclib.OutputMessage.*
+import jsonrpclib.Message
 
 case class ReceivedMessage(
     timestamp: Long,
@@ -37,8 +41,30 @@ case class RawMessage(
     result: Option[Payload] = None,
     error: Option[ErrorPayload] = None,
     params: Option[Payload] = None,
-    id: Option[MessageId] = None
-)
+    id: Option[CallId] = None
+):
+  def toMessage: Option[Message] =
+    id match
+      // notification
+      case None =>
+        method.map(
+          // LspMessage.Notification(generatedId, _, direction)
+          NotificationMessage(_, params)
+        )
+      case Some(id) => // it's a request/response
+        method match
+          case None =>
+            error
+              .map(ErrorMessage(id, _))
+              .orElse(
+                result.map(
+                  ResponseMessage(id, _)
+                )
+              ) // LspMessage.Response(id, None, direction))
+          case Some(value) =>
+            Some(RequestMessage(value, id, params))
+      // Some(LspMessage.Request(value, id, responded = false, direction))
+end RawMessage
 
 object RawMessage:
   import com.github.plokhotnyuk.jsoniter_scala.macros.*
@@ -50,7 +76,7 @@ object RawMessage:
       result: Option[Payload] = None,
       error: Option[ErrorPayload] = None,
       params: Option[Payload] = None,
-      id: Option[MessageId] = None
+      id: Option[CallId] = None
   ) =
     RawMessage("2.0", method, result, error, params, id)
 end RawMessage
@@ -79,22 +105,22 @@ enum TracerEvent:
 object TracerEvent:
   given JsonValueCodec[TracerEvent] = JsonCodecMaker.make
 
-enum LspMessage(val id: MessageId):
+enum LspMessage(val id: CallId):
   case Request(
       method: String,
-      override val id: MessageId,
+      override val id: CallId,
       responded: Boolean,
       direction: Direction
   ) extends LspMessage(id)
 
   case Response(
-      override val id: MessageId,
+      override val id: CallId,
       method: Option[String],
       direction: Direction
   ) extends LspMessage(id)
 
   case Notification(
-      generatedId: MessageId,
+      generatedId: CallId,
       method: String,
       direction: Direction
   ) extends LspMessage(generatedId)
@@ -112,7 +138,7 @@ object LspMessage:
   def from(
       raw: RawMessage,
       direction: Direction,
-      generatedId: MessageId
+      generatedId: CallId
   ): Option[LspMessage] =
     raw.id match
       // notification
@@ -129,32 +155,32 @@ object LspMessage:
 
 end LspMessage
 
-enum MessageId:
-  case StringId(id: String)
-  case NumberId(id: Long)
-  case NullId
+// enum MessageId:
+//   case StringId(id: String)
+//   case NumberId(id: Long)
+//   case NullId
 
-object MessageId:
-  given JsonValueCodec[MessageId] = new JsonValueCodec[MessageId]:
-    def decodeValue(in: JsonReader, default: MessageId): MessageId =
-      Try(in.readLong())
-        .map(MessageId.NumberId.apply)
-        .orElse(Try {
-          in.rollbackToken()
-          in.readString(null)
-        }.map(MessageId.StringId.apply))
-        .orElse(scala.util.Success(default))
-        .get
+// object MessageId:
+//   given JsonValueCodec[MessageId] = new JsonValueCodec[MessageId]:
+//     def decodeValue(in: JsonReader, default: MessageId): MessageId =
+//       Try(in.readLong())
+//         .map(MessageId.NumberId.apply)
+//         .orElse(Try {
+//           in.rollbackToken()
+//           in.readString(null)
+//         }.map(MessageId.StringId.apply))
+//         .orElse(scala.util.Success(default))
+//         .get
 
-    import MessageId.*
+//     import MessageId.*
 
-    def encodeValue(x: MessageId, out: JsonWriter): Unit = x match
-      case NumberId(long)   => out.writeVal(long)
-      case StringId(string) => out.writeVal(string)
-      case NullId           => out.writeNull()
+//     def encodeValue(x: MessageId, out: JsonWriter): Unit = x match
+//       case NumberId(long)   => out.writeVal(long)
+//       case StringId(string) => out.writeVal(string)
+//       case NullId           => out.writeNull()
 
-    def nullValue: MessageId = MessageId.NullId
-end MessageId
+//     def nullValue: MessageId = MessageId.NullId
+// end MessageId
 
 enum Summary:
   case Trace(workingFolder: String, serverCommand: List[String])

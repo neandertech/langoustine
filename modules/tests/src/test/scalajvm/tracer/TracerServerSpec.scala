@@ -11,6 +11,7 @@ import org.http4s.client.*
 import org.http4s.client.websocket.*
 import scala.concurrent.duration.*
 import weaver.*
+import jsonrpclib.Payload
 
 object TracerServerSpec extends ServerSpec:
 
@@ -45,7 +46,10 @@ object TracerServerSpec extends ServerSpec:
       serverReq1 = RawMessage.create(id = id, method = Some("window/howdy"))
       _ <- serv.send(_.out, serverReq1)
 
-      clientResp1 = RawMessage.create(id = id)
+      clientResp1 = RawMessage.create(
+        id = id,
+        result = Some(Payload("{}".getBytes()))
+      )
       _ <- serv.send(_.in, clientResp1)
 
       resp1 <- serv.front.response(id)
@@ -61,8 +65,12 @@ object TracerServerSpec extends ServerSpec:
 
   test("Records outgoing responses") { serv =>
     for
-      msg1 <- serv.genId.map(id => RawMessage.create(id = id))
-      msg2 <- serv.genId.map(id => RawMessage.create(id = id))
+      msg1 <- serv.genId.map(id =>
+        RawMessage.create(id = id, result = Some(Payload("{}".getBytes())))
+      )
+      msg2 <- serv.genId.map(id =>
+        RawMessage.create(id = id, result = Some(Payload("{}".getBytes())))
+      )
 
       _ <- serv.send(_.out, msg1)
       _ <- serv.send(_.out, msg2)
