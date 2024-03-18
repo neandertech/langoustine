@@ -30,7 +30,7 @@ inThisBuild(
 )
 
 val V = new {
-  val scala           = "3.3.2"
+  val scala           = "3.4.0"
   val scribe          = "3.11.1"
   val upickle         = "2.0.0"
   val cats            = "2.9.0"
@@ -195,9 +195,11 @@ lazy val tests = projectMatrix
     libraryDependencies += "com.lihaoyi" %%% "pprint" % "0.7.0" % Test,
     libraryDependencies += "org.typelevel" %% "shapeless3-deriving" % "3.4.1" % Test,
     libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.17.0" % Test,
+    libraryDependencies += "io.github.irevive" %% "union-derivation-core" % "0.1.0" % Test,
     Test / fork             := virtualAxes.value.contains(VirtualAxis.jvm),
     snapshotsPackageName    := "tests.core",
-    snapshotsForceOverwrite := !sys.env.contains("CI")
+    snapshotsForceOverwrite := !sys.env.contains("CI"),
+    scalacOptions += "-Yretain-trees"
   )
   .enablePlugins(SnapshotsPlugin)
 

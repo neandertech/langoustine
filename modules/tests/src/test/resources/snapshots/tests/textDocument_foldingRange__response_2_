@@ -1,0 +1,303 @@
+[
+  {
+    "startLine": 13,
+    "startCharacter": 34,
+    "endLine": 12
+  },
+  {
+    "startLine": 56,
+    "endLine": 97,
+    "endCharacter": 1,
+    "kind": "imports"
+  },
+  {
+    "startLine": 3,
+    "endLine": 7,
+    "endCharacter": 7
+  },
+  {
+    "startLine": 75,
+    "startCharacter": 87,
+    "endLine": 11,
+    "endCharacter": 85,
+    "kind": "comment",
+    "collapsedText": "randomString"
+  },
+  {
+    "startLine": 99,
+    "startCharacter": 67,
+    "endLine": 65,
+    "endCharacter": 72,
+    "collapsedText": "randomString"
+  },
+  {
+    "startLine": 38,
+    "endLine": 12,
+    "endCharacter": 18,
+    "kind": "imports"
+  },
+  {
+    "startLine": 28,
+    "endLine": 74,
+    "endCharacter": 75,
+    "kind": "comment",
+    "collapsedText": "randomString"
+  },
+  {
+    "startLine": 80,
+    "startCharacter": 17,
+    "endLine": 59,
+    "kind": "imports"
+  },
+  {
+    "startLine": 16,
+    "endLine": 28,
+    "endCharacter": 32,
+    "collapsedText": "randomString"
+  },
+  {
+    "startLine": 71,
+    "endLine": 69,
+    "collapsedText": "randomString"
+  },
+  {
+    "startLine": 85,
+    "endLine": 51,
+    "endCharacter": 26
+  },
+  {
+    "startLine": 46,
+    "startCharacter": 20,
+    "endLine": 44,
+    "endCharacter": 40,
+    "kind": "comment"
+  },
+  {
+    "startLine": 54,
+    "startCharacter": 16,
+    "endLine": 42,
+    "endCharacter": 49
+  },
+  {
+    "startLine": 66,
+    "startCharacter": 73,
+    "endLine": 76,
+    "collapsedText": "randomString"
+  },
+  {
+    "startLine": 50,
+    "startCharacter": 4,
+    "endLine": 63,
+    "endCharacter": 48,
+    "kind": "region"
+  },
+  {
+    "startLine": 72,
+    "startCharacter": 72,
+    "endLine": 6,
+    "collapsedText": "randomString"
+  },
+  {
+    "startLine": 59,
+    "startCharacter": 86,
+    "endLine": 50,
+    "collapsedText": "randomString"
+  },
+  {
+    "startLine": 73,
+    "endLine": 60,
+    "endCharacter": 51,
+    "kind": "imports"
+  },
+  {
+    "startLine": 68,
+    "endLine": 53,
+    "endCharacter": 97,
+    "kind": "comment",
+    "collapsedText": "randomString"
+  },
+  {
+    "startLine": 13,
+    "startCharacter": 25,
+    "endLine": 78
+  },
+  {
+    "startLine": 43,
+    "startCharacter": 46,
+    "endLine": 80,
+    "collapsedText": "randomString"
+  },
+  {
+    "startLine": 90,
+    "endLine": 42
+  },
+  {
+    "startLine": 99,
+    "endLine": 61,
+    "endCharacter": 2,
+    "kind": "imports"
+  },
+  {
+    "startLine": 14,
+    "endLine": 64,
+    "collapsedText": "randomString"
+  },
+  {
+    "startLine": 75,
+    "endLine": 63,
+    "endCharacter": 46
+  },
+  {
+    "startLine": 63,
+    "startCharacter": 68,
+    "endLine": 52,
+    "endCharacter": 67,
+    "collapsedText": "randomString"
+  },
+  {
+    "startLine": 25,
+    "startCharacter": 76,
+    "endLine": 98,
+    "endCharacter": 73,
+    "collapsedText": "randomString"
+  },
+  {
+    "startLine": 62,
+    "startCharacter": 68,
+    "endLine": 7,
+    "endCharacter": 62,
+    "kind": "imports",
+    "collapsedText": "randomString"
+  },
+  {
+    "startLine": 8,
+    "startCharacter": 12,
+    "endLine": 16,
+    "collapsedText": "randomString"
+  },
+  {
+    "startLine": 65,
+    "endLine": 30,
+    "endCharacter": 10,
+    "kind": "region"
+  },
+  {
+    "startLine": 76,
+    "endLine": 35,
+    "endCharacter": 57,
+    "kind": "comment"
+  },
+  {
+    "startLine": 14,
+    "startCharacter": 14,
+    "endLine": 88,
+    "kind": "imports",
+    "collapsedText": "randomString"
+  },
+  {
+    "startLine": 61,
+    "startCharacter": 2,
+    "endLine": 93,
+    "endCharacter": 11
+  },
+  {
+    "startLine": 77,
+    "startCharacter": 73,
+    "endLine": 58,
+    "endCharacter": 84
+  },
+  {
+    "startLine": 55,
+    "startCharacter": 85,
+    "endLine": 26,
+    "endCharacter": 66,
+    "collapsedText": "randomString"
+  },
+  {
+    "startLine": 35,
+    "startCharacter": 65,
+    "endLine": 97
+  },
+  {
+    "startLine": 53,
+    "endLine": 29,
+    "endCharacter": 35,
+    "kind": "imports",
+    "collapsedText": "randomString"
+  },
+  {
+    "startLine": 78,
+    "startCharacter": 87,
+    "endLine": 59,
+    "endCharacter": 28
+  },
+  {
+    "startLine": 55,
+    "endLine": 64,
+    "endCharacter": 1,
+    "kind": "comment"
+  },
+  {
+    "startLine": 29,
+    "startCharacter": 74,
+    "endLine": 49,
+    "endCharacter": 25,
+    "collapsedText": "randomString"
+  },
+  {
+    "startLine": 91,
+    "startCharacter": 2,
+    "endLine": 73
+  },
+  {
+    "startLine": 28,
+    "endLine": 86,
+    "kind": "comment"
+  },
+  {
+    "startLine": 72,
+    "startCharacter": 30,
+    "endLine": 78,
+    "endCharacter": 12
+  },
+  {
+    "startLine": 42,
+    "startCharacter": 66,
+    "endLine": 45
+  },
+  {
+    "startLine": 41,
+    "endLine": 61
+  },
+  {
+    "startLine": 41,
+    "startCharacter": 79,
+    "endLine": 34,
+    "collapsedText": "randomString"
+  },
+  {
+    "startLine": 61,
+    "startCharacter": 70,
+    "endLine": 22,
+    "endCharacter": 2,
+    "kind": "imports"
+  },
+  {
+    "startLine": 29,
+    "endLine": 90,
+    "endCharacter": 86,
+    "collapsedText": "randomString"
+  },
+  {
+    "startLine": 75,
+    "startCharacter": 5,
+    "endLine": 4,
+    "endCharacter": 38
+  },
+  {
+    "startLine": 63,
+    "startCharacter": 79,
+    "endLine": 88,
+    "collapsedText": "randomString"
+  }
+]

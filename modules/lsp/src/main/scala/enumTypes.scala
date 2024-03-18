@@ -26,11 +26,6 @@ trait Bijection[A, T]:
   def reverse(a: T): A
   def domain: Set[A]
 
-// object SameRuntimeType:
-//   def apply[A, T](f: A => T): SameRuntimeType[A, T] =
-//     new:
-//       override def apply(a: A): T = f(a)
-
 private[lsp] trait IntEnum[T](using ev: T =:= Int):
   private val intCodec    = upickle.default.readwriter[Int]
   given reader: Reader[T] = intCodec.asInstanceOf[Reader[T]]

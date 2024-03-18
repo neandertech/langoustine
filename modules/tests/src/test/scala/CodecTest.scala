@@ -15,15 +15,15 @@ import org.scalacheck.rng.Seed
 
 object CodecTest extends weaver.FunSuite, WeaverSnapshotsIntegration:
 
-  given Arbitrary[String] = Arbitrary(Gen.alphaNumStr)
+  given Arbitrary[String] = Arbitrary(Gen.const("randomString"))
 
   val SEED = 120312937L
 
   requestSnapshotTest(langoustine.lsp.requests.textDocument.documentLink)
-  // requestSnapshotTest(langoustine.lsp.requests.textDocument.documentSymbol)
   requestSnapshotTest(langoustine.lsp.requests.textDocument.foldingRange)
   requestSnapshotTest(langoustine.lsp.requests.workspace.configuration)
   requestSnapshotTest(langoustine.lsp.requests.textDocument.references)
+  // requestSnapshotTest(langoustine.lsp.requests.textDocument.rename)
 
   def requestSnapshotTest[T <: LSPRequest](x: T)(using
       arbReq: Arbitrary[x.In],
@@ -36,19 +36,17 @@ object CodecTest extends weaver.FunSuite, WeaverSnapshotsIntegration:
 
     def sampleN[T](n: Int, arb: Arbitrary[T]) =
       Gen
-        .listOfN(5, arb.arbitrary)
-        .apply(Gen.Parameters.default.withInitialSeed(Seed(SEED)), Seed(SEED))
-        .toList
-        .flatten
+        .listOfN(n, arb.arbitrary)
+        .pureApply(Gen.Parameters.default, Seed(SEED))
 
     test(x.requestMethod + " request snapshot") {
       val bld      = StringBuilder()
       val requests = sampleN(5, arbReq).distinct
 
       forEach(requests.zipWithIndex): (request, idx) =>
-        val json         = write(request)
+        val json         = write(request, indent = 2)
         val printed      = safeToString(request)
-        val snapshotName = s"request($idx): " + x.requestMethod
+        val snapshotName = x.requestMethod + s": request($idx)" 
 
         expectSnapshot(snapshotName, json) &&
         assertSnapshotContents(
@@ -62,9 +60,9 @@ object CodecTest extends weaver.FunSuite, WeaverSnapshotsIntegration:
       val requests = sampleN(5, arbResp).distinct
 
       forEach(requests.zipWithIndex): (response, idx) =>
-        val json         = write(response)
+        val json         = write(response, indent = 2)
         val printed      = safeToString(response)
-        val snapshotName = s"response($idx): " + x.requestMethod
+        val snapshotName =  x.requestMethod + s": response($idx)"
 
         expectSnapshot(snapshotName, json) &&
         assertSnapshotContents(

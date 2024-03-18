@@ -9,11 +9,15 @@ import org.scalacheck.*
 import shapeless3.deriving.*
 
 given [A](using inst: => K0.ProductInstances[Arbitrary, A]): Arbitrary[A] =
-  lazy val x: Gen[A] = Gen.delay(
-    inst.construct([t] => (ma: Arbitrary[t]) => ma.arbitrary.sample.get)
+  val x: Gen[A] = Gen.delay(
+    inst.constructA([t] => (ma: Arbitrary[t]) => ma.arbitrary)(
+      [a] => (a: a) => Gen.const(a),
+      [a, b] => (a: Gen[a], f: a => b) => a.map(f),
+      [a, b] => (f: Gen[a => b], a: Gen[a]) => a.flatMap(a => f.map(_.apply(a)))
+    )
   )
 
-  Arbitrary(x)
+  Arbitrary.apply(x)
 end given
 
 given optGen[A](using inst: => Arbitrary[A]): Arbitrary[Opt[A]] = Arbitrary(
@@ -42,8 +46,8 @@ given deriveIntegerEnum[A](using bi: Bijection[A, Int]): Arbitrary[A] =
 given Arbitrary[ProgressToken] =
   Arbitrary:
       for
-        someString <- Arbitrary.arbitrary[String].map(ProgressToken.apply)
-        someInt    <- Arbitrary.arbitrary[Int].map(ProgressToken.apply)
+        someString <- Gen.const("stringToken").map(ProgressToken.apply)
+        someInt    <- Gen.const(25).map(ProgressToken.apply)
 
         progressToken <- Gen.oneOf(someString, someInt)
       yield progressToken
@@ -66,3 +70,8 @@ given Arbitrary[Vector[SymbolInformation] | Vector[DocumentSymbol]] =
   val either: Gen[Vector[SymbolInformation] | Vector[DocumentSymbol]] =
     Gen.oneOf(l1, l2)
   Arbitrary(either)
+
+import io.github.irevive.union.derivation.{IsUnion, UnionDerivation}
+
+inline given derivedUnion[A](using IsUnion[A]): Arbitrary[A] =
+  UnionDerivation.derive[Arbitrary, A]
