@@ -46,7 +46,7 @@ object CodecTest extends weaver.FunSuite, WeaverSnapshotsIntegration:
       forEach(requests.zipWithIndex): (request, idx) =>
         val json         = write(request, indent = 2)
         val printed      = safeToString(request)
-        val snapshotName = x.requestMethod + s": request($idx)" 
+        val snapshotName = x.requestMethod + s": request($idx)"
 
         expectSnapshot(snapshotName, json) &&
         assertSnapshotContents(
@@ -62,7 +62,7 @@ object CodecTest extends weaver.FunSuite, WeaverSnapshotsIntegration:
       forEach(requests.zipWithIndex): (response, idx) =>
         val json         = write(response, indent = 2)
         val printed      = safeToString(response)
-        val snapshotName =  x.requestMethod + s": response($idx)"
+        val snapshotName = x.requestMethod + s": response($idx)"
 
         expectSnapshot(snapshotName, json) &&
         assertSnapshotContents(
