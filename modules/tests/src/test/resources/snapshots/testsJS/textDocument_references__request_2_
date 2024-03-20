@@ -1,0 +1,13 @@
+{
+  "context": {
+    "includeDeclaration": false
+  },
+  "textDocument": {
+    "uri": "file1"
+  },
+  "position": {
+    "line": 23,
+    "character": 38
+  },
+  "partialResultToken": "stringToken"
+}
