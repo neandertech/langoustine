@@ -1,0 +1,26 @@
+[
+  {
+    "range": {
+      "start": {
+        "line": 52,
+        "character": 1
+      },
+      "end": {
+        "line": 58,
+        "character": 82
+      }
+    }
+  },
+  {
+    "range": {
+      "start": {
+        "line": 13,
+        "character": 34
+      },
+      "end": {
+        "line": 5,
+        "character": 12
+      }
+    }
+  }
+]

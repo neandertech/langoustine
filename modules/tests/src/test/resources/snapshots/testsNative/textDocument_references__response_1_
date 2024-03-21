@@ -1,0 +1,457 @@
+[
+  {
+    "uri": "file2",
+    "range": {
+      "start": {
+        "line": 39,
+        "character": 89
+      },
+      "end": {
+        "line": 3,
+        "character": 77
+      }
+    }
+  },
+  {
+    "uri": "file2",
+    "range": {
+      "start": {
+        "line": 60,
+        "character": 62
+      },
+      "end": {
+        "line": 12,
+        "character": 99
+      }
+    }
+  },
+  {
+    "uri": "file2",
+    "range": {
+      "start": {
+        "line": 10,
+        "character": 77
+      },
+      "end": {
+        "line": 53,
+        "character": 72
+      }
+    }
+  },
+  {
+    "uri": "file2",
+    "range": {
+      "start": {
+        "line": 79,
+        "character": 62
+      },
+      "end": {
+        "line": 83,
+        "character": 23
+      }
+    }
+  },
+  {
+    "uri": "file2",
+    "range": {
+      "start": {
+        "line": 90,
+        "character": 87
+      },
+      "end": {
+        "line": 58,
+        "character": 68
+      }
+    }
+  },
+  {
+    "uri": "file2",
+    "range": {
+      "start": {
+        "line": 79,
+        "character": 65
+      },
+      "end": {
+        "line": 19,
+        "character": 22
+      }
+    }
+  },
+  {
+    "uri": "file1",
+    "range": {
+      "start": {
+        "line": 71,
+        "character": 98
+      },
+      "end": {
+        "line": 36,
+        "character": 81
+      }
+    }
+  },
+  {
+    "uri": "file1",
+    "range": {
+      "start": {
+        "line": 28,
+        "character": 62
+      },
+      "end": {
+        "line": 77,
+        "character": 20
+      }
+    }
+  },
+  {
+    "uri": "file2",
+    "range": {
+      "start": {
+        "line": 49,
+        "character": 97
+      },
+      "end": {
+        "line": 100,
+        "character": 60
+      }
+    }
+  },
+  {
+    "uri": "file1",
+    "range": {
+      "start": {
+        "line": 19,
+        "character": 33
+      },
+      "end": {
+        "line": 25,
+        "character": 94
+      }
+    }
+  },
+  {
+    "uri": "file1",
+    "range": {
+      "start": {
+        "line": 8,
+        "character": 47
+      },
+      "end": {
+        "line": 45,
+        "character": 91
+      }
+    }
+  },
+  {
+    "uri": "file2",
+    "range": {
+      "start": {
+        "line": 82,
+        "character": 61
+      },
+      "end": {
+        "line": 4,
+        "character": 97
+      }
+    }
+  },
+  {
+    "uri": "file2",
+    "range": {
+      "start": {
+        "line": 96,
+        "character": 86
+      },
+      "end": {
+        "line": 29,
+        "character": 25
+      }
+    }
+  },
+  {
+    "uri": "file2",
+    "range": {
+      "start": {
+        "line": 8,
+        "character": 77
+      },
+      "end": {
+        "line": 31,
+        "character": 35
+      }
+    }
+  },
+  {
+    "uri": "file2",
+    "range": {
+      "start": {
+        "line": 21,
+        "character": 42
+      },
+      "end": {
+        "line": 13,
+        "character": 47
+      }
+    }
+  },
+  {
+    "uri": "file2",
+    "range": {
+      "start": {
+        "line": 50,
+        "character": 13
+      },
+      "end": {
+        "line": 51,
+        "character": 55
+      }
+    }
+  },
+  {
+    "uri": "file1",
+    "range": {
+      "start": {
+        "line": 32,
+        "character": 62
+      },
+      "end": {
+        "line": 86,
+        "character": 73
+      }
+    }
+  },
+  {
+    "uri": "file1",
+    "range": {
+      "start": {
+        "line": 9,
+        "character": 93
+      },
+      "end": {
+        "line": 2,
+        "character": 43
+      }
+    }
+  },
+  {
+    "uri": "file2",
+    "range": {
+      "start": {
+        "line": 38,
+        "character": 47
+      },
+      "end": {
+        "line": 82,
+        "character": 93
+      }
+    }
+  },
+  {
+    "uri": "file2",
+    "range": {
+      "start": {
+        "line": 36,
+        "character": 64
+      },
+      "end": {
+        "line": 3,
+        "character": 79
+      }
+    }
+  },
+  {
+    "uri": "file1",
+    "range": {
+      "start": {
+        "line": 42,
+        "character": 96
+      },
+      "end": {
+        "line": 25,
+        "character": 43
+      }
+    }
+  },
+  {
+    "uri": "file1",
+    "range": {
+      "start": {
+        "line": 60,
+        "character": 4
+      },
+      "end": {
+        "line": 29,
+        "character": 32
+      }
+    }
+  },
+  {
+    "uri": "file1",
+    "range": {
+      "start": {
+        "line": 84,
+        "character": 88
+      },
+      "end": {
+        "line": 72,
+        "character": 31
+      }
+    }
+  },
+  {
+    "uri": "file1",
+    "range": {
+      "start": {
+        "line": 22,
+        "character": 52
+      },
+      "end": {
+        "line": 89,
+        "character": 51
+      }
+    }
+  },
+  {
+    "uri": "file2",
+    "range": {
+      "start": {
+        "line": 26,
+        "character": 15
+      },
+      "end": {
+        "line": 67,
+        "character": 84
+      }
+    }
+  },
+  {
+    "uri": "file1",
+    "range": {
+      "start": {
+        "line": 17,
+        "character": 36
+      },
+      "end": {
+        "line": 6,
+        "character": 50
+      }
+    }
+  },
+  {
+    "uri": "file2",
+    "range": {
+      "start": {
+        "line": 73,
+        "character": 17
+      },
+      "end": {
+        "line": 91,
+        "character": 13
+      }
+    }
+  },
+  {
+    "uri": "file2",
+    "range": {
+      "start": {
+        "line": 24,
+        "character": 87
+      },
+      "end": {
+        "line": 72,
+        "character": 61
+      }
+    }
+  },
+  {
+    "uri": "file2",
+    "range": {
+      "start": {
+        "line": 56,
+        "character": 50
+      },
+      "end": {
+        "line": 21,
+        "character": 83
+      }
+    }
+  },
+  {
+    "uri": "file2",
+    "range": {
+      "start": {
+        "line": 5,
+        "character": 75
+      },
+      "end": {
+        "line": 58,
+        "character": 83
+      }
+    }
+  },
+  {
+    "uri": "file1",
+    "range": {
+      "start": {
+        "line": 19,
+        "character": 24
+      },
+      "end": {
+        "line": 71,
+        "character": 34
+      }
+    }
+  },
+  {
+    "uri": "file1",
+    "range": {
+      "start": {
+        "line": 77,
+        "character": 45
+      },
+      "end": {
+        "line": 43,
+        "character": 24
+      }
+    }
+  },
+  {
+    "uri": "file2",
+    "range": {
+      "start": {
+        "line": 41,
+        "character": 35
+      },
+      "end": {
+        "line": 80,
+        "character": 74
+      }
+    }
+  },
+  {
+    "uri": "file2",
+    "range": {
+      "start": {
+        "line": 78,
+        "character": 91
+      },
+      "end": {
+        "line": 77,
+        "character": 59
+      }
+    }
+  },
+  {
+    "uri": "file2",
+    "range": {
+      "start": {
+        "line": 73,
+        "character": 41
+      },
+      "end": {
+        "line": 4,
+        "character": 98
+      }
+    }
+  }
+]

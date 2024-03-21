@@ -1,0 +1,13 @@
+{
+  "context": {
+    "includeDeclaration": false
+  },
+  "textDocument": {
+    "uri": "file2"
+  },
+  "position": {
+    "line": 60,
+    "character": 62
+  },
+  "workDoneToken": 25
+}

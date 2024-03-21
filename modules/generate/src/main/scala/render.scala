@@ -1072,6 +1072,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         if a.values.nonEmpty then
           line(s"object ${a.name} extends $impl[${a.name}]:")
           nest {
+            val rendered = List.newBuilder[String]
             a.values.foreach { entry =>
               val value =
                 base match
@@ -1083,8 +1084,16 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
                   cw.commentLine(d.value)
                 }
               }
-              line(s"val ${sanitise(entry.name.value)} = entry($value)")
+              val entryName = sanitise(entry.name.value)
+              rendered += entryName
+              line(s"val ${entryName} = entry($value)")
             }
+
+            line("override def ALL = Set(")
+            nest {
+              line(rendered.result.mkString(", "))
+            }
+            line(")")
 
           }
         end if

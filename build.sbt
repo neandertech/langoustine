@@ -30,17 +30,17 @@ inThisBuild(
 )
 
 val V = new {
-  val scala           = "3.3.0"
-  val scribe          = "3.11.1"
+  val scala           = "3.3.3"
+  val scribe          = "3.13.1"
   val upickle         = "2.0.0"
-  val cats            = "2.9.0"
+  val cats            = "2.10.0"
   val jsonrpclib      = "0.0.5"
-  val fs2             = "3.5.0"
-  val http4s          = "0.23.23"
+  val fs2             = "3.10.0"
+  val http4s          = "0.23.26"
   val laminar         = "0.14.5"
   val decline         = "2.4.1"
   val jsoniter        = "2.20.3"
-  val weaver          = "0.8.3"
+  val weaver          = "0.8.4"
   val circe           = "0.14.5"
   val http4sJdkClient = "0.9.1"
   val organizeImports = "0.6.0"
@@ -192,8 +192,17 @@ lazy val tests = projectMatrix
   .settings(
     libraryDependencies += "org.http4s" %% "http4s-jdk-http-client" % V.http4sJdkClient % Test,
     libraryDependencies += "com.disneystreaming" %%% "weaver-cats" % V.weaver % Test,
-    Test / fork := virtualAxes.value.contains(VirtualAxis.jvm)
+    libraryDependencies += "com.lihaoyi" %%% "pprint" % "0.8.1" % Test,
+    libraryDependencies += "org.typelevel" %%% "shapeless3-deriving" % "3.4.1" % Test,
+    libraryDependencies += "org.scalacheck" %%% "scalacheck" % "1.17.0" % Test,
+    libraryDependencies += "io.github.irevive" %%% "union-derivation-core" % "0.1.0" % Test,
+    scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule)),
+    Test / fork             := virtualAxes.value.contains(VirtualAxis.jvm),
+    snapshotsPackageName    := "tests.core",
+    snapshotsForceOverwrite := !sys.env.contains("CI"),
+    scalacOptions += "-Yretain-trees"
   )
+  .enablePlugins(SnapshotsPlugin)
 
 lazy val example = projectMatrix
   .in(file("modules/example"))
