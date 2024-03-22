@@ -121,11 +121,11 @@ def notification[F[
         val encoded = Payload(upickle.default.write(in).getBytes())
         for
           lifted <- F.fromEither(inc.decode(Some(encoded)))
-            msg = NotificationMessage(
-              method = req.notificationMethod,
-              params = Some(encoded)
-            )
-          _      <- run(msg, lifted)
+          msg = NotificationMessage(
+            method = req.notificationMethod,
+            params = Some(encoded)
+          )
+          _ <- run(msg, lifted)
         yield communicate
         end for
       }

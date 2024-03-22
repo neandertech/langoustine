@@ -28,12 +28,18 @@ case class Feed(
     val ser = writeToStringReentrant(rm)
 
     rm.toMessage match
-      case None => IO.raiseError(new RuntimeException(s"Failed to convert raw message `$rm` to jsonrpclib Message"))
+      case None =>
+        IO.raiseError(
+          new RuntimeException(
+            s"Failed to convert raw message `$rm` to jsonrpclib Message"
+          )
+        )
       case Some(value) =>
         f(this).publish1(value)
-    
+    end match
 
     // f(this).publish1(Payload(ser.getBytes()))
+  end send
 
   def send(f: this.type => Topic[IO, Chunk[Byte]], str: String) =
     f(this).publish1(Chunk.array(str.getBytes))

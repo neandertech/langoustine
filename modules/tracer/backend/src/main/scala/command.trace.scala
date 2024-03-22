@@ -85,7 +85,10 @@ def Trace(
           in
             .through(lsp.decodeMessages)
             .evalMap {
-              case Left(err) => Logging.error(s"Failed to decode message from stdin: $err").as(None)
+              case Left(err) =>
+                Logging
+                  .error(s"Failed to decode message from stdin: $err")
+                  .as(None)
               case Right(payload) => IO.pure(Some(payload))
             }
             .unNone
@@ -107,7 +110,12 @@ def Trace(
           child.stdout
             .through(lsp.decodeMessages)
             .evalMap {
-              case Left(err) => Logging.error(s"Failed to decode message from target LSP's stdout: $err").as(None)
+              case Left(err) =>
+                Logging
+                  .error(
+                    s"Failed to decode message from target LSP's stdout: $err"
+                  )
+                  .as(None)
               case Right(payload) => IO.pure(Some(payload))
             }
             .unNone
