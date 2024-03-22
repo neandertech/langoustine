@@ -37,8 +37,6 @@ case class Feed(
       case Some(value) =>
         f(this).publish1(value)
     end match
-
-    // f(this).publish1(Payload(ser.getBytes()))
   end send
 
   def send(f: this.type => Topic[IO, Chunk[Byte]], str: String) =

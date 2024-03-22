@@ -150,16 +150,7 @@ object LangoustineApp:
               .concurrently(
                 in
                   .through(lsp.decodeMessages)
-                  .evalMap {
-                    case Left(err) => IO.pure(None) // TODO
-                    // Logging
-                    //   .error(
-                    //     s"Failed to decode message from target LSP's stdout: $err"
-                    //   )
-                    //   .as(None)
-                    case Right(payload) => IO.pure(Some(payload))
-                  }
-                  .unNone
+                  .evalMap(IO.fromEither)
                   .through(channel.input)
               )
               .concurrently(
