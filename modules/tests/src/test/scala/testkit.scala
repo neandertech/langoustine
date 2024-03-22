@@ -8,6 +8,8 @@ import cats.MonadThrow
 import scala.util.*
 import scala.annotation.tailrec
 import java.util.concurrent.atomic.AtomicReference
+import jsonrpclib.InputMessage.RequestMessage
+import jsonrpclib.InputMessage.NotificationMessage
 
 given [F[_]](using MonadThrow[F]): Monadic[F] with
   def doFlatMap[A, B](fa: F[A])(f: A => F[B]): F[B] =
@@ -66,6 +68,7 @@ object CollectNotifications:
 
 def request[F[_]: RefConstructor: MonadThrow, T <: requests.LSPRequest](
     builder: LSPBuilder[F],
+    id: CallId,
     req: T,
     in: req.In
 ) =
@@ -79,7 +82,12 @@ def request[F[_]: RefConstructor: MonadThrow, T <: requests.LSPRequest](
           val encoded = Payload(upickle.default.write(in).getBytes())
           for
             lifted <- F.fromEither(inc.decode(Some(encoded)))
-            res <- run(lifted).flatMap {
+            msg = RequestMessage(
+              method = req.requestMethod,
+              callId = id,
+              params = Some(encoded)
+            )
+            res <- run(msg, lifted).flatMap {
               case Left(err) => F.raiseError(erc.encode(err))
               case Right(res) =>
                 F.catchNonFatal {
@@ -113,7 +121,11 @@ def notification[F[
         val encoded = Payload(upickle.default.write(in).getBytes())
         for
           lifted <- F.fromEither(inc.decode(Some(encoded)))
-          _      <- run(lifted)
+          msg = NotificationMessage(
+            method = req.notificationMethod,
+            params = Some(encoded)
+          )
+          _ <- run(msg, lifted)
         yield communicate
         end for
       }

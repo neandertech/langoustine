@@ -34,15 +34,16 @@ import scala.scalajs.js.Date
 import scala.scalajs.js.JSON
 import scala.scalajs.js.annotation.JSGlobal
 import com.raquo.airstream.core.Signal
+import jsonrpclib.CallId
 
 @js.native
 @JSGlobal
 object hljs extends js.Object:
   def highlightAll(): Unit = js.native
 
-def cid(c: MessageId) = c match
-  case MessageId.NumberId(n) => n.toString
-  case MessageId.StringId(s) => s
+def cid(c: CallId) = c match
+  case CallId.NumberId(n) => n.toString
+  case CallId.StringId(s) => s
 
 def uniqueId(m: LspMessage) = m match
   case _: LspMessage.Request      => "request-" + cid(m.id)

@@ -80,7 +80,7 @@ object LangoustineApp:
         (endpoints: @unchecked)
           .map {
             case n @ NotificationEndpoint[Future, Any](method, run, inCodec) =>
-              n.copy(run = (in) => IO.fromFuture(IO(n.run(in))))
+              n.copy(run = (msg, in) => IO.fromFuture(IO(n.run(msg, in))))
             case r @ RequestResponseEndpoint[Future, Any, Any, Any](
                   method,
                   run,
@@ -88,7 +88,7 @@ object LangoustineApp:
                   errCodec,
                   outCodec
                 ) =>
-              r.copy(run = (in) => IO.fromFuture(IO(r.run(in))))
+              r.copy(run = (msg, in) => IO.fromFuture(IO(r.run(msg, in))))
           }
           .traverse(ep => to.mountEndpoint(ep))
       }.void
@@ -148,11 +148,14 @@ object LangoustineApp:
             fs2.Stream
               .eval(latch.get)
               .concurrently(
-                in.through(lsp.decodePayloads).through(channel.input)
+                in
+                  .through(lsp.decodeMessages)
+                  .evalMap(IO.fromEither)
+                  .through(channel.input)
               )
               .concurrently(
                 channel.output
-                  .through(lsp.encodePayloads)
+                  .through(lsp.encodeMessages)
                   .through(out)
               )
           )

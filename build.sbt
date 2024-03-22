@@ -4,7 +4,6 @@ Global / excludeLintKeys += scalaJSLinkerConfig
 
 inThisBuild(
   List(
-    scalafixDependencies += "com.github.liancheng" %% "organize-imports" % V.organizeImports,
     semanticdbEnabled          := true,
     semanticdbVersion          := scalafixSemanticdb.revision,
     scalafixScalaBinaryVersion := scalaBinaryVersion.value,
@@ -34,7 +33,7 @@ val V = new {
   val scribe          = "3.13.1"
   val upickle         = "2.0.0"
   val cats            = "2.10.0"
-  val jsonrpclib      = "0.0.5"
+  val jsonrpclib      = "0.0.6"
   val fs2             = "3.10.0"
   val http4s          = "0.23.26"
   val laminar         = "0.14.5"

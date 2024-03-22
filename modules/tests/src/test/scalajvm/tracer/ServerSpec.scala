@@ -8,11 +8,13 @@ import cats.syntax.all.*
 import fs2.Chunk
 import langoustine.tracer.*
 import org.http4s.Uri
+import jsonrpclib.Message
+import jsonrpclib.CallId
 
 abstract class ServerSpec extends weaver.IOSuite:
   type Res = Feed
   override def sharedResource: Resource[cats.effect.IO, Res] =
-    val create  = Topic[IO, Payload]
+    val create  = Topic[IO, Message]
     val channel = Topic[IO, Chunk[Byte]]
 
     Resource
@@ -49,7 +51,7 @@ abstract class ServerSpec extends weaver.IOSuite:
             val genId =
               ref
                 .getAndUpdate(_ + 1)
-                .map(MessageId.NumberId.apply)
+                .map(CallId.NumberId.apply)
                 .map(Some(_))
 
             Feed(in, out, err, Front(c, baseUri, w), genId)

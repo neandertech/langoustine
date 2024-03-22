@@ -9,33 +9,51 @@ import jsonrpclib.{Payload}
 import jsonrpclib.Codec
 import langoustine.lsp.requests.window
 import langoustine.lsp.enumerations
+import jsonrpclib.Message
+import jsonrpclib.InputMessage.RequestMessage
+import jsonrpclib.InputMessage.NotificationMessage
+import jsonrpclib.OutputMessage.ErrorMessage
+import jsonrpclib.OutputMessage.ResponseMessage
+import jsonrpclib.CallId
 
 case class State(
     ch: Channel[IO, String],
     messages: SignallingRef[IO, Vector[ReceivedMessage]],
     logBuf: SignallingRef[IO, Vector[LogMessage]],
-    responseIdMapping: Ref[IO, Map[MessageId, String]],
+    responseIdMapping: Ref[IO, Map[CallId, String]],
     random: UUIDGen[IO]
 ):
-  private def decodeRaw(p: Payload) =
-    IO(Codec.decode[RawMessage](Some(p))).flatMap {
-      case Left(err) =>
-        ch.send(s"[Tracer] hard failed to decode $p, error: $err").as(None)
-      case Right(v) => Received.capture(v).map(Option.apply)
-    }
+  private def decodeRaw(p: Message): RawMessage =
+    p match
+      case RequestMessage(method, callId, params) =>
+        RawMessage.create(
+          method = Some(method),
+          params = params,
+          id = Some(callId)
+        )
+      case NotificationMessage(method, params) =>
+        RawMessage.create(method = Some(method), params = params)
+      case ErrorMessage(callId, payload) =>
+        RawMessage.create(id = Some(callId), error = Some(payload))
+      case ResponseMessage(callId, data) =>
+        RawMessage.create(result = Some(data), id = Some(callId))
+
+      // IO(Codec.decode[RawMessage](Some(p))).flatMap {
+      //   case Left(err) =>
+      //     ch.send(s"[Tracer] hard failed to decode $p, error: $err").as(None)
+      //   case Right(v) => Received.capture(v).map(Option.apply)
+      // }
 
   def hydrateFrom(
-      stream: fs2.Stream[IO, Payload],
+      stream: fs2.Stream[IO, Message],
       direction: Direction
   ): fs2.Stream[cats.effect.IO, Received[RawMessage]] =
     stream
-      .evalMap(decodeRaw)
-      .collect { case Some(v) =>
-        v
-      }
+      .map(decodeRaw)
+      .evalMap(Received.capture)
       .evalTap { rawMessage =>
         random.randomUUID
-          .map(u => MessageId.StringId("generated-" + u.toString))
+          .map(u => CallId.StringId("generated-" + u.toString))
           .flatMap { generatedId =>
             val receivedRawMessage = rawMessage.copy(value =
               rawMessage.value
@@ -129,6 +147,6 @@ object State:
       messages          <- SignallingRef[IO].of(Vector.empty[ReceivedMessage])
       logBuf            <- SignallingRef[IO].of(Vector.empty[LogMessage])
       ch                <- Channel.bounded[IO, String](128)
-      responseIdMapping <- IO.ref(Map.empty[MessageId, String])
+      responseIdMapping <- IO.ref(Map.empty[CallId, String])
     yield State(ch, messages, logBuf, responseIdMapping, UUIDGen[IO])
 end State

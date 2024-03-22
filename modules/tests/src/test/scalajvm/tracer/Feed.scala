@@ -18,16 +18,26 @@ import org.http4s.client.websocket.*
 import _root_.fs2.concurrent.Topic
 
 case class Feed(
-    in: Topic[IO, Payload],
-    out: Topic[IO, Payload],
+    in: Topic[IO, Message],
+    out: Topic[IO, Message],
     err: Topic[IO, Chunk[Byte]],
     front: Front,
-    genId: IO[Option[MessageId]]
+    genId: IO[Option[CallId]]
 ):
-  def send(f: this.type => Topic[IO, Payload], rm: RawMessage) =
+  def send(f: this.type => Topic[IO, Message], rm: RawMessage) =
     val ser = writeToStringReentrant(rm)
 
-    f(this).publish1(Payload(ser.getBytes()))
+    rm.toMessage match
+      case None =>
+        IO.raiseError(
+          new RuntimeException(
+            s"Failed to convert raw message `$rm` to jsonrpclib Message"
+          )
+        )
+      case Some(value) =>
+        f(this).publish1(value)
+    end match
+  end send
 
   def send(f: this.type => Topic[IO, Chunk[Byte]], str: String) =
     f(this).publish1(Chunk.array(str.getBytes))

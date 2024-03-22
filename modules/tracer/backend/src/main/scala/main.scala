@@ -32,6 +32,7 @@ import langoustine.lsp.requests.window
 import langoustine.lsp.structures.ShowMessageParams
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 import fs2.concurrent.Channel
+import jsonrpclib.Message
 
 object LangoustineTracer extends IOApp:
   def run(args: List[String]): IO[ExitCode] =
@@ -71,7 +72,7 @@ object LangoustineTracer extends IOApp:
       err: fs2.Pipe[IO, Byte, Nothing] = fs2.io.stderr[IO]
   ) =
     val payloadTopic =
-      fs2.concurrent.Topic[IO, Payload]
+      fs2.concurrent.Topic[IO, Message]
 
     val byteTopic =
       fs2.concurrent.Topic[IO, Chunk[Byte]]

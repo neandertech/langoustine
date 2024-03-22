@@ -27,10 +27,11 @@ import org.http4s.ember.server.EmberServerBuilder
 import concurrent.duration.*
 import org.http4s.server
 import jsonrpclib.Payload
+import jsonrpclib.Message
 
 class TracerServer private (
-    in: fs2.Stream[IO, Payload],
-    out: fs2.Stream[IO, Payload],
+    in: fs2.Stream[IO, Message],
+    out: fs2.Stream[IO, Message],
     err: fs2.Stream[IO, Byte]
 ):
 
@@ -100,8 +101,8 @@ end TracerServer
 
 object TracerServer:
   def create(
-      in: fs2.Stream[IO, Payload],
-      out: fs2.Stream[IO, Payload],
+      in: fs2.Stream[IO, Message],
+      out: fs2.Stream[IO, Message],
       err: fs2.Stream[IO, Byte]
   ): TracerServer =
     TracerServer(in, out, err)
