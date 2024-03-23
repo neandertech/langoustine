@@ -50,6 +50,8 @@ val V = new {
 
   val default =
     Seq(VirtualAxis.scalaABIVersion(scala), VirtualAxis.jvm)
+
+  val LSP_PROTOCOL = "3.17"
 }
 
 lazy val noPublishing = Seq(
@@ -130,6 +132,11 @@ lazy val lsp = projectMatrix
   .jvmPlatform(V.scalaVersions)
   .jsPlatform(V.scalaVersions)
   .nativePlatform(V.scalaVersions)
+  .settings(
+    tastyMiMaPreviousArtifacts += {
+      organization.value %% name.value % "0.0.21"
+    }
+  )
 
 lazy val app = projectMatrix
   .in(file("modules/app"))
@@ -367,6 +374,37 @@ ThisBuild / buildTracer := {
   val loc = (tracer.jvm(V.scala) / stage).value / "bin" / "langoustine-tracer"
 
   println(s"\n\nTracer is built, use this launcher: $loc")
+}
+
+lazy val updateModelFiles = taskKey[Unit]("")
+updateModelFiles := {
+  def baseUrl(filename: String) =
+    s"https://raw.githubusercontent.com/microsoft/language-server-protocol/gh-pages/_specifications/lsp/${V.LSP_PROTOCOL}/metaModel/$filename"
+
+  val schemaFile = "metaModel.schema.json"
+  val modelFile  = "metaModel.json"
+
+  val schemaDestination = (ThisBuild / baseDirectory).value / schemaFile
+  val modelDestination  = (ThisBuild / baseDirectory).value / modelFile
+
+  val log = sLog.value
+
+  log.info(
+    s"Writing schema file [$schemaDestination] from URL [${baseUrl(schemaFile)}]"
+  )
+  IO.write(
+    schemaDestination,
+    scala.io.Source.fromURL(baseUrl(schemaFile)).mkString
+  )
+
+  log.info(
+    s"Writing model file [$modelDestination] from URL [${baseUrl(modelFile)}]"
+  )
+  IO.write(
+    modelDestination,
+    scala.io.Source.fromURL(baseUrl(modelFile)).mkString
+  )
+
 }
 
 import sbtwelcome.*

@@ -1,11 +1,9 @@
-package langoustine
-package lsp
+package langoustine.lsp
 package tools
 
-import langoustine.lsp.structures.Position
 import scala.collection.SortedMap
-import langoustine.lsp.structures.SemanticTokensLegend
-import langoustine.lsp.structures.SemanticTokens
+import structures.*
+import enumerations.*
 
 import SemanticTokensEncoder.Error
 
@@ -66,7 +64,7 @@ class SemanticTokensEncoder private (
       }
 
       Right(
-        structures.SemanticTokens(data =
+        SemanticTokens(data =
           intTokens.result.map(runtime.uinteger.apply(_))
         )
       )

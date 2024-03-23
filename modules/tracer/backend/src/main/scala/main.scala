@@ -27,9 +27,9 @@ import org.http4s.EntityEncoder
 import jsonrpclib.Payload
 import jsonrpclib.ErrorPayload
 import jsonrpclib.CallId
-import langoustine.lsp.requests.textDocument
-import langoustine.lsp.requests.window
-import langoustine.lsp.structures.ShowMessageParams
+import langoustine.lsp.all.textDocument
+import langoustine.lsp.all.window
+import langoustine.lsp.all.ShowMessageParams
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 import fs2.concurrent.Channel
 import jsonrpclib.Message

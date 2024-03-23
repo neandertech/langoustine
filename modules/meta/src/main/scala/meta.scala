@@ -70,13 +70,15 @@ case class Request(
     params: ParamsType = ParamsType.None,
     method: RequestMethod,
     result: Type,
-    documentation: Opt[RequestDescription] = Opt.empty
+    documentation: Opt[RequestDescription] = Opt.empty,
+    proposed: Boolean = false
 )
 
 case class Notification(
     method: RequestMethod,
     params: ParamsType = ParamsType.None,
-    documentation: Opt[NotificationDescription] = Opt.empty
+    documentation: Opt[NotificationDescription] = Opt.empty,
+    proposed: Boolean = false
 )
 
 case class EnumerationType(
@@ -99,14 +101,16 @@ object EnumerationItem:
 case class EnumerationEntry(
     name: EnumerationItemName,
     value: EnumerationItem,
-    documentation: Opt[EnumerationEntryDocumentation] = Opt.empty
+    documentation: Opt[EnumerationEntryDocumentation] = Opt.empty,
+    proposed: Boolean = false
 )
 
 case class Property(
     name: PropertyName,
     optional: IsOptional = IsOptional.No,
     `type`: Type,
-    documentation: Opt[PropertyDescription] = Opt.empty
+    documentation: Opt[PropertyDescription] = Opt.empty,
+    proposed: Boolean = false
 ):
   def tpe = `type`
 
@@ -115,17 +119,20 @@ case class Structure(
     mixins: Vector[Type] = Vector.empty,
     name: StructureName,
     properties: Vector[Property] = Vector.empty,
-    documentation: Opt[StructureDescription] = Opt.empty
+    documentation: Opt[StructureDescription] = Opt.empty,
+    proposed: Boolean = false
 ):
   inline def extendz = `extends`
+end Structure
 
 opaque type TypeAliasName = String
 object TypeAliasName extends OpaqueString[TypeAliasName]
 
-case class TypeAlias(name: TypeAliasName, `type`: Type)
+case class TypeAlias(name: TypeAliasName, `type`: Type, proposed: Boolean = false)
 
 case class StructureLiteral(
-    properties: Vector[Property]
+    properties: Vector[Property],
+    proposed: Boolean = false
 )
 
 opaque type Opt[+A] = A | Null
@@ -164,7 +171,8 @@ case class Enumeration(
     name: EnumerationName,
     `type`: EnumerationType,
     values: Vector[EnumerationEntry],
-    documentation: Opt[EnumerationDocumentation] = Opt.empty
+    documentation: Opt[EnumerationDocumentation] = Opt.empty,
+    proposed: Boolean = false
 )
 
 enum Type(

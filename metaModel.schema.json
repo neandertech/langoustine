@@ -60,7 +60,7 @@
     },
     "BaseTypes": {
       "enum": [
-        "Uri",
+        "URI",
         "DocumentUri",
         "integer",
         "uinteger",
@@ -94,6 +94,10 @@
       "additionalProperties": false,
       "description": "Defines an enumeration.",
       "properties": {
+        "deprecated": {
+          "description": "Whether the enumeration is deprecated or not. If deprecated the property contains the deprecation message.",
+          "type": "string"
+        },
         "documentation": {
           "description": "An optional documentation.",
           "type": "string"
@@ -137,6 +141,10 @@
       "additionalProperties": false,
       "description": "Defines an enumeration entry.",
       "properties": {
+        "deprecated": {
+          "description": "Whether the enum entry is deprecated or not. If deprecated the property contains the deprecation message.",
+          "type": "string"
+        },
         "documentation": {
           "description": "An optional documentation.",
           "type": "string"
@@ -218,7 +226,7 @@
             },
             "name": {
               "enum": [
-                "Uri",
+                "URI",
                 "DocumentUri",
                 "string",
                 "integer"
@@ -260,6 +268,28 @@
       ],
       "type": "object"
     },
+    "MessageDirection": {
+      "description": "Indicates in which direction a message is sent in the protocol.",
+      "enum": [
+        "clientToServer",
+        "serverToClient",
+        "both"
+      ],
+      "type": "string"
+    },
+    "MetaData": {
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "description": "The protocol version.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "version"
+      ],
+      "type": "object"
+    },
     "MetaModel": {
       "additionalProperties": false,
       "description": "The actual meta model.",
@@ -270,6 +300,10 @@
             "$ref": "#/definitions/Enumeration"
           },
           "type": "array"
+        },
+        "metaData": {
+          "$ref": "#/definitions/MetaData",
+          "description": "Additional meta data."
         },
         "notifications": {
           "description": "The notifications.",
@@ -301,6 +335,7 @@
         }
       },
       "required": [
+        "metaData",
         "requests",
         "notifications",
         "structures",
@@ -313,9 +348,17 @@
       "additionalProperties": false,
       "description": "Represents a LSP notification",
       "properties": {
+        "deprecated": {
+          "description": "Whether the notification is deprecated or not. If deprecated the property contains the deprecation message.",
+          "type": "string"
+        },
         "documentation": {
           "description": "An optional documentation;",
           "type": "string"
+        },
+        "messageDirection": {
+          "$ref": "#/definitions/MessageDirection",
+          "description": "The direction in which this notification is sent in the protocol."
         },
         "method": {
           "description": "The request's method name.",
@@ -339,6 +382,10 @@
           "description": "Whether this is a proposed notification. If omitted the notification is final.",
           "type": "boolean"
         },
+        "registrationMethod": {
+          "description": "Optional a dynamic registration method if it different from the request's method.",
+          "type": "string"
+        },
         "registrationOptions": {
           "$ref": "#/definitions/Type",
           "description": "Optional registration options if the notification supports dynamic registration."
@@ -349,7 +396,8 @@
         }
       },
       "required": [
-        "method"
+        "method",
+        "messageDirection"
       ],
       "type": "object"
     },
@@ -378,6 +426,10 @@
       "additionalProperties": false,
       "description": "Represents an object property.",
       "properties": {
+        "deprecated": {
+          "description": "Whether the property is deprecated or not. If deprecated the property contains the deprecation message.",
+          "type": "string"
+        },
         "documentation": {
           "description": "An optional documentation.",
           "type": "string"
@@ -431,6 +483,10 @@
       "additionalProperties": false,
       "description": "Represents a LSP request",
       "properties": {
+        "deprecated": {
+          "description": "Whether the request is deprecated or not. If deprecated the property contains the deprecation message.",
+          "type": "string"
+        },
         "documentation": {
           "description": "An optional documentation;",
           "type": "string"
@@ -438,6 +494,10 @@
         "errorData": {
           "$ref": "#/definitions/Type",
           "description": "An optional error data type."
+        },
+        "messageDirection": {
+          "$ref": "#/definitions/MessageDirection",
+          "description": "The direction in which this request is sent in the protocol."
         },
         "method": {
           "description": "The request's method name.",
@@ -465,6 +525,10 @@
           "description": "Whether this is a proposed feature. If omitted the feature is final.",
           "type": "boolean"
         },
+        "registrationMethod": {
+          "description": "Optional a dynamic registration method if it different from the request's method.",
+          "type": "string"
+        },
         "registrationOptions": {
           "$ref": "#/definitions/Type",
           "description": "Optional registration options if the request supports dynamic registration."
@@ -480,7 +544,8 @@
       },
       "required": [
         "method",
-        "result"
+        "result",
+        "messageDirection"
       ],
       "type": "object"
     },
@@ -506,6 +571,10 @@
       "additionalProperties": false,
       "description": "Defines the structure of an object literal.",
       "properties": {
+        "deprecated": {
+          "description": "Whether the structure is deprecated or not. If deprecated the property contains the deprecation message.",
+          "type": "string"
+        },
         "documentation": {
           "description": "An optional documentation;",
           "type": "string"
@@ -552,8 +621,12 @@
     },
     "StructureLiteral": {
       "additionalProperties": false,
-      "description": "Defines a unnamed structure of an object literal.",
+      "description": "Defines an unnamed structure of an object literal.",
       "properties": {
+        "deprecated": {
+          "description": "Whether the literal is deprecated or not. If deprecated the property contains the deprecation message.",
+          "type": "string"
+        },
         "documentation": {
           "description": "An optional documentation.",
           "type": "string"
@@ -659,6 +732,10 @@
       "additionalProperties": false,
       "description": "Defines a type alias. (e.g. `type Definition = Location | LocationLink`)",
       "properties": {
+        "deprecated": {
+          "description": "Whether the type alias is deprecated or not. If deprecated the property contains the deprecation message.",
+          "type": "string"
+        },
         "documentation": {
           "description": "An optional documentation.",
           "type": "string"

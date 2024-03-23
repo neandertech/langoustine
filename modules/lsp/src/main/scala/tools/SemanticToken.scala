@@ -1,21 +1,19 @@
-package langoustine
-package lsp
+package langoustine.lsp
 package tools
 
-import langoustine.lsp.structures.Position
+import langoustine.lsp.structures.*
 import scala.collection.SortedMap
-import langoustine.lsp.structures.SemanticTokensLegend
 
 case class SemanticToken(
     position: Position,
-    length: lsp.runtime.uinteger,
+    length: runtime.uinteger,
     tokenType: enumerations.SemanticTokenTypes,
     modifiers: Vector[enumerations.SemanticTokenModifiers] = Vector.empty
 )
 
 object SemanticToken:
   def fromRange(
-      range: lsp.structures.Range,
+      range: structures.Range,
       tokenType: enumerations.SemanticTokenTypes,
       modifiers: Vector[enumerations.SemanticTokenModifiers] = Vector.empty
   ) =

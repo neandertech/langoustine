@@ -33,7 +33,7 @@ object json:
 
   given Reader[BaseTypes] = summon[Reader[String]].map {
     case "DocumentUri" => BaseTypes.DocumentUri
-    case "Uri"         => BaseTypes.Uri
+    case "Uri" | "URI" => BaseTypes.Uri
     case "integer"     => BaseTypes.integer
     case "uinteger"    => BaseTypes.uinteger
     case "decimal"     => BaseTypes.decimal
