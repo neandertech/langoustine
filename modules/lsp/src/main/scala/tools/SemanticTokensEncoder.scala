@@ -64,9 +64,7 @@ class SemanticTokensEncoder private (
       }
 
       Right(
-        SemanticTokens(data =
-          intTokens.result.map(runtime.uinteger.apply(_))
-        )
+        SemanticTokens(data = intTokens.result.map(runtime.uinteger.apply(_)))
       )
     catch
       case exc: SemanticTokensEncoder.Error =>

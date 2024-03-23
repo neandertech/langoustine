@@ -151,4 +151,5 @@ private[lsp] object Pickle:
             .asInstanceOf[List[Reader[? <: T]]]
           Reader.merge[T](readers*)
       end match
+  end Pickle
 end Pickle

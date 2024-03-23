@@ -4844,7 +4844,7 @@ case class Position(
   line: runtime.uinteger,
   character: runtime.uinteger
 )
-object Position extends codecs.structures_PositionCodec
+object Position extends codecs.structures_PositionCodec with extensions.PositionSyntax
 
 /**
  *  @param textDocument

@@ -20,7 +20,6 @@ import jsonrpclib.*
 import scala.util.Try
 import requests.*
 
-
 import upickle.default.*
 
 import util.chaining.*

@@ -128,7 +128,11 @@ end Structure
 opaque type TypeAliasName = String
 object TypeAliasName extends OpaqueString[TypeAliasName]
 
-case class TypeAlias(name: TypeAliasName, `type`: Type, proposed: Boolean = false)
+case class TypeAlias(
+    name: TypeAliasName,
+    `type`: Type,
+    proposed: Boolean = false
+)
 
 case class StructureLiteral(
     properties: Vector[Property],

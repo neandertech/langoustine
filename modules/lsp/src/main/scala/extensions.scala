@@ -15,11 +15,12 @@
  */
 
 package langoustine.lsp
+package extensions
 
 import runtime.*
 import structures.Position
 
-extension (o: Position.type) 
+private[lsp] trait PositionSyntax:
   def apply(line: Int, character: Int): Position =
-      new Position(line = uinteger(line), character = uinteger(character))
-  def documentBeginning: Position = Position(0, 0)
+    new Position(line = uinteger(line), character = uinteger(character))
+  def documentBeginning: Position = apply(0, 0)

@@ -695,7 +695,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
       (ctx.definitionScope :+ structure.name).mkString("_") + "Codec"
 
     val extensions =
-      if ctx.definitionScope == Nil && structure.name.value == "Position"
+      if ctx.definitionScope == List("structures") && structure.name.value == "Position"
       then " with extensions.PositionSyntax"
       else ""
 

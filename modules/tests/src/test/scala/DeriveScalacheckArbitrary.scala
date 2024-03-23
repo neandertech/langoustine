@@ -32,6 +32,10 @@ given Arbitrary[DocumentUri] = Arbitrary(
   Gen.oneOf("file1", "file2").map(DocumentUri.apply(_))
 )
 
+given Arbitrary[Uri] = Arbitrary(
+  Gen.oneOf("uri1", "uri2").map(Uri.apply(_))
+)
+
 given Arbitrary[uinteger] = Arbitrary(Gen.posNum[Int].map(uinteger.apply))
 
 given deriveStringEnum[A](using bi: Bijection[A, String]): Arbitrary[A] =
@@ -45,12 +49,12 @@ given deriveIntegerEnum[A](using bi: Bijection[A, Int]): Arbitrary[A] =
 
 given Arbitrary[ProgressToken] =
   Arbitrary:
-      for
-        someString <- Gen.const("stringToken").map(ProgressToken.apply)
-        someInt    <- Gen.const(25).map(ProgressToken.apply)
+    for
+      someString <- Gen.const("stringToken").map(ProgressToken.apply)
+      someInt    <- Gen.const(25).map(ProgressToken.apply)
 
-        progressToken <- Gen.oneOf(someString, someInt)
-      yield progressToken
+      progressToken <- Gen.oneOf(someString, someInt)
+    yield progressToken
 
 given Arbitrary[ujson.Value] =
   import ujson.*
