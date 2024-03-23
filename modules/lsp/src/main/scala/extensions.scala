@@ -15,13 +15,12 @@
  */
 
 package langoustine.lsp
+package extensions
 
-import structures.Position
 import runtime.*
+import structures.Position
 
-private[lsp] object extensions:
-  trait PositionSyntax:
-    def apply(line: Int, character: Int): Position =
-      new Position(line = uinteger(line), character = uinteger(character))
-
-    def documentBeginning: Position = Position(0, 0)
+private[lsp] trait PositionSyntax:
+  def apply(line: Int, character: Int): Position =
+    new Position(line = uinteger(line), character = uinteger(character))
+  def documentBeginning: Position = apply(0, 0)

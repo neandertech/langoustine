@@ -19,7 +19,6 @@ package langoustine.lsp
 import upickle.default.{Reader, Writer}
 import cats.MonadThrow
 import jsonrpclib.Endpoint
-import requests.{LSPRequest, LSPNotification}
 import jsonrpclib.Monadic
 import jsonrpclib.Codec
 import jsonrpclib.Payload

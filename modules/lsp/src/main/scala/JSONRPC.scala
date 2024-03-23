@@ -18,6 +18,7 @@ package langoustine.lsp
 
 import jsonrpclib.*
 import scala.util.Try
+import requests.*
 
 import upickle.default.*
 
@@ -40,12 +41,12 @@ private[langoustine] object jsonrpcIntegration:
       override def encode(a: T): Payload =
         Payload(write(a).getBytes)
 
-  def handlerToEndpoint[F[_]: Monadic, T <: requests.LSPRequest](req: T)(
+  def handlerToEndpoint[F[_]: Monadic, T <: LSPRequest](req: T)(
       f: req.In => F[req.Out]
   ): Endpoint[F] =
     Endpoint(req.requestMethod).simple(f)
 
-  def handlerToNotification[F[_]: Monadic, T <: requests.LSPNotification](
+  def handlerToNotification[F[_]: Monadic, T <: LSPNotification](
       req: T
   )(
       f: req.In => F[Unit]

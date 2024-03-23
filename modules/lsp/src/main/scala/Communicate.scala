@@ -19,12 +19,11 @@ package langoustine.lsp
 import upickle.default.{Reader, Writer}
 import cats.MonadThrow
 import jsonrpclib.Endpoint
-import requests.{LSPRequest, LSPNotification, PreparedRequest}
 import jsonrpclib.Monadic
 import jsonrpclib.Codec
 import jsonrpclib.Payload
 import jsonrpclib.Channel
-import langoustine.lsp.requests.PreparedNotification
+import requests.*
 
 trait Communicate[F[_]]:
   def notification[X <: LSPNotification](notif: X, in: notif.In): F[Unit]

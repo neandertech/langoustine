@@ -21,11 +21,11 @@ import cats.MonadThrow
 
 import jsonrpclib.Endpoint
 
-import requests.{LSPRequest, LSPNotification}
 import jsonrpclib.Monadic
 import jsonrpclib.Codec
 import jsonrpclib.Payload
 import jsonrpclib.Channel
+import requests.*
 
 trait LSPBuilder[F[_]]:
   def handleRequest[X <: LSPRequest](t: X)(

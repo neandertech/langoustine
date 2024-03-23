@@ -24,26 +24,14 @@ import scala.reflect.*
 // format: off
 
 object aliases: 
-  opaque type Definition = (structures.Location | Vector[structures.Location])
-  object Definition extends codecs.aliases_Definition:
-    inline def apply(v: structures.Location): Definition = v
-    inline def apply(v: Vector[structures.Location]): Definition = v
+  opaque type ChangeAnnotationIdentifier = String
+  object ChangeAnnotationIdentifier extends codecs.aliases_ChangeAnnotationIdentifier:
+    inline def apply(v: String): ChangeAnnotationIdentifier = v
     
-    given Typeable[Definition] with
-      def unapply(s: Any): Option[s.type & Definition] = 
+    given Typeable[ChangeAnnotationIdentifier] with
+      def unapply(s: Any): Option[s.type & ChangeAnnotationIdentifier] = 
         s match
-        case c: structures.Location => Some(c.asInstanceOf[s.type & structures.Location])
-        case c: Vector[?] => Some(c.asInstanceOf[s.type & Vector[structures.Location]])
-        case _ => Option.empty
-  
-  opaque type DefinitionLink = structures.LocationLink
-  object DefinitionLink extends codecs.aliases_DefinitionLink:
-    inline def apply(v: structures.LocationLink): DefinitionLink = v
-    
-    given Typeable[DefinitionLink] with
-      def unapply(s: Any): Option[s.type & DefinitionLink] = 
-        s match
-        case c: structures.LocationLink => Some(c.asInstanceOf[s.type & structures.LocationLink])
+        case c: String => Some(c.asInstanceOf[s.type & String])
         case _ => Option.empty
   
   opaque type Declaration = (structures.Location | Vector[structures.Location])
@@ -68,6 +56,74 @@ object aliases:
         case c: structures.LocationLink => Some(c.asInstanceOf[s.type & structures.LocationLink])
         case _ => Option.empty
   
+  opaque type Definition = (structures.Location | Vector[structures.Location])
+  object Definition extends codecs.aliases_Definition:
+    inline def apply(v: structures.Location): Definition = v
+    inline def apply(v: Vector[structures.Location]): Definition = v
+    
+    given Typeable[Definition] with
+      def unapply(s: Any): Option[s.type & Definition] = 
+        s match
+        case c: structures.Location => Some(c.asInstanceOf[s.type & structures.Location])
+        case c: Vector[?] => Some(c.asInstanceOf[s.type & Vector[structures.Location]])
+        case _ => Option.empty
+  
+  opaque type DefinitionLink = structures.LocationLink
+  object DefinitionLink extends codecs.aliases_DefinitionLink:
+    inline def apply(v: structures.LocationLink): DefinitionLink = v
+    
+    given Typeable[DefinitionLink] with
+      def unapply(s: Any): Option[s.type & DefinitionLink] = 
+        s match
+        case c: structures.LocationLink => Some(c.asInstanceOf[s.type & structures.LocationLink])
+        case _ => Option.empty
+  
+  opaque type DocumentDiagnosticReport = (structures.RelatedFullDocumentDiagnosticReport | structures.RelatedUnchangedDocumentDiagnosticReport)
+  object DocumentDiagnosticReport extends codecs.aliases_DocumentDiagnosticReport:
+    inline def apply(v: structures.RelatedFullDocumentDiagnosticReport): DocumentDiagnosticReport = v
+    inline def apply(v: structures.RelatedUnchangedDocumentDiagnosticReport): DocumentDiagnosticReport = v
+    
+    given Typeable[DocumentDiagnosticReport] with
+      def unapply(s: Any): Option[s.type & DocumentDiagnosticReport] = 
+        s match
+        case c: structures.RelatedFullDocumentDiagnosticReport => Some(c.asInstanceOf[s.type & structures.RelatedFullDocumentDiagnosticReport])
+        case c: structures.RelatedUnchangedDocumentDiagnosticReport => Some(c.asInstanceOf[s.type & structures.RelatedUnchangedDocumentDiagnosticReport])
+        case _ => Option.empty
+  
+  opaque type DocumentFilter = (aliases.TextDocumentFilter | structures.NotebookCellTextDocumentFilter)
+  object DocumentFilter extends codecs.aliases_DocumentFilter:
+    inline def apply(v: aliases.TextDocumentFilter): DocumentFilter = v
+    inline def apply(v: structures.NotebookCellTextDocumentFilter): DocumentFilter = v
+    
+    given Typeable[DocumentFilter] with
+      def unapply(s: Any): Option[s.type & DocumentFilter] = 
+        s match
+        case c: aliases.TextDocumentFilter => Some(c.asInstanceOf[s.type & aliases.TextDocumentFilter])
+        case c: structures.NotebookCellTextDocumentFilter => Some(c.asInstanceOf[s.type & structures.NotebookCellTextDocumentFilter])
+        case _ => Option.empty
+  
+  opaque type DocumentSelector = Vector[aliases.DocumentFilter]
+  object DocumentSelector extends codecs.aliases_DocumentSelector:
+    inline def apply(v: Vector[aliases.DocumentFilter]): DocumentSelector = v
+    
+    given Typeable[DocumentSelector] with
+      def unapply(s: Any): Option[s.type & DocumentSelector] = 
+        s match
+        case c: Vector[?] => Some(c.asInstanceOf[s.type & Vector[aliases.DocumentFilter]])
+        case _ => Option.empty
+  
+  opaque type GlobPattern = (aliases.Pattern | structures.RelativePattern)
+  object GlobPattern extends codecs.aliases_GlobPattern:
+    inline def apply(v: aliases.Pattern): GlobPattern = v
+    inline def apply(v: structures.RelativePattern): GlobPattern = v
+    
+    given Typeable[GlobPattern] with
+      def unapply(s: Any): Option[s.type & GlobPattern] = 
+        s match
+        case c: aliases.Pattern => Some(c.asInstanceOf[s.type & aliases.Pattern])
+        case c: structures.RelativePattern => Some(c.asInstanceOf[s.type & structures.RelativePattern])
+        case _ => Option.empty
+  
   opaque type InlineValue = (structures.InlineValueText | structures.InlineValueVariableLookup | structures.InlineValueEvaluatableExpression)
   object InlineValue extends codecs.aliases_InlineValue:
     inline def apply(v: structures.InlineValueText): InlineValue = v
@@ -82,16 +138,106 @@ object aliases:
         case c: structures.InlineValueEvaluatableExpression => Some(c.asInstanceOf[s.type & structures.InlineValueEvaluatableExpression])
         case _ => Option.empty
   
-  opaque type DocumentDiagnosticReport = (structures.RelatedFullDocumentDiagnosticReport | structures.RelatedUnchangedDocumentDiagnosticReport)
-  object DocumentDiagnosticReport extends codecs.aliases_DocumentDiagnosticReport:
-    inline def apply(v: structures.RelatedFullDocumentDiagnosticReport): DocumentDiagnosticReport = v
-    inline def apply(v: structures.RelatedUnchangedDocumentDiagnosticReport): DocumentDiagnosticReport = v
+  opaque type LSPObject = Map[String, ujson.Value]
+  object LSPObject extends codecs.aliases_LSPObject:
+    inline def apply(v: Map[String, ujson.Value]): LSPObject = v
     
-    given Typeable[DocumentDiagnosticReport] with
-      def unapply(s: Any): Option[s.type & DocumentDiagnosticReport] = 
+    given Typeable[LSPObject] with
+      def unapply(s: Any): Option[s.type & LSPObject] = 
         s match
-        case c: structures.RelatedFullDocumentDiagnosticReport => Some(c.asInstanceOf[s.type & structures.RelatedFullDocumentDiagnosticReport])
-        case c: structures.RelatedUnchangedDocumentDiagnosticReport => Some(c.asInstanceOf[s.type & structures.RelatedUnchangedDocumentDiagnosticReport])
+        case c: Map[String, ujson.Value] => Some(c.asInstanceOf[s.type & Map[String, ujson.Value]])
+        case _ => Option.empty
+  
+  opaque type MarkedString = (String | MarkedString.S0)
+  object MarkedString extends codecs.aliases_MarkedString:
+    inline def apply(v: String): MarkedString = v
+    inline def apply(v: MarkedString.S0): MarkedString = v
+    
+    given Typeable[MarkedString] with
+      def unapply(s: Any): Option[s.type & MarkedString] = 
+        s match
+        case c: String => Some(c.asInstanceOf[s.type & String])
+        case c: MarkedString.S0 => Some(c.asInstanceOf[s.type & MarkedString.S0])
+        case _ => Option.empty
+    case class S0(
+      language: String,
+      value: String
+    )
+    object S0 extends codecs.aliases_MarkedString_S0Codec
+  
+  opaque type NotebookDocumentFilter = (NotebookDocumentFilter.S0 | NotebookDocumentFilter.S1 | NotebookDocumentFilter.S2)
+  object NotebookDocumentFilter extends codecs.aliases_NotebookDocumentFilter:
+    inline def apply(v: NotebookDocumentFilter.S0): NotebookDocumentFilter = v
+    inline def apply(v: NotebookDocumentFilter.S1): NotebookDocumentFilter = v
+    inline def apply(v: NotebookDocumentFilter.S2): NotebookDocumentFilter = v
+    
+    given Typeable[NotebookDocumentFilter] with
+      def unapply(s: Any): Option[s.type & NotebookDocumentFilter] = 
+        s match
+        case c: NotebookDocumentFilter.S0 => Some(c.asInstanceOf[s.type & NotebookDocumentFilter.S0])
+        case c: NotebookDocumentFilter.S1 => Some(c.asInstanceOf[s.type & NotebookDocumentFilter.S1])
+        case c: NotebookDocumentFilter.S2 => Some(c.asInstanceOf[s.type & NotebookDocumentFilter.S2])
+        case _ => Option.empty
+    /**
+     *  @param notebookType
+     *    The type of the enclosing notebook.
+    
+     *  @param scheme
+     *    A Uri {@link Uri.scheme scheme}, like `file` or `untitled`.
+    
+     *  @param pattern
+     *    A glob pattern.
+    
+     */
+    case class S0(
+      notebookType: String,
+      scheme: Opt[String] = Opt.empty,
+      pattern: Opt[String] = Opt.empty
+    )
+    object S0 extends codecs.aliases_NotebookDocumentFilter_S0Codec
+    /**
+     *  @param notebookType
+     *    The type of the enclosing notebook.
+    
+     *  @param scheme
+     *    A Uri {@link Uri.scheme scheme}, like `file` or `untitled`.
+    
+     *  @param pattern
+     *    A glob pattern.
+    
+     */
+    case class S1(
+      notebookType: Opt[String] = Opt.empty,
+      scheme: String,
+      pattern: Opt[String] = Opt.empty
+    )
+    object S1 extends codecs.aliases_NotebookDocumentFilter_S1Codec
+    /**
+     *  @param notebookType
+     *    The type of the enclosing notebook.
+    
+     *  @param scheme
+     *    A Uri {@link Uri.scheme scheme}, like `file` or `untitled`.
+    
+     *  @param pattern
+     *    A glob pattern.
+    
+     */
+    case class S2(
+      notebookType: Opt[String] = Opt.empty,
+      scheme: Opt[String] = Opt.empty,
+      pattern: String
+    )
+    object S2 extends codecs.aliases_NotebookDocumentFilter_S2Codec
+  
+  opaque type Pattern = String
+  object Pattern extends codecs.aliases_Pattern:
+    inline def apply(v: String): Pattern = v
+    
+    given Typeable[Pattern] with
+      def unapply(s: Any): Option[s.type & Pattern] = 
+        s match
+        case c: String => Some(c.asInstanceOf[s.type & String])
         case _ => Option.empty
   
   opaque type PrepareRenameResult = (structures.Range | PrepareRenameResult.S0 | PrepareRenameResult.S1)
@@ -111,21 +257,11 @@ object aliases:
       range: structures.Range,
       placeholder: String
     )
-    object S0 extends codecs.aliases_PrepareRenameResult_S0
+    object S0 extends codecs.aliases_PrepareRenameResult_S0Codec
     case class S1(
       defaultBehavior: Boolean
     )
-    object S1 extends codecs.aliases_PrepareRenameResult_S1
-  
-  opaque type URI = String
-  object URI extends codecs.aliases_URI:
-    inline def apply(v: String): URI = v
-    
-    given Typeable[URI] with
-      def unapply(s: Any): Option[s.type & URI] = 
-        s match
-        case c: String => Some(c.asInstanceOf[s.type & String])
-        case _ => Option.empty
+    object S1 extends codecs.aliases_PrepareRenameResult_S1Codec
   
   opaque type ProgressToken = (Int | String)
   object ProgressToken extends codecs.aliases_ProgressToken:
@@ -137,38 +273,6 @@ object aliases:
         s match
         case c: Int => Some(c.asInstanceOf[s.type & Int])
         case c: String => Some(c.asInstanceOf[s.type & String])
-        case _ => Option.empty
-  
-  opaque type DocumentSelector = Vector[(String | aliases.DocumentFilter)]
-  object DocumentSelector extends codecs.aliases_DocumentSelector:
-    inline def apply(v: Vector[(String | aliases.DocumentFilter)]): DocumentSelector = v
-    
-    given Typeable[DocumentSelector] with
-      def unapply(s: Any): Option[s.type & DocumentSelector] = 
-        s match
-        case c: Vector[?] => Some(c.asInstanceOf[s.type & Vector[(String | aliases.DocumentFilter)]])
-        case _ => Option.empty
-  
-  opaque type ChangeAnnotationIdentifier = String
-  object ChangeAnnotationIdentifier extends codecs.aliases_ChangeAnnotationIdentifier:
-    inline def apply(v: String): ChangeAnnotationIdentifier = v
-    
-    given Typeable[ChangeAnnotationIdentifier] with
-      def unapply(s: Any): Option[s.type & ChangeAnnotationIdentifier] = 
-        s match
-        case c: String => Some(c.asInstanceOf[s.type & String])
-        case _ => Option.empty
-  
-  opaque type WorkspaceDocumentDiagnosticReport = (structures.WorkspaceFullDocumentDiagnosticReport | structures.WorkspaceUnchangedDocumentDiagnosticReport)
-  object WorkspaceDocumentDiagnosticReport extends codecs.aliases_WorkspaceDocumentDiagnosticReport:
-    inline def apply(v: structures.WorkspaceFullDocumentDiagnosticReport): WorkspaceDocumentDiagnosticReport = v
-    inline def apply(v: structures.WorkspaceUnchangedDocumentDiagnosticReport): WorkspaceDocumentDiagnosticReport = v
-    
-    given Typeable[WorkspaceDocumentDiagnosticReport] with
-      def unapply(s: Any): Option[s.type & WorkspaceDocumentDiagnosticReport] = 
-        s match
-        case c: structures.WorkspaceFullDocumentDiagnosticReport => Some(c.asInstanceOf[s.type & structures.WorkspaceFullDocumentDiagnosticReport])
-        case c: structures.WorkspaceUnchangedDocumentDiagnosticReport => Some(c.asInstanceOf[s.type & structures.WorkspaceUnchangedDocumentDiagnosticReport])
         case _ => Option.empty
   
   opaque type TextDocumentContentChangeEvent = (TextDocumentContentChangeEvent.S0 | TextDocumentContentChangeEvent.S1)
@@ -200,7 +304,7 @@ object aliases:
       rangeLength: Opt[runtime.uinteger] = Opt.empty,
       text: String
     )
-    object S0 extends codecs.aliases_TextDocumentContentChangeEvent_S0
+    object S0 extends codecs.aliases_TextDocumentContentChangeEvent_S0Codec
     /**
      *  @param text
      *    The new text of the whole document.
@@ -209,48 +313,7 @@ object aliases:
     case class S1(
       text: String
     )
-    object S1 extends codecs.aliases_TextDocumentContentChangeEvent_S1
-  
-  opaque type MarkedString = (String | MarkedString.S0)
-  object MarkedString extends codecs.aliases_MarkedString:
-    inline def apply(v: String): MarkedString = v
-    inline def apply(v: MarkedString.S0): MarkedString = v
-    
-    given Typeable[MarkedString] with
-      def unapply(s: Any): Option[s.type & MarkedString] = 
-        s match
-        case c: String => Some(c.asInstanceOf[s.type & String])
-        case c: MarkedString.S0 => Some(c.asInstanceOf[s.type & MarkedString.S0])
-        case _ => Option.empty
-    case class S0(
-      language: String,
-      value: String
-    )
-    object S0 extends codecs.aliases_MarkedString_S0
-  
-  opaque type DocumentFilter = (aliases.TextDocumentFilter | structures.NotebookCellTextDocumentFilter)
-  object DocumentFilter extends codecs.aliases_DocumentFilter:
-    inline def apply(v: aliases.TextDocumentFilter): DocumentFilter = v
-    inline def apply(v: structures.NotebookCellTextDocumentFilter): DocumentFilter = v
-    
-    given Typeable[DocumentFilter] with
-      def unapply(s: Any): Option[s.type & DocumentFilter] = 
-        s match
-        case c: aliases.TextDocumentFilter => Some(c.asInstanceOf[s.type & aliases.TextDocumentFilter])
-        case c: structures.NotebookCellTextDocumentFilter => Some(c.asInstanceOf[s.type & structures.NotebookCellTextDocumentFilter])
-        case _ => Option.empty
-  
-  opaque type GlobPattern = (aliases.Pattern | structures.RelativePattern)
-  object GlobPattern extends codecs.aliases_GlobPattern:
-    inline def apply(v: aliases.Pattern): GlobPattern = v
-    inline def apply(v: structures.RelativePattern): GlobPattern = v
-    
-    given Typeable[GlobPattern] with
-      def unapply(s: Any): Option[s.type & GlobPattern] = 
-        s match
-        case c: aliases.Pattern => Some(c.asInstanceOf[s.type & aliases.Pattern])
-        case c: structures.RelativePattern => Some(c.asInstanceOf[s.type & structures.RelativePattern])
-        case _ => Option.empty
+    object S1 extends codecs.aliases_TextDocumentContentChangeEvent_S1Codec
   
   opaque type TextDocumentFilter = (TextDocumentFilter.S0 | TextDocumentFilter.S1 | TextDocumentFilter.S2)
   object TextDocumentFilter extends codecs.aliases_TextDocumentFilter:
@@ -267,13 +330,13 @@ object aliases:
         case _ => Option.empty
     /**
      *  @param language
-     *    A language id, like `typescript`. 
+     *    A language id, like `typescript`.
     
      *  @param scheme
-     *    A Uri [scheme](#Uri.scheme), like `file` or `untitled`. 
+     *    A Uri {@link Uri.scheme scheme}, like `file` or `untitled`.
     
      *  @param pattern
-     *    A glob pattern, like `*.{ts,js}`. 
+     *    A glob pattern, like **​.{ts,js}. See TextDocumentFilter for examples.
     
      */
     case class S0(
@@ -281,16 +344,16 @@ object aliases:
       scheme: Opt[String] = Opt.empty,
       pattern: Opt[String] = Opt.empty
     )
-    object S0 extends codecs.aliases_TextDocumentFilter_S0
+    object S0 extends codecs.aliases_TextDocumentFilter_S0Codec
     /**
      *  @param language
-     *    A language id, like `typescript`. 
+     *    A language id, like `typescript`.
     
      *  @param scheme
-     *    A Uri [scheme](#Uri.scheme), like `file` or `untitled`. 
+     *    A Uri {@link Uri.scheme scheme}, like `file` or `untitled`.
     
      *  @param pattern
-     *    A glob pattern, like `*.{ts,js}`. 
+     *    A glob pattern, like **​.{ts,js}. See TextDocumentFilter for examples.
     
      */
     case class S1(
@@ -298,16 +361,16 @@ object aliases:
       scheme: String,
       pattern: Opt[String] = Opt.empty
     )
-    object S1 extends codecs.aliases_TextDocumentFilter_S1
+    object S1 extends codecs.aliases_TextDocumentFilter_S1Codec
     /**
      *  @param language
-     *    A language id, like `typescript`. 
+     *    A language id, like `typescript`.
     
      *  @param scheme
-     *    A Uri [scheme](#Uri.scheme), like `file` or `untitled`. 
+     *    A Uri {@link Uri.scheme scheme}, like `file` or `untitled`.
     
      *  @param pattern
-     *    A glob pattern, like `*.{ts,js}`. 
+     *    A glob pattern, like **​.{ts,js}. See TextDocumentFilter for examples.
     
      */
     case class S2(
@@ -315,80 +378,17 @@ object aliases:
       scheme: Opt[String] = Opt.empty,
       pattern: String
     )
-    object S2 extends codecs.aliases_TextDocumentFilter_S2
+    object S2 extends codecs.aliases_TextDocumentFilter_S2Codec
   
-  opaque type NotebookDocumentFilter = (NotebookDocumentFilter.S0 | NotebookDocumentFilter.S1 | NotebookDocumentFilter.S2)
-  object NotebookDocumentFilter extends codecs.aliases_NotebookDocumentFilter:
-    inline def apply(v: NotebookDocumentFilter.S0): NotebookDocumentFilter = v
-    inline def apply(v: NotebookDocumentFilter.S1): NotebookDocumentFilter = v
-    inline def apply(v: NotebookDocumentFilter.S2): NotebookDocumentFilter = v
+  opaque type WorkspaceDocumentDiagnosticReport = (structures.WorkspaceFullDocumentDiagnosticReport | structures.WorkspaceUnchangedDocumentDiagnosticReport)
+  object WorkspaceDocumentDiagnosticReport extends codecs.aliases_WorkspaceDocumentDiagnosticReport:
+    inline def apply(v: structures.WorkspaceFullDocumentDiagnosticReport): WorkspaceDocumentDiagnosticReport = v
+    inline def apply(v: structures.WorkspaceUnchangedDocumentDiagnosticReport): WorkspaceDocumentDiagnosticReport = v
     
-    given Typeable[NotebookDocumentFilter] with
-      def unapply(s: Any): Option[s.type & NotebookDocumentFilter] = 
+    given Typeable[WorkspaceDocumentDiagnosticReport] with
+      def unapply(s: Any): Option[s.type & WorkspaceDocumentDiagnosticReport] = 
         s match
-        case c: NotebookDocumentFilter.S0 => Some(c.asInstanceOf[s.type & NotebookDocumentFilter.S0])
-        case c: NotebookDocumentFilter.S1 => Some(c.asInstanceOf[s.type & NotebookDocumentFilter.S1])
-        case c: NotebookDocumentFilter.S2 => Some(c.asInstanceOf[s.type & NotebookDocumentFilter.S2])
-        case _ => Option.empty
-    /**
-     *  @param notebookType
-     *    The type of the enclosing notebook. 
-    
-     *  @param scheme
-     *    A Uri [scheme](#Uri.scheme), like `file` or `untitled`. 
-    
-     *  @param pattern
-     *    A glob pattern. 
-    
-     */
-    case class S0(
-      notebookType: String,
-      scheme: Opt[String] = Opt.empty,
-      pattern: Opt[String] = Opt.empty
-    )
-    object S0 extends codecs.aliases_NotebookDocumentFilter_S0
-    /**
-     *  @param notebookType
-     *    The type of the enclosing notebook. 
-    
-     *  @param scheme
-     *    A Uri [scheme](#Uri.scheme), like `file` or `untitled`.
-    
-     *  @param pattern
-     *    A glob pattern. 
-    
-     */
-    case class S1(
-      notebookType: Opt[String] = Opt.empty,
-      scheme: String,
-      pattern: Opt[String] = Opt.empty
-    )
-    object S1 extends codecs.aliases_NotebookDocumentFilter_S1
-    /**
-     *  @param notebookType
-     *    The type of the enclosing notebook. 
-    
-     *  @param scheme
-     *    A Uri [scheme](#Uri.scheme), like `file` or `untitled`. 
-    
-     *  @param pattern
-     *    A glob pattern. 
-    
-     */
-    case class S2(
-      notebookType: Opt[String] = Opt.empty,
-      scheme: Opt[String] = Opt.empty,
-      pattern: String
-    )
-    object S2 extends codecs.aliases_NotebookDocumentFilter_S2
-  
-  opaque type Pattern = String
-  object Pattern extends codecs.aliases_Pattern:
-    inline def apply(v: String): Pattern = v
-    
-    given Typeable[Pattern] with
-      def unapply(s: Any): Option[s.type & Pattern] = 
-        s match
-        case c: String => Some(c.asInstanceOf[s.type & String])
+        case c: structures.WorkspaceFullDocumentDiagnosticReport => Some(c.asInstanceOf[s.type & structures.WorkspaceFullDocumentDiagnosticReport])
+        case c: structures.WorkspaceUnchangedDocumentDiagnosticReport => Some(c.asInstanceOf[s.type & structures.WorkspaceUnchangedDocumentDiagnosticReport])
         case _ => Option.empty
   

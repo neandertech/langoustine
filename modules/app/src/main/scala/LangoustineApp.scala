@@ -23,8 +23,7 @@ import jsonrpclib.fs2.*
 import _root_.fs2 as FS2
 import cats.effect.std.Dispatcher
 import scala.concurrent.Future
-import langoustine.lsp.requests.LSPNotification
-import langoustine.lsp.requests.LSPRequest
+import langoustine.lsp.all.*
 import jsonrpclib.Channel
 import jsonrpclib.Endpoint.NotificationEndpoint
 import jsonrpclib.Endpoint.RequestResponseEndpoint

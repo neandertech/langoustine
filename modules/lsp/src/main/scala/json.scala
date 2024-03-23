@@ -20,6 +20,8 @@ import langoustine.*
 import upickle.default.*
 import scala.util.NotGiven
 
+// formating:off
+
 private[lsp] object json:
   val valueReader = upickle.default.readwriter[ujson.Value]
   def badMerge[T](r1: => Reader[?], rest: Reader[?]*): Reader[T] =
@@ -138,7 +140,6 @@ private[lsp] object Pickle:
 
     // if macros.isMemberOfSealedHierarchy[T] then annotate(reader, macros.fullClassName[T])
     // else reader
-
     case m: Mirror.SumOf[T] =>
       inline compiletime.erasedValue[T] match
         case _: scala.reflect.Enum =>
@@ -151,4 +152,5 @@ private[lsp] object Pickle:
             .asInstanceOf[List[Reader[? <: T]]]
           Reader.merge[T](readers*)
       end match
+  end macroR
 end Pickle

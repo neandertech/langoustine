@@ -55,5 +55,9 @@ import langoustine.meta.*
     inFile("enumerations.scala") { out =>
       re.enumerations(out)
     }
+
+    inFile("all.scala") { out =>
+      re.exports(out)
+    }
   }
 end run
