@@ -150,7 +150,7 @@ transparent inline def asNotification[T <: LSPNotification](
     p: Payload
 ): Option[t.In] =
   for
-    js  <- scala.util.Try(ujson.read(p.array)).toOption
+    js  <- scala.util.Try(ujson.read(writeToArray(p))).toOption
     o   <- js.objOpt
     p   <- o.get("params")
     res <- scala.util.Try(upickle.default.read[t.In](p)).toOption
@@ -163,7 +163,7 @@ transparent inline def asResponse[T <: LSPRequest](
     p: Payload
 ): Option[t.Out] =
   for
-    js  <- scala.util.Try(ujson.read(p.array)).toOption
+    js  <- scala.util.Try(ujson.read(writeToArray(p))).toOption
     o   <- js.objOpt
     p   <- o.get("result")
     res <- scala.util.Try(upickle.default.read[t.Out](p)).toOption

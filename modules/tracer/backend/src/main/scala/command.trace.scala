@@ -23,12 +23,18 @@ import jsonrpclib.Message
 extension (s: fs2.Stream[IO, Payload])
   def debugAs(name: String) =
     s.evalTap(el =>
-      Logging.debug(s"[$name (payload)]: ${new String(el.array)}")
+      Logging.debug(
+        s"[$name (payload)]: ${el.stripNull.map(a => new String(a.array)).getOrElse("null")}"
+      )
     )
 
 extension [A](s: fs2.Stream[IO, A])
   inline def debugAs(name: String)(using NotGiven[A =:= Payload]) =
     s.evalTap(el => Logging.debug(s"[$name]: $el"))
+  inline def debugAs[B](name: String, f: A => B)(using
+      NotGiven[A =:= Payload]
+  ) =
+    s.evalTap(el => Logging.debug(s"[$name]: ${f(el)}"))
 
 def Trace(
     in: fs2.Stream[IO, Byte],
@@ -82,7 +88,12 @@ def Trace(
         }
 
         val captureStdin =
-          in
+          in.chunks
+            .debugAs(
+              "chunks coming from stdin",
+              chunk => new String(chunk.toArray)
+            )
+            .unchunks
             .through(lsp.decodeMessages)
             .evalMap {
               case Left(err) =>
@@ -107,7 +118,12 @@ def Trace(
             .through(child.stdin)
 
         val captureStdout =
-          child.stdout
+          child.stdout.chunks
+            .debugAs(
+              "chunks coming from stdout",
+              chunk => new String(chunk.toArray)
+            )
+            .unchunks
             .through(lsp.decodeMessages)
             .evalMap {
               case Left(err) =>
@@ -136,7 +152,10 @@ def Trace(
 
         val redirectStderr =
           errStream
-            .debugAs("writing to real stderr")
+            .debugAs(
+              "writing to real stderr",
+              chunk => new String(chunk.toArray)
+            )
             .unchunks
             .through(err)
 

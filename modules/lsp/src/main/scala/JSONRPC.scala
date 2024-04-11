@@ -25,18 +25,17 @@ import upickle.default.*
 import util.chaining.*
 
 private[langoustine] object jsonrpcIntegration:
+  val nullArray = "null".getBytes()
   given codec[T: Reader: Writer]: Codec[T] =
     new Codec[T]:
       override def decode(
           payload: Option[Payload]
       ): Either[ProtocolError, T] =
         payload
-          .map(_.array)
-          .flatMap { arr =>
+          .map(_.stripNull.map(_.array).getOrElse(nullArray))
+          .flatMap: arr =>
             Try(read[T](arr, trace = true)).toOption
-          }
           .toRight(ProtocolError.InvalidParams("oopsie daisy"))
-      end decode
 
       override def encode(a: T): Payload =
         Payload(write(a).getBytes)
