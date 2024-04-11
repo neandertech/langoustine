@@ -10,6 +10,7 @@ import scala.annotation.tailrec
 import java.util.concurrent.atomic.AtomicReference
 import jsonrpclib.InputMessage.RequestMessage
 import jsonrpclib.InputMessage.NotificationMessage
+import com.github.plokhotnyuk.jsoniter_scala.core.writeToArray
 
 given [F[_]](using MonadThrow[F]): Monadic[F] with
   def doFlatMap[A, B](fa: F[A])(f: A => F[B]): F[B] =
@@ -91,7 +92,7 @@ def request[F[_]: RefConstructor: MonadThrow, T <: requests.LSPRequest](
               case Left(err) => F.raiseError(erc.encode(err))
               case Right(res) =>
                 F.catchNonFatal {
-                  upickle.default.read[req.Out](outc.encode(res).array)
+                  upickle.default.read[req.Out](writeToArray(outc.encode(res)))
                 }
             }
           yield res -> communicate
