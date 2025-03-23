@@ -23,6 +23,7 @@ import requests.*
 import upickle.default.*
 
 import util.chaining.*
+import upickle.core.TraceVisitor.TraceException
 
 private[langoustine] object jsonrpcIntegration:
   val nullArray = "null".getBytes()
@@ -33,9 +34,18 @@ private[langoustine] object jsonrpcIntegration:
       ): Either[ProtocolError, T] =
         payload
           .map(_.stripNull.map(_.array).getOrElse(nullArray))
+          .toRight(ProtocolError.InvalidParams("missing payload"))
           .flatMap: arr =>
-            Try(read[T](arr, trace = true)).toOption
-          .toRight(ProtocolError.InvalidParams("oopsie daisy"))
+            Try(read[T](arr, trace = true)).toEither.left.map {
+              case te: TraceException =>
+                val e = te.getCause()
+                ProtocolError.InvalidParams(
+                  s"invalid payload at ${te.jsonPath}: " + e.getMessage
+                )
+
+              case e =>
+                ProtocolError.InternalError("oopsie daisy: " + e.getMessage)
+            }
 
       override def encode(a: T): Payload =
         Payload(write(a).getBytes)
