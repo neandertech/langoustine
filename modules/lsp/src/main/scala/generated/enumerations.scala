@@ -69,7 +69,6 @@ object SemanticTokenTypes extends StringEnum[SemanticTokenTypes]:
   override def ALL = Set(
     namespace, `type`, `class`, `enum`, interface, struct, typeParameter, parameter, variable, property, enumMember, event, function, method, `macro`, keyword, modifier, comment, string, number, regexp, operator, decorator
   )
-  
 
 /**
  *  A set of predefined token modifiers. This set is not fixed
@@ -93,7 +92,6 @@ object SemanticTokenModifiers extends StringEnum[SemanticTokenModifiers]:
   override def ALL = Set(
     declaration, definition, readonly, static, deprecated, `abstract`, async, modification, documentation, defaultLibrary
   )
-  
 
 /**
  *  The document diagnostic report kinds.
@@ -115,7 +113,6 @@ object DocumentDiagnosticReportKind extends StringEnum[DocumentDiagnosticReportK
   override def ALL = Set(
     Full, Unchanged
   )
-  
 
 /**
  *  Predefined error codes.
@@ -213,7 +210,6 @@ object FoldingRangeKind extends StringEnum[FoldingRangeKind]:
   override def ALL = Set(
     Comment, Imports, Region
   )
-  
 
 /**
  *  A symbol kind.
@@ -328,7 +324,6 @@ object UniquenessLevel extends StringEnum[UniquenessLevel]:
   override def ALL = Set(
     document, project, group, scheme, global
   )
-  
 
 /**
  *  The moniker kind.
@@ -353,7 +348,6 @@ object MonikerKind extends StringEnum[MonikerKind]:
   override def ALL = Set(
     `import`, `export`, local
   )
-  
 
 /**
  *  Inlay hint kinds.
@@ -726,7 +720,6 @@ object CodeActionKind extends StringEnum[CodeActionKind]:
   override def ALL = Set(
     Empty, QuickFix, Refactor, RefactorExtract, RefactorInline, RefactorRewrite, Source, SourceOrganizeImports, SourceFixAll
   )
-  
 
 opaque type TraceValues = String
 object TraceValues extends StringEnum[TraceValues]:
@@ -745,7 +738,6 @@ object TraceValues extends StringEnum[TraceValues]:
   override def ALL = Set(
     Off, Messages, Verbose
   )
-  
 
 /**
  *  Describes the content type that a client supports in various
@@ -767,7 +759,6 @@ object MarkupKind extends StringEnum[MarkupKind]:
   override def ALL = Set(
     PlainText, Markdown
   )
-  
 
 /**
  *  A set of predefined position encoding kinds.
@@ -798,7 +789,6 @@ object PositionEncodingKind extends StringEnum[PositionEncodingKind]:
   override def ALL = Set(
     UTF8, UTF16, UTF32
   )
-  
 
 /**
  *  The file event type
@@ -1016,7 +1006,6 @@ object FileOperationPatternKind extends StringEnum[FileOperationPatternKind]:
   override def ALL = Set(
     file, folder
   )
-  
 
 /**
  *  A notebook cell kind.
@@ -1059,7 +1048,6 @@ object ResourceOperationKind extends StringEnum[ResourceOperationKind]:
   override def ALL = Set(
     Create, Rename, Delete
   )
-  
 
 opaque type FailureHandlingKind = String
 object FailureHandlingKind extends StringEnum[FailureHandlingKind]:
@@ -1087,7 +1075,6 @@ object FailureHandlingKind extends StringEnum[FailureHandlingKind]:
   override def ALL = Set(
     Abort, Transactional, TextOnlyTransactional, Undo
   )
-  
 
 opaque type PrepareSupportDefaultBehavior = runtime.uinteger
 object PrepareSupportDefaultBehavior extends UIntEnum[PrepareSupportDefaultBehavior]:
@@ -1110,5 +1097,4 @@ object TokenFormat extends StringEnum[TokenFormat]:
   override def ALL = Set(
     Relative
   )
-  
 

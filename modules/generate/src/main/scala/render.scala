@@ -1144,8 +1144,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
           }
           line(")")
 
-          line("")
-
           // `.name` extension
           base match
             case ET.string =>
@@ -1156,6 +1154,8 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
                 case ET.integer  => "self"
                 case ET.uinteger => "self.value"
                 case _           => sys.error("impossible")
+
+              line("")
 
               line(
                 s"extension (self: ${a.name}) def name: String = ($unwrap: @switch) match {"
