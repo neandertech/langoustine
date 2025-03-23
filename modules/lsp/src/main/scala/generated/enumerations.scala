@@ -20,6 +20,7 @@ package enumerations
 import runtime.{*, given}
 import json.{*, given}
 import scala.reflect.Typeable
+import scala.annotation.switch
 // format: off
 
 private val stringCodec = upickle.default.readwriter[String]
@@ -30,7 +31,7 @@ import upickle.{default => up}
  *  A set of predefined token types. This set is not fixed
  *  an clients can specify additional token types via the
  *  corresponding client capabilities.
- *  
+ *
  *  @since 3.16.0
  */
 opaque type SemanticTokenTypes = String
@@ -69,11 +70,13 @@ object SemanticTokenTypes extends StringEnum[SemanticTokenTypes]:
     namespace, `type`, `class`, `enum`, interface, struct, typeParameter, parameter, variable, property, enumMember, event, function, method, `macro`, keyword, modifier, comment, string, number, regexp, operator, decorator
   )
 
+  extension (self: SemanticTokenTypes) def name: String = self
+
 /**
  *  A set of predefined token modifiers. This set is not fixed
  *  an clients can specify additional token types via the
  *  corresponding client capabilities.
- *  
+ *
  *  @since 3.16.0
  */
 opaque type SemanticTokenModifiers = String
@@ -92,9 +95,11 @@ object SemanticTokenModifiers extends StringEnum[SemanticTokenModifiers]:
     declaration, definition, readonly, static, deprecated, `abstract`, async, modification, documentation, defaultLibrary
   )
 
+  extension (self: SemanticTokenModifiers) def name: String = self
+
 /**
  *  The document diagnostic report kinds.
- *  
+ *
  *  @since 3.17.0
  */
 opaque type DocumentDiagnosticReportKind = String
@@ -112,6 +117,8 @@ object DocumentDiagnosticReportKind extends StringEnum[DocumentDiagnosticReportK
   override def ALL = Set(
     Full, Unchanged
   )
+
+  extension (self: DocumentDiagnosticReportKind) def name: String = self
 
 /**
  *  Predefined error codes.
@@ -133,6 +140,16 @@ object ErrorCodes extends IntEnum[ErrorCodes]:
     ParseError, InvalidRequest, MethodNotFound, InvalidParams, InternalError, ServerNotInitialized, UnknownErrorCode
   )
 
+  extension (self: ErrorCodes) def name: String = (self: @switch) match {
+    case -32700 => "ParseError"
+    case -32600 => "InvalidRequest"
+    case -32601 => "MethodNotFound"
+    case -32602 => "InvalidParams"
+    case -32603 => "InternalError"
+    case -32002 => "ServerNotInitialized"
+    case -32001 => "UnknownErrorCode"
+  }
+
 opaque type LSPErrorCodes = Int
 object LSPErrorCodes extends IntEnum[LSPErrorCodes]:
   /**
@@ -140,7 +157,7 @@ object LSPErrorCodes extends IntEnum[LSPErrorCodes]:
    *  method name was known and the parameters were valid. The error
    *  message should contain human readable information about why
    *  the request failed.
-   *  
+   *
    *  @since 3.17.0
    */
   val RequestFailed = entry(-32803)
@@ -148,7 +165,7 @@ object LSPErrorCodes extends IntEnum[LSPErrorCodes]:
    *  The server cancelled the request. This error code should
    *  only be used for requests that explicitly support being
    *  server cancellable.
-   *  
+   *
    *  @since 3.17.0
    */
   val ServerCancelled = entry(-32802)
@@ -158,7 +175,7 @@ object LSPErrorCodes extends IntEnum[LSPErrorCodes]:
    *  NOT send this error code if it detects a content change
    *  in it unprocessed messages. The result even computed
    *  on an older state might still be useful for the client.
-   *  
+   *
    *  If a client decides that a result is not of any use anymore
    *  the client should cancel the request.
    */
@@ -171,6 +188,13 @@ object LSPErrorCodes extends IntEnum[LSPErrorCodes]:
   override def ALL = Set(
     RequestFailed, ServerCancelled, ContentModified, RequestCancelled
   )
+
+  extension (self: LSPErrorCodes) def name: String = (self: @switch) match {
+    case -32803 => "RequestFailed"
+    case -32802 => "ServerCancelled"
+    case -32801 => "ContentModified"
+    case -32800 => "RequestCancelled"
+  }
 
 /**
  *  A set of predefined range kinds.
@@ -192,6 +216,8 @@ object FoldingRangeKind extends StringEnum[FoldingRangeKind]:
   override def ALL = Set(
     Comment, Imports, Region
   )
+
+  extension (self: FoldingRangeKind) def name: String = self
 
 /**
  *  A symbol kind.
@@ -228,9 +254,38 @@ object SymbolKind extends UIntEnum[SymbolKind]:
     File, Module, Namespace, Package, Class, Method, Property, Field, Constructor, Enum, Interface, Function, Variable, Constant, String, Number, Boolean, Array, Object, Key, Null, EnumMember, Struct, Event, Operator, TypeParameter
   )
 
+  extension (self: SymbolKind) def name: String = (self.value: @switch) match {
+    case 1 => "File"
+    case 2 => "Module"
+    case 3 => "Namespace"
+    case 4 => "Package"
+    case 5 => "Class"
+    case 6 => "Method"
+    case 7 => "Property"
+    case 8 => "Field"
+    case 9 => "Constructor"
+    case 10 => "Enum"
+    case 11 => "Interface"
+    case 12 => "Function"
+    case 13 => "Variable"
+    case 14 => "Constant"
+    case 15 => "String"
+    case 16 => "Number"
+    case 17 => "Boolean"
+    case 18 => "Array"
+    case 19 => "Object"
+    case 20 => "Key"
+    case 21 => "Null"
+    case 22 => "EnumMember"
+    case 23 => "Struct"
+    case 24 => "Event"
+    case 25 => "Operator"
+    case 26 => "TypeParameter"
+  }
+
 /**
  *  Symbol tags are extra annotations that tweak the rendering of a symbol.
- *  
+ *
  *  @since 3.16
  */
 opaque type SymbolTag = runtime.uinteger
@@ -243,9 +298,13 @@ object SymbolTag extends UIntEnum[SymbolTag]:
     Deprecated
   )
 
+  extension (self: SymbolTag) def name: String = (self.value: @switch) match {
+    case 1 => "Deprecated"
+  }
+
 /**
  *  Moniker uniqueness level to define scope of the moniker.
- *  
+ *
  *  @since 3.16.0
  */
 opaque type UniquenessLevel = String
@@ -274,9 +333,11 @@ object UniquenessLevel extends StringEnum[UniquenessLevel]:
     document, project, group, scheme, global
   )
 
+  extension (self: UniquenessLevel) def name: String = self
+
 /**
  *  The moniker kind.
- *  
+ *
  *  @since 3.16.0
  */
 opaque type MonikerKind = String
@@ -298,9 +359,11 @@ object MonikerKind extends StringEnum[MonikerKind]:
     `import`, `export`, local
   )
 
+  extension (self: MonikerKind) def name: String = self
+
 /**
  *  Inlay hint kinds.
- *  
+ *
  *  @since 3.17.0
  */
 opaque type InlayHintKind = runtime.uinteger
@@ -316,6 +379,11 @@ object InlayHintKind extends UIntEnum[InlayHintKind]:
   override def ALL = Set(
     Type, Parameter
   )
+
+  extension (self: InlayHintKind) def name: String = (self.value: @switch) match {
+    case 1 => "Type"
+    case 2 => "Parameter"
+  }
 
 /**
  *  The message type
@@ -340,13 +408,21 @@ object MessageType extends UIntEnum[MessageType]:
   val Log = entry(4)
   /**
    *  A debug message.
-   *  
+   *
    *  @since 3.18.0
    */
   val Debug = entry(5)
   override def ALL = Set(
     Error, Warning, Info, Log, Debug
   )
+
+  extension (self: MessageType) def name: String = (self.value: @switch) match {
+    case 1 => "Error"
+    case 2 => "Warning"
+    case 3 => "Info"
+    case 4 => "Log"
+    case 5 => "Debug"
+  }
 
 /**
  *  Defines how the host (editor) should sync
@@ -373,6 +449,12 @@ object TextDocumentSyncKind extends UIntEnum[TextDocumentSyncKind]:
     None, Full, Incremental
   )
 
+  extension (self: TextDocumentSyncKind) def name: String = (self.value: @switch) match {
+    case 0 => "None"
+    case 1 => "Full"
+    case 2 => "Incremental"
+  }
+
 /**
  *  Represents reasons why a text document is saved.
  */
@@ -394,6 +476,12 @@ object TextDocumentSaveReason extends UIntEnum[TextDocumentSaveReason]:
   override def ALL = Set(
     Manual, AfterDelay, FocusOut
   )
+
+  extension (self: TextDocumentSaveReason) def name: String = (self.value: @switch) match {
+    case 1 => "Manual"
+    case 2 => "AfterDelay"
+    case 3 => "FocusOut"
+  }
 
 /**
  *  The kind of a completion entry.
@@ -429,10 +517,38 @@ object CompletionItemKind extends UIntEnum[CompletionItemKind]:
     Text, Method, Function, Constructor, Field, Variable, Class, Interface, Module, Property, Unit, Value, Enum, Keyword, Snippet, Color, File, Reference, Folder, EnumMember, Constant, Struct, Event, Operator, TypeParameter
   )
 
+  extension (self: CompletionItemKind) def name: String = (self.value: @switch) match {
+    case 1 => "Text"
+    case 2 => "Method"
+    case 3 => "Function"
+    case 4 => "Constructor"
+    case 5 => "Field"
+    case 6 => "Variable"
+    case 7 => "Class"
+    case 8 => "Interface"
+    case 9 => "Module"
+    case 10 => "Property"
+    case 11 => "Unit"
+    case 12 => "Value"
+    case 13 => "Enum"
+    case 14 => "Keyword"
+    case 15 => "Snippet"
+    case 16 => "Color"
+    case 17 => "File"
+    case 18 => "Reference"
+    case 19 => "Folder"
+    case 20 => "EnumMember"
+    case 21 => "Constant"
+    case 22 => "Struct"
+    case 23 => "Event"
+    case 24 => "Operator"
+    case 25 => "TypeParameter"
+  }
+
 /**
  *  Completion item tags are extra annotations that tweak the rendering of a completion
  *  item.
- *  
+ *
  *  @since 3.15.0
  */
 opaque type CompletionItemTag = runtime.uinteger
@@ -444,6 +560,10 @@ object CompletionItemTag extends UIntEnum[CompletionItemTag]:
   override def ALL = Set(
     Deprecated
   )
+
+  extension (self: CompletionItemTag) def name: String = (self.value: @switch) match {
+    case 1 => "Deprecated"
+  }
 
 /**
  *  Defines whether the insert text in a completion item should be interpreted as
@@ -457,12 +577,12 @@ object InsertTextFormat extends UIntEnum[InsertTextFormat]:
   val PlainText = entry(1)
   /**
    *  The primary text to be inserted is treated as a snippet.
-   *  
+   *
    *  A snippet can define tab stops and placeholders with `$1`, `$2`
    *  and `${3:foo}`. `$0` defines the final tab stop, it defaults to
    *  the end of the snippet. Placeholders with equal identifiers are linked,
    *  that is typing in one will update others too.
-   *  
+   *
    *  See also: https://microsoft.github.io/language-server-protocol/specifications/specification-current/#snippet_syntax
    */
   val Snippet = entry(2)
@@ -470,10 +590,15 @@ object InsertTextFormat extends UIntEnum[InsertTextFormat]:
     PlainText, Snippet
   )
 
+  extension (self: InsertTextFormat) def name: String = (self.value: @switch) match {
+    case 1 => "PlainText"
+    case 2 => "Snippet"
+  }
+
 /**
  *  How whitespace and indentation is handled during completion
  *  item insertion.
- *  
+ *
  *  @since 3.16.0
  */
 opaque type InsertTextMode = runtime.uinteger
@@ -490,7 +615,7 @@ object InsertTextMode extends UIntEnum[InsertTextMode]:
    *  The editor adjusts leading whitespace of new lines so that
    *  they match the indentation up to the cursor of the line for
    *  which the item is accepted.
-   *  
+   *
    *  Consider a line like this: <2tabs><cursor><3tabs>foo. Accepting a
    *  multi line completion item is indented using 2 tabs and all
    *  following lines inserted will be indented using 2 tabs as well.
@@ -499,6 +624,11 @@ object InsertTextMode extends UIntEnum[InsertTextMode]:
   override def ALL = Set(
     asIs, adjustIndentation
   )
+
+  extension (self: InsertTextMode) def name: String = (self.value: @switch) match {
+    case 1 => "asIs"
+    case 2 => "adjustIndentation"
+  }
 
 /**
  *  A document highlight kind.
@@ -521,6 +651,12 @@ object DocumentHighlightKind extends UIntEnum[DocumentHighlightKind]:
     Text, Read, Write
   )
 
+  extension (self: DocumentHighlightKind) def name: String = (self.value: @switch) match {
+    case 1 => "Text"
+    case 2 => "Read"
+    case 3 => "Write"
+  }
+
 /**
  *  A set of predefined code action kinds
  */
@@ -540,9 +676,9 @@ object CodeActionKind extends StringEnum[CodeActionKind]:
   val Refactor = entry("refactor")
   /**
    *  Base kind for refactoring extraction actions: 'refactor.extract'
-   *  
+   *
    *  Example extract actions:
-   *  
+   *
    *  - Extract method
    *  - Extract function
    *  - Extract variable
@@ -552,9 +688,9 @@ object CodeActionKind extends StringEnum[CodeActionKind]:
   val RefactorExtract = entry("refactor.extract")
   /**
    *  Base kind for refactoring inline actions: 'refactor.inline'
-   *  
+   *
    *  Example inline actions:
-   *  
+   *
    *  - Inline function
    *  - Inline variable
    *  - Inline constant
@@ -563,9 +699,9 @@ object CodeActionKind extends StringEnum[CodeActionKind]:
   val RefactorInline = entry("refactor.inline")
   /**
    *  Base kind for refactoring rewrite actions: 'refactor.rewrite'
-   *  
+   *
    *  Example rewrite actions:
-   *  
+   *
    *  - Convert JavaScript function to class
    *  - Add or remove parameter
    *  - Encapsulate field
@@ -576,7 +712,7 @@ object CodeActionKind extends StringEnum[CodeActionKind]:
   val RefactorRewrite = entry("refactor.rewrite")
   /**
    *  Base kind for source actions: `source`
-   *  
+   *
    *  Source code actions apply to the entire file.
    */
   val Source = entry("source")
@@ -586,16 +722,18 @@ object CodeActionKind extends StringEnum[CodeActionKind]:
   val SourceOrganizeImports = entry("source.organizeImports")
   /**
    *  Base kind for auto-fix source actions: `source.fixAll`.
-   *  
+   *
    *  Fix all actions automatically fix errors that have a clear fix that do not require user input.
    *  They should not suppress errors or perform unsafe fixes such as generating new types or classes.
-   *  
+   *
    *  @since 3.15.0
    */
   val SourceFixAll = entry("source.fixAll")
   override def ALL = Set(
     Empty, QuickFix, Refactor, RefactorExtract, RefactorInline, RefactorRewrite, Source, SourceOrganizeImports, SourceFixAll
   )
+
+  extension (self: CodeActionKind) def name: String = self
 
 opaque type TraceValues = String
 object TraceValues extends StringEnum[TraceValues]:
@@ -615,10 +753,12 @@ object TraceValues extends StringEnum[TraceValues]:
     Off, Messages, Verbose
   )
 
+  extension (self: TraceValues) def name: String = self
+
 /**
  *  Describes the content type that a client supports in various
  *  result literals like `Hover`, `ParameterInfo` or `CompletionItem`.
- *  
+ *
  *  Please note that `MarkupKinds` must not start with a `$`. This kinds
  *  are reserved for internal usage.
  */
@@ -636,9 +776,11 @@ object MarkupKind extends StringEnum[MarkupKind]:
     PlainText, Markdown
   )
 
+  extension (self: MarkupKind) def name: String = self
+
 /**
  *  A set of predefined position encoding kinds.
- *  
+ *
  *  @since 3.17.0
  */
 opaque type PositionEncodingKind = String
@@ -649,14 +791,14 @@ object PositionEncodingKind extends StringEnum[PositionEncodingKind]:
   val UTF8 = entry("utf-8")
   /**
    *  Character offsets count UTF-16 code units.
-   *  
+   *
    *  This is the default and must always be supported
    *  by servers
    */
   val UTF16 = entry("utf-16")
   /**
    *  Character offsets count UTF-32 code units.
-   *  
+   *
    *  Implementation note: these are the same as Unicode codepoints,
    *  so this `PositionEncodingKind` may also be used for an
    *  encoding-agnostic representation of character offsets.
@@ -665,6 +807,8 @@ object PositionEncodingKind extends StringEnum[PositionEncodingKind]:
   override def ALL = Set(
     UTF8, UTF16, UTF32
   )
+
+  extension (self: PositionEncodingKind) def name: String = self
 
 /**
  *  The file event type
@@ -687,6 +831,12 @@ object FileChangeType extends UIntEnum[FileChangeType]:
     Created, Changed, Deleted
   )
 
+  extension (self: FileChangeType) def name: String = (self.value: @switch) match {
+    case 1 => "Created"
+    case 2 => "Changed"
+    case 3 => "Deleted"
+  }
+
 opaque type WatchKind = runtime.uinteger
 object WatchKind extends UIntEnum[WatchKind]:
   /**
@@ -704,6 +854,12 @@ object WatchKind extends UIntEnum[WatchKind]:
   override def ALL = Set(
     Create, Change, Delete
   )
+
+  extension (self: WatchKind) def name: String = (self.value: @switch) match {
+    case 1 => "Create"
+    case 2 => "Change"
+    case 4 => "Delete"
+  }
 
 /**
  *  The diagnostic's severity.
@@ -730,29 +886,41 @@ object DiagnosticSeverity extends UIntEnum[DiagnosticSeverity]:
     Error, Warning, Information, Hint
   )
 
+  extension (self: DiagnosticSeverity) def name: String = (self.value: @switch) match {
+    case 1 => "Error"
+    case 2 => "Warning"
+    case 3 => "Information"
+    case 4 => "Hint"
+  }
+
 /**
  *  The diagnostic tags.
- *  
+ *
  *  @since 3.15.0
  */
 opaque type DiagnosticTag = runtime.uinteger
 object DiagnosticTag extends UIntEnum[DiagnosticTag]:
   /**
    *  Unused or unnecessary code.
-   *  
+   *
    *  Clients are allowed to render diagnostics with this tag faded out instead of having
    *  an error squiggle.
    */
   val Unnecessary = entry(1)
   /**
    *  Deprecated or obsolete code.
-   *  
+   *
    *  Clients are allowed to rendered diagnostics with this tag strike through.
    */
   val Deprecated = entry(2)
   override def ALL = Set(
     Unnecessary, Deprecated
   )
+
+  extension (self: DiagnosticTag) def name: String = (self.value: @switch) match {
+    case 1 => "Unnecessary"
+    case 2 => "Deprecated"
+  }
 
 /**
  *  How a completion was triggered
@@ -777,9 +945,15 @@ object CompletionTriggerKind extends UIntEnum[CompletionTriggerKind]:
     Invoked, TriggerCharacter, TriggerForIncompleteCompletions
   )
 
+  extension (self: CompletionTriggerKind) def name: String = (self.value: @switch) match {
+    case 1 => "Invoked"
+    case 2 => "TriggerCharacter"
+    case 3 => "TriggerForIncompleteCompletions"
+  }
+
 /**
  *  How a signature help was triggered.
- *  
+ *
  *  @since 3.15.0
  */
 opaque type SignatureHelpTriggerKind = runtime.uinteger
@@ -800,9 +974,15 @@ object SignatureHelpTriggerKind extends UIntEnum[SignatureHelpTriggerKind]:
     Invoked, TriggerCharacter, ContentChange
   )
 
+  extension (self: SignatureHelpTriggerKind) def name: String = (self.value: @switch) match {
+    case 1 => "Invoked"
+    case 2 => "TriggerCharacter"
+    case 3 => "ContentChange"
+  }
+
 /**
  *  The reason why code actions were requested.
- *  
+ *
  *  @since 3.17.0
  */
 opaque type CodeActionTriggerKind = runtime.uinteger
@@ -813,7 +993,7 @@ object CodeActionTriggerKind extends UIntEnum[CodeActionTriggerKind]:
   val Invoked = entry(1)
   /**
    *  Code actions were requested automatically.
-   *  
+   *
    *  This typically happens when current selection in a file changes, but can
    *  also be triggered when file content changes.
    */
@@ -822,10 +1002,15 @@ object CodeActionTriggerKind extends UIntEnum[CodeActionTriggerKind]:
     Invoked, Automatic
   )
 
+  extension (self: CodeActionTriggerKind) def name: String = (self.value: @switch) match {
+    case 1 => "Invoked"
+    case 2 => "Automatic"
+  }
+
 /**
  *  A pattern kind describing if a glob pattern matches a file a folder or
  *  both.
- *  
+ *
  *  @since 3.16.0
  */
 opaque type FileOperationPatternKind = String
@@ -842,9 +1027,11 @@ object FileOperationPatternKind extends StringEnum[FileOperationPatternKind]:
     file, folder
   )
 
+  extension (self: FileOperationPatternKind) def name: String = self
+
 /**
  *  A notebook cell kind.
- *  
+ *
  *  @since 3.17.0
  */
 opaque type NotebookCellKind = runtime.uinteger
@@ -860,6 +1047,11 @@ object NotebookCellKind extends UIntEnum[NotebookCellKind]:
   override def ALL = Set(
     Markup, Code
   )
+
+  extension (self: NotebookCellKind) def name: String = (self.value: @switch) match {
+    case 1 => "Markup"
+    case 2 => "Code"
+  }
 
 opaque type ResourceOperationKind = String
 object ResourceOperationKind extends StringEnum[ResourceOperationKind]:
@@ -878,6 +1070,8 @@ object ResourceOperationKind extends StringEnum[ResourceOperationKind]:
   override def ALL = Set(
     Create, Rename, Delete
   )
+
+  extension (self: ResourceOperationKind) def name: String = self
 
 opaque type FailureHandlingKind = String
 object FailureHandlingKind extends StringEnum[FailureHandlingKind]:
@@ -906,6 +1100,8 @@ object FailureHandlingKind extends StringEnum[FailureHandlingKind]:
     Abort, Transactional, TextOnlyTransactional, Undo
   )
 
+  extension (self: FailureHandlingKind) def name: String = self
+
 opaque type PrepareSupportDefaultBehavior = runtime.uinteger
 object PrepareSupportDefaultBehavior extends UIntEnum[PrepareSupportDefaultBehavior]:
   /**
@@ -917,10 +1113,16 @@ object PrepareSupportDefaultBehavior extends UIntEnum[PrepareSupportDefaultBehav
     Identifier
   )
 
+  extension (self: PrepareSupportDefaultBehavior) def name: String = (self.value: @switch) match {
+    case 1 => "Identifier"
+  }
+
 opaque type TokenFormat = String
 object TokenFormat extends StringEnum[TokenFormat]:
   val Relative = entry("relative")
   override def ALL = Set(
     Relative
   )
+
+  extension (self: TokenFormat) def name: String = self
 
