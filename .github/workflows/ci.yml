@@ -26,9 +26,12 @@ jobs:
 
       - uses: actions/setup-java@v3
         with:
-          distribution: 'temurin' 
-          java-version: '17'
-          cache: 'sbt'
+          distribution: "temurin"
+          java-version: "17"
+          cache: "sbt"
+
+      - name: Setup sbt
+        uses: sbt/setup-sbt@v1
 
       - name: Test
         run: sbt ci buildWebsite

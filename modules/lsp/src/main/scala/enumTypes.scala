@@ -32,6 +32,7 @@ private[lsp] trait IntEnum[T](using ev: T =:= Int):
   given writer: Writer[T] = intCodec.asInstanceOf[Writer[T]]
 
   protected def ALL: Set[T]
+  extension (self: T) def name: String
 
   given Bijection[T, Int] with
     def apply(a: T): Int = ev.apply(a)
@@ -56,6 +57,7 @@ private[lsp] trait StringEnum[T](using ev: T =:= String):
   given reader: Reader[T] = stringCodec.asInstanceOf[Reader[T]]
   given writer: Writer[T] = stringCodec.asInstanceOf[Writer[T]]
   protected def ALL: Set[T]
+  extension (self: T) def name: String = self
 
   given Bijection[T, String] with
     def apply(a: T): String   = ev.apply(a)
@@ -81,6 +83,7 @@ private[lsp] trait UIntEnum[T](using ev: T =:= uinteger):
   given writer: Writer[T] = intCodec.asInstanceOf[Writer[T]]
 
   protected def ALL: Set[T]
+  extension (self: T) def name: String
 
   given Bijection[T, uinteger] with
     def apply(a: T): uinteger = ev.apply(a)

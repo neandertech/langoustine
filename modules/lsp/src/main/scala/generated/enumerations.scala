@@ -20,6 +20,7 @@ package enumerations
 import runtime.{*, given}
 import json.{*, given}
 import scala.reflect.Typeable
+import scala.annotation.switch
 // format: off
 
 private val stringCodec = upickle.default.readwriter[String]
@@ -132,6 +133,16 @@ object ErrorCodes extends IntEnum[ErrorCodes]:
   override def ALL = Set(
     ParseError, InvalidRequest, MethodNotFound, InvalidParams, InternalError, ServerNotInitialized, UnknownErrorCode
   )
+  
+  extension (self: ErrorCodes) def name: String = (self: @switch) match {
+    case -32700 => "ParseError"
+    case -32600 => "InvalidRequest"
+    case -32601 => "MethodNotFound"
+    case -32602 => "InvalidParams"
+    case -32603 => "InternalError"
+    case -32002 => "ServerNotInitialized"
+    case -32001 => "UnknownErrorCode"
+  }
 
 opaque type LSPErrorCodes = Int
 object LSPErrorCodes extends IntEnum[LSPErrorCodes]:
@@ -171,6 +182,13 @@ object LSPErrorCodes extends IntEnum[LSPErrorCodes]:
   override def ALL = Set(
     RequestFailed, ServerCancelled, ContentModified, RequestCancelled
   )
+  
+  extension (self: LSPErrorCodes) def name: String = (self: @switch) match {
+    case -32803 => "RequestFailed"
+    case -32802 => "ServerCancelled"
+    case -32801 => "ContentModified"
+    case -32800 => "RequestCancelled"
+  }
 
 /**
  *  A set of predefined range kinds.
@@ -227,6 +245,35 @@ object SymbolKind extends UIntEnum[SymbolKind]:
   override def ALL = Set(
     File, Module, Namespace, Package, Class, Method, Property, Field, Constructor, Enum, Interface, Function, Variable, Constant, String, Number, Boolean, Array, Object, Key, Null, EnumMember, Struct, Event, Operator, TypeParameter
   )
+  
+  extension (self: SymbolKind) def name: String = (self.value: @switch) match {
+    case 1 => "File"
+    case 2 => "Module"
+    case 3 => "Namespace"
+    case 4 => "Package"
+    case 5 => "Class"
+    case 6 => "Method"
+    case 7 => "Property"
+    case 8 => "Field"
+    case 9 => "Constructor"
+    case 10 => "Enum"
+    case 11 => "Interface"
+    case 12 => "Function"
+    case 13 => "Variable"
+    case 14 => "Constant"
+    case 15 => "String"
+    case 16 => "Number"
+    case 17 => "Boolean"
+    case 18 => "Array"
+    case 19 => "Object"
+    case 20 => "Key"
+    case 21 => "Null"
+    case 22 => "EnumMember"
+    case 23 => "Struct"
+    case 24 => "Event"
+    case 25 => "Operator"
+    case 26 => "TypeParameter"
+  }
 
 /**
  *  Symbol tags are extra annotations that tweak the rendering of a symbol.
@@ -242,6 +289,10 @@ object SymbolTag extends UIntEnum[SymbolTag]:
   override def ALL = Set(
     Deprecated
   )
+  
+  extension (self: SymbolTag) def name: String = (self.value: @switch) match {
+    case 1 => "Deprecated"
+  }
 
 /**
  *  Moniker uniqueness level to define scope of the moniker.
@@ -316,6 +367,11 @@ object InlayHintKind extends UIntEnum[InlayHintKind]:
   override def ALL = Set(
     Type, Parameter
   )
+  
+  extension (self: InlayHintKind) def name: String = (self.value: @switch) match {
+    case 1 => "Type"
+    case 2 => "Parameter"
+  }
 
 /**
  *  The message type
@@ -347,6 +403,14 @@ object MessageType extends UIntEnum[MessageType]:
   override def ALL = Set(
     Error, Warning, Info, Log, Debug
   )
+  
+  extension (self: MessageType) def name: String = (self.value: @switch) match {
+    case 1 => "Error"
+    case 2 => "Warning"
+    case 3 => "Info"
+    case 4 => "Log"
+    case 5 => "Debug"
+  }
 
 /**
  *  Defines how the host (editor) should sync
@@ -372,6 +436,12 @@ object TextDocumentSyncKind extends UIntEnum[TextDocumentSyncKind]:
   override def ALL = Set(
     None, Full, Incremental
   )
+  
+  extension (self: TextDocumentSyncKind) def name: String = (self.value: @switch) match {
+    case 0 => "None"
+    case 1 => "Full"
+    case 2 => "Incremental"
+  }
 
 /**
  *  Represents reasons why a text document is saved.
@@ -394,6 +464,12 @@ object TextDocumentSaveReason extends UIntEnum[TextDocumentSaveReason]:
   override def ALL = Set(
     Manual, AfterDelay, FocusOut
   )
+  
+  extension (self: TextDocumentSaveReason) def name: String = (self.value: @switch) match {
+    case 1 => "Manual"
+    case 2 => "AfterDelay"
+    case 3 => "FocusOut"
+  }
 
 /**
  *  The kind of a completion entry.
@@ -428,6 +504,34 @@ object CompletionItemKind extends UIntEnum[CompletionItemKind]:
   override def ALL = Set(
     Text, Method, Function, Constructor, Field, Variable, Class, Interface, Module, Property, Unit, Value, Enum, Keyword, Snippet, Color, File, Reference, Folder, EnumMember, Constant, Struct, Event, Operator, TypeParameter
   )
+  
+  extension (self: CompletionItemKind) def name: String = (self.value: @switch) match {
+    case 1 => "Text"
+    case 2 => "Method"
+    case 3 => "Function"
+    case 4 => "Constructor"
+    case 5 => "Field"
+    case 6 => "Variable"
+    case 7 => "Class"
+    case 8 => "Interface"
+    case 9 => "Module"
+    case 10 => "Property"
+    case 11 => "Unit"
+    case 12 => "Value"
+    case 13 => "Enum"
+    case 14 => "Keyword"
+    case 15 => "Snippet"
+    case 16 => "Color"
+    case 17 => "File"
+    case 18 => "Reference"
+    case 19 => "Folder"
+    case 20 => "EnumMember"
+    case 21 => "Constant"
+    case 22 => "Struct"
+    case 23 => "Event"
+    case 24 => "Operator"
+    case 25 => "TypeParameter"
+  }
 
 /**
  *  Completion item tags are extra annotations that tweak the rendering of a completion
@@ -444,6 +548,10 @@ object CompletionItemTag extends UIntEnum[CompletionItemTag]:
   override def ALL = Set(
     Deprecated
   )
+  
+  extension (self: CompletionItemTag) def name: String = (self.value: @switch) match {
+    case 1 => "Deprecated"
+  }
 
 /**
  *  Defines whether the insert text in a completion item should be interpreted as
@@ -469,6 +577,11 @@ object InsertTextFormat extends UIntEnum[InsertTextFormat]:
   override def ALL = Set(
     PlainText, Snippet
   )
+  
+  extension (self: InsertTextFormat) def name: String = (self.value: @switch) match {
+    case 1 => "PlainText"
+    case 2 => "Snippet"
+  }
 
 /**
  *  How whitespace and indentation is handled during completion
@@ -499,6 +612,11 @@ object InsertTextMode extends UIntEnum[InsertTextMode]:
   override def ALL = Set(
     asIs, adjustIndentation
   )
+  
+  extension (self: InsertTextMode) def name: String = (self.value: @switch) match {
+    case 1 => "asIs"
+    case 2 => "adjustIndentation"
+  }
 
 /**
  *  A document highlight kind.
@@ -520,6 +638,12 @@ object DocumentHighlightKind extends UIntEnum[DocumentHighlightKind]:
   override def ALL = Set(
     Text, Read, Write
   )
+  
+  extension (self: DocumentHighlightKind) def name: String = (self.value: @switch) match {
+    case 1 => "Text"
+    case 2 => "Read"
+    case 3 => "Write"
+  }
 
 /**
  *  A set of predefined code action kinds
@@ -686,6 +810,12 @@ object FileChangeType extends UIntEnum[FileChangeType]:
   override def ALL = Set(
     Created, Changed, Deleted
   )
+  
+  extension (self: FileChangeType) def name: String = (self.value: @switch) match {
+    case 1 => "Created"
+    case 2 => "Changed"
+    case 3 => "Deleted"
+  }
 
 opaque type WatchKind = runtime.uinteger
 object WatchKind extends UIntEnum[WatchKind]:
@@ -704,6 +834,12 @@ object WatchKind extends UIntEnum[WatchKind]:
   override def ALL = Set(
     Create, Change, Delete
   )
+  
+  extension (self: WatchKind) def name: String = (self.value: @switch) match {
+    case 1 => "Create"
+    case 2 => "Change"
+    case 4 => "Delete"
+  }
 
 /**
  *  The diagnostic's severity.
@@ -729,6 +865,13 @@ object DiagnosticSeverity extends UIntEnum[DiagnosticSeverity]:
   override def ALL = Set(
     Error, Warning, Information, Hint
   )
+  
+  extension (self: DiagnosticSeverity) def name: String = (self.value: @switch) match {
+    case 1 => "Error"
+    case 2 => "Warning"
+    case 3 => "Information"
+    case 4 => "Hint"
+  }
 
 /**
  *  The diagnostic tags.
@@ -753,6 +896,11 @@ object DiagnosticTag extends UIntEnum[DiagnosticTag]:
   override def ALL = Set(
     Unnecessary, Deprecated
   )
+  
+  extension (self: DiagnosticTag) def name: String = (self.value: @switch) match {
+    case 1 => "Unnecessary"
+    case 2 => "Deprecated"
+  }
 
 /**
  *  How a completion was triggered
@@ -776,6 +924,12 @@ object CompletionTriggerKind extends UIntEnum[CompletionTriggerKind]:
   override def ALL = Set(
     Invoked, TriggerCharacter, TriggerForIncompleteCompletions
   )
+  
+  extension (self: CompletionTriggerKind) def name: String = (self.value: @switch) match {
+    case 1 => "Invoked"
+    case 2 => "TriggerCharacter"
+    case 3 => "TriggerForIncompleteCompletions"
+  }
 
 /**
  *  How a signature help was triggered.
@@ -799,6 +953,12 @@ object SignatureHelpTriggerKind extends UIntEnum[SignatureHelpTriggerKind]:
   override def ALL = Set(
     Invoked, TriggerCharacter, ContentChange
   )
+  
+  extension (self: SignatureHelpTriggerKind) def name: String = (self.value: @switch) match {
+    case 1 => "Invoked"
+    case 2 => "TriggerCharacter"
+    case 3 => "ContentChange"
+  }
 
 /**
  *  The reason why code actions were requested.
@@ -821,6 +981,11 @@ object CodeActionTriggerKind extends UIntEnum[CodeActionTriggerKind]:
   override def ALL = Set(
     Invoked, Automatic
   )
+  
+  extension (self: CodeActionTriggerKind) def name: String = (self.value: @switch) match {
+    case 1 => "Invoked"
+    case 2 => "Automatic"
+  }
 
 /**
  *  A pattern kind describing if a glob pattern matches a file a folder or
@@ -860,6 +1025,11 @@ object NotebookCellKind extends UIntEnum[NotebookCellKind]:
   override def ALL = Set(
     Markup, Code
   )
+  
+  extension (self: NotebookCellKind) def name: String = (self.value: @switch) match {
+    case 1 => "Markup"
+    case 2 => "Code"
+  }
 
 opaque type ResourceOperationKind = String
 object ResourceOperationKind extends StringEnum[ResourceOperationKind]:
@@ -916,6 +1086,10 @@ object PrepareSupportDefaultBehavior extends UIntEnum[PrepareSupportDefaultBehav
   override def ALL = Set(
     Identifier
   )
+  
+  extension (self: PrepareSupportDefaultBehavior) def name: String = (self.value: @switch) match {
+    case 1 => "Identifier"
+  }
 
 opaque type TokenFormat = String
 object TokenFormat extends StringEnum[TokenFormat]:

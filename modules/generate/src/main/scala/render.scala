@@ -695,7 +695,9 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
       (ctx.definitionScope :+ structure.name).mkString("_") + "Codec"
 
     val extensions =
-      if ctx.definitionScope == List("structures") && structure.name.value == "Position"
+      if ctx.definitionScope == List(
+          "structures"
+        ) && structure.name.value == "Position"
       then " with extensions.PositionSyntax"
       else ""
 
@@ -1083,6 +1085,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line("import runtime.{*, given}")
     line("import json.{*, given}")
     line("import scala.reflect.Typeable")
+    line("import scala.annotation.switch")
     line("// format: off")
     line("")
 
@@ -1141,11 +1144,46 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
           }
           line(")")
 
+          // `.name` extension
+          base match
+            case ET.string =>
+              // do nothing: strings have a .name by virtue of being strings and extending from StringEnum
+              ()
+
+            case _ =>
+              val unwrap = base match
+                case ET.integer  => "self"
+                case ET.uinteger => "self.value"
+                case ET.string =>
+                  sys.error(
+                    "impossible - should be prevented by the previous case"
+                  )
+
+              line("")
+
+              line(
+                s"extension (self: ${a.name}) def name: String = ($unwrap: @switch) match {"
+              )
+              nest {
+                a.values.foreach { entry =>
+                  val lhs = base match
+                    case ET.string => '"' + entry.value.stringValue + '"'
+                    case _         => entry.value.intValue.toString
+
+                  line(
+                    s"case $lhs => \"${entry.name}\""
+                  )
+                }
+              }
+              line("}")
+
+          end match
         }
       end if
       line("")
     }
   end enumerations
+
 end Render
 
 object Render:
