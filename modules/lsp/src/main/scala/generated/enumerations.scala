@@ -70,7 +70,6 @@ object SemanticTokenTypes extends StringEnum[SemanticTokenTypes]:
     namespace, `type`, `class`, `enum`, interface, struct, typeParameter, parameter, variable, property, enumMember, event, function, method, `macro`, keyword, modifier, comment, string, number, regexp, operator, decorator
   )
   
-  extension (self: SemanticTokenTypes) def name: String = self
 
 /**
  *  A set of predefined token modifiers. This set is not fixed
@@ -95,7 +94,6 @@ object SemanticTokenModifiers extends StringEnum[SemanticTokenModifiers]:
     declaration, definition, readonly, static, deprecated, `abstract`, async, modification, documentation, defaultLibrary
   )
   
-  extension (self: SemanticTokenModifiers) def name: String = self
 
 /**
  *  The document diagnostic report kinds.
@@ -118,7 +116,6 @@ object DocumentDiagnosticReportKind extends StringEnum[DocumentDiagnosticReportK
     Full, Unchanged
   )
   
-  extension (self: DocumentDiagnosticReportKind) def name: String = self
 
 /**
  *  Predefined error codes.
@@ -217,7 +214,6 @@ object FoldingRangeKind extends StringEnum[FoldingRangeKind]:
     Comment, Imports, Region
   )
   
-  extension (self: FoldingRangeKind) def name: String = self
 
 /**
  *  A symbol kind.
@@ -333,7 +329,6 @@ object UniquenessLevel extends StringEnum[UniquenessLevel]:
     document, project, group, scheme, global
   )
   
-  extension (self: UniquenessLevel) def name: String = self
 
 /**
  *  The moniker kind.
@@ -359,7 +354,6 @@ object MonikerKind extends StringEnum[MonikerKind]:
     `import`, `export`, local
   )
   
-  extension (self: MonikerKind) def name: String = self
 
 /**
  *  Inlay hint kinds.
@@ -733,7 +727,6 @@ object CodeActionKind extends StringEnum[CodeActionKind]:
     Empty, QuickFix, Refactor, RefactorExtract, RefactorInline, RefactorRewrite, Source, SourceOrganizeImports, SourceFixAll
   )
   
-  extension (self: CodeActionKind) def name: String = self
 
 opaque type TraceValues = String
 object TraceValues extends StringEnum[TraceValues]:
@@ -753,7 +746,6 @@ object TraceValues extends StringEnum[TraceValues]:
     Off, Messages, Verbose
   )
   
-  extension (self: TraceValues) def name: String = self
 
 /**
  *  Describes the content type that a client supports in various
@@ -776,7 +768,6 @@ object MarkupKind extends StringEnum[MarkupKind]:
     PlainText, Markdown
   )
   
-  extension (self: MarkupKind) def name: String = self
 
 /**
  *  A set of predefined position encoding kinds.
@@ -808,7 +799,6 @@ object PositionEncodingKind extends StringEnum[PositionEncodingKind]:
     UTF8, UTF16, UTF32
   )
   
-  extension (self: PositionEncodingKind) def name: String = self
 
 /**
  *  The file event type
@@ -1027,7 +1017,6 @@ object FileOperationPatternKind extends StringEnum[FileOperationPatternKind]:
     file, folder
   )
   
-  extension (self: FileOperationPatternKind) def name: String = self
 
 /**
  *  A notebook cell kind.
@@ -1071,7 +1060,6 @@ object ResourceOperationKind extends StringEnum[ResourceOperationKind]:
     Create, Rename, Delete
   )
   
-  extension (self: ResourceOperationKind) def name: String = self
 
 opaque type FailureHandlingKind = String
 object FailureHandlingKind extends StringEnum[FailureHandlingKind]:
@@ -1100,7 +1088,6 @@ object FailureHandlingKind extends StringEnum[FailureHandlingKind]:
     Abort, Transactional, TextOnlyTransactional, Undo
   )
   
-  extension (self: FailureHandlingKind) def name: String = self
 
 opaque type PrepareSupportDefaultBehavior = runtime.uinteger
 object PrepareSupportDefaultBehavior extends UIntEnum[PrepareSupportDefaultBehavior]:
@@ -1124,5 +1111,4 @@ object TokenFormat extends StringEnum[TokenFormat]:
     Relative
   )
   
-  extension (self: TokenFormat) def name: String = self
 

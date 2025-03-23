@@ -1149,9 +1149,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
           // `.name` extension
           base match
             case ET.string =>
-              line(
-                s"extension (self: ${a.name}) def name: String = self"
-              )
+            // do nothing: strings have a .name by virtue of being strings and extending from StringEnum
 
             case _ =>
               val unwrap = base match
