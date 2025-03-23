@@ -21,6 +21,7 @@ import cats.effect.kernel.Resource
 import java.lang.management.ManagementFactory
 
 import langoustine.example.{MyCustomRequest, MyCustomNotification}
+import fs2.io.process.Processes
 
 case class Result(code: Int, stdout: List[String], stderr: List[String])
 
@@ -91,7 +92,11 @@ object EndToEndTests extends SimpleIOSuite:
         .compile
         .toVector
 
-    langoustine.ChildProcess.resource[IO](process*).use { prc =>
+    val procR = Processes[IO].spawn(
+      fs2.io.process.ProcessBuilder(process.head, process.tail*)
+    )
+
+    procR.use { prc =>
       IO.ref("")
         .flatMap { fromStdout =>
           prc.stdout
@@ -100,7 +105,11 @@ object EndToEndTests extends SimpleIOSuite:
             .compile
             .drain
             .start *>
-            fs2.Stream.emits(send.getBytes).through(prc.stdin).compile.drain *>
+            fs2.Stream
+              .emits(send.getBytes)
+              .through(prc.stdin)
+              .compile
+              .drain *>
             IO.sleep(timeout) *>
             fromStdout.get
         }
