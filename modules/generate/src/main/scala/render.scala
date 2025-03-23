@@ -1147,13 +1147,17 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
           // `.name` extension
           base match
             case ET.string =>
-            // do nothing: strings have a .name by virtue of being strings and extending from StringEnum
+              // do nothing: strings have a .name by virtue of being strings and extending from StringEnum
+              ()
 
             case _ =>
               val unwrap = base match
                 case ET.integer  => "self"
                 case ET.uinteger => "self.value"
-                case _           => sys.error("impossible")
+                case ET.string =>
+                  sys.error(
+                    "impossible - should be prevented by the previous case"
+                  )
 
               line("")
 
