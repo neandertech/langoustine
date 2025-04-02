@@ -23,7 +23,34 @@ import langoustine.meta.*
 
   import Render.*
 
-  given Render.Config(indents = Indentation(0), indentSize = IndentationSize(2))
+  given Render.Config(
+    indents = Indentation(0),
+    indentSize = IndentationSize(2),
+    // todo: these are currently in a global namespace, which is kinda bad?
+    anonNameOverrides = Map(
+      "MarkedString"           -> List("MarkdownString", "CodeBlock"),
+      "NotebookDocumentFilter" -> List("ByType", "ByScheme", "ByPattern"),
+      "PrepareRenameResult" -> List(
+        "RangeAndPlaceholder",
+        "DefaultBehavior"
+      ),
+      "TextDocumentContentChangeEvent" -> List("Partial", "Full"),
+      "TextDocumentFilter" -> List("ByLanguage", "ByScheme", "ByPattern"),
+      "ItemDefaults"       -> List("InsertReplace"),
+      "Cells"              -> List("TextContent"),
+      "NotebookDocumentSyncOptions" -> List("ByDocumentAndCells", "ByCells"),
+      "ByDocumentAndCells"          -> List("Cell"),
+      "ByCells"                     -> List("Cell"),
+      "NotebookDocumentSyncRegistrationOptions" -> List(
+        "ByDocumentAndCells",
+        "ByCells"
+      ),
+      "Requests"                          -> List("Range", "Delta"),
+      "SemanticTokensOptions"             -> List("Range", "Delta"),
+      "SemanticTokensRegistrationOptions" -> List("Range", "Delta"),
+      "WorkspaceSymbol"                   -> List("External")
+    )
+  )
 
   def inFile(s: String)(f: LineBuilder => Unit) =
     val out = Render.LineBuilder()

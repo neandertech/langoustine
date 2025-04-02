@@ -1329,17 +1329,17 @@ object CompletionList extends codecs.structures_CompletionListCodec:
    */
   case class ItemDefaults(
     commitCharacters: Opt[Vector[String]] = Opt.empty,
-    editRange: Opt[(structures.Range | ItemDefaults.S0)] = Opt.empty,
+    editRange: Opt[(structures.Range | ItemDefaults.InsertReplace)] = Opt.empty,
     insertTextFormat: Opt[enumerations.InsertTextFormat] = Opt.empty,
     insertTextMode: Opt[enumerations.InsertTextMode] = Opt.empty,
     data: Opt[ujson.Value] = Opt.empty
   )
   object ItemDefaults extends codecs.structures_CompletionList_ItemDefaultsCodec:
-    case class S0(
+    case class InsertReplace(
       insert: structures.Range,
       replace: structures.Range
     )
-    object S0 extends codecs.structures_CompletionList_ItemDefaults_S0Codec
+    object InsertReplace extends codecs.structures_CompletionList_ItemDefaults_InsertReplaceCodec
 
 /**
  *  Completion options.
@@ -4533,7 +4533,7 @@ object NotebookDocumentChangeEvent extends codecs.structures_NotebookDocumentCha
   case class Cells(
     structure: Opt[Cells.Structure] = Opt.empty,
     data: Opt[Vector[structures.NotebookCell]] = Opt.empty,
-    textContent: Opt[Vector[Cells.S0]] = Opt.empty
+    textContent: Opt[Vector[Cells.TextContent]] = Opt.empty
   )
   object Cells extends codecs.structures_NotebookDocumentChangeEvent_CellsCodec:
     /**
@@ -4553,11 +4553,11 @@ object NotebookDocumentChangeEvent extends codecs.structures_NotebookDocumentCha
       didClose: Opt[Vector[structures.TextDocumentIdentifier]] = Opt.empty
     )
     object Structure extends codecs.structures_NotebookDocumentChangeEvent_Cells_StructureCodec
-    case class S0(
+    case class TextContent(
       document: structures.VersionedTextDocumentIdentifier,
       changes: Vector[aliases.TextDocumentContentChangeEvent]
     )
-    object S0 extends codecs.structures_NotebookDocumentChangeEvent_Cells_S0Codec
+    object TextContent extends codecs.structures_NotebookDocumentChangeEvent_Cells_TextContentCodec
 
 /**
  *  Capabilities specific to the notebook document support.
@@ -4634,7 +4634,7 @@ object NotebookDocumentSyncClientCapabilities extends codecs.structures_Notebook
 
  */
 case class NotebookDocumentSyncOptions(
-  notebookSelector: Vector[(NotebookDocumentSyncOptions.S0 | NotebookDocumentSyncOptions.S1)],
+  notebookSelector: Vector[(NotebookDocumentSyncOptions.ByDocumentAndCells | NotebookDocumentSyncOptions.ByCells)],
   save: Opt[Boolean] = Opt.empty
 )
 object NotebookDocumentSyncOptions extends codecs.structures_NotebookDocumentSyncOptionsCodec:
@@ -4648,15 +4648,15 @@ object NotebookDocumentSyncOptions extends codecs.structures_NotebookDocumentSyn
    *    The cells of the matching notebook to be synced.
   
    */
-  case class S0(
+  case class ByDocumentAndCells(
     notebook: (String | aliases.NotebookDocumentFilter),
-    cells: Opt[Vector[S0.S0]] = Opt.empty
+    cells: Opt[Vector[ByDocumentAndCells.Cell]] = Opt.empty
   )
-  object S0 extends codecs.structures_NotebookDocumentSyncOptions_S0Codec:
-    case class S0(
+  object ByDocumentAndCells extends codecs.structures_NotebookDocumentSyncOptions_ByDocumentAndCellsCodec:
+    case class Cell(
       language: String
     )
-    object S0 extends codecs.structures_NotebookDocumentSyncOptions_S0_S0Codec
+    object Cell extends codecs.structures_NotebookDocumentSyncOptions_ByDocumentAndCells_CellCodec
   /**
    *  @param notebook
    *    The notebook to be synced If a string
@@ -4667,15 +4667,15 @@ object NotebookDocumentSyncOptions extends codecs.structures_NotebookDocumentSyn
    *    The cells of the matching notebook to be synced.
   
    */
-  case class S1(
+  case class ByCells(
     notebook: Opt[(String | aliases.NotebookDocumentFilter)] = Opt.empty,
-    cells: Vector[S1.S0]
+    cells: Vector[ByCells.Cell]
   )
-  object S1 extends codecs.structures_NotebookDocumentSyncOptions_S1Codec:
-    case class S0(
+  object ByCells extends codecs.structures_NotebookDocumentSyncOptions_ByCellsCodec:
+    case class Cell(
       language: String
     )
-    object S0 extends codecs.structures_NotebookDocumentSyncOptions_S1_S0Codec
+    object Cell extends codecs.structures_NotebookDocumentSyncOptions_ByCells_CellCodec
 
 /**
  *  Registration options specific to a notebook.
@@ -4695,7 +4695,7 @@ object NotebookDocumentSyncOptions extends codecs.structures_NotebookDocumentSyn
 
  */
 case class NotebookDocumentSyncRegistrationOptions(
-  notebookSelector: Vector[(NotebookDocumentSyncRegistrationOptions.S0 | NotebookDocumentSyncRegistrationOptions.S1)],
+  notebookSelector: Vector[(NotebookDocumentSyncRegistrationOptions.ByDocumentAndCells | NotebookDocumentSyncRegistrationOptions.ByCells)],
   save: Opt[Boolean] = Opt.empty,
   id: Opt[String] = Opt.empty
 )
@@ -4710,15 +4710,15 @@ object NotebookDocumentSyncRegistrationOptions extends codecs.structures_Noteboo
    *    The cells of the matching notebook to be synced.
   
    */
-  case class S0(
+  case class ByDocumentAndCells(
     notebook: (String | aliases.NotebookDocumentFilter),
-    cells: Opt[Vector[S0.S0]] = Opt.empty
+    cells: Opt[Vector[ByDocumentAndCells.Cell]] = Opt.empty
   )
-  object S0 extends codecs.structures_NotebookDocumentSyncRegistrationOptions_S0Codec:
-    case class S0(
+  object ByDocumentAndCells extends codecs.structures_NotebookDocumentSyncRegistrationOptions_ByDocumentAndCellsCodec:
+    case class Cell(
       language: String
     )
-    object S0 extends codecs.structures_NotebookDocumentSyncRegistrationOptions_S0_S0Codec
+    object Cell extends codecs.structures_NotebookDocumentSyncRegistrationOptions_ByDocumentAndCells_CellCodec
   /**
    *  @param notebook
    *    The notebook to be synced If a string
@@ -4729,15 +4729,15 @@ object NotebookDocumentSyncRegistrationOptions extends codecs.structures_Noteboo
    *    The cells of the matching notebook to be synced.
   
    */
-  case class S1(
+  case class ByCells(
     notebook: Opt[(String | aliases.NotebookDocumentFilter)] = Opt.empty,
-    cells: Vector[S1.S0]
+    cells: Vector[ByCells.Cell]
   )
-  object S1 extends codecs.structures_NotebookDocumentSyncRegistrationOptions_S1Codec:
-    case class S0(
+  object ByCells extends codecs.structures_NotebookDocumentSyncRegistrationOptions_ByCellsCodec:
+    case class Cell(
       language: String
     )
-    object S0 extends codecs.structures_NotebookDocumentSyncRegistrationOptions_S1_S0Codec
+    object Cell extends codecs.structures_NotebookDocumentSyncRegistrationOptions_ByCells_CellCodec
 
 /**
  *  A text document identifier to optionally denote a specific version of a text document.
@@ -5563,23 +5563,23 @@ object SemanticTokensClientCapabilities extends codecs.structures_SemanticTokens
   
    */
   case class Requests(
-    range: Opt[(Boolean | Requests.S0)] = Opt.empty,
-    full: Opt[(Boolean | Requests.S1)] = Opt.empty
+    range: Opt[(Boolean | Requests.Range)] = Opt.empty,
+    full: Opt[(Boolean | Requests.Delta)] = Opt.empty
   )
   object Requests extends codecs.structures_SemanticTokensClientCapabilities_RequestsCodec:
-    case class S0(
+    case class Range(
     )
-    object S0 extends codecs.structures_SemanticTokensClientCapabilities_Requests_S0Codec
+    object Range extends codecs.structures_SemanticTokensClientCapabilities_Requests_RangeCodec
     /**
      *  @param delta
      *    The client will send the `textDocument/semanticTokens/full/delta` request if
      *    the server provides a corresponding handler.
     
      */
-    case class S1(
+    case class Delta(
       delta: Opt[Boolean] = Opt.empty
     )
-    object S1 extends codecs.structures_SemanticTokensClientCapabilities_Requests_S1Codec
+    object Delta extends codecs.structures_SemanticTokensClientCapabilities_Requests_DeltaCodec
 
 /**
  *  @since 3.16.0
@@ -5684,23 +5684,23 @@ object SemanticTokensLegend extends codecs.structures_SemanticTokensLegendCodec
  */
 case class SemanticTokensOptions(
   legend: structures.SemanticTokensLegend,
-  range: Opt[(Boolean | SemanticTokensOptions.S0)] = Opt.empty,
-  full: Opt[(Boolean | SemanticTokensOptions.S1)] = Opt.empty,
+  range: Opt[(Boolean | SemanticTokensOptions.Range)] = Opt.empty,
+  full: Opt[(Boolean | SemanticTokensOptions.Delta)] = Opt.empty,
   workDoneProgress: Opt[Boolean] = Opt.empty
 )
 object SemanticTokensOptions extends codecs.structures_SemanticTokensOptionsCodec:
-  case class S0(
+  case class Range(
   )
-  object S0 extends codecs.structures_SemanticTokensOptions_S0Codec
+  object Range extends codecs.structures_SemanticTokensOptions_RangeCodec
   /**
    *  @param delta
    *    The server supports deltas for full documents.
   
    */
-  case class S1(
+  case class Delta(
     delta: Opt[Boolean] = Opt.empty
   )
-  object S1 extends codecs.structures_SemanticTokensOptions_S1Codec
+  object Delta extends codecs.structures_SemanticTokensOptions_DeltaCodec
 
 /**
  *  @since 3.16.0
@@ -5783,23 +5783,23 @@ object SemanticTokensRangeParams extends codecs.structures_SemanticTokensRangePa
 case class SemanticTokensRegistrationOptions(
   documentSelector: Opt[aliases.DocumentSelector],
   legend: structures.SemanticTokensLegend,
-  range: Opt[(Boolean | SemanticTokensRegistrationOptions.S0)] = Opt.empty,
-  full: Opt[(Boolean | SemanticTokensRegistrationOptions.S1)] = Opt.empty,
+  range: Opt[(Boolean | SemanticTokensRegistrationOptions.Range)] = Opt.empty,
+  full: Opt[(Boolean | SemanticTokensRegistrationOptions.Delta)] = Opt.empty,
   id: Opt[String] = Opt.empty
 )
 object SemanticTokensRegistrationOptions extends codecs.structures_SemanticTokensRegistrationOptionsCodec:
-  case class S0(
+  case class Range(
   )
-  object S0 extends codecs.structures_SemanticTokensRegistrationOptions_S0Codec
+  object Range extends codecs.structures_SemanticTokensRegistrationOptions_RangeCodec
   /**
    *  @param delta
    *    The server supports deltas for full documents.
   
    */
-  case class S1(
+  case class Delta(
     delta: Opt[Boolean] = Opt.empty
   )
-  object S1 extends codecs.structures_SemanticTokensRegistrationOptions_S1Codec
+  object Delta extends codecs.structures_SemanticTokensRegistrationOptions_DeltaCodec
 
 /**
  *  @since 3.16.0
@@ -7633,7 +7633,7 @@ object WorkspaceFullDocumentDiagnosticReport extends codecs.structures_Workspace
 
  */
 case class WorkspaceSymbol(
-  location: (structures.Location | WorkspaceSymbol.S0),
+  location: (structures.Location | WorkspaceSymbol.External),
   data: Opt[ujson.Value] = Opt.empty,
   name: String,
   kind: enumerations.SymbolKind,
@@ -7641,10 +7641,10 @@ case class WorkspaceSymbol(
   containerName: Opt[String] = Opt.empty
 )
 object WorkspaceSymbol extends codecs.structures_WorkspaceSymbolCodec:
-  case class S0(
+  case class External(
     uri: runtime.DocumentUri
   )
-  object S0 extends codecs.structures_WorkspaceSymbol_S0Codec
+  object External extends codecs.structures_WorkspaceSymbol_ExternalCodec
 
 /**
  *  Client capabilities for a {@link WorkspaceSymbolRequest}.
