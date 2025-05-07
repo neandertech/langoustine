@@ -24,7 +24,8 @@ inThisBuild(
         "keynmol@gmail.com",
         url("https://blog.indoorvivants.com")
       )
-    )
+    ),
+    resolvers ++= Resolver.sonatypeOssRepos("snapshots")
   )
 )
 
