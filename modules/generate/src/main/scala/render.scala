@@ -91,7 +91,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line("import upickle.default.*")
     line("import json.{*, given}")
     line("import runtime.{*, given}")
-    line("// format: off")
     line("")
 
     val requestPrelude = """
@@ -474,7 +473,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line("import upickle.default.*")
     line("import json.{*, given}")
     line("import runtime.{*, given}")
-    line("// format: off")
     line("")
 
     given Context = Context.global(manager, List("structures"))
@@ -962,7 +960,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line("import runtime.{*, given}")
     line("import upickle.default.*")
     line("import scala.reflect.*")
-    line("// format: off")
     line("")
 
     given ctx: Context = Context.global(manager, List("aliases"))
@@ -1086,7 +1083,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line("import json.{*, given}")
     line("import scala.reflect.Typeable")
     line("import scala.annotation.switch")
-    line("// format: off")
     line("")
 
     given ctx: Context = Context.global(manager, List("enumerations"))

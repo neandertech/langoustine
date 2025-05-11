@@ -33,8 +33,11 @@ jobs:
       - name: Setup sbt
         uses: sbt/setup-sbt@v1
 
+      - name: Check generated code is up-to-date
+        run: sbt --client generateLSP && git diff modules/lsp/generated --exit-code
+
       - name: Test
-        run: sbt ci buildWebsite
+        run: sbt --client 'ci; buildWebsite'
 
       - name: Publish ${{ github.ref }}
         if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || (github.ref == 'refs/heads/main'))

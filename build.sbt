@@ -29,8 +29,8 @@ inThisBuild(
 )
 
 val V = new {
-  val scala           = "3.3.5"
-  val scribe          = "3.13.1"
+  val scala           = "3.3.6"
+  val scribe          = "3.13.2"
   val upickle         = "2.0.0"
   val cats            = "2.10.0"
   val jsonrpclib      = "0.0.7"
@@ -38,13 +38,13 @@ val V = new {
   val http4s          = "0.23.26"
   val laminar         = "0.14.5"
   val decline         = "2.4.1"
-  val jsoniter        = "2.20.3"
+  val jsoniter        = "2.28.4"
   val weaver          = "0.8.4"
   val circe           = "0.14.5"
   val http4sJdkClient = "0.9.1"
-  val organizeImports = "0.6.0"
   val fansi           = "0.4.0"
   val detective       = "0.0.2"
+  val declineDerive   = "0.3.1"
 
   val scalaVersions = List(scala)
 
@@ -234,7 +234,8 @@ lazy val generate = projectMatrix
   .dependsOn(meta)
   .defaultAxes(V.default*)
   .settings(
-    name := "generate"
+    name := "generate",
+    libraryDependencies += "com.indoorvivants" %%% "decline-derive" % V.declineDerive
   )
   .jvmPlatform(V.scalaVersions)
   .settings(noPublishing)
@@ -357,10 +358,38 @@ val PrepareCICommands = Seq(
   "scalafmtSbt"
 ).mkString(";")
 
-addCommandAlias(
-  "generateLSP",
-  "generate/runMain langoustine.generate.run modules/lsp/src/main/scala/generated/"
-)
+lazy val generatorJVM = generate.jvm(V.scala)
+lazy val protocolJVM  = lsp.jvm(V.scala)
+
+val generateLSP = inputKey[Unit]("")
+generateLSP := Def.inputTaskDyn {
+  val out =
+    (protocolJVM / Compile / scalaSource).value / "generated"
+
+  val schema =
+    (ThisBuild / baseDirectory).value / "metaModel.json"
+
+  val generatedFiles =
+    (generatorJVM / Compile / target).value / "generator" / "files.txt"
+
+  val task = InputKey[Unit]("scalafmtOnly")
+
+  Def.sequential(
+    Def
+      .taskDyn {
+        (generatorJVM / Compile / run)
+          .toTask(
+            s" --out $out --files $generatedFiles --schema $schema"
+          )
+      },
+    Def.taskDyn {
+      val files = IO.readLines(generatedFiles)
+      (Compile / task).toTask(s" ${files.mkString(" ")}")
+    }
+  )
+
+}.evaluated
+
 addCommandAlias("ci", CICommands)
 addCommandAlias("buildWebsite", "docs/unidoc")
 addCommandAlias("preCI", PrepareCICommands)
@@ -427,21 +456,19 @@ logo :=
     |""".stripMargin
 
 usefulTasks := Seq(
-  UsefulTask("gl", "generateLSP", "Regenerate LSP definitions"),
-  UsefulTask("bw", "buildWebsite", "Build website"),
-  UsefulTask("tt", "testTracer", "Run Tracer's backend tests"),
-  UsefulTask("bt", "buildTracer", "Build Tracer for local usage"),
+  UsefulTask("generateLSP", "Regenerate LSP definitions").alias("gl"),
+  UsefulTask("buildWebsite", "Build website").alias("bw"),
+  UsefulTask("testTracer", "Run Tracer's backend tests").alias("tt"),
+  UsefulTask("buildTracer", "Build Tracer for local usage").alias("bt"),
   UsefulTask(
-    "te",
     "testE2E",
     "Run LangoustineApp E2E tests that launch a separate process"
-  ),
-  UsefulTask("fx", "preCI", "Reformat and apply Scalafix rules"),
+  ).alias("te"),
+  UsefulTask("preCI", "Reformat and apply Scalafix rules").alias("fx"),
   UsefulTask(
-    "p",
     "publishLocal",
     "Publish all modules locally"
-  )
+  ).alias("pl")
 )
 
 logoColor := scala.Console.MAGENTA
