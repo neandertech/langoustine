@@ -19,6 +19,7 @@ import org.http4s.server.Server
 import jsonrpclib.fs2.lsp
 import scala.util.NotGiven
 import jsonrpclib.Message
+import fs2.io.process.Processes
 
 extension (s: fs2.Stream[IO, Payload])
   def debugAs(name: String) =
@@ -50,8 +51,14 @@ def Trace(
     summary: Summary
 ) =
   fs2.Stream.eval(IO.deferred[Communicate[IO]]).flatMap { comms =>
-    langoustine.ChildProcess
-      .spawn[IO](traceConfig.cmd.toList*)
+    fs2.Stream
+      .resource {
+        Processes[IO]
+          .spawn(
+            fs2.io.process
+              .ProcessBuilder(traceConfig.cmd.head, traceConfig.cmd.tail)
+          )
+      }
       .flatMap { child =>
 
         import langoustine.lsp.jsonrpcIntegration.given
@@ -107,7 +114,6 @@ def Trace(
             .through(inBytes.publish)
             .onFinalize(
               Logging.info("process stdin finished, shutting down tracer") *>
-                child.terminate *>
                 exits.complete(true).void
             )
 
