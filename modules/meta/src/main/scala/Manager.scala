@@ -16,11 +16,6 @@
 
 package langoustine.meta
 
-import java.io.File
-import scala.util.Using
-import java.io.FileWriter
-import java.nio.file.Paths
-
 class Manager(mm: MetaModel):
   private type IdxVal = Enumeration | TypeAlias | Structure | Request |
     Notification

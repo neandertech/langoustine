@@ -17,20 +17,10 @@
 package langoustine
 package tracer
 
-import jsonrpclib.fs2.*
 import cats.effect.*
 import cats.effect.implicits.*
 import cats.syntax.all.*
 import fs2.Chunk
-
-import org.http4s.EntityEncoder
-import jsonrpclib.Payload
-import jsonrpclib.ErrorPayload
-import jsonrpclib.CallId
-import langoustine.lsp.all.textDocument
-import langoustine.lsp.all.window
-import langoustine.lsp.all.ShowMessageParams
-import com.github.plokhotnyuk.jsoniter_scala.core.*
 import fs2.concurrent.Channel
 import jsonrpclib.Message
 

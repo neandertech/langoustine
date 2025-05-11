@@ -1,18 +1,35 @@
+/*
+ * Copyright 2022 Neandertech
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package langoustine.tracer
 
 import cats.effect.*
+import cats.syntax.all.*
+import com.github.plokhotnyuk.jsoniter_scala.core.*
+import com.github.plokhotnyuk.jsoniter_scala.macros.*
+import jsonrpclib.CallId
 import org.http4s.*
+import org.http4s.dsl.io.*
 import org.http4s.headers.*
 import org.http4s.server.*
 import org.http4s.server.websocket.*
 import org.http4s.websocket.*
-import org.http4s.dsl.io.*
-import com.github.plokhotnyuk.jsoniter_scala.core.*
-import com.github.plokhotnyuk.jsoniter_scala.macros.*
-import concurrent.duration.*
 import org.typelevel.ci.*
-import cats.syntax.all.*
-import jsonrpclib.CallId
+
+import concurrent.duration.*
 
 object SnapshotNameMatcher
     extends OptionalQueryParamDecoderMatcher[String]("name")

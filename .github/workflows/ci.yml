@@ -33,6 +33,9 @@ jobs:
       - name: Setup sbt
         uses: sbt/setup-sbt@v1
 
+      - name: Check generated code is up-to-date
+        run: sbt generateLSP && git diff --exit-code --  modules/lsp/src/main/scala/generated
+
       - name: Test
         run: sbt ci buildWebsite
 

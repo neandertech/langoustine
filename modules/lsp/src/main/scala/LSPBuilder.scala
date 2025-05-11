@@ -16,15 +16,10 @@
 
 package langoustine.lsp
 
-import upickle.default.{Reader, Writer}
-import cats.MonadThrow
-
-import jsonrpclib.Endpoint
-
-import jsonrpclib.Monadic
-import jsonrpclib.Codec
-import jsonrpclib.Payload
 import jsonrpclib.Channel
+import jsonrpclib.Endpoint
+import jsonrpclib.Monadic
+
 import requests.*
 
 trait LSPBuilder[F[_]]:

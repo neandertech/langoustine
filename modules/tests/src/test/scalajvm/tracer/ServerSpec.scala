@@ -2,7 +2,7 @@ package tests.tracer
 
 import cats.effect.*
 import cats.effect.syntax.all.*
-import jsonrpclib.{Payload}
+import jsonrpclib.Payload
 import fs2.concurrent.Topic
 import cats.syntax.all.*
 import fs2.Chunk
