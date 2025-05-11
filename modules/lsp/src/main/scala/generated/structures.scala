@@ -19,8 +19,8 @@ package structures
 
 import langoustine.*
 import upickle.default.*
-
-import runtime.*
+import json.{*, given}
+import runtime.{*, given}
 
 /** A special text edit with an additional change annotation.
   *

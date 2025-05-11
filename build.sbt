@@ -116,7 +116,7 @@ lazy val lsp = projectMatrix
   .in(file("modules/lsp"))
   .defaultAxes(V.default*)
   .settings(enableSnapshots)
-  // .disablePlugins(ScalafixPlugin)
+  .disablePlugins(ScalafixPlugin)
   .settings(
     name := "langoustine-lsp",
     scalacOptions ++= Seq("-Xmax-inlines", "64"),
@@ -135,7 +135,6 @@ lazy val lsp = projectMatrix
     tastyMiMaPreviousArtifacts += {
       organization.value %% name.value % "0.0.21"
     },
-    scalacOptions ++= commonScalacOptions
   )
 
 lazy val app = projectMatrix
@@ -387,9 +386,6 @@ generateLSP := Def.inputTaskDyn {
             s" --out $out --files $generatedFiles --schema $schema"
           )
       },
-    Def.taskDyn {
-      (protocolJVM / Compile / scalafix).toTask("")
-    },
     Def.taskDyn {
       (protocolJVM / Compile / headerCreate)
     },

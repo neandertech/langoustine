@@ -16,12 +16,11 @@
 
 package langoustine.lsp
 
-import scala.reflect.*
-
 import langoustine.*
-
-import json.*
-import runtime.*
+import json.{*, given}
+import runtime.{*, given}
+import upickle.default.*
+import scala.reflect.*
 
 object aliases:
   opaque type ChangeAnnotationIdentifier = String

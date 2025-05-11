@@ -17,10 +17,10 @@
 package langoustine.lsp
 package enumerations
 
+import runtime.{*, given}
+import json.{*, given}
+import scala.reflect.Typeable
 import scala.annotation.switch
-
-import runtime.*
-import json.*
 
 private val stringCodec = upickle.default.readwriter[String]
 private val intCodec    = upickle.default.readwriter[Int]

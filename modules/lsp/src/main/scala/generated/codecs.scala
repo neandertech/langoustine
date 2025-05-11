@@ -18,10 +18,9 @@ package langoustine.lsp
 package codecs
 
 import upickle.default.*
-
 import aliases.*
 import json.{*, given}
-import runtime.*
+import runtime.{*, given}
 
 private[lsp] trait notifications_$_cancelRequest:
   import requests.$DOLLAR.cancelRequest.In

@@ -19,8 +19,8 @@ package requests
 
 import langoustine.*
 import upickle.default.*
-
-import runtime.*
+import json.{*, given}
+import runtime.{*, given}
 
 sealed abstract class LSPRequest(val requestMethod: String):
   type In
