@@ -11,6 +11,7 @@ import langoustine.meta.*
 
 import decline_derive.*
 import java.nio.file.Path
+import java.nio.file.Files
 case class Config(
     out: String,
     schema: String,
@@ -77,8 +78,11 @@ case class Config(
   }
 
   config.filesOut.foreach: path =>
+    val filesPath = Paths.get(path)
 
-    Using.resource(new FileWriter(Paths.get(path).toFile())) { fw =>
+    Files.createDirectories(filesPath.getParent())
+
+    Using.resource(new FileWriter(filesPath.toFile())) { fw =>
       fw.write(files.result.mkString("\n"))
     }
 
