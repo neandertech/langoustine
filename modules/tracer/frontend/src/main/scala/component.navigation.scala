@@ -17,7 +17,6 @@
 package langoustine.tracer
 
 import com.raquo.laminar.api.L.*
-import com.github.plokhotnyuk.jsoniter_scala.core.*
 
 def switcher(page: Var[Page], modalBus: EventBus[ModalCommand]) =
   inline def pageLink(name: String, set: Page) =

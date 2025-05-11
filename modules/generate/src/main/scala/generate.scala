@@ -39,8 +39,6 @@ case class Config(
 
   def inFile(s: String)(f: LineBuilder => Unit) =
     val out = Render.LineBuilder()
-    out.appendLine(Constants.LICENCE)
-    out.appendLine("")
 
     val path = Paths.get(config.out, s)
 

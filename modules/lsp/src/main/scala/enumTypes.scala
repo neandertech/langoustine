@@ -16,10 +16,11 @@
 
 package langoustine.lsp
 
-import runtime.*
+import scala.reflect.*
 
 import upickle.default.*
-import scala.reflect.*
+
+import runtime.*
 
 trait Bijection[A, T]:
   def apply(a: A): T

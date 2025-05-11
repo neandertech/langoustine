@@ -16,10 +16,10 @@
 
 package langoustine.tracer
 
-import cats.implicits.*
-import com.monovore.decline.*
 import cats.data.NonEmptyList
+import cats.implicits.*
 import com.comcast.ip4s.*
+import com.monovore.decline.*
 
 case class ReplayConfig(file: fs2.io.file.Path)
 case class TraceConfig(cmd: NonEmptyList[String])

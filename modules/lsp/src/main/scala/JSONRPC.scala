@@ -16,14 +16,13 @@
 
 package langoustine.lsp
 
-import jsonrpclib.*
 import scala.util.Try
-import requests.*
 
+import jsonrpclib.*
+import upickle.core.TraceVisitor.TraceException
 import upickle.default.*
 
-import util.chaining.*
-import upickle.core.TraceVisitor.TraceException
+import requests.*
 
 private[langoustine] object jsonrpcIntegration:
   val nullArray = "null".getBytes()

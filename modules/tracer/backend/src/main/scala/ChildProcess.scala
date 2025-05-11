@@ -16,11 +16,13 @@
 
 package langoustine
 
-import fs2.Stream
+import java.io.OutputStream
+
+import scala.jdk.CollectionConverters.*
+
 import cats.effect.*
 import cats.syntax.all.*
-import scala.jdk.CollectionConverters.*
-import java.io.OutputStream
+import fs2.Stream
 
 trait ChildProcess[F[_]]:
   def stdin: fs2.Pipe[F, Byte, Unit]

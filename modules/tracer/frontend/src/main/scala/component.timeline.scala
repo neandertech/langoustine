@@ -17,16 +17,12 @@
 package langoustine.tracer
 
 import com.raquo.laminar.api.L.*
-import com.github.plokhotnyuk.jsoniter_scala.core.*
 
 def timeline(
     messagesState: Var[Vector[LspMessage]],
     commandFilter: Var[Option[String]],
     showing: Var[Option[LspMessage]]
 ) =
-  import LspMessage.*
-
-  import scala.util.chaining.*
 
   val filteredMessages: Signal[Vector[LspMessage]] =
     messagesState.signal.combineWithFn(commandFilter.signal) {

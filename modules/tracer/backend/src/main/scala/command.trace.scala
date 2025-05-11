@@ -1,24 +1,30 @@
+/*
+ * Copyright 2022 Neandertech
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package langoustine.tracer
 
-import fs2.*
-import fs2.concurrent.*
+import scala.util.NotGiven
+
 import cats.effect.*
 import cats.syntax.all.*
-import org.http4s.EntityEncoder
-import jsonrpclib.Payload
-import jsonrpclib.ErrorPayload
-import jsonrpclib.CallId
-import langoustine.lsp.all.textDocument
-import langoustine.lsp.all.window
-import langoustine.lsp.all.ShowMessageParams
-import com.github.plokhotnyuk.jsoniter_scala.core.*
-import fs2.concurrent.Channel
-import jsonrpclib.fs2.FS2Channel
-import langoustine.lsp.Communicate
-import org.http4s.server.Server
-import jsonrpclib.fs2.lsp
-import scala.util.NotGiven
+import fs2.*
+import fs2.concurrent.*
 import jsonrpclib.Message
+import jsonrpclib.Payload
+import langoustine.lsp.Communicate
 
 extension (s: fs2.Stream[IO, Payload])
   def debugAs(name: String) =
@@ -53,8 +59,6 @@ def Trace(
     langoustine.ChildProcess
       .spawn[IO](traceConfig.cmd.toList*)
       .flatMap { child =>
-
-        import langoustine.lsp.jsonrpcIntegration.given
 
         def log(msg: String) =
           errBytes.publish1(Chunk.array(("[tracer] " + msg + "\n").getBytes))

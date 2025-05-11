@@ -16,9 +16,10 @@
 
 package langoustine.lsp
 
+import scala.util.NotGiven
+
 import langoustine.*
 import upickle.default.*
-import scala.util.NotGiven
 
 // formating:off
 
@@ -70,10 +71,7 @@ private[lsp] object json:
 
 end json
 
-import scala.deriving.Mirror
-
 import upickle.implicits.macros
-import upickle.default.*
 import upickle.core.*
 
 private[lsp] object Pickle:
@@ -95,6 +93,43 @@ private[lsp] object Pickle:
       case _: EmptyTuple => Nil
       case _: (t *: ts)  => summonDecoder[t] :: summonDecodersRec[ts]
 
+  private[lsp] class MyCaseClassReader[T](
+      m: Mirror.ProductOf[T],
+      labels: List[String],
+      visitors: List[Visitor[?, ?]],
+      defaultParams: Map[String, AnyRef]
+  ) extends CaseClassReader[T]:
+    override def visitorForKey(key: String) =
+      labels.zip(visitors).toMap.get(key) match
+        case None    => upickle.core.NoOpVisitor
+        case Some(v) => v
+
+    override def make(params: Map[String, Any]): T =
+      val values      = collection.mutable.ListBuffer.empty[AnyRef]
+      val missingKeys = collection.mutable.ListBuffer.empty[String]
+
+      labels.zip(visitors).map { case (fieldName, _) =>
+        params.get(fieldName) match
+          case Some(value) => values += value.asInstanceOf[AnyRef]
+          case None =>
+            defaultParams.get(fieldName) match
+              case Some(fallback) => values += fallback.asInstanceOf[AnyRef]
+              case None           => missingKeys += fieldName
+      }
+
+      if !missingKeys.isEmpty then
+        throw new upickle.core.Abort(
+          "missing keys in dictionary: " + missingKeys.mkString(", ")
+        )
+
+      val valuesArray = values.toArray
+      m.fromProduct(new Product:
+        def canEqual(that: Any): Boolean = true
+        def productArity: Int            = valuesArray.length
+        def productElement(i: Int): Any  = valuesArray(i))
+    end make
+  end MyCaseClassReader
+
   inline def macroR[T](using m: Mirror.Of[T]): Reader[T] = inline m match
     case m: Mirror.ProductOf[T] =>
       val labels: List[String] =
@@ -104,39 +139,7 @@ private[lsp] object Pickle:
           .asInstanceOf[List[upickle.core.Visitor[?, ?]]]
       val defaultParams: Map[String, AnyRef] = macros.getDefaultParams[T]
 
-      val reader = new CaseClassReader[T]:
-        override def visitorForKey(key: String) =
-          labels.zip(visitors).toMap.get(key) match
-            case None    => upickle.core.NoOpVisitor
-            case Some(v) => v
-
-        override def make(params: Map[String, Any]): T =
-          val values      = collection.mutable.ListBuffer.empty[AnyRef]
-          val missingKeys = collection.mutable.ListBuffer.empty[String]
-
-          labels.zip(visitors).map { case (fieldName, _) =>
-            params.get(fieldName) match
-              case Some(value) => values += value.asInstanceOf[AnyRef]
-              case None =>
-                defaultParams.get(fieldName) match
-                  case Some(fallback) => values += fallback.asInstanceOf[AnyRef]
-                  case None           => missingKeys += fieldName
-          }
-
-          if !missingKeys.isEmpty then
-            throw new upickle.core.Abort(
-              "missing keys in dictionary: " + missingKeys.mkString(", ")
-            )
-
-          val valuesArray = values.toArray
-          m.fromProduct(new Product:
-            def canEqual(that: Any): Boolean = true
-            def productArity: Int            = valuesArray.length
-            def productElement(i: Int): Any  = valuesArray(i)
-          )
-        end make
-
-      reader
+      MyCaseClassReader[T](m, labels, visitors, defaultParams)
 
     // if macros.isMemberOfSealedHierarchy[T] then annotate(reader, macros.fullClassName[T])
     // else reader
