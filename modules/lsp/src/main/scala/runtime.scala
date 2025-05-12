@@ -17,12 +17,11 @@
 package langoustine.lsp
 package runtime
 
-import langoustine.*
-
-import upickle.default.*
 import scala.reflect.TypeTest
 
+import langoustine.*
 import langoustine.lsp.json.*
+import upickle.default.*
 
 opaque type DocumentUri = String
 object DocumentUri extends OpaqueString[DocumentUri]:

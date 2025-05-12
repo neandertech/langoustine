@@ -18,9 +18,9 @@ package langoustine.meta
 
 import scala.deriving.Mirror
 
-import upickle.implicits.macros
-import upickle.default.*
 import upickle.core.*
+import upickle.default.*
+import upickle.implicits.macros
 
 object Pickle:
   inline def macroR[T](using m: Mirror.Of[T]): Reader[T] = inline m match
@@ -60,8 +60,7 @@ object Pickle:
           m.fromProduct(new Product:
             def canEqual(that: Any): Boolean = true
             def productArity: Int            = valuesArray.length
-            def productElement(i: Int): Any  = valuesArray(i)
-          )
+            def productElement(i: Int): Any  = valuesArray(i))
         end make
 
       reader

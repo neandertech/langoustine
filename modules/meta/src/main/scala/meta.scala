@@ -102,7 +102,8 @@ case class EnumerationEntry(
     name: EnumerationItemName,
     value: EnumerationItem,
     documentation: Opt[EnumerationEntryDocumentation] = Opt.empty,
-    proposed: Boolean = false
+    proposed: Boolean = false,
+    since: Opt[String] = Opt.empty
 )
 
 case class Property(
@@ -110,7 +111,8 @@ case class Property(
     optional: IsOptional = IsOptional.No,
     `type`: Type,
     documentation: Opt[PropertyDescription] = Opt.empty,
-    proposed: Boolean = false
+    proposed: Boolean = false,
+    since: Opt[String] = Opt.empty
 ):
   def tpe = `type`
 
@@ -120,7 +122,8 @@ case class Structure(
     name: StructureName,
     properties: Vector[Property] = Vector.empty,
     documentation: Opt[StructureDescription] = Opt.empty,
-    proposed: Boolean = false
+    proposed: Boolean = false,
+    since: Opt[String] = Opt.empty
 ):
   inline def extendz = `extends`
 end Structure
@@ -176,7 +179,8 @@ case class Enumeration(
     `type`: EnumerationType,
     values: Vector[EnumerationEntry],
     documentation: Opt[EnumerationDocumentation] = Opt.empty,
-    proposed: Boolean = false
+    proposed: Boolean = false,
+    since: Opt[String] = Opt.empty
 )
 
 enum Type(

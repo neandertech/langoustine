@@ -16,10 +16,11 @@
 
 package langoustine.tracer
 
-import org.http4s.*
-import cats.effect.*
-import org.http4s.dsl.io.*
 import java.nio.file.Paths
+
+import cats.effect.*
+import org.http4s.*
+import org.http4s.dsl.io.*
 
 object Static:
   def routes =

@@ -16,13 +16,9 @@
 
 package langoustine.lsp
 
-import upickle.default.{Reader, Writer}
-import cats.MonadThrow
-import jsonrpclib.Endpoint
-import jsonrpclib.Monadic
-import jsonrpclib.Codec
-import jsonrpclib.Payload
 import jsonrpclib.Channel
+import jsonrpclib.Monadic
+
 import requests.*
 
 trait Communicate[F[_]]:

@@ -9,14 +9,24 @@ import scala.reflect.TypeTest
 
 import langoustine.meta.*
 
-@main def run(path: String) =
+import decline_derive.*
+import java.nio.file.Path
+import java.nio.file.Files
+case class Config(
+    out: String,
+    schema: String,
+    @decline_derive.Name("files") filesOut: Option[String] = None
+) derives CommandApplication
+
+@main def run(args: String*) =
   import upickle.default.*
   import json.{*, given}
-  val metaModel = read[MetaModel](new File("metaModel.json"))
+  val config    = CommandApplication.parseOrExit[Config](args)
+  val metaModel = read[MetaModel](new File(config.schema))
   val filtered =
     metaModel.copy(typeAliases =
       metaModel.typeAliases
-        .filterNot(a => a.name.value == "LSPAny" || a.name.value == "LSPArray"),
+        .filterNot(a => a.name.value == "LSPAny" || a.name.value == "LSPArray")
     )
   val mm = Manager(filtered)
   val re = Render(mm)
@@ -52,15 +62,19 @@ import langoustine.meta.*
     )
   )
 
+  val files = List.newBuilder[Path]
+
   def inFile(s: String)(f: LineBuilder => Unit) =
     val out = Render.LineBuilder()
-    out.appendLine(Constants.LICENCE)
-    out.appendLine("")
+
+    val path = Paths.get(config.out, s)
 
     f(out)
-    Using.resource(new FileWriter(Paths.get(path, s).toFile())) { fw =>
+    Using.resource(new FileWriter(path.toFile())) { fw =>
       fw.write(out.result)
     }
+
+    files += path
   end inFile
 
   inFile("codecs.scala") { codecsOut =>
@@ -87,4 +101,14 @@ import langoustine.meta.*
       re.exports(out)
     }
   }
+
+  config.filesOut.foreach: path =>
+    val filesPath = Paths.get(path)
+
+    Files.createDirectories(filesPath.getParent())
+
+    Using.resource(new FileWriter(filesPath.toFile())) { fw =>
+      fw.write(files.result.mkString("\n"))
+    }
+
 end run

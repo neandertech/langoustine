@@ -16,8 +16,6 @@
 
 package langoustine.meta
 
-import java.io.File
-
 object json:
   import upickle.default.*
   given [Raw, Opaque](using

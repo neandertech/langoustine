@@ -4710,7 +4710,7 @@
 						"name": "CompletionContext"
 					},
 					"optional": true,
-					"documentation": "The completion context. This is only available it the client specifies\nto send this using the client capability `textDocument.completion.contextSupport === true`"
+					"documentation": "The completion context. This is only available if the client specifies\nto send this using the client capability `textDocument.completion.contextSupport === true`"
 				}
 			],
 			"extends": [
@@ -6327,7 +6327,7 @@
 						"name": "uinteger"
 					},
 					"optional": true,
-					"documentation": "Optional progress percentage to display (value 100 is considered 100%).\nIf not provided infinite progress is assumed and clients are allowed\nto ignore the `percentage` value in subsequent in report notifications.\n\nThe value should be steadily rising. Clients are free to ignore values\nthat are not following this rule. The value range is [0, 100]."
+					"documentation": "Optional progress percentage to display (value 100 is considered 100%).\nIf not provided infinite progress is assumed and clients are allowed\nto ignore the `percentage` value in subsequent report notifications.\n\nThe value should be steadily rising. Clients are free to ignore values\nthat are not following this rule. The value range is [0, 100]."
 				}
 			]
 		},
@@ -6366,7 +6366,7 @@
 						"name": "uinteger"
 					},
 					"optional": true,
-					"documentation": "Optional progress percentage to display (value 100 is considered 100%).\nIf not provided infinite progress is assumed and clients are allowed\nto ignore the `percentage` value in subsequent in report notifications.\n\nThe value should be steadily rising. Clients are free to ignore values\nthat are not following this rule. The value range is [0, 100]"
+					"documentation": "Optional progress percentage to display (value 100 is considered 100%).\nIf not provided infinite progress is assumed and clients are allowed\nto ignore the `percentage` value in subsequent report notifications.\n\nThe value should be steadily rising. Clients are free to ignore values\nthat are not following this rule. The value range is [0, 100]."
 				}
 			]
 		},
@@ -13241,7 +13241,7 @@
 				{
 					"name": "RequestCancelled",
 					"value": -32800,
-					"documentation": "The client has canceled a request and a server as detected\nthe cancel."
+					"documentation": "The client has canceled a request and a server has detected\nthe cancel."
 				}
 			],
 			"supportsCustomValues": true

@@ -4,12 +4,9 @@ Global / excludeLintKeys += scalaJSLinkerConfig
 
 inThisBuild(
   List(
-    semanticdbEnabled          := true,
-    semanticdbVersion          := scalafixSemanticdb.revision,
-    scalafixScalaBinaryVersion := scalaBinaryVersion.value,
-    organization               := "tech.neander",
-    organizationName           := "Neandertech",
-    sonatypeCredentialHost     := "s01.oss.sonatype.org",
+    organization           := "tech.neander",
+    organizationName       := "Neandertech",
+    sonatypeCredentialHost := "s01.oss.sonatype.org",
     homepage := Some(
       url("https://github.com/neandertech/langoustine")
     ),
@@ -29,8 +26,8 @@ inThisBuild(
 )
 
 val V = new {
-  val scala           = "3.3.5"
-  val scribe          = "3.13.1"
+  val scala           = "3.3.6"
+  val scribe          = "3.13.2"
   val upickle         = "2.0.0"
   val cats            = "2.10.0"
   val jsonrpclib      = "0.0.7"
@@ -38,13 +35,13 @@ val V = new {
   val http4s          = "0.23.26"
   val laminar         = "0.14.5"
   val decline         = "2.4.1"
-  val jsoniter        = "2.20.3"
+  val jsoniter        = "2.28.4"
   val weaver          = "0.8.4"
   val circe           = "0.14.5"
   val http4sJdkClient = "0.9.1"
-  val organizeImports = "0.6.0"
   val fansi           = "0.4.0"
   val detective       = "0.0.2"
+  val declineDerive   = "0.3.1"
 
   val scalaVersions = List(scala)
 
@@ -111,13 +108,15 @@ lazy val meta = projectMatrix
     libraryDependencies += "com.outr"      %%% "scribe"    % V.scribe,
     libraryDependencies += "com.lihaoyi"   %%% "upickle"   % V.upickle,
     libraryDependencies += "org.typelevel" %%% "cats-core" % V.cats,
-    test                                    := {}
+    test                                    := {},
+    scalacOptions ++= commonScalacOptions
   )
 
 lazy val lsp = projectMatrix
   .in(file("modules/lsp"))
   .defaultAxes(V.default*)
   .settings(enableSnapshots)
+  .disablePlugins(ScalafixPlugin)
   .settings(
     name := "langoustine-lsp",
     scalacOptions ++= Seq("-Xmax-inlines", "64"),
@@ -135,7 +134,7 @@ lazy val lsp = projectMatrix
   .settings(
     tastyMiMaPreviousArtifacts += {
       organization.value %% name.value % "0.0.21"
-    }
+    },
   )
 
 lazy val app = projectMatrix
@@ -148,7 +147,8 @@ lazy val app = projectMatrix
     libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2" % V.jsonrpclib,
     libraryDependencies += "co.fs2"       %%% "fs2-io"         % V.fs2,
     libraryDependencies += "com.outr"     %%% "scribe-cats"    % V.scribe,
-    test                                   := {}
+    test                                   := {},
+    scalacOptions ++= commonScalacOptions
   )
   .jvmPlatform(V.scalaVersions)
   .jsPlatform(V.scalaVersions)
@@ -168,6 +168,7 @@ lazy val `e2e-tests` = projectMatrix
   .settings(
     libraryDependencies += "org.http4s" %% "http4s-jdk-http-client" % V.http4sJdkClient % Test,
     libraryDependencies += "com.disneystreaming" %%% "weaver-cats" % V.weaver % Test,
+    scalacOptions ++= commonScalacOptions,
     Test / fork := virtualAxes.value.contains(VirtualAxis.jvm),
     Test / envVars := Map(
       "EXAMPLE_NATIVE" -> (example.native(
@@ -206,7 +207,8 @@ lazy val tests = projectMatrix
     Test / fork             := virtualAxes.value.contains(VirtualAxis.jvm),
     snapshotsPackageName    := "tests.core",
     snapshotsForceOverwrite := !sys.env.contains("CI"),
-    scalacOptions += "-Yretain-trees"
+    scalacOptions += "-Yretain-trees",
+    scalacOptions ++= commonScalacOptions
   )
   .enablePlugins(SnapshotsPlugin)
 
@@ -227,14 +229,19 @@ lazy val example = projectMatrix
   .settings(noPublishing)
   .settings(version := "dev")
   .settings(doc / sources := Seq.empty)
-  .settings(nativeConfig ~= (_.withIncrementalCompilation(true)))
+  .settings(
+    nativeConfig ~= (_.withIncrementalCompilation(true)),
+    scalacOptions ++= commonScalacOptions
+  )
 
 lazy val generate = projectMatrix
   .in(file("modules/generate"))
   .dependsOn(meta)
   .defaultAxes(V.default*)
   .settings(
-    name := "generate"
+    name := "generate",
+    libraryDependencies += "com.indoorvivants" %%% "decline-derive" % V.declineDerive,
+    scalacOptions ++= commonScalacOptions
   )
   .jvmPlatform(V.scalaVersions)
   .settings(noPublishing)
@@ -254,6 +261,7 @@ lazy val tracer = projectMatrix
     libraryDependencies += "com.monovore" %%% "decline"             % V.decline,
     libraryDependencies += "com.outr"     %%% "scribe-cats"         % V.scribe,
     libraryDependencies += "com.indoorvivants.detective" %% "platform" % V.detective,
+    scalacOptions ++= commonScalacOptions,
     Compile / doc / sources := Seq.empty,
     // embedding frontend in backend's resources
     Compile / resourceGenerators += {
@@ -314,7 +322,8 @@ lazy val tracerFrontend = projectMatrix
     libraryDependencies += "com.raquo"   %%% "laminar"       % V.laminar,
     libraryDependencies += "io.circe"    %%% "circe-scalajs" % V.circe,
     libraryDependencies += "com.lihaoyi" %%% "fansi"         % V.fansi,
-    scalaJSUseMainModuleInitializer       := true
+    scalaJSUseMainModuleInitializer       := true,
+    scalacOptions ++= commonScalacOptions
   )
   .jsPlatform(V.scalaVersions)
 
@@ -328,39 +337,66 @@ lazy val tracerShared = projectMatrix
       "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-core" % V.jsoniter,
       "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-macros" % V.jsoniter % "compile-internal",
       "tech.neander" %%% "jsonrpclib-core" % V.jsonrpclib
-    )
+    ),
+    scalacOptions ++= commonScalacOptions
   )
   .jsPlatform(V.scalaVersions)
   .jvmPlatform(V.scalaVersions)
 
-val scalafixRules = Seq(
-  "OrganizeImports",
-  "DisableSyntax",
-  "LeakingImplicitClassVal",
-  "ProcedureSyntax",
-  "NoValInForComprehension"
-).mkString(" ")
-
 val CICommands = Seq(
-  "scalafmtCheckAll",
-  "clean",
+  "scalafixEnable",
   "compile",
   "tests/test",
   "testsJS/test",
   "testsNative/test",
-  "e2e-tests/test"
+  "e2e-tests/test",
+  "scalafmtCheckAll",
+  "headerCheck"
 ).mkString(";")
 
 val PrepareCICommands = Seq(
-  "Test/scalafmtAll",
-  "Compile/scalafmtAll",
-  "scalafmtSbt"
+  "scalafixEnable",
+  "scalafix",
+  "scalafmtAll",
+  "scalafmtSbt",
+  "headerCreate"
 ).mkString(";")
 
-addCommandAlias(
-  "generateLSP",
-  "generate/runMain langoustine.generate.run modules/lsp/src/main/scala/generated/"
-)
+lazy val generatorJVM = generate.jvm(V.scala)
+lazy val protocolJVM  = lsp.jvm(V.scala)
+
+val generateLSP = inputKey[Unit]("")
+generateLSP := Def.inputTaskDyn {
+  val out =
+    (protocolJVM / Compile / scalaSource).value / "generated"
+
+  val schema =
+    (ThisBuild / baseDirectory).value / "metaModel.json"
+
+  val generatedFiles =
+    (generatorJVM / Compile / target).value / "generator" / "files.txt"
+
+  val task = InputKey[Unit]("scalafmtOnly")
+
+  Def.sequential(
+    Def
+      .taskDyn {
+        (generatorJVM / Compile / run)
+          .toTask(
+            s" --out $out --files $generatedFiles --schema $schema"
+          )
+      },
+    Def.taskDyn {
+      (protocolJVM / Compile / headerCreate)
+    },
+    Def.taskDyn {
+      val files = IO.readLines(generatedFiles)
+      (Compile / task).toTask(s" ${files.mkString(" ")}")
+    }
+  )
+
+}.evaluated
+
 addCommandAlias("ci", CICommands)
 addCommandAlias("buildWebsite", "docs/unidoc")
 addCommandAlias("preCI", PrepareCICommands)
@@ -407,6 +443,8 @@ updateModelFiles := {
 
 }
 
+val commonScalacOptions = Seq("-Wunused:imports")
+
 import sbtwelcome.*
 
 logo :=
@@ -427,21 +465,19 @@ logo :=
     |""".stripMargin
 
 usefulTasks := Seq(
-  UsefulTask("gl", "generateLSP", "Regenerate LSP definitions"),
-  UsefulTask("bw", "buildWebsite", "Build website"),
-  UsefulTask("tt", "testTracer", "Run Tracer's backend tests"),
-  UsefulTask("bt", "buildTracer", "Build Tracer for local usage"),
+  UsefulTask("generateLSP", "Regenerate LSP definitions").alias("gl"),
+  UsefulTask("buildWebsite", "Build website").alias("bw"),
+  UsefulTask("testTracer", "Run Tracer's backend tests").alias("tt"),
+  UsefulTask("buildTracer", "Build Tracer for local usage").alias("bt"),
   UsefulTask(
-    "te",
     "testE2E",
     "Run LangoustineApp E2E tests that launch a separate process"
-  ),
-  UsefulTask("fx", "preCI", "Reformat and apply Scalafix rules"),
+  ).alias("te"),
+  UsefulTask("preCI", "Reformat and apply Scalafix rules").alias("fx"),
   UsefulTask(
-    "p",
     "publishLocal",
     "Publish all modules locally"
-  )
+  ).alias("pl")
 )
 
 logoColor := scala.Console.MAGENTA

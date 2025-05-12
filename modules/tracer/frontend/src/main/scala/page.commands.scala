@@ -16,10 +16,10 @@
 
 package langoustine.tracer
 
-import com.raquo.laminar.api.L.*
-import com.github.plokhotnyuk.jsoniter_scala.core.*
 import scala.scalajs.js.Date
+
 import com.raquo.airstream.state.Var
+import com.raquo.laminar.api.L.*
 
 def commandTracer(
     bus: EventBus[Double],
@@ -29,7 +29,6 @@ def commandTracer(
     mode: Var[JsonMode],
     modalBus: EventBus[ModalCommand]
 ) =
-  import LspMessage.*
   div(
     Styles.commandTracer.container,
     jsonViewer(showing, mode, modalBus),

@@ -16,18 +16,19 @@
 
 package langoustine.tracer
 
+import cats.data.Kleisli
 import cats.effect.*
 import cats.syntax.all.*
 import fs2.text
-import org.http4s.server.middleware.ErrorHandling
-import org.http4s.{HttpRoutes, HttpApp}
-import cats.data.Kleisli
-import org.http4s.server.websocket.WebSocketBuilder2
-import org.http4s.ember.server.EmberServerBuilder
-import concurrent.duration.*
-import org.http4s.server
-import jsonrpclib.Payload
 import jsonrpclib.Message
+import org.http4s.HttpApp
+import org.http4s.HttpRoutes
+import org.http4s.ember.server.EmberServerBuilder
+import org.http4s.server
+import org.http4s.server.middleware.ErrorHandling
+import org.http4s.server.websocket.WebSocketBuilder2
+
+import concurrent.duration.*
 
 class TracerServer private (
     in: fs2.Stream[IO, Message],
@@ -82,8 +83,6 @@ class TracerServer private (
     routes.orNotFound.onError { exc =>
       Kleisli(request => Logging.error(s"FAILED $request: $exc"))
     }
-
-  import org.http4s.dsl.io.*
 
   private def Server(
       app: WebSocketBuilder2[IO] => HttpApp[IO],
