@@ -1162,12 +1162,8 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
               )
               nest {
                 a.values.foreach { entry =>
-                  val lhs = base match
-                    case ET.string => '"' + entry.value.stringValue + '"'
-                    case _         => entry.value.intValue.toString
-
                   line(
-                    s"case $lhs => \"${entry.name}\""
+                    s"case ${entry.value.intValue} => \"${entry.name}\""
                   )
                 }
               }
