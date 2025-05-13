@@ -134,7 +134,7 @@ lazy val lsp = projectMatrix
   .settings(
     tastyMiMaPreviousArtifacts += {
       organization.value %% name.value % "0.0.21"
-    },
+    }
   )
 
 lazy val app = projectMatrix
