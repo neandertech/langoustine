@@ -85,4 +85,51 @@ object LSPTests extends weaver.FunSuite:
     )
 
   }
+
+  test("textDocument/documentSymbol") {
+    import requests.*
+
+    val symbols: Opt[Vector[DocumentSymbol]] =
+      Opt(
+        Vector(
+          DocumentSymbol(
+            name = "root",
+            kind = SymbolKind.Array,
+            range = Range(Position(0, 0), Position(0, 5)),
+            selectionRange = Range(Position(0, 0), Position(0, 5)),
+            children = Opt(
+              Vector(
+                DocumentSymbol(
+                  name = "child",
+                  kind = SymbolKind.String,
+                  range = Range(Position(1, 0), Position(1, 5)),
+                  selectionRange = Range(Position(1, 0), Position(1, 5))
+                )
+              )
+            )
+          )
+        )
+      )
+
+    val server = basicServer[Try].handleRequest(textDocument.documentSymbol) {
+      in =>
+        Try {
+          symbols
+        }
+    }
+
+    val (response, _) = request(
+      server,
+      CallId.StringId("resp1"),
+      textDocument.documentSymbol,
+      DocumentSymbolParams(
+        TextDocumentIdentifier(DocumentUri("/home/bla.txt"))
+      )
+    ).get
+
+    expect.same(
+      response,
+      symbols
+    )
+  }
 end LSPTests
