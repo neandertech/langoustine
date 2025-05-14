@@ -20,8 +20,6 @@ import cats.effect.*
 import cats.effect.std.*
 import fs2.concurrent.*
 import jsonrpclib.CallId
-
-import jsonrpclib.Payload
 import jsonrpclib.Codec
 import jsonrpclib.InputMessage.NotificationMessage
 import jsonrpclib.InputMessage.RequestMessage
