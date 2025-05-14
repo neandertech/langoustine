@@ -634,7 +634,12 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         case other =>
           val newType = other.traverse {
             case stl: Type.StructureLiteralType =>
-              val newTypeName = "S" + inlineAnonymousStructures
+              val newTypeName = summon[Config].anonNameOverrides
+                .get(structure.name.value)
+                .fold("S" + inlineAnonymousStructures)(
+                  _(inlineAnonymousStructures)
+                )
+
               val newType: Type.ReferenceType = Type.ReferenceType(
                 TypeName(
                   structure.name.value + "." + newTypeName
@@ -978,7 +983,11 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
           var inlineAnonymousStructures = 0
           val newType = alias.`type`.traverse {
             case stl: Type.StructureLiteralType =>
-              val newTypeName = "S" + inlineAnonymousStructures
+              val newTypeName = summon[Config].anonNameOverrides
+                .get(alias.name.value)
+                .fold("S" + inlineAnonymousStructures)(
+                  _(inlineAnonymousStructures)
+                )
               val newType: Type.ReferenceType = Type.ReferenceType(
                 TypeName(
                   alias.name.value + "." + newTypeName
@@ -1194,7 +1203,11 @@ object Render:
       def appender: Config ?=> Appender = to(lb)
   end LineBuilder
 
-  case class Config(indents: Indentation, indentSize: IndentationSize)
+  case class Config(
+      indents: Indentation,
+      indentSize: IndentationSize,
+      anonNameOverrides: Map[String, List[String]]
+  )
 
   opaque type IndentationSize = Int
   object IndentationSize extends OpaqueNum[IndentationSize]

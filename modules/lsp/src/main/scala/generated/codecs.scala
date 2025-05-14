@@ -1895,29 +1895,30 @@ private[lsp] trait structures_CompletionListCodec:
 
 private[lsp] trait structures_CompletionList_ItemDefaultsCodec:
   import structures.CompletionList.*
-  private given rd0: Reader[(structures.Range | ItemDefaults.S0)] =
-    badMerge[(structures.Range | ItemDefaults.S0)](
+  private given rd0: Reader[(structures.Range | ItemDefaults.InsertReplace)] =
+    badMerge[(structures.Range | ItemDefaults.InsertReplace)](
       structures.Range.reader,
-      ItemDefaults.S0.reader
+      ItemDefaults.InsertReplace.reader
     )
-  private given wt0: Writer[(structures.Range | ItemDefaults.S0)] =
+  private given wt0: Writer[(structures.Range | ItemDefaults.InsertReplace)] =
     upickle.default
       .writer[ujson.Value]
-      .comap[(structures.Range | ItemDefaults.S0)] { _v =>
+      .comap[(structures.Range | ItemDefaults.InsertReplace)] { _v =>
         (_v: @unchecked) match
           case v: structures.Range => writeJs[structures.Range](v)
-          case v: ItemDefaults.S0  => writeJs[ItemDefaults.S0](v)
+          case v: ItemDefaults.InsertReplace =>
+            writeJs[ItemDefaults.InsertReplace](v)
       }
   given reader: Reader[structures.CompletionList.ItemDefaults] = Pickle.macroR
   given writer: Writer[structures.CompletionList.ItemDefaults] =
     upickle.default.macroW
 end structures_CompletionList_ItemDefaultsCodec
 
-private[lsp] trait structures_CompletionList_ItemDefaults_S0Codec:
+private[lsp] trait structures_CompletionList_ItemDefaults_InsertReplaceCodec:
   import structures.CompletionList.ItemDefaults.*
-  given reader: Reader[structures.CompletionList.ItemDefaults.S0] =
+  given reader: Reader[structures.CompletionList.ItemDefaults.InsertReplace] =
     Pickle.macroR
-  given writer: Writer[structures.CompletionList.ItemDefaults.S0] =
+  given writer: Writer[structures.CompletionList.ItemDefaults.InsertReplace] =
     upickle.default.macroW
 
 private[lsp] trait structures_CompletionOptionsCodec:
@@ -3027,11 +3028,13 @@ private[lsp] trait structures_NotebookDocumentChangeEvent_Cells_StructureCodec:
   given writer: Writer[structures.NotebookDocumentChangeEvent.Cells.Structure] =
     upickle.default.macroW
 
-private[lsp] trait structures_NotebookDocumentChangeEvent_Cells_S0Codec:
+private[lsp] trait structures_NotebookDocumentChangeEvent_Cells_TextContentCodec:
   import structures.NotebookDocumentChangeEvent.Cells.*
-  given reader: Reader[structures.NotebookDocumentChangeEvent.Cells.S0] =
+  given reader
+      : Reader[structures.NotebookDocumentChangeEvent.Cells.TextContent] =
     Pickle.macroR
-  given writer: Writer[structures.NotebookDocumentChangeEvent.Cells.S0] =
+  given writer
+      : Writer[structures.NotebookDocumentChangeEvent.Cells.TextContent] =
     upickle.default.macroW
 
 private[lsp] trait structures_NotebookDocumentClientCapabilitiesCodec:
@@ -3057,32 +3060,38 @@ private[lsp] trait structures_NotebookDocumentSyncClientCapabilitiesCodec:
 private[lsp] trait structures_NotebookDocumentSyncOptionsCodec:
   import structures.*
   private given rd0: Reader[
-    (NotebookDocumentSyncOptions.S0 | NotebookDocumentSyncOptions.S1)
+    (NotebookDocumentSyncOptions.ByDocumentAndCells |
+      NotebookDocumentSyncOptions.ByCells)
   ] =
-    badMerge[(NotebookDocumentSyncOptions.S0 | NotebookDocumentSyncOptions.S1)](
-      NotebookDocumentSyncOptions.S0.reader,
-      NotebookDocumentSyncOptions.S1.reader
+    badMerge[
+      (NotebookDocumentSyncOptions.ByDocumentAndCells |
+        NotebookDocumentSyncOptions.ByCells)
+    ](
+      NotebookDocumentSyncOptions.ByDocumentAndCells.reader,
+      NotebookDocumentSyncOptions.ByCells.reader
     )
   private given wt0: Writer[
-    (NotebookDocumentSyncOptions.S0 | NotebookDocumentSyncOptions.S1)
+    (NotebookDocumentSyncOptions.ByDocumentAndCells |
+      NotebookDocumentSyncOptions.ByCells)
   ] =
     upickle.default
       .writer[ujson.Value]
       .comap[
-        (NotebookDocumentSyncOptions.S0 | NotebookDocumentSyncOptions.S1)
+        (NotebookDocumentSyncOptions.ByDocumentAndCells |
+          NotebookDocumentSyncOptions.ByCells)
       ] { _v =>
         (_v: @unchecked) match
-          case v: NotebookDocumentSyncOptions.S0 =>
-            writeJs[NotebookDocumentSyncOptions.S0](v)
-          case v: NotebookDocumentSyncOptions.S1 =>
-            writeJs[NotebookDocumentSyncOptions.S1](v)
+          case v: NotebookDocumentSyncOptions.ByDocumentAndCells =>
+            writeJs[NotebookDocumentSyncOptions.ByDocumentAndCells](v)
+          case v: NotebookDocumentSyncOptions.ByCells =>
+            writeJs[NotebookDocumentSyncOptions.ByCells](v)
       }
   given reader: Reader[structures.NotebookDocumentSyncOptions] = Pickle.macroR
   given writer: Writer[structures.NotebookDocumentSyncOptions] =
     upickle.default.macroW
 end structures_NotebookDocumentSyncOptionsCodec
 
-private[lsp] trait structures_NotebookDocumentSyncOptions_S0Codec:
+private[lsp] trait structures_NotebookDocumentSyncOptions_ByDocumentAndCellsCodec:
   import structures.NotebookDocumentSyncOptions.*
   private given rd0: Reader[(String | aliases.NotebookDocumentFilter)] =
     badMerge[(String | aliases.NotebookDocumentFilter)](
@@ -3098,20 +3107,24 @@ private[lsp] trait structures_NotebookDocumentSyncOptions_S0Codec:
           case v: aliases.NotebookDocumentFilter =>
             writeJs[aliases.NotebookDocumentFilter](v)
       }
-  given reader: Reader[structures.NotebookDocumentSyncOptions.S0] =
+  given reader
+      : Reader[structures.NotebookDocumentSyncOptions.ByDocumentAndCells] =
     Pickle.macroR
-  given writer: Writer[structures.NotebookDocumentSyncOptions.S0] =
+  given writer
+      : Writer[structures.NotebookDocumentSyncOptions.ByDocumentAndCells] =
     upickle.default.macroW
-end structures_NotebookDocumentSyncOptions_S0Codec
+end structures_NotebookDocumentSyncOptions_ByDocumentAndCellsCodec
 
-private[lsp] trait structures_NotebookDocumentSyncOptions_S0_S0Codec:
-  import structures.NotebookDocumentSyncOptions.S0.*
-  given reader: Reader[structures.NotebookDocumentSyncOptions.S0.S0] =
+private[lsp] trait structures_NotebookDocumentSyncOptions_ByDocumentAndCells_CellCodec:
+  import structures.NotebookDocumentSyncOptions.ByDocumentAndCells.*
+  given reader
+      : Reader[structures.NotebookDocumentSyncOptions.ByDocumentAndCells.Cell] =
     Pickle.macroR
-  given writer: Writer[structures.NotebookDocumentSyncOptions.S0.S0] =
+  given writer
+      : Writer[structures.NotebookDocumentSyncOptions.ByDocumentAndCells.Cell] =
     upickle.default.macroW
 
-private[lsp] trait structures_NotebookDocumentSyncOptions_S1Codec:
+private[lsp] trait structures_NotebookDocumentSyncOptions_ByCellsCodec:
   import structures.NotebookDocumentSyncOptions.*
   private given rd0: Reader[(String | aliases.NotebookDocumentFilter)] =
     badMerge[(String | aliases.NotebookDocumentFilter)](
@@ -3127,47 +3140,49 @@ private[lsp] trait structures_NotebookDocumentSyncOptions_S1Codec:
           case v: aliases.NotebookDocumentFilter =>
             writeJs[aliases.NotebookDocumentFilter](v)
       }
-  given reader: Reader[structures.NotebookDocumentSyncOptions.S1] =
+  given reader: Reader[structures.NotebookDocumentSyncOptions.ByCells] =
     Pickle.macroR
-  given writer: Writer[structures.NotebookDocumentSyncOptions.S1] =
+  given writer: Writer[structures.NotebookDocumentSyncOptions.ByCells] =
     upickle.default.macroW
-end structures_NotebookDocumentSyncOptions_S1Codec
+end structures_NotebookDocumentSyncOptions_ByCellsCodec
 
-private[lsp] trait structures_NotebookDocumentSyncOptions_S1_S0Codec:
-  import structures.NotebookDocumentSyncOptions.S1.*
-  given reader: Reader[structures.NotebookDocumentSyncOptions.S1.S0] =
+private[lsp] trait structures_NotebookDocumentSyncOptions_ByCells_CellCodec:
+  import structures.NotebookDocumentSyncOptions.ByCells.*
+  given reader: Reader[structures.NotebookDocumentSyncOptions.ByCells.Cell] =
     Pickle.macroR
-  given writer: Writer[structures.NotebookDocumentSyncOptions.S1.S0] =
+  given writer: Writer[structures.NotebookDocumentSyncOptions.ByCells.Cell] =
     upickle.default.macroW
 
 private[lsp] trait structures_NotebookDocumentSyncRegistrationOptionsCodec:
   import structures.*
   private given rd0: Reader[
-    (NotebookDocumentSyncRegistrationOptions.S0 |
-      NotebookDocumentSyncRegistrationOptions.S1)
+    (NotebookDocumentSyncRegistrationOptions.ByDocumentAndCells |
+      NotebookDocumentSyncRegistrationOptions.ByCells)
   ] =
     badMerge[
-      (NotebookDocumentSyncRegistrationOptions.S0 |
-        NotebookDocumentSyncRegistrationOptions.S1)
+      (NotebookDocumentSyncRegistrationOptions.ByDocumentAndCells |
+        NotebookDocumentSyncRegistrationOptions.ByCells)
     ](
-      NotebookDocumentSyncRegistrationOptions.S0.reader,
-      NotebookDocumentSyncRegistrationOptions.S1.reader
+      NotebookDocumentSyncRegistrationOptions.ByDocumentAndCells.reader,
+      NotebookDocumentSyncRegistrationOptions.ByCells.reader
     )
   private given wt0: Writer[
-    (NotebookDocumentSyncRegistrationOptions.S0 |
-      NotebookDocumentSyncRegistrationOptions.S1)
+    (NotebookDocumentSyncRegistrationOptions.ByDocumentAndCells |
+      NotebookDocumentSyncRegistrationOptions.ByCells)
   ] =
     upickle.default
       .writer[ujson.Value]
       .comap[
-        (NotebookDocumentSyncRegistrationOptions.S0 |
-          NotebookDocumentSyncRegistrationOptions.S1)
+        (NotebookDocumentSyncRegistrationOptions.ByDocumentAndCells |
+          NotebookDocumentSyncRegistrationOptions.ByCells)
       ] { _v =>
         (_v: @unchecked) match
-          case v: NotebookDocumentSyncRegistrationOptions.S0 =>
-            writeJs[NotebookDocumentSyncRegistrationOptions.S0](v)
-          case v: NotebookDocumentSyncRegistrationOptions.S1 =>
-            writeJs[NotebookDocumentSyncRegistrationOptions.S1](v)
+          case v: NotebookDocumentSyncRegistrationOptions.ByDocumentAndCells =>
+            writeJs[NotebookDocumentSyncRegistrationOptions.ByDocumentAndCells](
+              v
+            )
+          case v: NotebookDocumentSyncRegistrationOptions.ByCells =>
+            writeJs[NotebookDocumentSyncRegistrationOptions.ByCells](v)
       }
   given reader: Reader[structures.NotebookDocumentSyncRegistrationOptions] =
     Pickle.macroR
@@ -3175,7 +3190,7 @@ private[lsp] trait structures_NotebookDocumentSyncRegistrationOptionsCodec:
     upickle.default.macroW
 end structures_NotebookDocumentSyncRegistrationOptionsCodec
 
-private[lsp] trait structures_NotebookDocumentSyncRegistrationOptions_S0Codec:
+private[lsp] trait structures_NotebookDocumentSyncRegistrationOptions_ByDocumentAndCellsCodec:
   import structures.NotebookDocumentSyncRegistrationOptions.*
   private given rd0: Reader[(String | aliases.NotebookDocumentFilter)] =
     badMerge[(String | aliases.NotebookDocumentFilter)](
@@ -3191,22 +3206,24 @@ private[lsp] trait structures_NotebookDocumentSyncRegistrationOptions_S0Codec:
           case v: aliases.NotebookDocumentFilter =>
             writeJs[aliases.NotebookDocumentFilter](v)
       }
-  given reader: Reader[structures.NotebookDocumentSyncRegistrationOptions.S0] =
-    Pickle.macroR
-  given writer: Writer[structures.NotebookDocumentSyncRegistrationOptions.S0] =
-    upickle.default.macroW
-end structures_NotebookDocumentSyncRegistrationOptions_S0Codec
+  given reader: Reader[
+    structures.NotebookDocumentSyncRegistrationOptions.ByDocumentAndCells
+  ] = Pickle.macroR
+  given writer: Writer[
+    structures.NotebookDocumentSyncRegistrationOptions.ByDocumentAndCells
+  ] = upickle.default.macroW
+end structures_NotebookDocumentSyncRegistrationOptions_ByDocumentAndCellsCodec
 
-private[lsp] trait structures_NotebookDocumentSyncRegistrationOptions_S0_S0Codec:
-  import structures.NotebookDocumentSyncRegistrationOptions.S0.*
-  given reader
-      : Reader[structures.NotebookDocumentSyncRegistrationOptions.S0.S0] =
-    Pickle.macroR
-  given writer
-      : Writer[structures.NotebookDocumentSyncRegistrationOptions.S0.S0] =
-    upickle.default.macroW
+private[lsp] trait structures_NotebookDocumentSyncRegistrationOptions_ByDocumentAndCells_CellCodec:
+  import structures.NotebookDocumentSyncRegistrationOptions.ByDocumentAndCells.*
+  given reader: Reader[
+    structures.NotebookDocumentSyncRegistrationOptions.ByDocumentAndCells.Cell
+  ] = Pickle.macroR
+  given writer: Writer[
+    structures.NotebookDocumentSyncRegistrationOptions.ByDocumentAndCells.Cell
+  ] = upickle.default.macroW
 
-private[lsp] trait structures_NotebookDocumentSyncRegistrationOptions_S1Codec:
+private[lsp] trait structures_NotebookDocumentSyncRegistrationOptions_ByCellsCodec:
   import structures.NotebookDocumentSyncRegistrationOptions.*
   private given rd0: Reader[(String | aliases.NotebookDocumentFilter)] =
     badMerge[(String | aliases.NotebookDocumentFilter)](
@@ -3222,20 +3239,22 @@ private[lsp] trait structures_NotebookDocumentSyncRegistrationOptions_S1Codec:
           case v: aliases.NotebookDocumentFilter =>
             writeJs[aliases.NotebookDocumentFilter](v)
       }
-  given reader: Reader[structures.NotebookDocumentSyncRegistrationOptions.S1] =
-    Pickle.macroR
-  given writer: Writer[structures.NotebookDocumentSyncRegistrationOptions.S1] =
-    upickle.default.macroW
-end structures_NotebookDocumentSyncRegistrationOptions_S1Codec
-
-private[lsp] trait structures_NotebookDocumentSyncRegistrationOptions_S1_S0Codec:
-  import structures.NotebookDocumentSyncRegistrationOptions.S1.*
   given reader
-      : Reader[structures.NotebookDocumentSyncRegistrationOptions.S1.S0] =
+      : Reader[structures.NotebookDocumentSyncRegistrationOptions.ByCells] =
     Pickle.macroR
   given writer
-      : Writer[structures.NotebookDocumentSyncRegistrationOptions.S1.S0] =
+      : Writer[structures.NotebookDocumentSyncRegistrationOptions.ByCells] =
     upickle.default.macroW
+end structures_NotebookDocumentSyncRegistrationOptions_ByCellsCodec
+
+private[lsp] trait structures_NotebookDocumentSyncRegistrationOptions_ByCells_CellCodec:
+  import structures.NotebookDocumentSyncRegistrationOptions.ByCells.*
+  given reader: Reader[
+    structures.NotebookDocumentSyncRegistrationOptions.ByCells.Cell
+  ] = Pickle.macroR
+  given writer: Writer[
+    structures.NotebookDocumentSyncRegistrationOptions.ByCells.Cell
+  ] = upickle.default.macroW
 
 private[lsp] trait structures_OptionalVersionedTextDocumentIdentifierCodec:
   import structures.*
@@ -3555,27 +3574,29 @@ private[lsp] trait structures_SemanticTokensClientCapabilitiesCodec:
 
 private[lsp] trait structures_SemanticTokensClientCapabilities_RequestsCodec:
   import structures.SemanticTokensClientCapabilities.*
-  private given rd0: Reader[(Boolean | Requests.S0)] =
-    badMerge[(Boolean | Requests.S0)](
+  private given rd0: Reader[(Boolean | Requests.Range)] =
+    badMerge[(Boolean | Requests.Range)](
       upickle.default.reader[Boolean],
-      Requests.S0.reader
+      Requests.Range.reader
     )
-  private given wt0: Writer[(Boolean | Requests.S0)] =
-    upickle.default.writer[ujson.Value].comap[(Boolean | Requests.S0)] { _v =>
-      (_v: @unchecked) match
-        case v: Boolean     => writeJs[Boolean](v)
-        case v: Requests.S0 => writeJs[Requests.S0](v)
+  private given wt0: Writer[(Boolean | Requests.Range)] =
+    upickle.default.writer[ujson.Value].comap[(Boolean | Requests.Range)] {
+      _v =>
+        (_v: @unchecked) match
+          case v: Boolean        => writeJs[Boolean](v)
+          case v: Requests.Range => writeJs[Requests.Range](v)
     }
-  private given rd1: Reader[(Boolean | Requests.S1)] =
-    badMerge[(Boolean | Requests.S1)](
+  private given rd1: Reader[(Boolean | Requests.Delta)] =
+    badMerge[(Boolean | Requests.Delta)](
       upickle.default.reader[Boolean],
-      Requests.S1.reader
+      Requests.Delta.reader
     )
-  private given wt1: Writer[(Boolean | Requests.S1)] =
-    upickle.default.writer[ujson.Value].comap[(Boolean | Requests.S1)] { _v =>
-      (_v: @unchecked) match
-        case v: Boolean     => writeJs[Boolean](v)
-        case v: Requests.S1 => writeJs[Requests.S1](v)
+  private given wt1: Writer[(Boolean | Requests.Delta)] =
+    upickle.default.writer[ujson.Value].comap[(Boolean | Requests.Delta)] {
+      _v =>
+        (_v: @unchecked) match
+          case v: Boolean        => writeJs[Boolean](v)
+          case v: Requests.Delta => writeJs[Requests.Delta](v)
     }
   given reader: Reader[structures.SemanticTokensClientCapabilities.Requests] =
     Pickle.macroR
@@ -3583,22 +3604,22 @@ private[lsp] trait structures_SemanticTokensClientCapabilities_RequestsCodec:
     upickle.default.macroW
 end structures_SemanticTokensClientCapabilities_RequestsCodec
 
-private[lsp] trait structures_SemanticTokensClientCapabilities_Requests_S0Codec:
+private[lsp] trait structures_SemanticTokensClientCapabilities_Requests_RangeCodec:
   import structures.SemanticTokensClientCapabilities.Requests.*
   given reader
-      : Reader[structures.SemanticTokensClientCapabilities.Requests.S0] =
+      : Reader[structures.SemanticTokensClientCapabilities.Requests.Range] =
     Pickle.macroR
   given writer
-      : Writer[structures.SemanticTokensClientCapabilities.Requests.S0] =
+      : Writer[structures.SemanticTokensClientCapabilities.Requests.Range] =
     upickle.default.macroW
 
-private[lsp] trait structures_SemanticTokensClientCapabilities_Requests_S1Codec:
+private[lsp] trait structures_SemanticTokensClientCapabilities_Requests_DeltaCodec:
   import structures.SemanticTokensClientCapabilities.Requests.*
   given reader
-      : Reader[structures.SemanticTokensClientCapabilities.Requests.S1] =
+      : Reader[structures.SemanticTokensClientCapabilities.Requests.Delta] =
     Pickle.macroR
   given writer
-      : Writer[structures.SemanticTokensClientCapabilities.Requests.S1] =
+      : Writer[structures.SemanticTokensClientCapabilities.Requests.Delta] =
     upickle.default.macroW
 
 private[lsp] trait structures_SemanticTokensDeltaCodec:
@@ -3631,49 +3652,49 @@ private[lsp] trait structures_SemanticTokensLegendCodec:
 
 private[lsp] trait structures_SemanticTokensOptionsCodec:
   import structures.*
-  private given rd0: Reader[(Boolean | SemanticTokensOptions.S0)] =
-    badMerge[(Boolean | SemanticTokensOptions.S0)](
+  private given rd0: Reader[(Boolean | SemanticTokensOptions.Range)] =
+    badMerge[(Boolean | SemanticTokensOptions.Range)](
       upickle.default.reader[Boolean],
-      SemanticTokensOptions.S0.reader
+      SemanticTokensOptions.Range.reader
     )
-  private given wt0: Writer[(Boolean | SemanticTokensOptions.S0)] =
+  private given wt0: Writer[(Boolean | SemanticTokensOptions.Range)] =
     upickle.default
       .writer[ujson.Value]
-      .comap[(Boolean | SemanticTokensOptions.S0)] { _v =>
+      .comap[(Boolean | SemanticTokensOptions.Range)] { _v =>
         (_v: @unchecked) match
           case v: Boolean => writeJs[Boolean](v)
-          case v: SemanticTokensOptions.S0 =>
-            writeJs[SemanticTokensOptions.S0](v)
+          case v: SemanticTokensOptions.Range =>
+            writeJs[SemanticTokensOptions.Range](v)
       }
-  private given rd1: Reader[(Boolean | SemanticTokensOptions.S1)] =
-    badMerge[(Boolean | SemanticTokensOptions.S1)](
+  private given rd1: Reader[(Boolean | SemanticTokensOptions.Delta)] =
+    badMerge[(Boolean | SemanticTokensOptions.Delta)](
       upickle.default.reader[Boolean],
-      SemanticTokensOptions.S1.reader
+      SemanticTokensOptions.Delta.reader
     )
-  private given wt1: Writer[(Boolean | SemanticTokensOptions.S1)] =
+  private given wt1: Writer[(Boolean | SemanticTokensOptions.Delta)] =
     upickle.default
       .writer[ujson.Value]
-      .comap[(Boolean | SemanticTokensOptions.S1)] { _v =>
+      .comap[(Boolean | SemanticTokensOptions.Delta)] { _v =>
         (_v: @unchecked) match
           case v: Boolean => writeJs[Boolean](v)
-          case v: SemanticTokensOptions.S1 =>
-            writeJs[SemanticTokensOptions.S1](v)
+          case v: SemanticTokensOptions.Delta =>
+            writeJs[SemanticTokensOptions.Delta](v)
       }
   given reader: Reader[structures.SemanticTokensOptions] = Pickle.macroR
   given writer: Writer[structures.SemanticTokensOptions] =
     upickle.default.macroW
 end structures_SemanticTokensOptionsCodec
 
-private[lsp] trait structures_SemanticTokensOptions_S0Codec:
+private[lsp] trait structures_SemanticTokensOptions_RangeCodec:
   import structures.SemanticTokensOptions.*
-  given reader: Reader[structures.SemanticTokensOptions.S0] = Pickle.macroR
-  given writer: Writer[structures.SemanticTokensOptions.S0] =
+  given reader: Reader[structures.SemanticTokensOptions.Range] = Pickle.macroR
+  given writer: Writer[structures.SemanticTokensOptions.Range] =
     upickle.default.macroW
 
-private[lsp] trait structures_SemanticTokensOptions_S1Codec:
+private[lsp] trait structures_SemanticTokensOptions_DeltaCodec:
   import structures.SemanticTokensOptions.*
-  given reader: Reader[structures.SemanticTokensOptions.S1] = Pickle.macroR
-  given writer: Writer[structures.SemanticTokensOptions.S1] =
+  given reader: Reader[structures.SemanticTokensOptions.Delta] = Pickle.macroR
+  given writer: Writer[structures.SemanticTokensOptions.Delta] =
     upickle.default.macroW
 
 private[lsp] trait structures_SemanticTokensParamsCodec:
@@ -3695,33 +3716,37 @@ private[lsp] trait structures_SemanticTokensRangeParamsCodec:
 
 private[lsp] trait structures_SemanticTokensRegistrationOptionsCodec:
   import structures.*
-  private given rd1: Reader[(Boolean | SemanticTokensRegistrationOptions.S0)] =
-    badMerge[(Boolean | SemanticTokensRegistrationOptions.S0)](
+  private given rd1
+      : Reader[(Boolean | SemanticTokensRegistrationOptions.Range)] =
+    badMerge[(Boolean | SemanticTokensRegistrationOptions.Range)](
       upickle.default.reader[Boolean],
-      SemanticTokensRegistrationOptions.S0.reader
+      SemanticTokensRegistrationOptions.Range.reader
     )
-  private given wt1: Writer[(Boolean | SemanticTokensRegistrationOptions.S0)] =
+  private given wt1
+      : Writer[(Boolean | SemanticTokensRegistrationOptions.Range)] =
     upickle.default
       .writer[ujson.Value]
-      .comap[(Boolean | SemanticTokensRegistrationOptions.S0)] { _v =>
+      .comap[(Boolean | SemanticTokensRegistrationOptions.Range)] { _v =>
         (_v: @unchecked) match
           case v: Boolean => writeJs[Boolean](v)
-          case v: SemanticTokensRegistrationOptions.S0 =>
-            writeJs[SemanticTokensRegistrationOptions.S0](v)
+          case v: SemanticTokensRegistrationOptions.Range =>
+            writeJs[SemanticTokensRegistrationOptions.Range](v)
       }
-  private given rd2: Reader[(Boolean | SemanticTokensRegistrationOptions.S1)] =
-    badMerge[(Boolean | SemanticTokensRegistrationOptions.S1)](
+  private given rd2
+      : Reader[(Boolean | SemanticTokensRegistrationOptions.Delta)] =
+    badMerge[(Boolean | SemanticTokensRegistrationOptions.Delta)](
       upickle.default.reader[Boolean],
-      SemanticTokensRegistrationOptions.S1.reader
+      SemanticTokensRegistrationOptions.Delta.reader
     )
-  private given wt2: Writer[(Boolean | SemanticTokensRegistrationOptions.S1)] =
+  private given wt2
+      : Writer[(Boolean | SemanticTokensRegistrationOptions.Delta)] =
     upickle.default
       .writer[ujson.Value]
-      .comap[(Boolean | SemanticTokensRegistrationOptions.S1)] { _v =>
+      .comap[(Boolean | SemanticTokensRegistrationOptions.Delta)] { _v =>
         (_v: @unchecked) match
           case v: Boolean => writeJs[Boolean](v)
-          case v: SemanticTokensRegistrationOptions.S1 =>
-            writeJs[SemanticTokensRegistrationOptions.S1](v)
+          case v: SemanticTokensRegistrationOptions.Delta =>
+            writeJs[SemanticTokensRegistrationOptions.Delta](v)
       }
   given reader: Reader[structures.SemanticTokensRegistrationOptions] =
     Pickle.macroR
@@ -3729,18 +3754,18 @@ private[lsp] trait structures_SemanticTokensRegistrationOptionsCodec:
     upickle.default.macroW
 end structures_SemanticTokensRegistrationOptionsCodec
 
-private[lsp] trait structures_SemanticTokensRegistrationOptions_S0Codec:
+private[lsp] trait structures_SemanticTokensRegistrationOptions_RangeCodec:
   import structures.SemanticTokensRegistrationOptions.*
-  given reader: Reader[structures.SemanticTokensRegistrationOptions.S0] =
+  given reader: Reader[structures.SemanticTokensRegistrationOptions.Range] =
     Pickle.macroR
-  given writer: Writer[structures.SemanticTokensRegistrationOptions.S0] =
+  given writer: Writer[structures.SemanticTokensRegistrationOptions.Range] =
     upickle.default.macroW
 
-private[lsp] trait structures_SemanticTokensRegistrationOptions_S1Codec:
+private[lsp] trait structures_SemanticTokensRegistrationOptions_DeltaCodec:
   import structures.SemanticTokensRegistrationOptions.*
-  given reader: Reader[structures.SemanticTokensRegistrationOptions.S1] =
+  given reader: Reader[structures.SemanticTokensRegistrationOptions.Delta] =
     Pickle.macroR
-  given writer: Writer[structures.SemanticTokensRegistrationOptions.S1] =
+  given writer: Writer[structures.SemanticTokensRegistrationOptions.Delta] =
     upickle.default.macroW
 
 private[lsp] trait structures_SemanticTokensWorkspaceClientCapabilitiesCodec:
@@ -4854,27 +4879,29 @@ private[lsp] trait structures_WorkspaceFullDocumentDiagnosticReportCodec:
 
 private[lsp] trait structures_WorkspaceSymbolCodec:
   import structures.*
-  private given rd0: Reader[(structures.Location | WorkspaceSymbol.S0)] =
-    badMerge[(structures.Location | WorkspaceSymbol.S0)](
+  private given rd0: Reader[(structures.Location | WorkspaceSymbol.External)] =
+    badMerge[(structures.Location | WorkspaceSymbol.External)](
       structures.Location.reader,
-      WorkspaceSymbol.S0.reader
+      WorkspaceSymbol.External.reader
     )
-  private given wt0: Writer[(structures.Location | WorkspaceSymbol.S0)] =
+  private given wt0: Writer[(structures.Location | WorkspaceSymbol.External)] =
     upickle.default
       .writer[ujson.Value]
-      .comap[(structures.Location | WorkspaceSymbol.S0)] { _v =>
+      .comap[(structures.Location | WorkspaceSymbol.External)] { _v =>
         (_v: @unchecked) match
           case v: structures.Location => writeJs[structures.Location](v)
-          case v: WorkspaceSymbol.S0  => writeJs[WorkspaceSymbol.S0](v)
+          case v: WorkspaceSymbol.External =>
+            writeJs[WorkspaceSymbol.External](v)
       }
   given reader: Reader[structures.WorkspaceSymbol] = Pickle.macroR
   given writer: Writer[structures.WorkspaceSymbol] = upickle.default.macroW
 end structures_WorkspaceSymbolCodec
 
-private[lsp] trait structures_WorkspaceSymbol_S0Codec:
+private[lsp] trait structures_WorkspaceSymbol_ExternalCodec:
   import structures.WorkspaceSymbol.*
-  given reader: Reader[structures.WorkspaceSymbol.S0] = Pickle.macroR
-  given writer: Writer[structures.WorkspaceSymbol.S0] = upickle.default.macroW
+  given reader: Reader[structures.WorkspaceSymbol.External] = Pickle.macroR
+  given writer: Writer[structures.WorkspaceSymbol.External] =
+    upickle.default.macroW
 
 private[lsp] trait structures_WorkspaceSymbolClientCapabilitiesCodec:
   import structures.*
@@ -5122,7 +5149,7 @@ private[lsp] trait aliases_LSPObject:
 private[lsp] trait aliases_MarkedString:
 
   given reader: Reader[MarkedString] =
-    badMerge[MarkedString](stringCodec, MarkedString.S0.reader)
+    badMerge[MarkedString](stringCodec, MarkedString.MarkdownString.reader)
       .asInstanceOf[Reader[MarkedString]]
 
   given writer: Writer[MarkedString] =
@@ -5130,24 +5157,26 @@ private[lsp] trait aliases_MarkedString:
       .writer[ujson.Value]
       .comap[MarkedString] { _v =>
         (_v: @unchecked) match
-          case v: String          => writeJs[String](v)
-          case v: MarkedString.S0 => writeJs[MarkedString.S0](v)
+          case v: String => writeJs[String](v)
+          case v: MarkedString.MarkdownString =>
+            writeJs[MarkedString.MarkdownString](v)
       }
       .asInstanceOf[Writer[MarkedString]]
 end aliases_MarkedString
 
-private[lsp] trait aliases_MarkedString_S0Codec:
+private[lsp] trait aliases_MarkedString_MarkdownStringCodec:
   import aliases.MarkedString.*
-  given reader: Reader[aliases.MarkedString.S0] = Pickle.macroR
-  given writer: Writer[aliases.MarkedString.S0] = upickle.default.macroW
+  given reader: Reader[aliases.MarkedString.MarkdownString] = Pickle.macroR
+  given writer: Writer[aliases.MarkedString.MarkdownString] =
+    upickle.default.macroW
 
 private[lsp] trait aliases_NotebookDocumentFilter:
 
   given reader: Reader[NotebookDocumentFilter] =
     badMerge[NotebookDocumentFilter](
-      NotebookDocumentFilter.S0.reader,
-      NotebookDocumentFilter.S1.reader,
-      NotebookDocumentFilter.S2.reader
+      NotebookDocumentFilter.ByType.reader,
+      NotebookDocumentFilter.ByScheme.reader,
+      NotebookDocumentFilter.ByPattern.reader
     ).asInstanceOf[Reader[NotebookDocumentFilter]]
 
   given writer: Writer[NotebookDocumentFilter] =
@@ -5155,32 +5184,32 @@ private[lsp] trait aliases_NotebookDocumentFilter:
       .writer[ujson.Value]
       .comap[NotebookDocumentFilter] { _v =>
         (_v: @unchecked) match
-          case v: NotebookDocumentFilter.S0 =>
-            writeJs[NotebookDocumentFilter.S0](v)
-          case v: NotebookDocumentFilter.S1 =>
-            writeJs[NotebookDocumentFilter.S1](v)
-          case v: NotebookDocumentFilter.S2 =>
-            writeJs[NotebookDocumentFilter.S2](v)
+          case v: NotebookDocumentFilter.ByType =>
+            writeJs[NotebookDocumentFilter.ByType](v)
+          case v: NotebookDocumentFilter.ByScheme =>
+            writeJs[NotebookDocumentFilter.ByScheme](v)
+          case v: NotebookDocumentFilter.ByPattern =>
+            writeJs[NotebookDocumentFilter.ByPattern](v)
       }
       .asInstanceOf[Writer[NotebookDocumentFilter]]
 end aliases_NotebookDocumentFilter
 
-private[lsp] trait aliases_NotebookDocumentFilter_S0Codec:
+private[lsp] trait aliases_NotebookDocumentFilter_ByTypeCodec:
   import aliases.NotebookDocumentFilter.*
-  given reader: Reader[aliases.NotebookDocumentFilter.S0] = Pickle.macroR
-  given writer: Writer[aliases.NotebookDocumentFilter.S0] =
+  given reader: Reader[aliases.NotebookDocumentFilter.ByType] = Pickle.macroR
+  given writer: Writer[aliases.NotebookDocumentFilter.ByType] =
     upickle.default.macroW
 
-private[lsp] trait aliases_NotebookDocumentFilter_S1Codec:
+private[lsp] trait aliases_NotebookDocumentFilter_BySchemeCodec:
   import aliases.NotebookDocumentFilter.*
-  given reader: Reader[aliases.NotebookDocumentFilter.S1] = Pickle.macroR
-  given writer: Writer[aliases.NotebookDocumentFilter.S1] =
+  given reader: Reader[aliases.NotebookDocumentFilter.ByScheme] = Pickle.macroR
+  given writer: Writer[aliases.NotebookDocumentFilter.ByScheme] =
     upickle.default.macroW
 
-private[lsp] trait aliases_NotebookDocumentFilter_S2Codec:
+private[lsp] trait aliases_NotebookDocumentFilter_ByPatternCodec:
   import aliases.NotebookDocumentFilter.*
-  given reader: Reader[aliases.NotebookDocumentFilter.S2] = Pickle.macroR
-  given writer: Writer[aliases.NotebookDocumentFilter.S2] =
+  given reader: Reader[aliases.NotebookDocumentFilter.ByPattern] = Pickle.macroR
+  given writer: Writer[aliases.NotebookDocumentFilter.ByPattern] =
     upickle.default.macroW
 
 private[lsp] trait aliases_Pattern:
@@ -5196,8 +5225,8 @@ private[lsp] trait aliases_PrepareRenameResult:
   given reader: Reader[PrepareRenameResult] =
     badMerge[PrepareRenameResult](
       structures.Range.reader,
-      PrepareRenameResult.S0.reader,
-      PrepareRenameResult.S1.reader
+      PrepareRenameResult.RangeAndPlaceholder.reader,
+      PrepareRenameResult.DefaultBehavior.reader
     ).asInstanceOf[Reader[PrepareRenameResult]]
 
   given writer: Writer[PrepareRenameResult] =
@@ -5205,22 +5234,28 @@ private[lsp] trait aliases_PrepareRenameResult:
       .writer[ujson.Value]
       .comap[PrepareRenameResult] { _v =>
         (_v: @unchecked) match
-          case v: structures.Range       => writeJs[structures.Range](v)
-          case v: PrepareRenameResult.S0 => writeJs[PrepareRenameResult.S0](v)
-          case v: PrepareRenameResult.S1 => writeJs[PrepareRenameResult.S1](v)
+          case v: structures.Range => writeJs[structures.Range](v)
+          case v: PrepareRenameResult.RangeAndPlaceholder =>
+            writeJs[PrepareRenameResult.RangeAndPlaceholder](v)
+          case v: PrepareRenameResult.DefaultBehavior =>
+            writeJs[PrepareRenameResult.DefaultBehavior](v)
       }
       .asInstanceOf[Writer[PrepareRenameResult]]
 end aliases_PrepareRenameResult
 
-private[lsp] trait aliases_PrepareRenameResult_S0Codec:
+private[lsp] trait aliases_PrepareRenameResult_RangeAndPlaceholderCodec:
   import aliases.PrepareRenameResult.*
-  given reader: Reader[aliases.PrepareRenameResult.S0] = Pickle.macroR
-  given writer: Writer[aliases.PrepareRenameResult.S0] = upickle.default.macroW
+  given reader: Reader[aliases.PrepareRenameResult.RangeAndPlaceholder] =
+    Pickle.macroR
+  given writer: Writer[aliases.PrepareRenameResult.RangeAndPlaceholder] =
+    upickle.default.macroW
 
-private[lsp] trait aliases_PrepareRenameResult_S1Codec:
+private[lsp] trait aliases_PrepareRenameResult_DefaultBehaviorCodec:
   import aliases.PrepareRenameResult.*
-  given reader: Reader[aliases.PrepareRenameResult.S1] = Pickle.macroR
-  given writer: Writer[aliases.PrepareRenameResult.S1] = upickle.default.macroW
+  given reader: Reader[aliases.PrepareRenameResult.DefaultBehavior] =
+    Pickle.macroR
+  given writer: Writer[aliases.PrepareRenameResult.DefaultBehavior] =
+    upickle.default.macroW
 
 private[lsp] trait aliases_ProgressToken:
 
@@ -5243,8 +5278,8 @@ private[lsp] trait aliases_TextDocumentContentChangeEvent:
 
   given reader: Reader[TextDocumentContentChangeEvent] =
     badMerge[TextDocumentContentChangeEvent](
-      TextDocumentContentChangeEvent.S0.reader,
-      TextDocumentContentChangeEvent.S1.reader
+      TextDocumentContentChangeEvent.Partial.reader,
+      TextDocumentContentChangeEvent.Full.reader
     ).asInstanceOf[Reader[TextDocumentContentChangeEvent]]
 
   given writer: Writer[TextDocumentContentChangeEvent] =
@@ -5252,35 +5287,35 @@ private[lsp] trait aliases_TextDocumentContentChangeEvent:
       .writer[ujson.Value]
       .comap[TextDocumentContentChangeEvent] { _v =>
         (_v: @unchecked) match
-          case v: TextDocumentContentChangeEvent.S0 =>
-            writeJs[TextDocumentContentChangeEvent.S0](v)
-          case v: TextDocumentContentChangeEvent.S1 =>
-            writeJs[TextDocumentContentChangeEvent.S1](v)
+          case v: TextDocumentContentChangeEvent.Partial =>
+            writeJs[TextDocumentContentChangeEvent.Partial](v)
+          case v: TextDocumentContentChangeEvent.Full =>
+            writeJs[TextDocumentContentChangeEvent.Full](v)
       }
       .asInstanceOf[Writer[TextDocumentContentChangeEvent]]
 end aliases_TextDocumentContentChangeEvent
 
-private[lsp] trait aliases_TextDocumentContentChangeEvent_S0Codec:
+private[lsp] trait aliases_TextDocumentContentChangeEvent_PartialCodec:
   import aliases.TextDocumentContentChangeEvent.*
-  given reader: Reader[aliases.TextDocumentContentChangeEvent.S0] =
+  given reader: Reader[aliases.TextDocumentContentChangeEvent.Partial] =
     Pickle.macroR
-  given writer: Writer[aliases.TextDocumentContentChangeEvent.S0] =
+  given writer: Writer[aliases.TextDocumentContentChangeEvent.Partial] =
     upickle.default.macroW
 
-private[lsp] trait aliases_TextDocumentContentChangeEvent_S1Codec:
+private[lsp] trait aliases_TextDocumentContentChangeEvent_FullCodec:
   import aliases.TextDocumentContentChangeEvent.*
-  given reader: Reader[aliases.TextDocumentContentChangeEvent.S1] =
+  given reader: Reader[aliases.TextDocumentContentChangeEvent.Full] =
     Pickle.macroR
-  given writer: Writer[aliases.TextDocumentContentChangeEvent.S1] =
+  given writer: Writer[aliases.TextDocumentContentChangeEvent.Full] =
     upickle.default.macroW
 
 private[lsp] trait aliases_TextDocumentFilter:
 
   given reader: Reader[TextDocumentFilter] =
     badMerge[TextDocumentFilter](
-      TextDocumentFilter.S0.reader,
-      TextDocumentFilter.S1.reader,
-      TextDocumentFilter.S2.reader
+      TextDocumentFilter.ByLanguage.reader,
+      TextDocumentFilter.ByScheme.reader,
+      TextDocumentFilter.ByPattern.reader
     ).asInstanceOf[Reader[TextDocumentFilter]]
 
   given writer: Writer[TextDocumentFilter] =
@@ -5288,27 +5323,33 @@ private[lsp] trait aliases_TextDocumentFilter:
       .writer[ujson.Value]
       .comap[TextDocumentFilter] { _v =>
         (_v: @unchecked) match
-          case v: TextDocumentFilter.S0 => writeJs[TextDocumentFilter.S0](v)
-          case v: TextDocumentFilter.S1 => writeJs[TextDocumentFilter.S1](v)
-          case v: TextDocumentFilter.S2 => writeJs[TextDocumentFilter.S2](v)
+          case v: TextDocumentFilter.ByLanguage =>
+            writeJs[TextDocumentFilter.ByLanguage](v)
+          case v: TextDocumentFilter.ByScheme =>
+            writeJs[TextDocumentFilter.ByScheme](v)
+          case v: TextDocumentFilter.ByPattern =>
+            writeJs[TextDocumentFilter.ByPattern](v)
       }
       .asInstanceOf[Writer[TextDocumentFilter]]
 end aliases_TextDocumentFilter
 
-private[lsp] trait aliases_TextDocumentFilter_S0Codec:
+private[lsp] trait aliases_TextDocumentFilter_ByLanguageCodec:
   import aliases.TextDocumentFilter.*
-  given reader: Reader[aliases.TextDocumentFilter.S0] = Pickle.macroR
-  given writer: Writer[aliases.TextDocumentFilter.S0] = upickle.default.macroW
+  given reader: Reader[aliases.TextDocumentFilter.ByLanguage] = Pickle.macroR
+  given writer: Writer[aliases.TextDocumentFilter.ByLanguage] =
+    upickle.default.macroW
 
-private[lsp] trait aliases_TextDocumentFilter_S1Codec:
+private[lsp] trait aliases_TextDocumentFilter_BySchemeCodec:
   import aliases.TextDocumentFilter.*
-  given reader: Reader[aliases.TextDocumentFilter.S1] = Pickle.macroR
-  given writer: Writer[aliases.TextDocumentFilter.S1] = upickle.default.macroW
+  given reader: Reader[aliases.TextDocumentFilter.ByScheme] = Pickle.macroR
+  given writer: Writer[aliases.TextDocumentFilter.ByScheme] =
+    upickle.default.macroW
 
-private[lsp] trait aliases_TextDocumentFilter_S2Codec:
+private[lsp] trait aliases_TextDocumentFilter_ByPatternCodec:
   import aliases.TextDocumentFilter.*
-  given reader: Reader[aliases.TextDocumentFilter.S2] = Pickle.macroR
-  given writer: Writer[aliases.TextDocumentFilter.S2] = upickle.default.macroW
+  given reader: Reader[aliases.TextDocumentFilter.ByPattern] = Pickle.macroR
+  given writer: Writer[aliases.TextDocumentFilter.ByPattern] =
+    upickle.default.macroW
 
 private[lsp] trait aliases_WorkspaceDocumentDiagnosticReport:
 
