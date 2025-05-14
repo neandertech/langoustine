@@ -94,10 +94,11 @@ private[lsp] object Pickle:
       case _: (t *: ts)  => summonDecoder[t] :: summonDecodersRec[ts]
 
   private[lsp] class MyCaseClassReader[T](
-      m: Mirror.ProductOf[T],
       labels: List[String],
-      visitors: List[Visitor[?, ?]],
-      defaultParams: Map[String, AnyRef]
+      // keep lazy for recursive datatypes
+      visitors: => List[Visitor[?, ?]],
+      defaultParams: Map[String, AnyRef],
+      fromArray: Array[Any] => T
   ) extends CaseClassReader[T]:
     override def visitorForKey(key: String) =
       labels.zip(visitors).toMap.get(key) match
@@ -122,11 +123,7 @@ private[lsp] object Pickle:
           "missing keys in dictionary: " + missingKeys.mkString(", ")
         )
 
-      val valuesArray = values.toArray
-      m.fromProduct(new Product:
-        def canEqual(that: Any): Boolean = true
-        def productArity: Int            = valuesArray.length
-        def productElement(i: Int): Any  = valuesArray(i))
+      fromArray(values.toArray)
     end make
   end MyCaseClassReader
 
@@ -139,7 +136,12 @@ private[lsp] object Pickle:
           .asInstanceOf[List[upickle.core.Visitor[?, ?]]]
       val defaultParams: Map[String, AnyRef] = macros.getDefaultParams[T]
 
-      MyCaseClassReader[T](m, labels, visitors, defaultParams)
+      MyCaseClassReader[T](
+        labels,
+        visitors,
+        defaultParams,
+        arr => m.fromProduct(Tuple.fromArray(arr))
+      )
 
     // if macros.isMemberOfSealedHierarchy[T] then annotate(reader, macros.fullClassName[T])
     // else reader
