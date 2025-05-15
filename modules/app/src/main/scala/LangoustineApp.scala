@@ -16,22 +16,22 @@
 
 package langoustine.lsp.app
 
-import cats.effect.IOApp
+import scala.concurrent.Future
+
+import _root_.fs2 as FS2
 import cats.effect.ExitCode
 import cats.effect.IO
-import jsonrpclib.fs2.*
-import _root_.fs2 as FS2
+import cats.effect.IOApp
+import cats.effect.kernel.Resource
 import cats.effect.std.Dispatcher
-import scala.concurrent.Future
-import langoustine.lsp.all.*
+import cats.syntax.all.*
 import jsonrpclib.Channel
+import jsonrpclib.Endpoint
 import jsonrpclib.Endpoint.NotificationEndpoint
 import jsonrpclib.Endpoint.RequestResponseEndpoint
-import jsonrpclib.Endpoint
-import cats.effect.kernel.Resource
-import cats.syntax.all.*
-import langoustine.lsp.LSPBuilder
+import jsonrpclib.fs2.*
 import langoustine.lsp.Communicate
+import langoustine.lsp.LSPBuilder
 
 trait LangoustineApp extends IOApp with LangoustineApp.Config:
   def server(args: List[String]): Resource[IO, LSPBuilder[IO]]

@@ -16,13 +16,12 @@
 
 package langoustine.lsp.app
 
-import jsonrpclib.fs2.*
-import _root_.fs2 as FS2
-import cats.effect.std.Dispatcher
 import scala.concurrent.Future
+
+import cats.effect.IO
+import cats.effect.std.Dispatcher
 import langoustine.lsp.*
 import langoustine.lsp.all.*
-import cats.effect.IO
 
 private[app] class DispatcherCommunicate(
     disp: Dispatcher[IO],

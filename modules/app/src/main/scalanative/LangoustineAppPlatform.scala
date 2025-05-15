@@ -16,16 +16,12 @@
 
 package langoustine.lsp.app
 
-import cats.effect.IO
 import scala.concurrent.duration.*
-import fs2.{Chunk, Stream}
+
+import cats.effect.IO
+import fs2.Chunk
 
 import scalanative.posix
-import scalanative.libc
-import scalanative.unsigned.*
-import scala.scalanative.runtime.ByteArray
-import fs2.Pull
-import langoustine.lsp.app.LangoustineApp.Shutdown
 
 private[app] trait LangoustineAppPlatform:
   self: LangoustineApp.Config =>

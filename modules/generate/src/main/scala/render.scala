@@ -91,7 +91,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line("import upickle.default.*")
     line("import json.{*, given}")
     line("import runtime.{*, given}")
-    line("// format: off")
     line("")
 
     val requestPrelude = """
@@ -474,7 +473,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line("import upickle.default.*")
     line("import json.{*, given}")
     line("import runtime.{*, given}")
-    line("// format: off")
     line("")
 
     given Context = Context.global(manager, List("structures"))
@@ -962,7 +960,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line("import runtime.{*, given}")
     line("import upickle.default.*")
     line("import scala.reflect.*")
-    line("// format: off")
     line("")
 
     given ctx: Context = Context.global(manager, List("aliases"))
@@ -1086,7 +1083,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line("import json.{*, given}")
     line("import scala.reflect.Typeable")
     line("import scala.annotation.switch")
-    line("// format: off")
     line("")
 
     given ctx: Context = Context.global(manager, List("enumerations"))
@@ -1166,12 +1162,8 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
               )
               nest {
                 a.values.foreach { entry =>
-                  val lhs = base match
-                    case ET.string => '"' + entry.value.stringValue + '"'
-                    case _         => entry.value.intValue.toString
-
                   line(
-                    s"case $lhs => \"${entry.name}\""
+                    s"case ${entry.value.intValue} => \"${entry.name}\""
                   )
                 }
               }
@@ -1343,27 +1335,6 @@ object Types:
     if prohibited(name) then s"`$name`" else name
   end sanitise
 end Types
-
-object Constants:
-  val LICENCE =
-    """
-    |/*
-    | * Copyright 2022 Neandertech
-    | *
-    | * Licensed under the Apache License, Version 2.0 (the "License");
-    | * you may not use this file except in compliance with the License.
-    | * You may obtain a copy of the License at
-    | *
-    | *     http://www.apache.org/licenses/LICENSE2.0
-    | *
-    | * Unless required by applicable law or agreed to in writing, software
-    | * distributed under the License is distributed on an "AS IS" BASIS,
-    | * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    | * See the License for the specific language governing permissions and
-    | * limitations under the License.
-    | */
-    |""".stripMargin.trim
-end Constants
 
 case class StructureRenderConfig(privateCodecs: PrivateCodecs)
 object StructureRenderConfig:

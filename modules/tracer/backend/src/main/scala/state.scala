@@ -1,20 +1,34 @@
+/*
+ * Copyright 2022 Neandertech
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package langoustine.tracer
 
 import cats.effect.*
-import fs2.concurrent.*
 import cats.effect.std.*
-
-import jsonrpclib.fs2.lsp
-import jsonrpclib.{Payload}
+import fs2.concurrent.*
+import jsonrpclib.CallId
 import jsonrpclib.Codec
-import langoustine.lsp.requests.window
-import langoustine.lsp.enumerations
-import jsonrpclib.Message
-import jsonrpclib.InputMessage.RequestMessage
 import jsonrpclib.InputMessage.NotificationMessage
+import jsonrpclib.InputMessage.RequestMessage
+import jsonrpclib.Message
 import jsonrpclib.OutputMessage.ErrorMessage
 import jsonrpclib.OutputMessage.ResponseMessage
-import jsonrpclib.CallId
+import jsonrpclib.Payload
+import langoustine.lsp.enumerations
+import langoustine.lsp.requests.window
 
 case class State(
     ch: Channel[IO, String],

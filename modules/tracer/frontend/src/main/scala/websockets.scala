@@ -16,11 +16,12 @@
 
 package langoustine.tracer
 
-import org.scalajs.dom.*
-import com.github.plokhotnyuk.jsoniter_scala.core.*
-import com.raquo.airstream.state.Var
-import com.raquo.airstream.eventbus.EventBus
 import scala.scalajs.js.Date
+
+import com.github.plokhotnyuk.jsoniter_scala.core.*
+import com.raquo.airstream.eventbus.EventBus
+import com.raquo.airstream.state.Var
+import org.scalajs.dom.*
 
 def listenToWebsockets(
     logs: Var[Vector[LogMessage]],

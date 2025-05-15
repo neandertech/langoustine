@@ -16,14 +16,10 @@
 
 package langoustine.lsp
 
-import scala.util.Try
-import scala.util.Success
-import upickle.default.{Reader, Writer}
 import cats.syntax.all.*
-import cats.MonadThrow
+import jsonrpclib.*
 
 import requests.*
-import jsonrpclib.*
 
 private[lsp] case class ImmutableLSPBuilder[F[_]: Monadic] private (
     endpoints: List[Endpoint[F]],

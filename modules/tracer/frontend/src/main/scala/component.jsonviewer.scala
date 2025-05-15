@@ -16,12 +16,12 @@
 
 package langoustine.tracer
 
-import com.raquo.laminar.api.L.*
-import com.github.plokhotnyuk.jsoniter_scala.core.*
-
-import jsonrpclib.*
 import scala.scalajs.js.JSON
+
+import com.github.plokhotnyuk.jsoniter_scala.core.*
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
+import com.raquo.laminar.api.L.*
+import jsonrpclib.*
 
 def jsonViewer(
     showing: Var[Option[LspMessage]],
@@ -230,5 +230,4 @@ def displayJson[T: JsonValueCodec](
 
 end displayJson
 
-import jsonrpclib.{ErrorPayload, Payload}
 import com.raquo.laminar.nodes.ReactiveHtmlElement

@@ -17,8 +17,6 @@
 package langoustine.tracer
 
 import com.raquo.laminar.api.L.*
-import com.github.plokhotnyuk.jsoniter_scala.core.*
-import scala.scalajs.js.Date
 
 def logsTracer(logs: Var[Vector[LogMessage]], logFilter: Var[Option[String]]) =
   div(
