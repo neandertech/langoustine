@@ -23,31 +23,35 @@ import upickle.core.TraceVisitor.TraceException
 import upickle.default.*
 
 import requests.*
+import io.circe.Codec
+import com.github.plokhotnyuk.jsoniter_scala.circe.JsoniterScalaCodec.*
+import com.github.plokhotnyuk.jsoniter_scala.core.readFromString
 
 private[langoustine] object jsonrpcIntegration:
   val nullArray = "null".getBytes()
   given codec[T: Reader: Writer]: Codec[T] =
-    new Codec[T]:
-      override def decode(
-          payload: Option[Payload]
-      ): Either[ProtocolError, T] =
-        payload
-          .map(_.stripNull.map(_.array).getOrElse(nullArray))
-          .toRight(ProtocolError.InvalidParams("missing payload"))
-          .flatMap: arr =>
-            Try(read[T](arr, trace = true)).toEither.left.map {
-              case te: TraceException =>
-                val e = te.getCause()
-                ProtocolError.InvalidParams(
-                  s"invalid payload at ${te.jsonPath}: " + e.getMessage
-                )
+    // new Codec[T]:
+    //   override def decode(
+    //       payload: Option[Payload]
+    //   ): Either[ProtocolError, T] =
+    //     payload
+    //       .map(_.stripNull.map(_.array).getOrElse(nullArray))
+    //       .toRight(ProtocolError.InvalidParams("missing payload"))
+    //       .flatMap: arr =>
+    //         Try(read[T](arr, trace = true)).toEither.left.map {
+    //           case te: TraceException =>
+    //             val e = te.getCause()
+    //             ProtocolError.InvalidParams(
+    //               s"invalid payload at ${te.jsonPath}: " + e.getMessage
+    //             )
 
-              case e =>
-                ProtocolError.InternalError("oopsie daisy: " + e.getMessage)
-            }
+    //           case e =>
+    //             ProtocolError.InternalError("oopsie daisy: " + e.getMessage)
+    //         }
 
-      override def encode(a: T): Payload =
-        Payload(write(a).getBytes)
+    //   override def encode(a: T): Payload =
+    //     Payload(readFromString[io.circe.Json](write(a)))
+    ???
 
   def handlerToEndpoint[F[_]: Monadic, T <: LSPRequest](req: T)(
       f: req.In => F[req.Out]
