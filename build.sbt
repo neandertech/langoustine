@@ -344,6 +344,7 @@ lazy val tracerShared = projectMatrix
     name := "langoustine-tracer-shared",
     libraryDependencies ++= Seq(
       "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-core" % V.jsoniter,
+      "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-circe" % V.jsoniter,
       "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-macros" % V.jsoniter % "compile-internal",
       "tech.neander" %%% "jsonrpclib-core" % V.jsonrpclib
     ),
