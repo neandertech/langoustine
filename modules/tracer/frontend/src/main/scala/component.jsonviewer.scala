@@ -16,10 +16,6 @@
 
 package langoustine.tracer
 
-import scala.scalajs.js.JSON
-
-import com.github.plokhotnyuk.jsoniter_scala.core.*
-import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 import com.raquo.laminar.api.L.*
 import jsonrpclib.*
 
@@ -60,15 +56,21 @@ def jsonViewer(
   def displayErr(ep: ErrorPayload) =
     div(
       bar(b(color := "pink", "Error")),
-      displayJson(ep, mode.signal, modalBus)
+      displayJson(
+        io.circe.Encoder[ErrorPayload].apply(ep),
+        mode.signal,
+        modalBus
+      )
     )
-
-  given JsonValueCodec[Option[Payload]] = JsonCodecMaker.make
 
   def displayPayload(name: String, op: Option[Payload]) =
     div(
       bar(b(color := "lightgreen", name)),
-      displayJson(op, mode.signal, modalBus)
+      displayJson(
+        op.map(_.data).getOrElse(io.circe.Json.Null),
+        mode.signal,
+        modalBus
+      )
     )
 
   div(
@@ -129,22 +131,11 @@ def jsonViewer(
   )
 end jsonViewer
 
-def displayJson[T: JsonValueCodec](
-    rmsg: T,
+def displayJson(
+    js: io.circe.Json,
     mode: Signal[JsonMode],
     modalBus: EventBus[ModalCommand]
 ) =
-  val js = io.circe.scalajs
-    .decodeJs[io.circe.Json](
-      JSON.parse(
-        writeToString[T](
-          rmsg,
-          WriterConfig.withIndentionStep(0)
-        )
-      )
-    )
-    .fold(throw _, identity)
-
   org.scalajs.dom.console.log(js)
 
   import io.circe.*

@@ -28,6 +28,7 @@ import jsonrpclib.OutputMessage.ResponseMessage
 import jsonrpclib.Payload
 import langoustine.lsp.enumerations
 import langoustine.lsp.requests.window
+import io.circe.{Codec, HCursor}
 
 case class State(
     ch: Channel[IO, String],
@@ -110,9 +111,13 @@ case class State(
                       if notif.method == "window/logMessage" then
                         IO
                           .fromEither(
-                            Codec.decode[window.logMessage.In](
-                              rawMessage.value.params
-                            )
+                            rawMessage.value.params
+                              .map(_.data)
+                              .toRight(new RuntimeException("missing payload"))
+                              .flatMap { payload =>
+                                Codec[window.logMessage.In]
+                                  .apply(HCursor.fromJson(payload))
+                              }
                           )
                           .flatMap(Received.capture(_))
                           .flatMap { case Received(ts, lmp) =>
