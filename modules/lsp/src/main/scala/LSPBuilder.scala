@@ -68,17 +68,11 @@ trait LSPBuilder[F[_]]:
     end match
   end bind
 
-  def bind(channel: Channel[F], shutdown: F[Unit])(using
+  def bind[T <: Channel[F]](channel: T, shutdown: F[Unit])(using
       Monadic[F]
-  ): F[Channel[F]] =
+  ): F[T] =
     bind(channel, Communicate.channel(channel, shutdown))
   end bind
-
-  def bind3(channel: Channel[F], shutdown: F[Unit])(using
-      Monadic[F]
-  ): F[Channel[F]] =
-    bind(channel, Communicate.channel(channel, shutdown))
-  end bind3
 
 end LSPBuilder
 

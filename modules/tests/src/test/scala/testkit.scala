@@ -8,11 +8,6 @@ import cats.MonadThrow
 import scala.util.*
 import scala.annotation.tailrec
 import java.util.concurrent.atomic.AtomicReference
-import jsonrpclib.InputMessage.RequestMessage
-import jsonrpclib.InputMessage.NotificationMessage
-import com.github.plokhotnyuk.jsoniter_scala.core.writeToArray
-import cats.effect.kernel.Ref
-import cats.effect.IO
 
 given [F[_]](using MonadThrow[F]): Monadic[F] with
   def doFlatMap[A, B](fa: F[A])(f: A => F[B]): F[B] =
@@ -158,15 +153,4 @@ given RefConstructor[Try] with
         Try(spin())
 
   }
-end given
-
-given RefConstructor[IO] with
-  def apply[A](a: A): IO[RefLike[IO, A]] =
-    Ref
-      .of[IO, A](a)
-      .map(r =>
-        new RefLike[IO, A]:
-          def get: IO[A]                  = r.get
-          def update(f: A => A): IO[Unit] = r.update(f)
-      )
 end given

@@ -135,7 +135,6 @@ object LangoustineApp:
                   .resource(
                     Resource.eval(l.bind(channel, latch.complete(true).void))
                   )
-                  .as(channel) // ???
               case other: LSPServerBuilder[IO] =>
                 FS2.Stream
                   .resource(other(channel, latch.complete(true).void))
