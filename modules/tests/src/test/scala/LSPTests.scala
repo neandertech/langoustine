@@ -6,14 +6,49 @@ import scala.util.*
 
 import langoustine.lsp.all.*
 
+import fs2.Stream
+import jsonrpclib.*
+import jsonrpclib.fs2.FS2Channel
+import cats.effect.IO
+import scala.concurrent.duration.*
+import langoustine.lsp.jsonrpcIntegration.given
+
+import weaver.*
+import _root_.fs2.concurrent.SignallingRef
+
 def basicServer[F[_]: Monadic] =
   LSPBuilder.create[F]
 
-import jsonrpclib.*
+object LSPTests extends SimpleIOSuite:
 
-object LSPTests extends weaver.FunSuite:
-  test("initialize") {
+  def setupChannels[Alg[_[_, _, _, _, _]]](
+      mkServer: FS2Channel[IO] => List[Endpoint[IO]],
+      mkClient: FS2Channel[IO] => List[Endpoint[IO]] = _ => List.empty
+  ): Stream[IO, Channel[IO]] =
+    for
+      serverSideChannel <- FS2Channel.stream[IO]()
+      clientSideChannel <- FS2Channel.stream[IO]()
+      serverChannelWithEndpoints <- serverSideChannel.withEndpointsStream(
+        mkServer(serverSideChannel)
+      )
+      clientChannelWithEndpoints <- clientSideChannel.withEndpointsStream(
+        mkClient(clientSideChannel)
+      )
+      _ <- Stream(())
+        .concurrently(
+          clientChannelWithEndpoints.output
+            .through(serverChannelWithEndpoints.input)
+        )
+        .concurrently(
+          serverChannelWithEndpoints.output
+            .through(clientChannelWithEndpoints.input)
+        )
+    yield clientChannelWithEndpoints
 
+  def testRes(name: TestName)(run: Stream[IO, Expectations]): Unit =
+    test(name)(run.compile.lastOrError.timeout(10.second))
+
+  testRes("initialize") {
     import requests.*
 
     val capabilities =
@@ -23,56 +58,87 @@ object LSPTests extends weaver.FunSuite:
           Opt(DocumentSymbolOptions(label = Opt("howdy")))
       )
 
-    val server = basicServer[Try].handleRequest(initialize) { in =>
-      Try {
-        InitializeResult(capabilities)
-      }
-    }
-
-    val (response, _) = request(
-      server,
-      CallId.StringId("resp1"),
-      initialize,
-      InitializeParams(
-        processId = Opt(25),
-        rootUri = Opt(DocumentUri("/howdy")),
-        capabilities = ClientCapabilities()
+    for
+      c <- setupChannels(
+        mkServer = cc =>
+          basicServer[IO]
+            .handleRequest(initialize) { in =>
+              IO(InitializeResult(capabilities))
+            }
+            .build(Communicate.channel(cc, IO.unit))
       )
-    ).get
 
-    expect.same(response.capabilities, capabilities)
+      remoteCall = c.simpleStub[initialize.In, initialize.Out](
+        initialize.requestMethod
+      )
+      response <- Stream.eval(
+        remoteCall(
+          InitializeParams(
+            processId = Opt(25),
+            rootUri = Opt(DocumentUri("/howdy")),
+            capabilities = ClientCapabilities()
+          )
+        )
+      )
+    yield expect.same(response.capabilities, capabilities)
+    end for
 
   }
 
-  test("didOpen") {
+  testRes("didOpen") {
     import requests.*
 
-    val server = basicServer[Try].handleNotification(textDocument.didOpen) {
-      in =>
-        in.toClient.notification(
-          window.showMessage,
-          ShowMessageParams(
-            MessageType.Info,
-            s"you opened a ${in.params.textDocument.languageId} document from ${in.params.textDocument.uri}!"
+    for
+      ref <- Stream.eval(
+        SignallingRef[IO, Map[LSPNotification, List[Any]]](Map.empty)
+      )
+      c <- setupChannels(
+        mkServer = cc =>
+          basicServer[IO]
+            .handleNotification(textDocument.didOpen) { in =>
+              in.toClient.notification(
+                window.showMessage,
+                ShowMessageParams(
+                  MessageType.Info,
+                  s"you opened a ${in.params.textDocument.languageId} document from ${in.params.textDocument.uri}!"
+                )
+              )
+            }
+            .build(Communicate.channel(cc, IO.unit)),
+        mkClient = _ =>
+          List(
+            Endpoint[IO](window.showMessage.notificationMethod)
+              .notification[window.showMessage.In](in =>
+                ref.update { mp =>
+                  mp.updatedWith(window.showMessage) { prev =>
+                    prev.map(_ :+ in).orElse(Some(List(in)))
+                  }
+                }
+              )
+          )
+      )
+
+      remoteCall = c.notificationStub[textDocument.didOpen.In](
+        textDocument.didOpen.notificationMethod
+      )
+      _ <- Stream.eval(
+        remoteCall(
+          DidOpenTextDocumentParams(
+            TextDocumentItem(
+              uri = DocumentUri("/home/bla.txt"),
+              languageId = "text",
+              version = 0,
+              text = "Hello!"
+            )
           )
         )
-    }
-
-    val back = notification(
-      server,
-      textDocument.didOpen,
-      DidOpenTextDocumentParams(
-        TextDocumentItem(
-          uri = DocumentUri("/home/bla.txt"),
-          languageId = "text",
-          version = 0,
-          text = "Hello!"
-        )
       )
-    ).get
-
-    expect.same(
-      back.collect(window.showMessage).get,
+      response <- ref.discrete
+        .dropWhile(_.isEmpty)
+        .map(_.get(window.showMessage))
+        .collectFirst { case Some(v) => v }
+    yield expect.same(
+      response,
       List(
         ShowMessageParams(
           MessageType.Info,
@@ -80,11 +146,12 @@ object LSPTests extends weaver.FunSuite:
         )
       )
     )
-
+    end for
   }
 
-  test("textDocument/documentSymbol") {
+  testRes("textDocument/documentSymbol") {
     import requests.*
+    import textDocument.documentSymbol.given
 
     val symbols: Opt[Vector[DocumentSymbol]] =
       Opt(
@@ -108,25 +175,31 @@ object LSPTests extends weaver.FunSuite:
         )
       )
 
-    val server = basicServer[Try].handleRequest(textDocument.documentSymbol) {
-      in =>
-        Try {
-          symbols
-        }
-    }
-
-    val (response, _) = request(
-      server,
-      CallId.StringId("resp1"),
-      textDocument.documentSymbol,
-      DocumentSymbolParams(
-        TextDocumentIdentifier(DocumentUri("/home/bla.txt"))
+    for
+      channel <- setupChannels(
+        mkServer = channel =>
+          basicServer[IO]
+            .handleRequest(textDocument.documentSymbol) { _ =>
+              IO(symbols)
+            }
+            .build(Communicate.channel(channel, IO.unit))
       )
-    ).get
 
-    expect.same(
-      response,
-      symbols
-    )
+      remoteCall = channel.simpleStub[
+        textDocument.documentSymbol.In,
+        textDocument.documentSymbol.Out
+      ](
+        textDocument.documentSymbol.requestMethod
+      )
+      response <- Stream.eval(
+        remoteCall(
+          DocumentSymbolParams(
+            TextDocumentIdentifier(DocumentUri("/home/bla.txt"))
+          )
+        )
+      )
+    yield expect.same(response, symbols)
+    end for
+
   }
 end LSPTests

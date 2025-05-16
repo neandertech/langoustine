@@ -11,6 +11,8 @@ import java.util.concurrent.atomic.AtomicReference
 import jsonrpclib.InputMessage.RequestMessage
 import jsonrpclib.InputMessage.NotificationMessage
 import com.github.plokhotnyuk.jsoniter_scala.core.writeToArray
+import cats.effect.kernel.Ref
+import cats.effect.IO
 
 given [F[_]](using MonadThrow[F]): Monadic[F] with
   def doFlatMap[A, B](fa: F[A])(f: A => F[B]): F[B] =
@@ -78,7 +80,9 @@ def request[F[_]: RefConstructor: MonadThrow, T <: requests.LSPRequest](
     builder
       .build(communicate)
       .find(_.method == req.requestMethod)
-      .collectFirst { case _ => F.pure(null.asInstanceOf[req.Out]-> communicate)}
+      .collectFirst { case _ =>
+        F.pure(null.asInstanceOf[req.Out] -> communicate)
+      }
       // .collectFirst {
       //   case Endpoint.RequestResponseEndpoint(_, run, inc, erc, outc) =>
       //     val encoded = Payload(upickle.default.write(in).getBytes())
@@ -119,7 +123,7 @@ def notification[F[
     builder
       .build(communicate)
       .find(_.method == req.notificationMethod)
-      .collectFirst { case _ => F.pure(communicate)}
+      .collectFirst { case _ => F.pure(communicate) }
       // .collectFirst { case Endpoint.NotificationEndpoint(_, run, inc) =>
       //   val encoded = Payload(upickle.default.write(in).getBytes())
       //   for
@@ -154,4 +158,15 @@ given RefConstructor[Try] with
         Try(spin())
 
   }
+end given
+
+given RefConstructor[IO] with
+  def apply[A](a: A): IO[RefLike[IO, A]] =
+    Ref
+      .of[IO, A](a)
+      .map(r =>
+        new RefLike[IO, A]:
+          def get: IO[A]                  = r.get
+          def update(f: A => A): IO[Unit] = r.update(f)
+      )
 end given
