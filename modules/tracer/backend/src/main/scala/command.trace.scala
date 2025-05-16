@@ -30,7 +30,7 @@ extension (s: fs2.Stream[IO, Payload])
   def debugAs(name: String) =
     s.evalTap(el =>
       Logging.debug(
-        s"[$name (payload)]: ${el.stripNull.map(a => new String(a.array)).getOrElse("null")}"
+        s"[$name (payload)]: ${el.stripNull.getOrElse("null")}"
       )
     )
 

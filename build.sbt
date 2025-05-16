@@ -262,6 +262,10 @@ lazy val tracer = projectMatrix
     libraryDependencies += "com.monovore" %%% "decline"             % V.decline,
     libraryDependencies += "com.outr"     %%% "scribe-cats"         % V.scribe,
     libraryDependencies += "com.indoorvivants.detective" %% "platform" % V.detective,
+    libraryDependencies ++= Seq(
+      // Use the "provided" scope instead when the "compile-internal" scope is not supported
+      "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % "2.35.3" % "compile-internal"
+    ),
     scalacOptions ++= commonScalacOptions,
     Compile / doc / sources := Seq.empty,
     // embedding frontend in backend's resources
@@ -323,7 +327,11 @@ lazy val tracerFrontend = projectMatrix
     libraryDependencies += "com.raquo"   %%% "laminar"       % V.laminar,
     libraryDependencies += "io.circe"    %%% "circe-scalajs" % V.circe,
     libraryDependencies += "com.lihaoyi" %%% "fansi"         % V.fansi,
-    scalaJSUseMainModuleInitializer       := true,
+    libraryDependencies ++= Seq(
+      // Use the "provided" scope instead when the "compile-internal" scope is not supported
+      "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % "2.35.3" % "compile-internal"
+    ),
+    scalaJSUseMainModuleInitializer := true,
     scalacOptions ++= commonScalacOptions
   )
   .jsPlatform(V.scalaVersions)
