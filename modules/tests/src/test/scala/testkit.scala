@@ -1,156 +1,74 @@
 package tests.core
 
+import fs2.Stream
+import jsonrpclib.fs2.FS2Channel
 import langoustine.lsp.*
 
 import jsonrpclib.*
 
 import cats.MonadThrow
-import scala.util.*
-import scala.annotation.tailrec
-import java.util.concurrent.atomic.AtomicReference
+import langoustine.lsp.jsonrpcIntegration.given
+import cats.effect.IO
+import cats.effect.kernel.Ref
 
-given [F[_]](using MonadThrow[F]): Monadic[F] with
-  def doFlatMap[A, B](fa: F[A])(f: A => F[B]): F[B] =
-    MonadThrow[F].flatMap(fa)(f)
+def setupChannels[Alg[_[_, _, _, _, _]]](
+    mkServer: FS2Channel[IO] => List[Endpoint[IO]],
+    mkClient: FS2Channel[IO] => List[Endpoint[IO]] = _ => List.empty
+): Stream[IO, Channel[IO]] =
+  for
+    serverSideChannel <- FS2Channel.stream[IO]()
+    clientSideChannel <- FS2Channel.stream[IO]()
+    serverChannelWithEndpoints <- serverSideChannel.withEndpointsStream(
+      mkServer(serverSideChannel)
+    )
+    clientChannelWithEndpoints <- clientSideChannel.withEndpointsStream(
+      mkClient(clientSideChannel)
+    )
+    _ <- Stream(())
+      .concurrently(
+        clientChannelWithEndpoints.output
+          .through(serverChannelWithEndpoints.input)
+      )
+      .concurrently(
+        serverChannelWithEndpoints.output
+          .through(clientChannelWithEndpoints.input)
+      )
+  yield clientChannelWithEndpoints
 
-  def doPure[A](a: A): F[A] = MonadThrow[F].pure(a)
-
-  def doAttempt[A](fa: F[A]): F[Either[Throwable, A]] =
-    MonadThrow[F].attempt(fa)
-
-  def doRaiseError[A](e: Throwable): F[A] = MonadThrow[F].raiseError(e)
-end given
-
-trait RefLike[F[_], A]:
-  def get: F[A]
-  def update(f: A => A): F[Unit]
-  def set(other: A): F[Unit] = update(_ => other)
-
-trait RefConstructor[F[_]]:
-  def apply[A](a: A): F[RefLike[F, A]]
-
-object RefLike:
-  def apply[F[_]: RefConstructor]: Constructor[F] = new Constructor[F]
-
-  class Constructor[F[_]: RefConstructor]:
-    def apply[A](a: A): F[RefLike[F, A]] = summon[RefConstructor[F]].apply(a)
-
-import cats.syntax.all.*
-
-import requests.*
-
-case class CollectNotifications[F[_]: MonadThrow] private (
-    sent: RefLike[F, Map[LSPNotification, List[Any]]]
-) extends Communicate[F]:
-  def notification[X <: LSPNotification](notif: X, in: notif.In): F[Unit] =
-    sent.update { mp =>
-      mp.get(notif) match
-        case None      => mp.updated(notif, List(in))
-        case Some(lst) => mp.updated(notif, lst :+ in)
-    }
-
-  def request[X <: LSPRequest](req: X, in: req.In): F[req.Out] =
-    Communicate.drop[F].request(req, in)
-
-  def shutdown = ???
-
-  def collect[T <: LSPNotification](req: T): F[List[req.In]] =
-    sent.get.map(_.get(req).toList.flatten.map(_.asInstanceOf[req.In]))
-end CollectNotifications
-
-object CollectNotifications:
-  def create[F[_]: MonadThrow: RefConstructor]: F[CollectNotifications[F]] =
-    RefLike[F].apply(Map.empty[LSPNotification, List[Any]]).map { rf =>
-      new CollectNotifications[F](rf)
-    }
-
-def request[F[_]: RefConstructor: MonadThrow, T <: requests.LSPRequest](
-    builder: LSPBuilder[F],
-    id: CallId,
+def request[F[_]: MonadThrow, T <: requests.LSPRequest](
+    channel: Channel[F],
     req: T,
     in: req.In
 ) =
-  val F = MonadThrow[F]
-  CollectNotifications.create[F].flatMap { communicate =>
-    builder
-      .build(communicate)
-      .find(_.method == req.requestMethod)
-      .collectFirst { case _ =>
-        F.pure(null.asInstanceOf[req.Out] -> communicate)
-      }
-      // .collectFirst {
-      //   case Endpoint.RequestResponseEndpoint(_, run, inc, erc, outc) =>
-      //     val encoded = Payload(upickle.default.write(in).getBytes())
-      //     for
-      //       lifted <- F.fromEither(inc.decode(Some(encoded)))
-      //       msg = RequestMessage(
-      //         method = req.requestMethod,
-      //         callId = id,
-      //         params = Some(encoded)
-      //       )
-      //       res <- run(msg, lifted).flatMap {
-      //         case Left(err) => F.raiseError(erc.encode(err))
-      //         case Right(res) =>
-      //           F.catchNonFatal {
-      //             upickle.default.read[req.Out](writeToArray(outc.encode(res)))
-      //           }
-      //       }
-      //     yield res -> communicate
-      //     end for
-      // }
-      .getOrElse(
-        F.raiseError(
-          new Throwable(s"Method ${req.requestMethod} is not handled")
-        )
-      )
-  }
+  val remoteCall = channel.simpleStub[req.In, req.Out](req.requestMethod)
+  Stream.eval(remoteCall(in))
 end request
 
-def notification[F[
-    _
-]: RefConstructor: MonadThrow, T <: requests.LSPNotification](
-    builder: LSPBuilder[F],
+def notification[F[_]: MonadThrow, T <: requests.LSPNotification](
+    channel: Channel[F],
     req: T,
     in: req.In
-): F[CollectNotifications[F]] =
-  val F = MonadThrow[F]
-  CollectNotifications.create[F].flatMap { communicate =>
-    builder
-      .build(communicate)
-      .find(_.method == req.notificationMethod)
-      .collectFirst { case _ => F.pure(communicate) }
-      // .collectFirst { case Endpoint.NotificationEndpoint(_, run, inc) =>
-      //   val encoded = Payload(upickle.default.write(in).getBytes())
-      //   for
-      //     lifted <- F.fromEither(inc.decode(Some(encoded)))
-      //     msg = NotificationMessage(
-      //       method = req.notificationMethod,
-      //       params = Some(encoded)
-      //     )
-      //     _ <- run(msg, lifted)
-      //   yield communicate
-      //   end for
-      // }
-      .getOrElse(
-        F.raiseError(
-          new Throwable(s"Method ${req.notificationMethod} is not handled")
-        )
-      )
-  }
+) =
+  val remoteCall = channel.notificationStub[req.In](req.notificationMethod)
+  Stream.eval(remoteCall(in))
 end notification
 
-given RefConstructor[Try] with
-  def apply[A](a: A): Try[RefLike[scala.util.Try, A]] = Try {
-    new RefLike[Try, A]:
-      var ar                   = new AtomicReference(a)
-      override def get: Try[A] = Try(ar.get())
-      override def update(f: A => A): Try[Unit] =
-        @tailrec
-        def spin(): Unit =
-          val a = ar.get
-          val u = f(a)
-          if !ar.compareAndSet(a, u) then spin()
-        Try(spin())
+def collectNotificationEndpoint[F[_], T <: requests.LSPNotification](
+    ref: Ref[F, Map[requests.LSPNotification, List[Any]]]
+)(req: T) =
+  Endpoint[F](req.notificationMethod)
+    .notification[req.In](in =>
+      ref.update { mp =>
+        mp.updatedWith(req) { prev =>
+          prev.map(_ :+ in).orElse(Some(List(in)))
+        }
+      }
+    )
 
-  }
-end given
+def getCaputured[F[_], T <: requests.LSPNotification](
+    ref: Stream[F, Map[requests.LSPNotification, List[Any]]]
+)(req: T) =
+  ref
+    .dropWhile(_.isEmpty)
+    .map(_.get(req))
+    .collectFirst { case Some(v) => v.asInstanceOf[List[req.In]] }
