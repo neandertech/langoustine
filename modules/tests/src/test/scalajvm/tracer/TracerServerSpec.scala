@@ -1,12 +1,9 @@
 package tests.tracer
 
 import langoustine.tracer.*
-import TracerServer.{*, given}
+import TracerServer.*
 import cats.effect.*
-import cats.syntax.all.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
-import java.util.Base64
-import org.http4s.Uri
 import org.http4s.client.*
 import org.http4s.client.websocket.*
 import scala.concurrent.duration.*

@@ -26,9 +26,6 @@ import cats.effect.kernel.Resource
 import cats.effect.std.Dispatcher
 import cats.syntax.all.*
 import jsonrpclib.Channel
-import jsonrpclib.Endpoint
-import jsonrpclib.Endpoint.NotificationEndpoint
-import jsonrpclib.Endpoint.RequestResponseEndpoint
 import jsonrpclib.fs2.*
 import langoustine.lsp.Communicate
 import langoustine.lsp.LSPBuilder

@@ -2,14 +2,9 @@ package tests.core
 
 import upickle.default.*
 import langoustine.lsp.*
-import jsonrpclib.Monadic
-import scala.util.*
-import cats.MonadThrow
 
 import langoustine.lsp.all.*
-import cats.Monad
 
-import jsonrpclib.*
 import org.scalacheck.*
 import org.scalacheck.rng.Seed
 
