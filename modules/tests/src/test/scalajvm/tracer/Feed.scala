@@ -1,20 +1,13 @@
 package tests.tracer
 
-import weaver.*
 import cats.effect.*
 import jsonrpclib.*
-import java.util.Base64
 import langoustine.tracer.RawMessage
-import _root_.fs2.concurrent.Channel as Chan
 import _root_.fs2.*
 import cats.syntax.all.*
 import langoustine.tracer.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 
-import org.http4s.client.*
-import TracerServer.{*, given}
-import org.http4s.Uri
-import org.http4s.client.websocket.*
 import _root_.fs2.concurrent.Topic
 
 case class Feed(

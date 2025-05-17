@@ -1,15 +1,13 @@
 package tests.tracer
 
 import langoustine.tracer.*
-import TracerServer.{*, given}
+import TracerServer.*
 import cats.effect.*
-import cats.syntax.all.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
-import java.util.Base64
-import org.http4s.Uri
 import org.http4s.client.*
 import org.http4s.client.websocket.*
 import scala.concurrent.duration.*
+import io.circe.Json
 import weaver.*
 import jsonrpclib.Payload
 
@@ -48,7 +46,7 @@ object TracerServerSpec extends ServerSpec:
 
       clientResp1 = RawMessage.create(
         id = id,
-        result = Some(Payload("{}".getBytes()))
+        result = Some(Payload(Json.obj()))
       )
       _ <- serv.send(_.in, clientResp1)
 
@@ -66,10 +64,10 @@ object TracerServerSpec extends ServerSpec:
   test("Records outgoing responses") { serv =>
     for
       msg1 <- serv.genId.map(id =>
-        RawMessage.create(id = id, result = Some(Payload("{}".getBytes())))
+        RawMessage.create(id = id, result = Some(Payload(Json.obj())))
       )
       msg2 <- serv.genId.map(id =>
-        RawMessage.create(id = id, result = Some(Payload("{}".getBytes())))
+        RawMessage.create(id = id, result = Some(Payload(Json.obj())))
       )
 
       _ <- serv.send(_.out, msg1)

@@ -30,7 +30,7 @@ extension (s: fs2.Stream[IO, Payload])
   def debugAs(name: String) =
     s.evalTap(el =>
       Logging.debug(
-        s"[$name (payload)]: ${el.stripNull.map(a => new String(a.array)).getOrElse("null")}"
+        s"[$name (payload)]: ${el.stripNull.getOrElse("null")}"
       )
     )
 
@@ -69,7 +69,7 @@ def Trace(
         val outPayloads = outBytes.subscribe(1024)
         val errStream   = errBytes.subscribe(1024)
 
-        val channel = FS2Channel[IO](2048, None).flatMap { rpcChannel =>
+        val channel = FS2Channel.stream[IO](2048, None).flatMap { rpcChannel =>
           val communicate = Communicate.channel(rpcChannel, IO.unit)
 
           val readIn = inPayloads

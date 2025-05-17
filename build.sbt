@@ -21,7 +21,8 @@ inThisBuild(
         "keynmol@gmail.com",
         url("https://blog.indoorvivants.com")
       )
-    )
+    ),
+    resolvers ++= Resolver.sonatypeOssRepos("snapshots")
   )
 )
 
@@ -30,7 +31,7 @@ val V = new {
   val scribe          = "3.13.2"
   val upickle         = "2.0.0"
   val cats            = "2.10.0"
-  val jsonrpclib      = "0.0.7"
+  val jsonrpclib      = "0.0.8+38-c159559c-SNAPSHOT"
   val fs2             = "3.10.0"
   val http4s          = "0.23.26"
   val laminar         = "0.14.5"
@@ -261,6 +262,10 @@ lazy val tracer = projectMatrix
     libraryDependencies += "com.monovore" %%% "decline"             % V.decline,
     libraryDependencies += "com.outr"     %%% "scribe-cats"         % V.scribe,
     libraryDependencies += "com.indoorvivants.detective" %% "platform" % V.detective,
+    libraryDependencies ++= Seq(
+      // Use the "provided" scope instead when the "compile-internal" scope is not supported
+      "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % "2.35.3" % "compile-internal"
+    ),
     scalacOptions ++= commonScalacOptions,
     Compile / doc / sources := Seq.empty,
     // embedding frontend in backend's resources
@@ -322,7 +327,11 @@ lazy val tracerFrontend = projectMatrix
     libraryDependencies += "com.raquo"   %%% "laminar"       % V.laminar,
     libraryDependencies += "io.circe"    %%% "circe-scalajs" % V.circe,
     libraryDependencies += "com.lihaoyi" %%% "fansi"         % V.fansi,
-    scalaJSUseMainModuleInitializer       := true,
+    libraryDependencies ++= Seq(
+      // Use the "provided" scope instead when the "compile-internal" scope is not supported
+      "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % "2.35.3" % "compile-internal"
+    ),
+    scalaJSUseMainModuleInitializer := true,
     scalacOptions ++= commonScalacOptions
   )
   .jsPlatform(V.scalaVersions)
@@ -335,6 +344,7 @@ lazy val tracerShared = projectMatrix
     name := "langoustine-tracer-shared",
     libraryDependencies ++= Seq(
       "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-core" % V.jsoniter,
+      "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-circe" % V.jsoniter,
       "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-macros" % V.jsoniter % "compile-internal",
       "tech.neander" %%% "jsonrpclib-core" % V.jsonrpclib
     ),

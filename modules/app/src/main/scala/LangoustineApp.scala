@@ -26,9 +26,6 @@ import cats.effect.kernel.Resource
 import cats.effect.std.Dispatcher
 import cats.syntax.all.*
 import jsonrpclib.Channel
-import jsonrpclib.Endpoint
-import jsonrpclib.Endpoint.NotificationEndpoint
-import jsonrpclib.Endpoint.RequestResponseEndpoint
 import jsonrpclib.fs2.*
 import langoustine.lsp.Communicate
 import langoustine.lsp.LSPBuilder
@@ -76,18 +73,13 @@ object LangoustineApp:
         val futureComms = DispatcherCommunicate(disp, comms)
         val endpoints   = builder.build(futureComms)
 
-        (endpoints: @unchecked)
+        (endpoints)
           .map {
-            case n @ NotificationEndpoint[Future, Any](method, run, inCodec) =>
-              n.copy(run = (msg, in) => IO.fromFuture(IO(n.run(msg, in))))
-            case r @ RequestResponseEndpoint[Future, Any, Any, Any](
-                  method,
-                  run,
-                  inCodec,
-                  errCodec,
-                  outCodec
-                ) =>
-              r.copy(run = (msg, in) => IO.fromFuture(IO(r.run(msg, in))))
+            _.mapK(
+              new jsonrpclib.PolyFunction[Future, IO]:
+                def apply[A0](fa: => Future[A0]): IO[A0] =
+                  IO.fromFuture(IO(fa))
+            )
           }
           .traverse(ep => to.mountEndpoint(ep))
       }.void
@@ -131,13 +123,15 @@ object LangoustineApp:
     fs2.Stream
       .eval(IO.deferred[Boolean])
       .flatMap { latch =>
-        FS2Channel[IO](bufferSize, None)
+        FS2Channel
+          .stream[IO](bufferSize, None)
           .flatMap { channel =>
             (builder: @unchecked) match
               case l: LSPBuilder[IO] =>
-                FS2.Stream.resource(
-                  Resource.eval(l.bind(channel, latch.complete(true).void))
-                )
+                FS2.Stream
+                  .resource(
+                    Resource.eval(l.bind(channel, latch.complete(true).void))
+                  )
               case other: LSPServerBuilder[IO] =>
                 FS2.Stream
                   .resource(other(channel, latch.complete(true).void))

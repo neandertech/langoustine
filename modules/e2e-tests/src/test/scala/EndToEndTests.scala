@@ -1,26 +1,15 @@
 package tests.e2e
 
+import cats.effect.IO
+import com.github.plokhotnyuk.jsoniter_scala.circe.JsoniterScalaCodec.*
+import com.github.plokhotnyuk.jsoniter_scala.core.*
+import jsonrpclib.Payload
+import langoustine.example.MyCustomNotification
+import langoustine.example.MyCustomRequest
 import langoustine.lsp.all.*
-
 import weaver.*
 
-import com.github.plokhotnyuk.jsoniter_scala.core.*
-import upickle.default.ReadWriter
-import cats.effect.IO
-import scala.sys.process.ProcessIO
 import concurrent.duration.*
-import scala.sys.process.BasicIO
-import jsonrpclib.Payload
-
-import cats.syntax.all.*
-import scala.concurrent.Promise
-import cats.effect.std.*
-import cats.effect.kernel.Ref
-import cats.effect.kernel.Deferred
-import cats.effect.kernel.Resource
-import java.lang.management.ManagementFactory
-
-import langoustine.example.{MyCustomRequest, MyCustomNotification}
 
 case class Result(code: Int, stdout: List[String], stderr: List[String])
 
@@ -150,7 +139,7 @@ transparent inline def asNotification[T <: LSPNotification](
     p: Payload
 ): Option[t.In] =
   for
-    js  <- scala.util.Try(ujson.read(writeToArray(p))).toOption
+    js  <- scala.util.Try(ujson.read(writeToArray(p.data))).toOption
     o   <- js.objOpt
     p   <- o.get("params")
     res <- scala.util.Try(upickle.default.read[t.In](p)).toOption
@@ -163,7 +152,7 @@ transparent inline def asResponse[T <: LSPRequest](
     p: Payload
 ): Option[t.Out] =
   for
-    js  <- scala.util.Try(ujson.read(writeToArray(p))).toOption
+    js  <- scala.util.Try(ujson.read(writeToArray(p.data))).toOption
     o   <- js.objOpt
     p   <- o.get("result")
     res <- scala.util.Try(upickle.default.read[t.Out](p)).toOption

@@ -41,7 +41,6 @@ jobs:
         run: sbt ci buildWebsite
 
       - name: Publish ${{ github.ref }}
-        if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || (github.ref == 'refs/heads/main'))
         run: sbt ci-release
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}

@@ -2,18 +2,28 @@ package tests.core
 
 import langoustine.lsp.*
 import jsonrpclib.Monadic
+import jsonrpclib.fs2.catsMonadic
 import scala.util.*
 
 import langoustine.lsp.all.*
 
+import fs2.Stream
+import jsonrpclib.*
+import cats.effect.IO
+import scala.concurrent.duration.*
+
+import weaver.*
+import _root_.fs2.concurrent.SignallingRef
+
 def basicServer[F[_]: Monadic] =
   LSPBuilder.create[F]
 
-import jsonrpclib.*
+object LSPTests extends SimpleIOSuite:
 
-object LSPTests extends weaver.FunSuite:
-  test("initialize") {
+  def testStream(name: TestName)(run: Stream[IO, Expectations]): Unit =
+    test(name)(run.compile.lastOrError.timeout(10.second))
 
+  testStream("initialize") {
     import requests.*
 
     val capabilities =
@@ -23,56 +33,67 @@ object LSPTests extends weaver.FunSuite:
           Opt(DocumentSymbolOptions(label = Opt("howdy")))
       )
 
-    val server = basicServer[Try].handleRequest(initialize) { in =>
-      Try {
-        InitializeResult(capabilities)
-      }
-    }
-
-    val (response, _) = request(
-      server,
-      CallId.StringId("resp1"),
-      initialize,
-      InitializeParams(
-        processId = Opt(25),
-        rootUri = Opt(DocumentUri("/howdy")),
-        capabilities = ClientCapabilities()
+    for
+      channel <- setupChannels(
+        mkServer = channel =>
+          basicServer[IO]
+            .handleRequest(initialize) { in =>
+              IO(InitializeResult(capabilities))
+            }
+            .build(Communicate.channel(channel, IO.unit))
       )
-    ).get
-
-    expect.same(response.capabilities, capabilities)
+      response <- request(
+        channel,
+        initialize,
+        InitializeParams(
+          processId = Opt(25),
+          rootUri = Opt(DocumentUri("/howdy")),
+          capabilities = ClientCapabilities()
+        )
+      )
+    yield expect.same(response.capabilities, capabilities)
+    end for
 
   }
 
-  test("didOpen") {
+  testStream("didOpen") {
     import requests.*
 
-    val server = basicServer[Try].handleNotification(textDocument.didOpen) {
-      in =>
-        in.toClient.notification(
-          window.showMessage,
-          ShowMessageParams(
-            MessageType.Info,
-            s"you opened a ${in.params.textDocument.languageId} document from ${in.params.textDocument.uri}!"
+    for
+      ref <- Stream.eval(
+        SignallingRef[IO, Map[LSPNotification, List[Any]]](Map.empty)
+      )
+      channel <- setupChannels(
+        mkServer = channel =>
+          basicServer[IO]
+            .handleNotification(textDocument.didOpen) { in =>
+              in.toClient.notification(
+                window.showMessage,
+                ShowMessageParams(
+                  MessageType.Info,
+                  s"you opened a ${in.params.textDocument.languageId} document from ${in.params.textDocument.uri}!"
+                )
+              )
+            }
+            .build(Communicate.channel(channel, IO.unit)),
+        mkClient =
+          _ => List(collectNotificationEndpoint(ref)(window.showMessage))
+      )
+      _ <- notification(
+        channel,
+        textDocument.didOpen,
+        DidOpenTextDocumentParams(
+          TextDocumentItem(
+            uri = DocumentUri("/home/bla.txt"),
+            languageId = "text",
+            version = 0,
+            text = "Hello!"
           )
         )
-    }
-
-    val back = notification(
-      server,
-      textDocument.didOpen,
-      DidOpenTextDocumentParams(
-        TextDocumentItem(
-          uri = DocumentUri("/home/bla.txt"),
-          languageId = "text",
-          version = 0,
-          text = "Hello!"
-        )
       )
-    ).get
-
-    expect.same(
-      back.collect(window.showMessage).get,
+      response <- getCaputured(ref.discrete)(window.showMessage)
+    yield expect.same(
+      response,
       List(
         ShowMessageParams(
           MessageType.Info,
@@ -80,10 +101,10 @@ object LSPTests extends weaver.FunSuite:
         )
       )
     )
-
+    end for
   }
 
-  test("textDocument/documentSymbol") {
+  testStream("textDocument/documentSymbol") {
     import requests.*
 
     val symbols: Opt[Vector[DocumentSymbol]] =
@@ -108,25 +129,25 @@ object LSPTests extends weaver.FunSuite:
         )
       )
 
-    val server = basicServer[Try].handleRequest(textDocument.documentSymbol) {
-      in =>
-        Try {
-          symbols
-        }
-    }
-
-    val (response, _) = request(
-      server,
-      CallId.StringId("resp1"),
-      textDocument.documentSymbol,
-      DocumentSymbolParams(
-        TextDocumentIdentifier(DocumentUri("/home/bla.txt"))
+    for
+      channel <- setupChannels(
+        mkServer = channel =>
+          basicServer[IO]
+            .handleRequest(textDocument.documentSymbol) { _ =>
+              IO(symbols)
+            }
+            .build(Communicate.channel(channel, IO.unit))
       )
-    ).get
 
-    expect.same(
-      response,
-      symbols
-    )
+      response <- request(
+        channel,
+        textDocument.documentSymbol,
+        DocumentSymbolParams(
+          TextDocumentIdentifier(DocumentUri("/home/bla.txt"))
+        )
+      )
+    yield expect.same(response, symbols)
+    end for
+
   }
 end LSPTests
