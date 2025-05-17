@@ -55,8 +55,9 @@ end RawMessage
 
 object RawMessage:
   import com.github.plokhotnyuk.jsoniter_scala.macros.*
+  import com.github.plokhotnyuk.jsoniter_scala.circe.JsoniterScalaCodec.*
 
-  given JsonValueCodec[RawMessage] = ??? // JsonCodecMaker.make
+  given JsonValueCodec[RawMessage] = JsonCodecMaker.make
 
   def create(
       method: Option[String] = None,

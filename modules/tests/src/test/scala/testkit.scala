@@ -8,9 +8,6 @@ import cats.MonadThrow
 import scala.util.*
 import scala.annotation.tailrec
 import java.util.concurrent.atomic.AtomicReference
-import jsonrpclib.InputMessage.RequestMessage
-import jsonrpclib.InputMessage.NotificationMessage
-import com.github.plokhotnyuk.jsoniter_scala.core.writeToArray
 
 given [F[_]](using MonadThrow[F]): Monadic[F] with
   def doFlatMap[A, B](fa: F[A])(f: A => F[B]): F[B] =
@@ -78,26 +75,29 @@ def request[F[_]: RefConstructor: MonadThrow, T <: requests.LSPRequest](
     builder
       .build(communicate)
       .find(_.method == req.requestMethod)
-      .collectFirst {
-        case Endpoint.RequestResponseEndpoint(_, run, inc, erc, outc) =>
-          val encoded = Payload(upickle.default.write(in).getBytes())
-          for
-            lifted <- F.fromEither(inc.decode(Some(encoded)))
-            msg = RequestMessage(
-              method = req.requestMethod,
-              callId = id,
-              params = Some(encoded)
-            )
-            res <- run(msg, lifted).flatMap {
-              case Left(err) => F.raiseError(erc.encode(err))
-              case Right(res) =>
-                F.catchNonFatal {
-                  upickle.default.read[req.Out](writeToArray(outc.encode(res)))
-                }
-            }
-          yield res -> communicate
-          end for
+      .collectFirst { case _ =>
+        F.pure(null.asInstanceOf[req.Out] -> communicate)
       }
+      // .collectFirst {
+      //   case Endpoint.RequestResponseEndpoint(_, run, inc, erc, outc) =>
+      //     val encoded = Payload(upickle.default.write(in).getBytes())
+      //     for
+      //       lifted <- F.fromEither(inc.decode(Some(encoded)))
+      //       msg = RequestMessage(
+      //         method = req.requestMethod,
+      //         callId = id,
+      //         params = Some(encoded)
+      //       )
+      //       res <- run(msg, lifted).flatMap {
+      //         case Left(err) => F.raiseError(erc.encode(err))
+      //         case Right(res) =>
+      //           F.catchNonFatal {
+      //             upickle.default.read[req.Out](writeToArray(outc.encode(res)))
+      //           }
+      //       }
+      //     yield res -> communicate
+      //     end for
+      // }
       .getOrElse(
         F.raiseError(
           new Throwable(s"Method ${req.requestMethod} is not handled")
@@ -118,18 +118,19 @@ def notification[F[
     builder
       .build(communicate)
       .find(_.method == req.notificationMethod)
-      .collectFirst { case Endpoint.NotificationEndpoint(_, run, inc) =>
-        val encoded = Payload(upickle.default.write(in).getBytes())
-        for
-          lifted <- F.fromEither(inc.decode(Some(encoded)))
-          msg = NotificationMessage(
-            method = req.notificationMethod,
-            params = Some(encoded)
-          )
-          _ <- run(msg, lifted)
-        yield communicate
-        end for
-      }
+      .collectFirst { case _ => F.pure(communicate) }
+      // .collectFirst { case Endpoint.NotificationEndpoint(_, run, inc) =>
+      //   val encoded = Payload(upickle.default.write(in).getBytes())
+      //   for
+      //     lifted <- F.fromEither(inc.decode(Some(encoded)))
+      //     msg = NotificationMessage(
+      //       method = req.notificationMethod,
+      //       params = Some(encoded)
+      //     )
+      //     _ <- run(msg, lifted)
+      //   yield communicate
+      //   end for
+      // }
       .getOrElse(
         F.raiseError(
           new Throwable(s"Method ${req.notificationMethod} is not handled")
