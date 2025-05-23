@@ -67,6 +67,7 @@ lazy val root = project
   .aggregate(meta.projectRefs*)
   .aggregate(lsp.projectRefs*)
   .aggregate(app.projectRefs*)
+  .aggregate(http4s.projectRefs*)
   .aggregate(tracer.projectRefs*)
   .aggregate(tracerShared.projectRefs*)
   .aggregate(tracerFrontend.projectRefs*)
@@ -149,6 +150,21 @@ lazy val app = projectMatrix
     libraryDependencies += "com.outr"     %%% "scribe-cats"    % V.scribe,
     test                                   := {},
     scalacOptions ++= commonScalacOptions
+  )
+  .jvmPlatform(V.scalaVersions)
+  .jsPlatform(V.scalaVersions)
+  .nativePlatform(V.scalaVersions)
+
+lazy val http4s = projectMatrix
+  .in(file("modules/http4s"))
+  .dependsOn(lsp)
+  .defaultAxes(V.default*)
+  .settings(enableSnapshots)
+  .settings(
+    name                                   := "langoustine-http4s",
+    libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2" % V.jsonrpclib,
+    libraryDependencies += "org.http4s"   %%% "http4s-core"    % V.http4s,
+    test                                   := {}
   )
   .jvmPlatform(V.scalaVersions)
   .jsPlatform(V.scalaVersions)
