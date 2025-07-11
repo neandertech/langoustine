@@ -148,7 +148,7 @@ lazy val app = projectMatrix
     libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2" % V.jsonrpclib,
     libraryDependencies += "co.fs2"       %%% "fs2-io"         % V.fs2,
     libraryDependencies += "com.outr"     %%% "scribe-cats"    % V.scribe,
-    test                                   := {},
+    test := {},
     scalacOptions ++= commonScalacOptions
   )
   .jvmPlatform(V.scalaVersions)
@@ -256,7 +256,7 @@ lazy val tracer = projectMatrix
   .settings(
     name                                   := "langoustine-tracer",
     libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2" % V.jsonrpclib,
-    libraryDependencies += "co.fs2"       %%% "fs2-io"         % V.fs2,
+    libraryDependencies += "co.fs2"       %%% "fs2-io"              % V.fs2,
     libraryDependencies += "org.http4s"   %%% "http4s-ember-server" % V.http4s,
     libraryDependencies += "org.http4s"   %%% "http4s-dsl"          % V.http4s,
     libraryDependencies += "com.monovore" %%% "decline"             % V.decline,
@@ -264,7 +264,7 @@ lazy val tracer = projectMatrix
     libraryDependencies += "com.indoorvivants.detective" %% "platform" % V.detective,
     libraryDependencies ++= Seq(
       // Use the "provided" scope instead when the "compile-internal" scope is not supported
-      "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % "2.35.3" % "compile-internal"
+      "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % V.jsoniter % "compile-internal"
     ),
     scalacOptions ++= commonScalacOptions,
     Compile / doc / sources := Seq.empty,
