@@ -124,7 +124,7 @@ object LangoustineApp:
       .eval(IO.deferred[Boolean])
       .flatMap { latch =>
         FS2Channel
-          .stream[IO](bufferSize, None)
+          .stream[IO](bufferSize, Some(LSPCancelRequest.cancelTemplate))
           .flatMap { channel =>
             (builder: @unchecked) match
               case l: LSPBuilder[IO] =>
