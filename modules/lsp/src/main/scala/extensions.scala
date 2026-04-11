@@ -21,6 +21,6 @@ import runtime.*
 import structures.Position
 
 private[lsp] trait PositionSyntax:
-  def apply(line: Int, character: Int): Position =
+  def apply(line: Int, character: Int)(using DummyImplicit): Position =
     new Position(line = uinteger(line), character = uinteger(character))
-  def documentBeginning: Position = apply(0, 0)
+  def documentBeginning: Position = new Position(uinteger(0), uinteger(0))

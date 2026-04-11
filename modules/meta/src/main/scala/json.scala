@@ -56,26 +56,26 @@ object json:
   given Reader[Request]          = macroR
   given Reader[Notification]     = macroR
 
-  given Reader[BaseType]             = Pickle.macroR
-  given Reader[ReferenceType]        = Pickle.macroR
-  given Reader[ArrayType]            = Pickle.macroR
-  given Reader[OrType]               = Pickle.macroR
-  given Reader[AndType]              = Pickle.macroR
-  given Reader[MapType]              = Pickle.macroR
-  given Reader[StructureLiteralType] = Pickle.macroR
-  given Reader[StringLiteralType]    = Pickle.macroR
-  given Reader[TupleType]            = Pickle.macroR
+  given Reader[BaseType]             = upickle.default.macroR
+  given Reader[ReferenceType]        = upickle.default.macroR
+  given Reader[ArrayType]            = upickle.default.macroR
+  given Reader[OrType]               = upickle.default.macroR
+  given Reader[AndType]              = upickle.default.macroR
+  given Reader[MapType]              = upickle.default.macroR
+  given Reader[StructureLiteralType] = upickle.default.macroR
+  given Reader[StringLiteralType]    = upickle.default.macroR
+  given Reader[TupleType]            = upickle.default.macroR
   given Reader[EnumerationTypeName] =
     reader[String].map {
       case "string"   => EnumerationTypeName.string
       case "integer"  => EnumerationTypeName.integer
       case "uinteger" => EnumerationTypeName.uinteger
     }
-  given Reader[EnumerationEntry] = Pickle.macroR
-  given Reader[EnumerationType]  = Pickle.macroR
-  given Reader[Enumeration]      = Pickle.macroR
-  given Reader[TypeAlias]        = Pickle.macroR
-  given Reader[MetaModel]        = Pickle.macroR
+  given Reader[EnumerationEntry] = upickle.default.macroR
+  given Reader[EnumerationType]  = upickle.default.macroR
+  given Reader[Enumeration]      = upickle.default.macroR
+  given Reader[TypeAlias]        = upickle.default.macroR
+  given Reader[MetaModel]        = upickle.default.macroR
 
   given Reader[EnumerationItem] = reader[ujson.Value].map { v =>
     (v.strOpt.map(EnumerationItem.apply) orElse

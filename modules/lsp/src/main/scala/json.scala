@@ -75,87 +75,141 @@ import upickle.implicits.macros
 import upickle.core.*
 
 private[lsp] object Pickle:
+  // import scala.deriving.*
+  // import scala.compiletime.*
+  // inline final def summonLabelsRec[T <: Tuple]: List[String] =
+  //   inline erasedValue[T] match
+  //     case _: EmptyTuple => Nil
+  //     case _: (t *: ts) =>
+  //       constValue[t].asInstanceOf[String] :: summonLabelsRec[ts]
+
+  // inline final def summonDecoder[A]: Reader[A] = summonFrom {
+  //   case decodeA: Reader[A] => decodeA
+  //   case _: Mirror.Of[A]    => macroR[A]
+  // }
+
+  // inline final def summonDecodersRec[T <: Tuple]: List[Reader[?]] =
+  //   inline erasedValue[T] match
+  //     case _: EmptyTuple => Nil
+  //     case _: (t *: ts)  => summonDecoder[t] :: summonDecodersRec[ts]
+
+  // private[lsp] class MyCaseClassReader[T](
+  //     labels: List[String],
+  //     // keep lazy for recursive datatypes
+  //     visitors: => List[Visitor[?, ?]],
+  //     defaultParams: Map[String, AnyRef],
+  //     fromArray: Array[Any] => T
+  // ) extends CaseClassReader[T]:
+  //   override def visitorForKey(key: String) =
+  //     labels.zip(visitors).toMap.get(key) match
+  //       case None    => upickle.core.NoOpVisitor
+  //       case Some(v) => v
+
+  //   override def make(params: Map[String, Any]): T =
+  //     val values      = collection.mutable.ListBuffer.empty[AnyRef]
+  //     val missingKeys = collection.mutable.ListBuffer.empty[String]
+
+  //     labels.zip(visitors).map { case (fieldName, _) =>
+  //       params.get(fieldName) match
+  //         case Some(value) => values += value.asInstanceOf[AnyRef]
+  //         case None =>
+  //           defaultParams.get(fieldName) match
+  //             case Some(fallback) => values += fallback.asInstanceOf[AnyRef]
+  //             case None           => missingKeys += fieldName
+  //     }
+
+  //     if !missingKeys.isEmpty then
+  //       throw new upickle.core.Abort(
+  //         "missing keys in dictionary: " + missingKeys.mkString(", ")
+  //       )
+
+  //     fromArray(values.toArray)
+  //   end make
+  // end MyCaseClassReader
+  //
   import scala.deriving.*
-  import scala.compiletime.*
-  inline final def summonLabelsRec[T <: Tuple]: List[String] =
-    inline erasedValue[T] match
-      case _: EmptyTuple => Nil
-      case _: (t *: ts) =>
-        constValue[t].asInstanceOf[String] :: summonLabelsRec[ts]
+  inline def macroR[T](using m: Mirror.Of[T]): Reader[T] =
+    upickle.default.macroR[T]
 
-  inline final def summonDecoder[A]: Reader[A] = summonFrom {
-    case decodeA: Reader[A] => decodeA
-    case _: Mirror.Of[A]    => macroR[A]
-  }
+  // inline def macroR[T](using m: Mirror.Of[T]): Reader[T] = inline m match
+  //   case m: Mirror.ProductOf[T] =>
+  //     val labels: List[String] =
+  //       summonLabelsRec[m.MirroredElemLabels] // macros.fieldLabels[T]
+  //     lazy val visitors: List[Visitor[?, ?]] =
+  //       summonDecodersRec[m.MirroredElemTypes]
+  //         .asInstanceOf[List[upickle.core.Visitor[?, ?]]]
+  //     val defaultParams: Map[String, AnyRef] = extractDefaultValues[T]
 
-  inline final def summonDecodersRec[T <: Tuple]: List[Reader[?]] =
-    inline erasedValue[T] match
-      case _: EmptyTuple => Nil
-      case _: (t *: ts)  => summonDecoder[t] :: summonDecodersRec[ts]
+  //     MyCaseClassReader[T](
+  //       labels,
+  //       visitors,
+  //       defaultParams,
+  //       arr => m.fromProduct(Tuple.fromArray(arr))
+  //     )
 
-  private[lsp] class MyCaseClassReader[T](
-      labels: List[String],
-      // keep lazy for recursive datatypes
-      visitors: => List[Visitor[?, ?]],
-      defaultParams: Map[String, AnyRef],
-      fromArray: Array[Any] => T
-  ) extends CaseClassReader[T]:
-    override def visitorForKey(key: String) =
-      labels.zip(visitors).toMap.get(key) match
-        case None    => upickle.core.NoOpVisitor
-        case Some(v) => v
+  //   case m: Mirror.SumOf[T] =>
+  //     inline compiletime.erasedValue[T] match
+  //       case _: scala.reflect.Enum =>
+  //         val valueOf     = macros.enumValueOf[T]
+  //         val description = macros.enumDescription[T]
+  //         new EnumReader[T](valueOf, description)
+  //       case _ =>
+  //         val readers: List[Reader[? <: T]] = macros
+  //           .summonList[Tuple.Map[m.MirroredElemTypes, Reader]]
+  //           .asInstanceOf[List[Reader[? <: T]]]
+  //         Reader.merge[T](readers*)
+  //     end match
+  // end macroR
 
-    override def make(params: Map[String, Any]): T =
-      val values      = collection.mutable.ListBuffer.empty[AnyRef]
-      val missingKeys = collection.mutable.ListBuffer.empty[String]
+  // import scala.quoted.*
 
-      labels.zip(visitors).map { case (fieldName, _) =>
-        params.get(fieldName) match
-          case Some(value) => values += value.asInstanceOf[AnyRef]
-          case None =>
-            defaultParams.get(fieldName) match
-              case Some(fallback) => values += fallback.asInstanceOf[AnyRef]
-              case None           => missingKeys += fieldName
-      }
+  // private def extractDefaultValues[T: Type](using
+  //     Quotes
+  // ): Map[String, Expr[Any]] =
+  //   import quotes.reflect.*
 
-      if !missingKeys.isEmpty then
-        throw new upickle.core.Abort(
-          "missing keys in dictionary: " + missingKeys.mkString(", ")
-        )
+  //   val sym  = TypeRepr.of[T].typeSymbol
+  //   val comp = sym.companionClass
 
-      fromArray(values.toArray)
-    end make
-  end MyCaseClassReader
+  //   if comp == Symbol.noSymbol then return Map.empty
 
-  inline def macroR[T](using m: Mirror.Of[T]): Reader[T] = inline m match
-    case m: Mirror.ProductOf[T] =>
-      val labels: List[String] =
-        summonLabelsRec[m.MirroredElemLabels] // macros.fieldLabels[T]
-      lazy val visitors: List[Visitor[?, ?]] =
-        summonDecodersRec[m.MirroredElemTypes]
-          .asInstanceOf[List[upickle.core.Visitor[?, ?]]]
-      val defaultParams: Map[String, AnyRef] = macros.getDefaultParams[T]
+  //   val mod = Ref(sym.companionModule)
+  //   val typeArgs = TypeRepr.of[T] match
+  //     case AppliedType(_, args) => args
+  //     case _                    => Nil
 
-      MyCaseClassReader[T](
-        labels,
-        visitors,
-        defaultParams,
-        arr => m.fromProduct(Tuple.fromArray(arr))
-      )
+  //   // Get parameters with default values
+  //   val paramsWithDefaults = sym.caseFields.zipWithIndex.collect {
+  //     case (field, idx) if field.flags.is(Flags.HasDefault) => (field.name, idx)
+  //   }
 
-    // if macros.isMemberOfSealedHierarchy[T] then annotate(reader, macros.fullClassName[T])
-    // else reader
-    case m: Mirror.SumOf[T] =>
-      inline compiletime.erasedValue[T] match
-        case _: scala.reflect.Enum =>
-          val valueOf     = macros.enumValueOf[T]
-          val description = macros.enumDescription[T]
-          new EnumReader[T](valueOf, description)
-        case _ =>
-          val readers: List[Reader[? <: T]] = macros
-            .summonList[Tuple.Map[m.MirroredElemTypes, Reader]]
-            .asInstanceOf[List[Reader[? <: T]]]
-          Reader.merge[T](readers*)
-      end match
-  end macroR
+  //   if paramsWithDefaults.isEmpty then return Map.empty
+
+  //   // Get default value methods from companion
+  //   val body = comp.tree.asInstanceOf[ClassDef].body
+  //   val defaultMethods = body.collect {
+  //     case deff @ DefDef(name, _, _, _)
+  //         if name.startsWith("$lessinit$greater$default") =>
+  //       val methodNum = name
+  //         .stripPrefix("$lessinit$greater$default$")
+  //         .toIntOption
+  //         .getOrElse(-1)
+  //       (methodNum, deff.symbol)
+  //   }.toMap
+
+  //   // Map parameter names to their default values
+  //   paramsWithDefaults.map { case (paramName, idx) =>
+  //     val methodIdx = idx + 1 // Default methods are 1-indexed
+  //     defaultMethods.get(methodIdx) match
+  //       case Some(symbol) =>
+  //         val ref = mod.select(symbol)
+  //         val applied =
+  //           if typeArgs.nonEmpty then ref.appliedToTypes(typeArgs)
+  //           else ref
+  //         paramName -> applied.asExpr
+  //       case None =>
+  //         paramName -> '{ null }.asExprOf[Any]
+  //     end match
+  //   }.toMap
+  // end extractDefaultValues
 end Pickle
