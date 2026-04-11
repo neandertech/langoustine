@@ -21,20 +21,20 @@ import scala.language.strictEquality
 
 object RuntimeTest extends weaver.FunSuite:
   test("Opt[A] is null at runtime"):
-    assert.all(
+    expect.all(
       Opt.empty == null,
       Opt(null) == null,
       Opt("yo") != null
     )
 
   test("Opt[A] is A at runtime"):
-    assert.all(
+    expect.all(
       Opt(25).asInstanceOf[Int] == 25,
       Opt("hello").asInstanceOf[String] == "hello"
     )
 
   test("Opt[A] <-> Option[A] interop"):
-    assert.all(
+    expect.all(
       Opt("howdy").toOption.contains("howdy"),
       Opt.empty.toOption.isEmpty,
       Opt.fromOption(Some("yesss")) == Opt("yesss"),
@@ -61,7 +61,7 @@ object RuntimeTest extends weaver.FunSuite:
       case Opt.empty => success
 
     val nullChecks =
-      assert.all(Opt.empty == null, Opt(null) == null, Opt("yo") != null)
+      expect.all(Opt.empty == null, Opt(null) == null, Opt("yo") != null)
 
     patternMatchSome && patterMatchNone && nullChecks
 

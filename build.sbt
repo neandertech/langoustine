@@ -4,9 +4,9 @@ Global / excludeLintKeys += scalaJSLinkerConfig
 
 inThisBuild(
   List(
-    organization           := "tech.neander",
-    organizationName       := "Neandertech",
-    sonatypeCredentialHost := "s01.oss.sonatype.org",
+    organization     := "tech.neander",
+    organizationName := "Neandertech",
+    // sonatypeCredentialHost := "s01.oss.sonatype.org",
     homepage := Some(
       url("https://github.com/neandertech/langoustine")
     ),
@@ -26,17 +26,17 @@ inThisBuild(
 )
 
 val V = new {
-  val scala           = "3.3.6"
-  val scribe          = "3.13.2"
-  val upickle         = "2.0.0"
-  val cats            = "2.10.0"
-  val jsonrpclib      = "0.0.7"
-  val fs2             = "3.10.0"
+  val scala   = "3.3.7"
+  val scribe  = "3.19.0"
+  val upickle = "4.4.3"
+  val cats    = "2.13.0"
+  // val jsonrpclib      = "0.0.7"
+  val fs2             = "3.13.0"
   val http4s          = "0.23.26"
   val laminar         = "0.14.5"
   val decline         = "2.4.1"
-  val jsoniter        = "2.28.4"
-  val weaver          = "0.8.4"
+  val jsoniter        = "2.38.9"
+  val weaver          = "0.12.0"
   val circe           = "0.14.5"
   val http4sJdkClient = "0.9.1"
   val fansi           = "0.4.0"
@@ -114,6 +114,7 @@ lazy val meta = projectMatrix
 
 lazy val lsp = projectMatrix
   .in(file("modules/lsp"))
+  .dependsOn(jsonrpclib)
   .defaultAxes(V.default*)
   .settings(enableSnapshots)
   .disablePlugins(ScalafixPlugin)
@@ -121,11 +122,10 @@ lazy val lsp = projectMatrix
     name := "langoustine-lsp",
     scalacOptions ++= Seq("-Xmax-inlines", "64"),
     testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
-    libraryDependencies += "com.disneystreaming" %%% "weaver-cats" % V.weaver % Test,
-    libraryDependencies += "com.outr"      %%% "scribe"          % V.scribe,
-    libraryDependencies += "com.lihaoyi"   %%% "upickle"         % V.upickle,
-    libraryDependencies += "org.typelevel" %%% "cats-core"       % V.cats,
-    libraryDependencies += "tech.neander"  %%% "jsonrpclib-core" % V.jsonrpclib,
+    libraryDependencies += "org.typelevel" %%% "weaver-cats" % V.weaver % Test,
+    libraryDependencies += "com.outr"      %%% "scribe"      % V.scribe,
+    libraryDependencies += "com.lihaoyi"   %%% "upickle"     % V.upickle,
+    libraryDependencies += "org.typelevel" %%% "cats-core"   % V.cats,
     test                                    := {}
   )
   .jvmPlatform(V.scalaVersions)
@@ -137,17 +137,43 @@ lazy val lsp = projectMatrix
     }
   )
 
+lazy val jsonrpclib = projectMatrix
+  .in(file("modules/jsonrpclib"))
+  .defaultAxes(V.default*)
+  .settings(enableSnapshots)
+  .settings(
+    testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
+    name                                    := "langoustine-jsonrpclib",
+    libraryDependencies += "org.typelevel" %%% "weaver-cats" % V.weaver % Test,
+    libraryDependencies += "co.fs2"        %%% "fs2-core"    % V.fs2,
+    libraryDependencies += "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-core" % V.jsoniter,
+    libraryDependencies += "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-macros" % V.jsoniter,
+    scalacOptions ++= commonScalacOptions
+  )
+  .jvmPlatform(
+    V.scalaVersions,
+    Test / unmanagedSourceDirectories ++= Seq(
+      (projectMatrixBaseDirectory.value / "src" / "test" / "scalajvm-native").getAbsoluteFile
+    )
+  )
+  .jsPlatform(V.scalaVersions)
+  .nativePlatform(
+    V.scalaVersions,
+    Test / unmanagedSourceDirectories ++= Seq(
+      (projectMatrixBaseDirectory.value / "src" / "test" / "scalajvm-native").getAbsoluteFile
+    )
+  )
+
 lazy val app = projectMatrix
   .in(file("modules/app"))
   .dependsOn(lsp)
   .defaultAxes(V.default*)
   .settings(enableSnapshots)
   .settings(
-    name                                   := "langoustine-app",
-    libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2" % V.jsonrpclib,
-    libraryDependencies += "co.fs2"       %%% "fs2-io"         % V.fs2,
-    libraryDependencies += "com.outr"     %%% "scribe-cats"    % V.scribe,
-    test                                   := {},
+    name                               := "langoustine-app",
+    libraryDependencies += "co.fs2"   %%% "fs2-io"      % V.fs2,
+    libraryDependencies += "com.outr" %%% "scribe-cats" % V.scribe,
+    test                               := {},
     scalacOptions ++= commonScalacOptions
   )
   .jvmPlatform(V.scalaVersions)
@@ -167,7 +193,7 @@ lazy val `e2e-tests` = projectMatrix
   .settings(noPublishing)
   .settings(
     libraryDependencies += "org.http4s" %% "http4s-jdk-http-client" % V.http4sJdkClient % Test,
-    libraryDependencies += "com.disneystreaming" %%% "weaver-cats" % V.weaver % Test,
+    libraryDependencies += "org.typelevel" %%% "weaver-cats" % V.weaver % Test,
     scalacOptions ++= commonScalacOptions,
     Test / fork := virtualAxes.value.contains(VirtualAxis.jvm),
     Test / envVars := Map(
@@ -198,11 +224,11 @@ lazy val tests = projectMatrix
   .settings(noPublishing)
   .settings(
     libraryDependencies += "org.http4s" %% "http4s-jdk-http-client" % V.http4sJdkClient % Test,
-    libraryDependencies += "com.disneystreaming" %%% "weaver-cats" % V.weaver % Test,
-    libraryDependencies += "com.lihaoyi" %%% "pprint" % "0.8.1" % Test,
-    libraryDependencies += "org.typelevel" %%% "shapeless3-deriving" % "3.4.1" % Test,
-    libraryDependencies += "org.scalacheck" %%% "scalacheck" % "1.17.0" % Test,
-    libraryDependencies += "io.github.irevive" %%% "union-derivation-core" % "0.1.0" % Test,
+    libraryDependencies += "org.typelevel" %%% "weaver-cats" % V.weaver % Test,
+    libraryDependencies += "com.lihaoyi"   %%% "pprint"      % "0.9.6"  % Test,
+    libraryDependencies += "org.typelevel" %%% "shapeless3-deriving" % "3.5.0" % Test,
+    libraryDependencies += "org.scalacheck" %%% "scalacheck" % "1.19.0" % Test,
+    libraryDependencies += "io.github.irevive" %%% "union-derivation-core" % "0.2.1" % Test,
     scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule)),
     Test / fork             := virtualAxes.value.contains(VirtualAxis.jvm),
     snapshotsPackageName    := "tests.core",
@@ -254,8 +280,7 @@ lazy val tracer = projectMatrix
   .settings(enableSnapshots)
   .settings(
     name                                   := "langoustine-tracer",
-    libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2" % V.jsonrpclib,
-    libraryDependencies += "co.fs2"       %%% "fs2-io"         % V.fs2,
+    libraryDependencies += "co.fs2"       %%% "fs2-io"              % V.fs2,
     libraryDependencies += "org.http4s"   %%% "http4s-ember-server" % V.http4s,
     libraryDependencies += "org.http4s"   %%% "http4s-dsl"          % V.http4s,
     libraryDependencies += "com.monovore" %%% "decline"             % V.decline,
@@ -271,19 +296,19 @@ lazy val tracer = projectMatrix
           (ThisBuild / baseDirectory).value / "modules" / "tracer" / "frontend" / "index.html"
         val outDir = (Compile / resourceManaged).value / "assets"
 
-        val indexFileContents = {
-          val lines = IO.readLines(indexFile)
+        // val indexFileContents = {
+        //   val lines = IO.readLines(indexFile)
 
-          val newLines = lines.collect {
-            case l if l.contains("<!-- REPLACE -->") =>
-              """<script type="text/javascript" src="/assets/main.js"></script>"""
-            case l => l
-          }
+        //   val newLines = lines.collect {
+        //     case l if l.contains("<!-- REPLACE -->") =>
+        //       """<script type="text/javascript" src="/assets/main.js"></script>"""
+        //     case l => l
+        //   }
 
-          newLines.mkString(System.lineSeparator())
-        }
+        //   newLines.mkString(System.lineSeparator())
+        // }
 
-        IO.write(outDir / "index.html", indexFileContents)
+        // IO.write(outDir / "index.html", indexFileContents)
 
         IO.listFiles(location).toList.map { file =>
           val (name, ext) = file.baseAndExt
@@ -330,13 +355,13 @@ lazy val tracerFrontend = projectMatrix
 lazy val tracerShared = projectMatrix
   .in(file("modules/tracer/shared"))
   .defaultAxes(V.default*)
+  .dependsOn(jsonrpclib)
   .settings(enableSnapshots)
   .settings(
     name := "langoustine-tracer-shared",
     libraryDependencies ++= Seq(
       "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-core" % V.jsoniter,
-      "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-macros" % V.jsoniter % "compile-internal",
-      "tech.neander" %%% "jsonrpclib-core" % V.jsonrpclib
+      "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-macros" % V.jsoniter % "compile-internal"
     ),
     scalacOptions ++= commonScalacOptions
   )

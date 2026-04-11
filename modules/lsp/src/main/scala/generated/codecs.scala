@@ -3285,7 +3285,9 @@ private[lsp] trait structures_PartialResultParamsCodec:
 
 private[lsp] trait structures_PositionCodec:
   import structures.*
-  given reader: Reader[structures.Position] = Pickle.macroR
+  given reader: Reader[structures.Position] =
+    upickle.default.macroR
+
   given writer: Writer[structures.Position] = upickle.default.macroW
 
 private[lsp] trait structures_PrepareRenameParamsCodec:

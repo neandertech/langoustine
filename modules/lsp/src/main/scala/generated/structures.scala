@@ -21,6 +21,7 @@ import langoustine.*
 import upickle.default.*
 import json.{*, given}
 import runtime.{*, given}
+import scala.annotation.targetName
 
 /** A special text edit with an additional change annotation.
   *
