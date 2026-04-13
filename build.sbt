@@ -11,7 +11,7 @@ inThisBuild(
       url("https://github.com/neandertech/langoustine")
     ),
     startYear := Some(2022),
-    licenses := List(
+    licenses  := List(
       "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")
     ),
     developers := List(
@@ -26,11 +26,11 @@ inThisBuild(
 )
 
 val V = new {
-  val scala   = "3.3.7"
-  val scribe  = "3.19.0"
-  val upickle = "4.4.3"
-  val cats    = "2.13.0"
-  // val jsonrpclib      = "0.0.7"
+  val scala           = "3.3.7"
+  val scribe          = "3.19.0"
+  val upickle         = "4.4.3"
+  val cats            = "2.13.0"
+  val jsonrpclib      = "0.1.1"
   val fs2             = "3.13.0"
   val http4s          = "0.23.26"
   val laminar         = "0.14.5"
@@ -105,6 +105,11 @@ lazy val meta = projectMatrix
   .jsPlatform(V.scalaVersions)
   .nativePlatform(V.scalaVersions)
   .settings(
+    libraryDependencies ++= Seq(
+      "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-core" % V.jsoniter,
+      "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-macros" % V.jsoniter % "compile-internal",
+      "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-circe" % V.jsoniter % "compile-internal"
+    ),
     libraryDependencies += "com.outr"      %%% "scribe"    % V.scribe,
     libraryDependencies += "com.lihaoyi"   %%% "upickle"   % V.upickle,
     libraryDependencies += "org.typelevel" %%% "cats-core" % V.cats,
@@ -114,18 +119,24 @@ lazy val meta = projectMatrix
 
 lazy val lsp = projectMatrix
   .in(file("modules/lsp"))
-  .dependsOn(jsonrpclib)
+  // .dependsOn(jsonrpclib)
   .defaultAxes(V.default*)
   .settings(enableSnapshots)
   .disablePlugins(ScalafixPlugin)
   .settings(
     name := "langoustine-lsp",
+    // TODO!!!! REMOVE
+    sourceDirectories := Seq.empty,
     scalacOptions ++= Seq("-Xmax-inlines", "64"),
     testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
     libraryDependencies += "org.typelevel" %%% "weaver-cats" % V.weaver % Test,
-    libraryDependencies += "com.outr"      %%% "scribe"      % V.scribe,
-    libraryDependencies += "com.lihaoyi"   %%% "upickle"     % V.upickle,
-    libraryDependencies += "org.typelevel" %%% "cats-core"   % V.cats,
+    libraryDependencies += "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-core" % V.jsoniter,
+    libraryDependencies += "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-circe" % V.jsoniter,
+    libraryDependencies += "com.outr"      %%% "scribe"          % V.scribe,
+    libraryDependencies += "com.lihaoyi"   %%% "upickle"         % V.upickle,
+    libraryDependencies += "org.typelevel" %%% "cats-core"       % V.cats,
+    libraryDependencies += "tech.neander"  %%% "jsonrpclib-core" % V.jsonrpclib,
+    libraryDependencies += "tech.neander"  %%% "jsonrpclib-fs2"  % V.jsonrpclib,
     test                                    := {}
   )
   .jvmPlatform(V.scalaVersions)
@@ -195,7 +206,7 @@ lazy val `e2e-tests` = projectMatrix
     libraryDependencies += "org.http4s" %% "http4s-jdk-http-client" % V.http4sJdkClient % Test,
     libraryDependencies += "org.typelevel" %%% "weaver-cats" % V.weaver % Test,
     scalacOptions ++= commonScalacOptions,
-    Test / fork := virtualAxes.value.contains(VirtualAxis.jvm),
+    Test / fork    := virtualAxes.value.contains(VirtualAxis.jvm),
     Test / envVars := Map(
       "EXAMPLE_NATIVE" -> (example.native(
         V.scala
@@ -215,9 +226,9 @@ lazy val tests = projectMatrix
   .defaultAxes(V.default*)
   .settings(enableSnapshots)
   .jvmPlatform(
-    V.scalaVersions,
-    Seq.empty,
-    _.dependsOn(tracer.jvm(V.scala))
+    V.scalaVersions
+      // Seq.empty,
+      // _.dependsOn(tracer.jvm(V.scala))
   )
   .jsPlatform(V.scalaVersions)
   .nativePlatform(V.scalaVersions)
@@ -266,6 +277,8 @@ lazy val generate = projectMatrix
   .defaultAxes(V.default*)
   .settings(
     name := "generate",
+    libraryDependencies += "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-core" % V.jsoniter,
+    libraryDependencies += "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-circe" % V.jsoniter,
     libraryDependencies += "com.indoorvivants" %%% "decline-derive" % V.declineDerive,
     scalacOptions ++= commonScalacOptions
   )
@@ -292,7 +305,7 @@ lazy val tracer = projectMatrix
     Compile / resourceGenerators += {
       Def.task[Seq[File]] {
         val (_, location) = (ThisBuild / frontendOutput).value
-        val indexFile =
+        val indexFile     =
           (ThisBuild / baseDirectory).value / "modules" / "tracer" / "frontend" / "index.html"
         val outDir = (Compile / resourceManaged).value / "assets"
 
@@ -410,14 +423,14 @@ generateLSP := Def.inputTaskDyn {
           .toTask(
             s" --out $out --files $generatedFiles --schema $schema"
           )
-      },
-    Def.taskDyn {
-      (protocolJVM / Compile / headerCreate)
-    },
-    Def.taskDyn {
-      val files = IO.readLines(generatedFiles)
-      (Compile / task).toTask(s" ${files.mkString(" ")}")
-    }
+      }
+      // Def.taskDyn {
+      //   (protocolJVM / Compile / headerCreate)
+      // },
+      // Def.taskDyn {
+      //   val files = IO.readLines(generatedFiles)
+      //   (Compile / task).toTask(s" ${files.mkString(" ")}")
+      // }
   )
 
 }.evaluated

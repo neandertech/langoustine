@@ -20,31 +20,53 @@ package runtime
 import scala.reflect.TypeTest
 
 import langoustine.*
-import langoustine.lsp.json.*
+// import langoustine.lsp.json.*
 import upickle.default.*
+import io.circe.*
 
 opaque type DocumentUri = String
 object DocumentUri extends OpaqueString[DocumentUri]:
-  given ReadWriter[DocumentUri] =
-    stringCodec.asInstanceOf[ReadWriter[DocumentUri]]
+  private val codec: Codec[DocumentUri] =
+    Codec.from(Decoder.decodeString, Encoder.encodeString)
+
+  given fromJson: Decoder[DocumentUri] =
+    Decoder.decodeString.map(DocumentUri.apply)
+
+  given toJson: Encoder[DocumentUri] =
+    Encoder.encodeString.contramap(DocumentUri.unapply)
+
   given TypeTest[Any, DocumentUri] with
     def unapply(i: Any) =
       if i.isInstanceOf[String] then Some(i.asInstanceOf[i.type & DocumentUri])
       else None
+end DocumentUri
 
 opaque type Uri = String
 object Uri extends OpaqueString[Uri]:
-  given ReadWriter[Uri] = stringCodec.asInstanceOf[ReadWriter[Uri]]
+  // given ReadWriter[Uri]         = stringCodec.asInstanceOf[ReadWriter[Uri]]
+  private val codec: Codec[Uri] =
+    Codec.from(Decoder.decodeString, Encoder.encodeString)
+  given fromJson: Decoder[Uri] = Decoder.decodeString.map(Uri.apply)
+  given toJson: Encoder[Uri]   = Encoder.encodeString.contramap(Uri.unapply)
+
   given TypeTest[Any, Uri] with
     def unapply(i: Any) =
       if i.isInstanceOf[String] then Some(i.asInstanceOf[i.type & Uri])
       else None
+end Uri
 
 opaque type uinteger = Int
 object uinteger extends OpaqueInt[uinteger]:
-  given ReadWriter[uinteger] = intCodec.asInstanceOf[ReadWriter[uinteger]]
+  // given ReadWriter[uinteger] = intCodec.asInstanceOf[ReadWriter[uinteger]]
+  private val codec: Codec[uinteger] =
+    Codec.from(Decoder.decodeInt, Encoder.encodeInt)
+
+  given fromJson: Decoder[uinteger] = Decoder.decodeInt.map(uinteger.apply)
+  given toJson: Encoder[uinteger]   =
+    Encoder.encodeInt.contramap(uinteger.unapply)
 
   given TypeTest[Any, uinteger] with
     def unapply(i: Any) =
       if i.isInstanceOf[Int] then Some(i.asInstanceOf[i.type & uinteger])
       else None
+end uinteger

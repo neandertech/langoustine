@@ -144,7 +144,6 @@ case class StructureLiteral(
 
 opaque type Opt[+A] = A | Null
 object Opt:
-  import upickle.default.*
   inline def empty: Opt[Nothing]    = null
   inline def apply[A](a: A): Opt[A] = a
 
@@ -153,16 +152,21 @@ object Opt:
       o match
         case null => None
         case _    => Some(o.asInstanceOf[A])
+    inline def contains(v: A): Boolean = v != null && v == o
 
-  given [A](using
-      rd: Reader[A]
-  ): Reader[Opt[A]] =
-    rd.asInstanceOf[Reader[Opt[A]]]
+  import io.circe.*
+  given [A](using d: Decoder[A]): Decoder[Opt[A]] =
+    Decoder.decodeOption(d).map(_.getOrElse(null))
 
-  given [A](using
-      wt: Writer[A]
-  ): Writer[Opt[A]] =
-    wt.asInstanceOf[Writer[Opt[A]]]
+  // given [A](using
+  //     rd: Reader[A]
+  // ): Reader[Opt[A]] =
+  //   rd.asInstanceOf[Reader[Opt[A]]]
+
+  // given [A](using
+  //     wt: Writer[A]
+  // ): Writer[Opt[A]] =
+  //   wt.asInstanceOf[Writer[Opt[A]]]
 end Opt
 
 enum BaseTypes:
@@ -183,23 +187,26 @@ case class Enumeration(
     since: Opt[String] = Opt.empty
 )
 
-enum Type(
+sealed abstract class Type(
     kind: "base" | "reference" | "and" | "or" | "array" | "booleanLiteral" |
       "map" | "literal" | "stringLiteral" | "tuple"
 ):
-  case BaseType(name: BaseTypes)          extends Type("base")
-  case ReferenceType(name: TypeName)      extends Type("reference")
-  case AndType(items: Vector[Type])       extends Type("and")
-  case OrType(items: Vector[Type])        extends Type("or")
-  case ArrayType(element: Type)           extends Type("array")
-  case BooleanLiteralType(value: Boolean) extends Type("booleanLiteral")
-  case MapType(key: Type, value: Type)    extends Type("map")
-  case StructureLiteralType(value: StructureLiteral) extends Type("literal")
-  case StringLiteralType(value: String) extends Type("stringLiteral")
-  case TupleType(items: Vector[Type])   extends Type("tuple")
-
   def traverse(f: Type => TypeTraversal) =
     TypeTraversal(this)(f)
+
+object Type:
+  case class BaseType(name: BaseTypes)          extends Type("base")
+  case class ReferenceType(name: TypeName)      extends Type("reference")
+  case class AndType(items: Vector[Type])       extends Type("and")
+  case class OrType(items: Vector[Type])        extends Type("or")
+  case class ArrayType(element: Type)           extends Type("array")
+  case class BooleanLiteralType(value: Boolean) extends Type("booleanLiteral")
+  case class MapType(key: Type, value: Type)    extends Type("map")
+  case class StructureLiteralType(value: StructureLiteral)
+      extends Type("literal")
+  case class StringLiteralType(value: String) extends Type("stringLiteral")
+  case class TupleType(items: Vector[Type])   extends Type("tuple")
+
 end Type
 
 enum TypeTraversal:

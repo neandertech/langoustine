@@ -16,20 +16,22 @@
 
 package langoustine.meta
 
+// import com.github.plokhotnyuk.jsoniter_scala.macros.*
+// import com.github.plokhotnyuk.jsoniter_scala.core.*
+//
+import io.circe.*
+import io.circe.derivation.Configuration
+
 object json:
-  import upickle.default.*
   given [Raw, Opaque](using
       bts: BasicallyTheSame[Raw, Opaque],
-      rw: ReadWriter[Raw]
-  ): ReadWriter[Opaque] =
-    rw.bimap[Opaque](bts.reverse, bts.apply)
+      rw: Codec[Raw]
+  ): Codec[Opaque] =
+    rw.iemap[Opaque](r => Right(bts(r)))(bts.reverse)
 
   import Type.*
 
-  given [T <: String](using rw: ReadWriter[String]): ReadWriter[T] =
-    rw.bimap(identity, _.asInstanceOf[T])
-
-  given Reader[BaseTypes] = summon[Reader[String]].map {
+  given Decoder[BaseTypes] = Decoder.decodeString.map {
     case "DocumentUri" => BaseTypes.DocumentUri
     case "Uri" | "URI" => BaseTypes.Uri
     case "integer"     => BaseTypes.integer
@@ -41,60 +43,65 @@ object json:
     case "null"        => BaseTypes.NULL
   }
 
-  extension [X <: ujson.Value](js: X)
-    def as[T](using cr: Reader[T]) = read[T](js)
+  // extension [X <: ujson.Value](js: X)
+  //   def as[T](using cr: Reader[T]) = read[T](js)
 
-  given Reader[ParamsType] = reader[ujson.Value].map { js =>
-    js.objOpt match
-      case None    => ParamsType.Many(read[Vector[Type]](js))
-      case Some(o) => ParamsType.Single(read[Type](js))
+  given Decoder[ParamsType] = Decoder.decodeJson.flatMap { js =>
+    js.asObject match
+      // js.objOpt match
+      case None    => Decoder[Vector[Type]].map(ParamsType.Many(_))
+      case Some(o) => Decoder[Type].map(ParamsType.Single(_))
   }
 
-  given Reader[Property]         = macroR
-  given Reader[Structure]        = macroR
-  given Reader[StructureLiteral] = macroR
-  given Reader[Request]          = macroR
-  given Reader[Notification]     = macroR
+  given Configuration = Configuration.default.withDefaults
 
-  given Reader[BaseType]             = upickle.default.macroR
-  given Reader[ReferenceType]        = upickle.default.macroR
-  given Reader[ArrayType]            = upickle.default.macroR
-  given Reader[OrType]               = upickle.default.macroR
-  given Reader[AndType]              = upickle.default.macroR
-  given Reader[MapType]              = upickle.default.macroR
-  given Reader[StructureLiteralType] = upickle.default.macroR
-  given Reader[StringLiteralType]    = upickle.default.macroR
-  given Reader[TupleType]            = upickle.default.macroR
-  given Reader[EnumerationTypeName] =
-    reader[String].map {
+  given Decoder[Property]         = Decoder.derivedConfigured
+  given Decoder[Structure]        = Decoder.derivedConfigured
+  given Decoder[StructureLiteral] = Decoder.derivedConfigured
+  given Decoder[Request]          = Decoder.derivedConfigured
+  given Decoder[Notification]     = Decoder.derivedConfigured
+
+  given Decoder[BaseType]             = Decoder.derivedConfigured
+  given Decoder[ReferenceType]        = Decoder.derivedConfigured
+  given Decoder[ArrayType]            = Decoder.derivedConfigured
+  given Decoder[OrType]               = Decoder.derivedConfigured
+  given Decoder[AndType]              = Decoder.derivedConfigured
+  given Decoder[MapType]              = Decoder.derivedConfigured
+  given Decoder[StructureLiteralType] = Decoder.derivedConfigured
+  given Decoder[StringLiteralType]    = Decoder.derivedConfigured
+  given Decoder[TupleType]            = Decoder.derivedConfigured
+  given Decoder[EnumerationTypeName]  =
+    Decoder.decodeString.map {
       case "string"   => EnumerationTypeName.string
       case "integer"  => EnumerationTypeName.integer
       case "uinteger" => EnumerationTypeName.uinteger
     }
-  given Reader[EnumerationEntry] = upickle.default.macroR
-  given Reader[EnumerationType]  = upickle.default.macroR
-  given Reader[Enumeration]      = upickle.default.macroR
-  given Reader[TypeAlias]        = upickle.default.macroR
-  given Reader[MetaModel]        = upickle.default.macroR
+  given Decoder[EnumerationEntry] = Decoder.derivedConfigured
+  given Decoder[EnumerationType]  = Decoder.derivedConfigured
+  given Decoder[Enumeration]      = Decoder.derivedConfigured
+  given Decoder[TypeAlias]        = Decoder.derivedConfigured
+  given Decoder[MetaModel]        = Decoder.derivedConfigured
 
-  given Reader[EnumerationItem] = reader[ujson.Value].map { v =>
-    (v.strOpt.map(EnumerationItem.apply) orElse
-      v.numOpt.map(t => EnumerationItem.apply(t.toInt))).get
-  }
+  given Decoder[EnumerationItem] = Decoder.decodeString
+    .map(EnumerationItem.apply)
+    .or(Decoder.decodeInt.map(EnumerationItem.apply))
+  given Decoder[Type] = Decoder.decodeJsonObject.flatMap { obj =>
+    val kind = obj("kind").flatMap(_.asString).getOrElse(???)
 
-  given Reader[Type] = reader[ujson.Obj].map { obj =>
-    val kind = obj("kind").str
+    import cats.syntax.functor.*
+
+    println(s"reading $obj")
 
     kind match
-      case "reference"     => read[ReferenceType](obj)
-      case "base"          => read[BaseType](obj)
-      case "array"         => read[ArrayType](obj)
-      case "or"            => read[OrType](obj)
-      case "map"           => read[MapType](obj)
-      case "literal"       => read[StructureLiteralType](obj)
-      case "stringLiteral" => read[StringLiteralType](obj)
-      case "tuple"         => read[TupleType](obj)
-      case "and"           => read[AndType](obj)
+      case "reference"     => Decoder[ReferenceType].widen
+      case "base"          => Decoder[BaseType].widen
+      case "array"         => Decoder[ArrayType].widen
+      case "or"            => Decoder[OrType].widen
+      case "map"           => Decoder[MapType].widen
+      case "literal"       => Decoder[StructureLiteralType].widen
+      case "stringLiteral" => Decoder[StringLiteralType].widen
+      case "tuple"         => Decoder[TupleType].widen
+      case "and"           => Decoder[AndType].widen
     end match
   }
 end json

@@ -2,6 +2,8 @@ package langoustine.generate
 
 import langoustine.meta.*
 import langoustine.generate.StructureRenderConfig.PrivateCodecs
+import cats.syntax.all
+import langoustine.meta.Type.OrType
 
 class Render(manager: Manager, packageName: String = "langoustine.lsp"):
   private val INDENT = "  "
@@ -12,10 +14,12 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     inline def line: Config ?=> Appender = to(out)
     line(s"package $packageName")
     line(s"package codecs")
-    line("")
-    line("import upickle.default.*")
+    // line("import upickle.default.*")
+    line("import io.circe.{Decoder, Encoder}")
     line("import aliases.*")
-    line("import json.{*, given}")
+    line("import enumerations.*")
+    line("import structures.*")
+    // line("import json.{*, given}")
     line("import runtime.{*, given}")
   end codecsPrelude
 
@@ -89,8 +93,10 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line("")
     line("import langoustine.*")
     line("import upickle.default.*")
-    line("import json.{*, given}")
+    // line("import json.{*, given}")
+    line("import io.circe.{Decoder, Encoder}")
     line("import runtime.{*, given}")
+    line("import structures.*")
     line("")
 
     val requestPrelude = """
@@ -98,10 +104,10 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         |  type In
         |  type Out
         |
-        |  given inputReader: Reader[In]
-        |  given inputWriter: Writer[In]
-        |  given outputWriter: Writer[Out]
-        |  given outputReader: Reader[Out]
+        |  given inputFromJson: Decoder[In]
+        |  given inputToJson: Encoder[In]
+        |  given outputToJson: Encoder[Out]
+        |  given outputFromJson: Decoder[Out]
         |
         |  def apply(in: In): PreparedRequest[this.type] = PreparedRequest(this,in)
         """.stripMargin.trim
@@ -112,24 +118,24 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
 
     val customRequestPrelude =
       """
-        |abstract class CustomRequest[I, O](method: String)(using ir: ReadWriter[I], or: ReadWriter[O]) extends LSPRequest(method):
+        |abstract class CustomRequest[I, O](method: String)(using ifr: Decoder[I], ito: Encoder[I], ofr: Decoder[O], oto: Encoder[O]) extends LSPRequest(method):
         |   override type In = I
         |   override type Out = O
         |
-        |   override given inputReader: Reader[In] = ir
+        |   override given inputFromJson: Decoder[In] = ifr
         |
-        |   override given inputWriter: Writer[In] = ir
+        |   override given inputToJson: Encoder[In] = ito
         |
-        |   override given outputWriter: Writer[Out] = or
+        |   override given outputToJson: Encoder[Out] = oto
         |
-        |   override given outputReader: Reader[Out] = or
+        |   override given outputFromJson: Decoder[Out] = ofr
         |
-        |abstract class CustomNotification[I](method: String)(using ir: ReadWriter[I]) extends LSPNotification(method):
+        |abstract class CustomNotification[I](method: String)(using ifr: Decoder[I], ito: Encoder[I]) extends LSPNotification(method):
         |   override type In = I
         |
-        |   override given inputReader: Reader[In] = ir
+        |   override given inputFromJson: Decoder[In] = ifr
         |
-        |   override given inputWriter: Writer[In] = ir
+        |   override given inputToJson: Encoder[In] = ito
         """.stripMargin.trim
 
     customRequestPrelude.linesIterator.foreach(line)
@@ -140,8 +146,8 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     |sealed abstract class LSPNotification(val notificationMethod: String):
     |  type In
     |
-    |  given inputReader: Reader[In]
-    |  given inputWriter: Writer[In]
+    |  given inputFromJson: Decoder[In]
+    |  given inputToJson: Encoder[In]
     |
     |  def apply(in: In): PreparedNotification[this.type] = PreparedNotification(this,in)
     """.stripMargin.trim
@@ -219,7 +225,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         val outStructName =
           StructureName(req.segs.map(_.capitalize).mkString + "Output")
 
-        val inStruct = rewriteAndParmas(req.params, inStructName)
+        val inStruct  = rewriteAndParmas(req.params, inStructName)
         val outStruct = Option(req.result).collect { case at: AndType =>
           rewriteAndType(at, outStructName)
         }.flatten
@@ -279,55 +285,59 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
                 case None =>
                   req.params match
                     case ParamsType.None =>
-                      WriterDefinition.Expression("unitReader")
-                    case ParamsType.Single(t) => upickleReader1(t, "In")
+                      WriterDefinition.Expression("Decoder.const(())")
+                    case ParamsType.Single(t) =>
+                      // TODO: handle unions
+                      WriterDefinition.Expression(decoderReference(t))
                     case ParamsType.Many(t) =>
                       WriterDefinition.Expression("Pickle.macroR")
                 case Some(s) =>
-                  WriterDefinition.Expression(s"$path.${s.name.value}.reader")
+                  WriterDefinition.Expression(s"$path.${s.name.value}.fromJson")
 
-            codecsLine(s"given inputReader: Reader[In] = ")
+            codecsLine(s"given inputFromJson: Decoder[In] = ")
             nest {
               reader.write(codecsOut)
             }
 
             codecsLine("")
 
-            codecsLine(s"given inputWriter: Writer[In] = ")
+            codecsLine(s"given inputToJson: Encoder[In] = ")
             nest {
               inStruct match
                 case None =>
                   req.params match
-                    case ParamsType.None => codecsLine("unitWriter")
+                    case ParamsType.None => codecsLine("Encoder.encodeUnit")
                     case ParamsType.Single(t) =>
-                      upickleWriter(t, Some("In")).write(codecsOut)
+                      codecsLine(encoderReference(t))
                     case ParamsType.Many(t) => codecsLine("Pickle.macroR")
                 case Some(s) =>
-                  codecsLine(s"$path.${s.name.value}.writer")
+                  codecsLine(s"$path.${s.name.value}.toJson")
             }
 
             codecsLine("")
 
-            codecsLine(s"given outputWriter: Writer[Out] =")
+            codecsLine(s"given outputToJson: Encoder[Out] =")
             nest {
               outStruct match
                 case None =>
-                  upickleWriter(req.result, Some("Out")).write(codecsOut)
+                  // upickleWriter(req.result, Some("Out")).write(codecsOut)
+                  codecsLine(encoderReference(req.result))
                 case Some(s) =>
-                  codecsLine(s"$path.${s.name.value}.writer")
+                  codecsLine(s"$path.${s.name.value}.toJson")
             }
 
             codecsLine("")
 
             codecsLine(
-              s"given outputReader: Reader[Out] ="
+              s"given outputFromJson: Decoder[Out] ="
             )
             nest {
               outStruct match
                 case None =>
-                  upickleReader1(req.result, "Out").write(codecsOut)
+                  codecsLine(decoderReference(req.result))
+                  // upickleReader1(req.result, "Out").write(codecsOut)
                 case Some(s) =>
-                  codecsLine(s"$path.${s.name.value}.reader")
+                  codecsLine(s"$path.${s.name.value}.fromJson")
             }
 
           }
@@ -381,7 +391,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
                 case ParamsType.None =>
                   WriterDefinition.Expression("unitReader")
                 case ParamsType.Single(t) => upickleReader1(t, "In")
-                case ParamsType.Many(t) =>
+                case ParamsType.Many(t)   =>
                   WriterDefinition.Expression("Pickle.macroR")
 
             codecsLine(s"given inputReader: Reader[In] = ")
@@ -391,7 +401,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
             codecsLine(s"given inputWriter: Writer[In] = ")
             nest {
               req.params match
-                case ParamsType.None => codecsLine("unitWriter")
+                case ParamsType.None      => codecsLine("Decoder.const(())")
                 case ParamsType.Single(t) =>
                   upickleWriter(t, Some("In")).write(codecsOut)
                 case ParamsType.Many(t) => codecsLine("Pickle.macroR")
@@ -404,7 +414,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
 
     def rec(segments: List[String])(using Config): Unit =
       segments match
-        case Nil => ()
+        case Nil    => ()
         case h :: t =>
           val scopeName =
             h match
@@ -471,16 +481,19 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line("")
     line("import langoustine.*")
     line("import upickle.default.*")
-    line("import json.{*, given}")
+    // line("import json.{*, given}")
     line("import runtime.{*, given}")
     line("")
 
     given Context = Context.global(manager, List("structures"))
 
-    manager.structures.filterNot(_.proposed).sortBy(_.name.value).foreach { s =>
-      structure(s, out, codecsOut)
-      line("")
-    }
+    manager.structures
+      .filterNot(_.proposed)
+      .sortBy(_.name.value)
+      .foreach { s =>
+        structure(s, out, codecsOut)
+        line("")
+      }
   end structures
 
   private def deduplicateProperties(
@@ -592,7 +605,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         StructureRenderConfig(privateCodecs = PrivateCodecs.No),
       ctx: Context
   ): Unit =
-    val props = Vector.newBuilder[String]
+    val props            = Vector.newBuilder[String]
     val inlineStructures =
       Map.newBuilder[Type.ReferenceType, (String, Type.StructureLiteralType)]
 
@@ -622,7 +635,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     deduplicateProperties(allProperties).foreach { p =>
       p.tpe match
         case stl: Type.StructureLiteralType =>
-          val newTypeName = p.name.value.capitalize
+          val newTypeName                 = p.name.value.capitalize
           val newType: Type.ReferenceType = Type.ReferenceType(
             TypeName(
               structure.name.value + "." + newTypeName
@@ -634,7 +647,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         case other =>
           val newType = other.traverse {
             case stl: Type.StructureLiteralType =>
-              val newTypeName = "S" + inlineAnonymousStructures
+              val newTypeName                 = "S" + inlineAnonymousStructures
               val newType: Type.ReferenceType = Type.ReferenceType(
                 TypeName(
                   structure.name.value + "." + newTypeName
@@ -687,8 +700,8 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
       }
     }
     line(")")
-    val stls = inlineStructures.result()
-    val fqf  = (ctx.definitionScope :+ structure.name).mkString(".")
+    val stls           = inlineStructures.result()
+    val fqf            = (ctx.definitionScope :+ structure.name).mkString(".")
     val codecTraitName =
       (ctx.definitionScope :+ structure.name).mkString("_") + "Codec"
 
@@ -721,30 +734,46 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         codecsLine(s"private[lsp] trait $codecTraitName:")
         nest {
           ctx.definitionScope match
-            case Nil =>
+            case Nil   =>
             case scope =>
               codecsLine(s"import ${scope.mkString(".")}.*")
-          allUnions.distinct.zipWithIndex.foreach {
-            case (NullableType(_), _) =>
-            case (ot, idx) =>
-              val union = renderType(ot)
-              codecsLine(
-                s"private given rd$idx: Reader[$union] = "
-              )
-              nest {
-                upickleReader1(ot, union).write(codecsOut)
-              }
-              codecsLine(s"private given wt$idx: Writer[$union] = ")
-              nest {
-                upickleWriter(ot, Some(union)).write(codecsOut)
-              }
+          // allUnions.distinct.zipWithIndex.foreach {
+          //   case (NullableType(_), _) =>
+          //   case (ot, idx)            =>
+          //     val union = renderType(ot)
+          //     codecsLine(
+          //       s"private given rd$idx: Reader[$union] = "
+          //     )
+          //     nest {
+          //       upickleReader1(ot, union).write(codecsOut)
+          //     }
+          //     codecsLine(s"private given wt$idx: Writer[$union] = ")
+          //     nest {
+          //       upickleWriter(ot, Some(union)).write(codecsOut)
+          //     }
+
+          // }
+          // codecsLine(
+          //   s"${codecPublicity}given reader: Reader[$fqf] = Pickle.macroR"
+          // )
+          // codecsLine(
+          //   s"${codecPublicity}given writer: Writer[$fqf] = upickle.default.macroW"
+          // )
+
+          codecsLine(s"given fromJson: Decoder[${structure.name}] = ")
+          nest {
+            circeDecoderForStruct(structure.name, allProperties).write(
+              codecsOut
+            )
           }
-          codecsLine(
-            s"${codecPublicity}given reader: Reader[$fqf] = Pickle.macroR"
-          )
-          codecsLine(
-            s"${codecPublicity}given writer: Writer[$fqf] = upickle.default.macroW"
-          )
+
+          codecsLine(s"given toJson: Encoder[${structure.name}] = ")
+          nest {
+            circeEncoderForStruct(structure.name, allProperties).write(
+              codecsOut
+            )
+          }
+
         }
         codecsLine("")
       }
@@ -766,6 +795,142 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     }
   end structure
 
+  def encoderReference(t: Type)(using context: Context): String =
+    import Type.*, BaseTypes.*
+    t match
+      case BaseType(BaseTypes.string)                => "Encoder.encodeString"
+      case BaseType(BaseTypes.boolean)               => "Encoder.encodeBoolean"
+      case BaseType(BaseTypes.uinteger)              => "uinteger.toJson"
+      case BaseType(BaseTypes.Uri)                   => "Uri.toJson"
+      case BaseType(BaseTypes.DocumentUri)           => "DocumentUri.toJson"
+      case ReferenceType(tn) if tn.value == "LSPAny" =>
+        s"Encoder.encodeJson"
+      case rt: ReferenceType => s"${context.resolve(rt).value}.toJson"
+      case OrType(ts)        =>
+        sys.error(s"Cannot provide an encoder reference for OR type: $ts")
+        // s"Dec.merge[${renderType(t)}]($head, ${rest.mkString(", ")})"
+      case ArrayType(tpe) =>
+        s"Encoder.encodeVector(${encoderReference(tpe)})"
+      case _ => s"??? /*$t*/"
+    end match
+  end encoderReference
+
+  def decoderReference(t: Type)(using context: Context): String =
+    import Type.*, BaseTypes.*
+    t match
+      case BaseType(BaseTypes.string)                => "Decoder.decodeString"
+      case BaseType(BaseTypes.boolean)               => "Decoder.decodeBoolean"
+      case BaseType(BaseTypes.uinteger)              => "uinteger.fromJson"
+      case BaseType(BaseTypes.Uri)                   => "Uri.fromJson"
+      case BaseType(BaseTypes.DocumentUri)           => "DocumentUri.fromJson"
+      case ReferenceType(tn) if tn.value == "LSPAny" =>
+        s"Decoder.decodeJson"
+      case rt: ReferenceType => s"${context.resolve(rt).value}.fromJson"
+      case OrType(ts)        =>
+        val head = decoderReference(ts.head)
+        val rest = ts.tail.map(decoderReference)
+        s"Dec.merge[${renderType(t)}]($head, ${rest.mkString(", ")})"
+      case ArrayType(tpe) =>
+        s"Decoder.decodeVector(${decoderReference(tpe)})"
+      case _ => s"??? /*$t*/"
+    end match
+  end decoderReference
+
+  def circeEncoderForStruct(name: StructureName, props: Vector[Property])(using
+      Context,
+      Config
+  ) =
+    import WriterDefinition.*
+
+    Definition { out =>
+      inline def line: Config ?=> Appender = to(out)
+
+      def encode(prop: Property, value: String)(using Config) =
+        line(
+          s"enc.field(\"${prop.name}\", $value, ${encoderReference(prop.tpe)})"
+        )
+
+      line("Enc.toJsonObject: (enc, a) =>")
+      nest {
+        props.foreach { prop =>
+          prop.tpe match
+            case OrType(items) =>
+              val len      = items.length
+              val encoders = items.map(encoderReference)
+              val types    = items.map(renderType(_)).mkString(", ")
+              if prop.optional.yes then
+                line(s"a.${prop.name}.foreach: v =>")
+                nest {
+                  line(
+                    s"""  enc.union$len[$types](\"${prop.name}\", v, ${encoders
+                        .mkString(", ")})  """.trim
+                  )
+                }
+              else
+                line(
+                  s"""  enc.union$len[$types](\"${prop.name}\", a.${prop.name}, ${encoders
+                      .mkString(", ")})  """.trim
+                )
+              end if
+            case _ =>
+              if prop.optional.yes then
+                line(s"a.${prop.name}.foreach: v =>")
+                nest {
+                  encode(prop, "v")
+                }
+              else encode(prop, "a." + prop.name)
+
+        }
+      }
+    }
+  end circeEncoderForStruct
+
+  def circeDecoderForStruct(name: StructureName, props: Vector[Property])(using
+      Context,
+      Config
+  ) =
+    import WriterDefinition.*
+
+    Definition { out =>
+      inline def line: Config ?=> Appender = to(out)
+
+      line("Dec.fromJsonObject: dec =>")
+      nest {
+        line("for")
+        nest {
+          props.foreach { prop =>
+            val func  = if prop.optional.yes then "getOpt" else "get"
+            val codec = decoderReference(prop.tpe)
+            codec match
+              case s: String =>
+                line(
+                  s"${sanitise(prop.name.value)} <- dec.$func(\"${prop.name}\", $codec)"
+                )
+              // case vec: Seq[Type] =>
+              //   val l        = vec.length
+              //   val types    = vec.map(renderType).mkString(", ")
+              //   val fallback =
+              //     if prop.optional.yes then ".map(Some(_)).orElse(Right(None))"
+              //     else ""
+              //   line(
+              //     s"${sanitise(prop.name.value)} <- dec.getUnion$l[$types](\"${prop.name}\", ${vec.map(decoderReference(_)).mkString(", ")})$fallback"
+              //   )
+            end match
+
+          }
+        }
+        line(s"yield $name(")
+        nest {
+          props.foreach { prop =>
+            line(s"${sanitise(prop.name.value)},")
+          }
+        }
+        line(")")
+      }
+
+    }
+  end circeDecoderForStruct
+
   def upickleReader1(t: Type, widen: String, cast: Option[String] = None)(using
       Context,
       Config
@@ -781,7 +946,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
           inline def line: Config ?=> Appender = to(out)
           val allOrs                           = collectOrTypes(ot).distinct
           allOrs.filterNot(_ == ot).map { tpe =>
-            line(s"given Reader[${renderType(tpe)}] = ")
+            line(s"given Reader[${renderType(tpe)}] = ??? / ")
             nest {
               upickleReader1(tpe, renderType(tpe)).write(out)
             }
@@ -796,7 +961,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         Expression("jsReader")
       case rt @ ReferenceType(ref) =>
         Expression(summon[Context].resolve(rt).value + s".reader$asInst")
-      case _: AndType => Expression(s"??? /* TODO: $t  */")
+      case _: AndType    => Expression(s"??? /* TODO: $t  */")
       case at: ArrayType =>
         Definition { out =>
           inline def line: Config ?=> Appender = to(out)
@@ -823,9 +988,9 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         val w            = widen.map(a => s".widen[${a}]").getOrElse("")
         val constituents = ot.items.map(upickleReader(_)).map(_ + w)
         constituents.mkString(s"badMerge(", ", ", ")")
-      case BaseType(BaseTypes.NULL)    => "nullReadWriter"
-      case BaseType(BaseTypes.string)  => "stringCodec"
-      case BaseType(BaseTypes.integer) => "intCodec"
+      case BaseType(BaseTypes.NULL)                         => "nullReadWriter"
+      case BaseType(BaseTypes.string)                       => "stringCodec"
+      case BaseType(BaseTypes.integer)                      => "intCodec"
       case rt @ ReferenceType(ref) if ref.value == "LSPAny" =>
         "jsReader"
       case rt @ ReferenceType(ref) =>
@@ -889,7 +1054,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
                   }
 
                   vectors.collect { case at: ArrayType => at }.toList match
-                    case Nil =>
+                    case Nil       =>
                     case at :: Nil =>
                       val typeName = renderType(at)
                       line(
@@ -956,9 +1121,9 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line(s"package $packageName")
     line("")
     line("import langoustine.*")
-    line("import json.{*, given}")
+    // line("import json.{*, given}")
     line("import runtime.{*, given}")
-    line("import upickle.default.*")
+    // line("import upickle.default.*")
     line("import scala.reflect.*")
     line("")
 
@@ -976,9 +1141,9 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
               ]
 
           var inlineAnonymousStructures = 0
-          val newType = alias.`type`.traverse {
+          val newType                   = alias.`type`.traverse {
             case stl: Type.StructureLiteralType =>
-              val newTypeName = "S" + inlineAnonymousStructures
+              val newTypeName                 = "S" + inlineAnonymousStructures
               val newType: Type.ReferenceType = Type.ReferenceType(
                 TypeName(
                   alias.name.value + "." + newTypeName
@@ -1080,7 +1245,8 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line(s"package enumerations")
     line("")
     line("import runtime.{*, given}")
-    line("import json.{*, given}")
+    // line("import json.{*, given}")
+    line("import io.circe.*")
     line("import scala.reflect.Typeable")
     line("import scala.annotation.switch")
     line("")
@@ -1088,9 +1254,11 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     given ctx: Context = Context.global(manager, List("enumerations"))
 
     // nest {
-    line(s"private val stringCodec = upickle.default.readwriter[String]")
-    line(s"private val intCodec = upickle.default.readwriter[Int]")
-    line("import upickle.{default => up}")
+    line(s"private val stringCodecU = upickle.default.readwriter[String]")
+    line(s"private val intCodecU = upickle.default.readwriter[Int]")
+    line(s"private val stringCodec = Decoder.decodeString")
+    line(s"private val intCodec = Decoder.decodeInt")
+    // line("import upickle.{default => up}")
     line("")
 
     manager.enumerations.filterNot(_.proposed).foreach { a =>
@@ -1150,7 +1318,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
               val unwrap = base match
                 case ET.integer  => "self"
                 case ET.uinteger => "self.value"
-                case ET.string =>
+                case ET.string   =>
                   sys.error(
                     "impossible - should be prevented by the previous case"
                   )
@@ -1184,11 +1352,11 @@ object Render:
     private val SEP          = System.lineSeparator()
     def apply(): LineBuilder = new StringBuilder
     extension (lb: LineBuilder)
-      def result: String                     = lb.result
-      def appendLine(s: String): LineBuilder = lb.append(s + SEP)
-      def emptyLine: LineBuilder             = lb.append(SEP)
-      def emptyLines(n: Int): LineBuilder    = lb.append(SEP * n)
-      def append(s: String): LineBuilder     = lb.append(s)
+      def result: String                                = lb.result
+      def appendLine(s: String): LineBuilder            = lb.append(s + SEP)
+      def emptyLine: LineBuilder                        = lb.append(SEP)
+      def emptyLines(n: Int): LineBuilder               = lb.append(SEP * n)
+      def append(s: String): LineBuilder                = lb.append(s)
       def topLevel(f: Config ?=> Unit)(using c: Config) =
         f(using c.copy(indents = Indentation(0)))
       def appender: Config ?=> Appender = to(lb)
@@ -1237,8 +1405,7 @@ object Types:
             case _: Enumeration => s"enumerations.${rt.name.value}"
             case _: Structure   => s"structures.${rt.name.value}"
             case _: TypeAlias   => s"aliases.${rt.name.value}"
-            case _              => s"${rt.name.value} /* qualifyName */"
-          )
+            case _              => s"${rt.name.value} /* qualifyName */")
           .map(TypeName.apply(_))
           .getOrElse(rt.name)
 
@@ -1279,14 +1446,14 @@ object Types:
     import Type.*
     tpe match
       case bt: BaseType                            => renderBase(bt)
-      case ReferenceType(t) if t.value == "LSPAny" => "ujson.Value"
-      case rt: ReferenceType =>
+      case ReferenceType(t) if t.value == "LSPAny" => "io.circe.Json"
+      case rt: ReferenceType                       =>
         ctx
           .resolve(rt)
           .value
       case rt: ArrayType    => s"Vector[${renderType(rt.element)}]"
-      case NullableType(nt) => s"Opt[${renderType(nt)}]"
-      case rt: OrType =>
+      case NullableType(nt) => s"Option[${renderType(nt)}]"
+      case rt: OrType       =>
         "(" + rt.items.map(renderType).mkString(" | ") + ")"
       case tt: TupleType =>
         tt.items.map(renderType(_)).mkString("(", ", ", ")")
@@ -1316,7 +1483,7 @@ object Types:
     import p.*
     val typeName = renderType(tpe)
     if p.optional == IsOptional.Yes then
-      s"${sanitise(name.value)}: Opt[$typeName] = Opt.empty"
+      s"${sanitise(name.value)}: Option[$typeName] = None"
     else s"${sanitise(name.value)}: $typeName"
 
   def sanitise(name: String) =
@@ -1329,7 +1496,8 @@ object Types:
         "def",
         "import",
         "export",
-        "macro"
+        "macro",
+        "end"
       )
 
     if prohibited(name) then s"`$name`" else name

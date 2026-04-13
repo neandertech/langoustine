@@ -30,10 +30,14 @@ trait TotalWrapper[Newtype, Impl](using ev: Newtype =:= Impl):
     def reverse(a: Newtype) = ev(a)
 
   extension (a: Newtype)
-    inline def value = raw(a)
+    inline def value                                           = raw(a)
     inline def into[X](inline other: TotalWrapper[X, Impl]): X =
       other.apply(raw(a))
     inline def map(inline f: Impl => Impl): Newtype = apply(f(raw(a)))
+
+  import io.circe.*
+  given fromJson(using Decoder[Impl]): Decoder[Newtype] =
+    summon[Decoder[Impl]].asInstanceOf[Decoder[Newtype]]
 end TotalWrapper
 
 inline given [A, T](using
@@ -60,4 +64,8 @@ abstract class YesNo[A](using ev: Boolean =:= A):
     inline def value: Boolean = a == Yes
     inline def yes: Boolean   = a == Yes
     inline def no: Boolean    = !yes
+
+  import io.circe.*
+  given fromJson: Decoder[A] =
+    summon[Decoder[Boolean]].asInstanceOf[Decoder[A]]
 end YesNo

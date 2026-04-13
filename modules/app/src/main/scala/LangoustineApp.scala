@@ -27,8 +27,6 @@ import cats.effect.std.Dispatcher
 import cats.syntax.all.*
 import jsonrpclib.Channel
 import jsonrpclib.Endpoint
-import jsonrpclib.Endpoint.NotificationEndpoint
-import jsonrpclib.Endpoint.RequestResponseEndpoint
 import jsonrpclib.fs2.*
 import langoustine.lsp.Communicate
 import langoustine.lsp.LSPBuilder
@@ -75,19 +73,24 @@ object LangoustineApp:
         val comms       = Communicate.channel(to, shutdown)
         val futureComms = DispatcherCommunicate(disp, comms)
         val endpoints   = builder.build(futureComms)
+        val pf          = new jsonrpclib.PolyFunction[Future, IO]:
+          def apply[T](fut: => Future[T]): IO[T] = IO.fromFuture(IO(fut))
 
         (endpoints: @unchecked)
-          .map {
-            case n @ NotificationEndpoint[Future, Any](method, run, inCodec) =>
-              n.copy(run = (msg, in) => IO.fromFuture(IO(n.run(msg, in))))
-            case r @ RequestResponseEndpoint[Future, Any, Any, Any](
-                  method,
-                  run,
-                  inCodec,
-                  errCodec,
-                  outCodec
-                ) =>
-              r.copy(run = (msg, in) => IO.fromFuture(IO(r.run(msg, in))))
+          // .map {
+          //   case n @ NotificationEndpoint[Future, Any](method, run, inCodec) =>
+          //     n.copy(run = (msg, in) => IO.fromFuture(IO(n.run(msg, in))))
+          //   case r @ RequestResponseEndpoint[Future, Any, Any, Any](
+          //         method,
+          //         run,
+          //         inCodec,
+          //         errCodec,
+          //         outCodec
+          //       ) =>
+          //     r.copy(run = (msg, in) => IO.fromFuture(IO(r.run(msg, in))))
+          // }
+          .map { e =>
+            e.mapK(pf)
           }
           .traverse(ep => to.mountEndpoint(ep))
       }.void
