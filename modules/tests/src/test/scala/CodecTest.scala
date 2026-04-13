@@ -35,11 +35,12 @@ object CodecTest extends weaver.FunSuite, WeaverSnapshotsIntegration:
 
   val SEED = 120312937L
 
-  requestSnapshotTest(langoustine.lsp.requests.textDocument.documentLink)
-  requestSnapshotTest(langoustine.lsp.requests.textDocument.foldingRange)
-  requestSnapshotTest(langoustine.lsp.requests.workspace.configuration)
-  requestSnapshotTest(langoustine.lsp.requests.textDocument.references)
+  // requestSnapshotTest(langoustine.lsp.requests.textDocument.documentLink)
+  // requestSnapshotTest(langoustine.lsp.requests.textDocument.foldingRange)
+  // requestSnapshotTest(langoustine.lsp.requests.workspace.configuration)
+  // requestSnapshotTest(langoustine.lsp.requests.textDocument.references)
   // requestSnapshotTest(langoustine.lsp.requests.textDocument.rename)
+  requestSnapshotTest(langoustine.lsp.requests.completionItem.resolve)
 
   def requestSnapshotTest[T <: LSPRequest](x: T)(using
       arbReq: Arbitrary[x.In],

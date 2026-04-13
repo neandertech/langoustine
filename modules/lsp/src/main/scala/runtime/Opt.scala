@@ -20,7 +20,7 @@ package runtime
 import scala.reflect.TypeTest
 
 import langoustine.*
-import langoustine.lsp.json.*
+// import langoustine.lsp.json.*
 import upickle.default.*
 
 opaque type Opt[+A] = A | Null
@@ -47,20 +47,20 @@ object Opt:
   given [A]: CanEqual[Opt[A], Opt[A]] = CanEqual.canEqualAny
   given [A]: CanEqual[Opt[A], Null]   = CanEqual.canEqualAny
 
-  given [A](using
-      rd: Reader[A]
-  ): Reader[Opt[A]] =
-    jsReader.map[Opt[A]] {
-      case ujson.Null => empty
-      case other      => upickle.default.read(other)(using rd)
-    }
+  // given [A](using
+  //     rd: Reader[A]
+  // ): Reader[Opt[A]] =
+  //   jsReader.map[Opt[A]] {
+  //     case ujson.Null => empty
+  //     case other      => upickle.default.read(other)(using rd)
+  //   }
 
-  given [A](using
-      wt: Writer[A]
-  ): Writer[Opt[A]] =
-    jsWriter.comap[Opt[A]] {
-      case other => upickle.default.writeJs(other.asInstanceOf[A])(using wt)
-      case null  => ujson.Null
-    }
+  // given [A](using
+  //     wt: Writer[A]
+  // ): Writer[Opt[A]] =
+  //   jsWriter.comap[Opt[A]] {
+  //     case other => upickle.default.writeJs(other.asInstanceOf[A])(using wt)
+  //     case null  => ujson.Null
+  //   }
 
 end Opt

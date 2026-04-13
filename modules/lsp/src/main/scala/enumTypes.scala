@@ -19,6 +19,7 @@ package langoustine.lsp
 import scala.reflect.*
 
 import upickle.default.*
+import io.circe.*
 
 import runtime.*
 
@@ -32,11 +33,16 @@ private[lsp] trait IntEnum[T](using ev: T =:= Int):
   given reader: Reader[T] = intCodec.asInstanceOf[Reader[T]]
   given writer: Writer[T] = intCodec.asInstanceOf[Writer[T]]
 
+  given fromJson: Decoder[T] =
+    io.circe.Decoder.decodeInt.asInstanceOf[Decoder[T]]
+  given toJson: Encoder[T] =
+    io.circe.Encoder.encodeInt.asInstanceOf[Encoder[T]]
+
   protected def ALL: Set[T]
   extension (self: T) def name: String
 
   given Bijection[T, Int] with
-    def apply(a: T): Int = ev.apply(a)
+    def apply(a: T): Int   = ev.apply(a)
     def reverse(a: Int): T =
       ev.flip.apply(a)
     lazy val domain = ALL
@@ -57,6 +63,12 @@ private[lsp] trait StringEnum[T](using ev: T =:= String):
   private val stringCodec = upickle.default.readwriter[String]
   given reader: Reader[T] = stringCodec.asInstanceOf[Reader[T]]
   given writer: Writer[T] = stringCodec.asInstanceOf[Writer[T]]
+
+  given fromJson: Decoder[T] =
+    io.circe.Decoder.decodeString.asInstanceOf[Decoder[T]]
+  given toJson: Encoder[T] =
+    io.circe.Encoder.encodeString.asInstanceOf[Encoder[T]]
+
   protected def ALL: Set[T]
   extension (self: T) def name: String = self
 
@@ -83,11 +95,16 @@ private[lsp] trait UIntEnum[T](using ev: T =:= uinteger):
   given reader: Reader[T] = intCodec.asInstanceOf[Reader[T]]
   given writer: Writer[T] = intCodec.asInstanceOf[Writer[T]]
 
+  given fromJson: Decoder[T] =
+    io.circe.Decoder.decodeInt.asInstanceOf[Decoder[T]]
+  given toJson: Encoder[T] =
+    io.circe.Encoder.encodeInt.asInstanceOf[Encoder[T]]
+
   protected def ALL: Set[T]
   extension (self: T) def name: String
 
   given Bijection[T, uinteger] with
-    def apply(a: T): uinteger = ev.apply(a)
+    def apply(a: T): uinteger   = ev.apply(a)
     def reverse(a: uinteger): T =
       ev.flip.apply(a)
     lazy val domain = ALL

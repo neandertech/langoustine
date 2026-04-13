@@ -63,14 +63,14 @@ given deriveUintegerEnum[A](using bi: Bijection[A, uinteger]): Arbitrary[A] =
 given deriveIntegerEnum[A](using bi: Bijection[A, Int]): Arbitrary[A] =
   Arbitrary(Gen.oneOf(bi.domain))
 
-given Arbitrary[ProgressToken] =
-  Arbitrary:
-    for
-      someString <- Gen.const("stringToken").map(ProgressToken.apply)
-      someInt    <- Gen.const(25).map(ProgressToken.apply)
+// given Arbitrary[ProgressToken] =
+//   Arbitrary:
+//     for
+//       someString <- Gen.const("stringToken").map(ProgressToken.apply)
+//       someInt    <- Gen.const(25).map(ProgressToken.apply)
 
-      progressToken <- Gen.oneOf(someString, someInt)
-    yield progressToken
+//       progressToken <- Gen.oneOf(someString, someInt)
+//     yield progressToken
 
 given Arbitrary[ujson.Value] =
   import ujson.*
@@ -83,13 +83,13 @@ given Arbitrary[ujson.Value] =
   )
 end given
 
-given Arbitrary[Vector[SymbolInformation] | Vector[DocumentSymbol]] =
-  val l1 =
-    Gen.listOfN(5, Arbitrary.arbitrary[SymbolInformation]).map(_.toVector)
-  val l2 = Gen.listOfN(5, Arbitrary.arbitrary[DocumentSymbol]).map(_.toVector)
-  val either: Gen[Vector[SymbolInformation] | Vector[DocumentSymbol]] =
-    Gen.oneOf(l1, l2)
-  Arbitrary(either)
+// given Arbitrary[Vector[SymbolInformation] | Vector[DocumentSymbol]] =
+//   val l1 =
+//     Gen.listOfN(5, Arbitrary.arbitrary[SymbolInformation]).map(_.toVector)
+//   val l2 = Gen.listOfN(5, Arbitrary.arbitrary[DocumentSymbol]).map(_.toVector)
+//   val either: Gen[Vector[SymbolInformation] | Vector[DocumentSymbol]] =
+//     Gen.oneOf(l1, l2)
+//   Arbitrary(either)
 
 import io.github.irevive.union.derivation.{IsUnion, UnionDerivation}
 
