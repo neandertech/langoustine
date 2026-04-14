@@ -3,7 +3,6 @@ package langoustine.lsp
 package structures
 
 import langoustine.*
-import upickle.default.*
 import runtime.{*, given}
 
 /**
@@ -292,7 +291,7 @@ object CallHierarchyPrepareParams extends codecs.structures_CallHierarchyPrepare
 
  */
 case class CallHierarchyRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector],
+  documentSelector: Option[aliases.DocumentSelector] = None,
   id: Option[String] = None
 )
 object CallHierarchyRegistrationOptions extends codecs.structures_CallHierarchyRegistrationOptionsCodec
@@ -641,7 +640,7 @@ object CodeActionParams extends codecs.structures_CodeActionParamsCodec
 
  */
 case class CodeActionRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector],
+  documentSelector: Option[aliases.DocumentSelector] = None,
   codeActionKinds: Option[Vector[enumerations.CodeActionKind]] = None,
   resolveProvider: Option[Boolean] = None
 )
@@ -745,7 +744,7 @@ object CodeLensParams extends codecs.structures_CodeLensParamsCodec
 
  */
 case class CodeLensRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector],
+  documentSelector: Option[aliases.DocumentSelector] = None,
   resolveProvider: Option[Boolean] = None
 )
 object CodeLensRegistrationOptions extends codecs.structures_CodeLensRegistrationOptionsCodec
@@ -1450,7 +1449,7 @@ object CompletionParams extends codecs.structures_CompletionParamsCodec
 
  */
 case class CompletionRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector],
+  documentSelector: Option[aliases.DocumentSelector] = None,
   triggerCharacters: Option[Vector[String]] = None,
   allCommitCharacters: Option[Vector[String]] = None,
   resolveProvider: Option[Boolean] = None,
@@ -1612,7 +1611,7 @@ object DeclarationParams extends codecs.structures_DeclarationParamsCodec
 
  */
 case class DeclarationRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector],
+  documentSelector: Option[aliases.DocumentSelector] = None,
   id: Option[String] = None
 )
 object DeclarationRegistrationOptions extends codecs.structures_DeclarationRegistrationOptionsCodec
@@ -1679,7 +1678,7 @@ object DefinitionParams extends codecs.structures_DefinitionParamsCodec
 
  */
 case class DefinitionRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector]
+  documentSelector: Option[aliases.DocumentSelector] = None
 )
 object DefinitionRegistrationOptions extends codecs.structures_DefinitionRegistrationOptionsCodec
 
@@ -1876,7 +1875,7 @@ object DiagnosticOptions extends codecs.structures_DiagnosticOptionsCodec
 
  */
 case class DiagnosticRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector],
+  documentSelector: Option[aliases.DocumentSelector] = None,
   identifier: Option[String] = None,
   interFileDependencies: Boolean,
   workspaceDiagnostics: Boolean,
@@ -2219,7 +2218,7 @@ object DocumentColorParams extends codecs.structures_DocumentColorParamsCodec
 
  */
 case class DocumentColorRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector],
+  documentSelector: Option[aliases.DocumentSelector] = None,
   id: Option[String] = None
 )
 object DocumentColorRegistrationOptions extends codecs.structures_DocumentColorRegistrationOptionsCodec
@@ -2318,7 +2317,7 @@ object DocumentFormattingParams extends codecs.structures_DocumentFormattingPara
 
  */
 case class DocumentFormattingRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector]
+  documentSelector: Option[aliases.DocumentSelector] = None
 )
 object DocumentFormattingRegistrationOptions extends codecs.structures_DocumentFormattingRegistrationOptionsCodec
 
@@ -2396,7 +2395,7 @@ object DocumentHighlightParams extends codecs.structures_DocumentHighlightParams
 
  */
 case class DocumentHighlightRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector]
+  documentSelector: Option[aliases.DocumentSelector] = None
 )
 object DocumentHighlightRegistrationOptions extends codecs.structures_DocumentHighlightRegistrationOptionsCodec
 
@@ -2497,7 +2496,7 @@ object DocumentLinkParams extends codecs.structures_DocumentLinkParamsCodec
 
  */
 case class DocumentLinkRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector],
+  documentSelector: Option[aliases.DocumentSelector] = None,
   resolveProvider: Option[Boolean] = None
 )
 object DocumentLinkRegistrationOptions extends codecs.structures_DocumentLinkRegistrationOptionsCodec
@@ -2574,7 +2573,7 @@ object DocumentOnTypeFormattingParams extends codecs.structures_DocumentOnTypeFo
 
  */
 case class DocumentOnTypeFormattingRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector],
+  documentSelector: Option[aliases.DocumentSelector] = None,
   firstTriggerCharacter: String,
   moreTriggerCharacter: Option[Vector[String]] = None
 )
@@ -2635,7 +2634,7 @@ object DocumentRangeFormattingParams extends codecs.structures_DocumentRangeForm
 
  */
 case class DocumentRangeFormattingRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector]
+  documentSelector: Option[aliases.DocumentSelector] = None
 )
 object DocumentRangeFormattingRegistrationOptions extends codecs.structures_DocumentRangeFormattingRegistrationOptionsCodec
 
@@ -2804,7 +2803,7 @@ object DocumentSymbolParams extends codecs.structures_DocumentSymbolParamsCodec
 
  */
 case class DocumentSymbolRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector],
+  documentSelector: Option[aliases.DocumentSelector] = None,
   label: Option[String] = None
 )
 object DocumentSymbolRegistrationOptions extends codecs.structures_DocumentSymbolRegistrationOptionsCodec
@@ -3256,7 +3255,7 @@ object FoldingRangeParams extends codecs.structures_FoldingRangeParamsCodec
 
  */
 case class FoldingRangeRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector],
+  documentSelector: Option[aliases.DocumentSelector] = None,
   id: Option[String] = None
 )
 object FoldingRangeRegistrationOptions extends codecs.structures_FoldingRangeRegistrationOptionsCodec
@@ -3457,7 +3456,7 @@ object HoverParams extends codecs.structures_HoverParamsCodec
 
  */
 case class HoverRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector]
+  documentSelector: Option[aliases.DocumentSelector] = None
 )
 object HoverRegistrationOptions extends codecs.structures_HoverRegistrationOptionsCodec
 
@@ -3520,7 +3519,7 @@ object ImplementationParams extends codecs.structures_ImplementationParamsCodec
 
  */
 case class ImplementationRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector],
+  documentSelector: Option[aliases.DocumentSelector] = None,
   id: Option[String] = None
 )
 object ImplementationRegistrationOptions extends codecs.structures_ImplementationRegistrationOptionsCodec
@@ -3597,15 +3596,15 @@ object InitializeError extends codecs.structures_InitializeErrorCodec
 
  */
 case class InitializeParams(
-  processId: Option[Int],
+  processId: Option[Int] = None,
   clientInfo: Option[InitializeParams.ClientInfo] = None,
   locale: Option[String] = None,
-  rootPath: Option[String],
-  rootUri: Option[runtime.DocumentUri],
+  rootPath: Option[String] = None,
+  rootUri: Option[runtime.DocumentUri] = None,
   capabilities: structures.ClientCapabilities,
   initializationOptions: Option[io.circe.Json] = None,
   trace: Option[enumerations.TraceValues] = None,
-  workspaceFolders: Option[Vector[structures.WorkspaceFolder]]
+  workspaceFolders: Option[Vector[structures.WorkspaceFolder]] = None
 )
 object InitializeParams extends codecs.structures_InitializeParamsCodec:
   /**
@@ -3848,7 +3847,7 @@ object InlayHintParams extends codecs.structures_InlayHintParamsCodec
  */
 case class InlayHintRegistrationOptions(
   resolveProvider: Option[Boolean] = None,
-  documentSelector: Option[aliases.DocumentSelector],
+  documentSelector: Option[aliases.DocumentSelector] = None,
   id: Option[String] = None
 )
 object InlayHintRegistrationOptions extends codecs.structures_InlayHintRegistrationOptionsCodec
@@ -3979,7 +3978,7 @@ object InlineValueParams extends codecs.structures_InlineValueParamsCodec
 
  */
 case class InlineValueRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector],
+  documentSelector: Option[aliases.DocumentSelector] = None,
   id: Option[String] = None
 )
 object InlineValueRegistrationOptions extends codecs.structures_InlineValueRegistrationOptionsCodec
@@ -4119,7 +4118,7 @@ object LinkedEditingRangeParams extends codecs.structures_LinkedEditingRangePara
 
  */
 case class LinkedEditingRangeRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector],
+  documentSelector: Option[aliases.DocumentSelector] = None,
   id: Option[String] = None
 )
 object LinkedEditingRangeRegistrationOptions extends codecs.structures_LinkedEditingRangeRegistrationOptionsCodec
@@ -4361,7 +4360,7 @@ object MonikerParams extends codecs.structures_MonikerParamsCodec
 
  */
 case class MonikerRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector]
+  documentSelector: Option[aliases.DocumentSelector] = None
 )
 object MonikerRegistrationOptions extends codecs.structures_MonikerRegistrationOptionsCodec
 
@@ -4737,7 +4736,7 @@ object NotebookDocumentSyncRegistrationOptions extends codecs.structures_Noteboo
 
  */
 case class OptionalVersionedTextDocumentIdentifier(
-  version: Option[Int],
+  version: Option[Int] = None,
   uri: runtime.DocumentUri
 )
 object OptionalVersionedTextDocumentIdentifier extends codecs.structures_OptionalVersionedTextDocumentIdentifierCodec
@@ -5048,7 +5047,7 @@ object ReferenceParams extends codecs.structures_ReferenceParamsCodec
 
  */
 case class ReferenceRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector]
+  documentSelector: Option[aliases.DocumentSelector] = None
 )
 object ReferenceRegistrationOptions extends codecs.structures_ReferenceRegistrationOptionsCodec
 
@@ -5340,7 +5339,7 @@ object RenameParams extends codecs.structures_RenameParamsCodec
 
  */
 case class RenameRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector],
+  documentSelector: Option[aliases.DocumentSelector] = None,
   prepareProvider: Option[Boolean] = None
 )
 object RenameRegistrationOptions extends codecs.structures_RenameRegistrationOptionsCodec
@@ -5445,7 +5444,7 @@ object SelectionRangeParams extends codecs.structures_SelectionRangeParamsCodec
 
  */
 case class SelectionRangeRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector],
+  documentSelector: Option[aliases.DocumentSelector] = None,
   id: Option[String] = None
 )
 object SelectionRangeRegistrationOptions extends codecs.structures_SelectionRangeRegistrationOptionsCodec
@@ -5764,7 +5763,7 @@ object SemanticTokensRangeParams extends codecs.structures_SemanticTokensRangePa
 
  */
 case class SemanticTokensRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector],
+  documentSelector: Option[aliases.DocumentSelector] = None,
   legend: structures.SemanticTokensLegend,
   range: Option[(Boolean | SemanticTokensRegistrationOptions.S0)] = None,
   full: Option[(Boolean | SemanticTokensRegistrationOptions.S1)] = None,
@@ -6324,7 +6323,7 @@ object SignatureHelpParams extends codecs.structures_SignatureHelpParamsCodec
 
  */
 case class SignatureHelpRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector],
+  documentSelector: Option[aliases.DocumentSelector] = None,
   triggerCharacters: Option[Vector[String]] = None,
   retriggerCharacters: Option[Vector[String]] = None
 )
@@ -6437,7 +6436,7 @@ object SymbolInformation extends codecs.structures_SymbolInformationCodec
  */
 case class TextDocumentChangeRegistrationOptions(
   syncKind: enumerations.TextDocumentSyncKind,
-  documentSelector: Option[aliases.DocumentSelector]
+  documentSelector: Option[aliases.DocumentSelector] = None
 )
 object TextDocumentChangeRegistrationOptions extends codecs.structures_TextDocumentChangeRegistrationOptionsCodec
 
@@ -6684,7 +6683,7 @@ object TextDocumentPositionParams extends codecs.structures_TextDocumentPosition
 
  */
 case class TextDocumentRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector]
+  documentSelector: Option[aliases.DocumentSelector] = None
 )
 object TextDocumentRegistrationOptions extends codecs.structures_TextDocumentRegistrationOptionsCodec
 
@@ -6700,7 +6699,7 @@ object TextDocumentRegistrationOptions extends codecs.structures_TextDocumentReg
 
  */
 case class TextDocumentSaveRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector],
+  documentSelector: Option[aliases.DocumentSelector] = None,
   includeText: Option[Boolean] = None
 )
 object TextDocumentSaveRegistrationOptions extends codecs.structures_TextDocumentSaveRegistrationOptionsCodec
@@ -6837,7 +6836,7 @@ object TypeDefinitionParams extends codecs.structures_TypeDefinitionParamsCodec
 
  */
 case class TypeDefinitionRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector],
+  documentSelector: Option[aliases.DocumentSelector] = None,
   id: Option[String] = None
 )
 object TypeDefinitionRegistrationOptions extends codecs.structures_TypeDefinitionRegistrationOptionsCodec
@@ -6951,7 +6950,7 @@ object TypeHierarchyPrepareParams extends codecs.structures_TypeHierarchyPrepare
 
  */
 case class TypeHierarchyRegistrationOptions(
-  documentSelector: Option[aliases.DocumentSelector],
+  documentSelector: Option[aliases.DocumentSelector] = None,
   id: Option[String] = None
 )
 object TypeHierarchyRegistrationOptions extends codecs.structures_TypeHierarchyRegistrationOptionsCodec
@@ -7522,7 +7521,7 @@ object WorkspaceFoldersChangeEvent extends codecs.structures_WorkspaceFoldersCha
 
  */
 case class WorkspaceFoldersInitializeParams(
-  workspaceFolders: Option[Vector[structures.WorkspaceFolder]]
+  workspaceFolders: Option[Vector[structures.WorkspaceFolder]] = None
 )
 object WorkspaceFoldersInitializeParams extends codecs.structures_WorkspaceFoldersInitializeParamsCodec
 
@@ -7572,7 +7571,7 @@ object WorkspaceFoldersServerCapabilities extends codecs.structures_WorkspaceFol
  */
 case class WorkspaceFullDocumentDiagnosticReport(
   uri: runtime.DocumentUri,
-  version: Option[Int],
+  version: Option[Int] = None,
   kind: "full",
   resultId: Option[String] = None,
   items: Vector[structures.Diagnostic]
@@ -7774,7 +7773,7 @@ object WorkspaceSymbolRegistrationOptions extends codecs.structures_WorkspaceSym
  */
 case class WorkspaceUnchangedDocumentDiagnosticReport(
   uri: runtime.DocumentUri,
-  version: Option[Int],
+  version: Option[Int] = None,
   kind: "unchanged",
   resultId: String
 )
@@ -7832,11 +7831,11 @@ object WorkspaceUnchangedDocumentDiagnosticReport extends codecs.structures_Work
 
  */
 case class _InitializeParams(
-  processId: Option[Int],
+  processId: Option[Int] = None,
   clientInfo: Option[_InitializeParams.ClientInfo] = None,
   locale: Option[String] = None,
-  rootPath: Option[String],
-  rootUri: Option[runtime.DocumentUri],
+  rootPath: Option[String] = None,
+  rootUri: Option[runtime.DocumentUri] = None,
   capabilities: structures.ClientCapabilities,
   initializationOptions: Option[io.circe.Json] = None,
   trace: Option[enumerations.TraceValues] = None,

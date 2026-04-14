@@ -63,8 +63,9 @@ object EndToEndTests extends SimpleIOSuite:
     val str = sendRequest(
       initialize,
       InitializeParams(
-        processId = Opt(25),
-        rootUri = Opt(DocumentUri("hello")),
+        processId = Some(25),
+        rootUri = Some(DocumentUri("hello")),
+        rootPath = Some("hello"),
         capabilities = ClientCapabilities()
       )
     )
@@ -148,9 +149,9 @@ object EndToEndTests extends SimpleIOSuite:
             initialized == Vector(
               InitializeResult(
                 capabilities = ServerCapabilities(textDocumentSync =
-                  Opt(TextDocumentSyncKind.Full)
+                  Some(TextDocumentSyncKind.Full)
                 ),
-                serverInfo = Opt(InitializeResult.ServerInfo("My first LSP!"))
+                serverInfo = Some(InitializeResult.ServerInfo("My first LSP!"))
               )
             )
           )
@@ -166,11 +167,14 @@ transparent inline def asNotification[T <: LSPNotification](
     p: Payload
 ): Option[t.In] =
   for
-    js  <- scala.util.Try(ujson.read(writeToArray(p))).toOption
-    o   <- js.objOpt
-    p   <- o.get("params")
-    res <- scala.util.Try(upickle.default.read[t.In](p)).toOption
-    if o("method").str == t.notificationMethod
+    js  <- Some(p.data)
+    o   <- js.asObject
+    p   <- o("params")
+    res <- t.inputFromJson
+      .decodeJson(p)
+      .toOption // scala.util.Try(upickle.default.read[t.In](p)).toOption
+    meth <- o("method").flatMap(_.asString)
+    if meth == t.notificationMethod
   yield res
 end asNotification
 
@@ -179,43 +183,47 @@ transparent inline def asResponse[T <: LSPRequest](
     p: Payload
 ): Option[t.Out] =
   for
-    js  <- scala.util.Try(ujson.read(writeToArray(p))).toOption
-    o   <- js.objOpt
-    p   <- o.get("result")
-    res <- scala.util.Try(upickle.default.read[t.Out](p)).toOption
-    if o("id").num.toInt == 1
+    js  <- Some(p.data)
+    o   <- js.asObject
+    p   <- o("result")
+    res <- t.outputFromJson
+      .decodeJson(p)
+      .toOption // scala.util.Try(upickle.default.read[t.Out](p)).toOption
+    id <- o("id").flatMap(_.asNumber)
+    if id.toInt.contains(1)
   yield res
 end asResponse
 
 def sendRequest[T <: LSPRequest](req: T, rm: req.In) =
-  val ser1 = upickle.default.writeJs(rm)
+  val ser1 = req.inputToJson(rm)
 
-  import ujson.*
+  import io.circe.*
 
   val value =
-    Obj(
-      "id"      -> Num(1),
-      "jsonrpc" -> Str("2.0"),
+    Json.obj(
+      "id"      -> Json.fromInt(1),
+      "jsonrpc" -> Json.fromString("2.0"),
       "params"  -> ser1,
-      "method"  -> Str(req.requestMethod)
+      "method"  -> Json.fromString(req.requestMethod)
     )
 
-  val ser = upickle.default.write(value)
+  val ser = value.noSpaces
+
   s"Content-Length: ${ser.getBytes.length}\r\n\r\n$ser"
 end sendRequest
 
 def sendNotification[T <: LSPNotification](req: T, rm: req.In) =
-  val ser1 = upickle.default.writeJs(rm)
+  val ser1 = req.inputToJson(rm)
 
-  import ujson.*
+  import io.circe.*
 
   val value =
-    Obj(
-      "jsonrpc" -> Str("2.0"),
+    Json.obj(
+      "jsonrpc" -> Json.fromString("2.0"),
       "params"  -> ser1,
-      "method"  -> Str(req.notificationMethod)
+      "method"  -> Json.fromString(req.notificationMethod)
     )
 
-  val ser = upickle.default.write(value)
+  val ser = value.noSpaces
   s"Content-Length: ${ser.getBytes.length}\r\n\r\n$ser"
 end sendNotification

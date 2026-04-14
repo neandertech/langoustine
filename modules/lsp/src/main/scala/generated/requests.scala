@@ -3,7 +3,6 @@ package langoustine.lsp
 package requests
 
 import langoustine.*
-import upickle.default.*
 import io.circe.{Decoder, Encoder}
 import runtime.{*, given}
 import structures.*
