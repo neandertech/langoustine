@@ -1,13 +1,10 @@
 package langoustine.generate
 
-import java.io.File
 import scala.util.Using
 import java.io.FileWriter
 import java.nio.file.Paths
-import upickle.default.*
-import scala.reflect.TypeTest
 
-import langoustine.meta.*
+import langoustine.meta.{*, given}
 
 import decline_derive.*
 import java.nio.file.Path
@@ -23,30 +20,136 @@ case class Config(
 ) derives CommandApplication
 
 @main def run(args: String*) =
-  import upickle.default.*
-  import json.{*, given}
   val config    = CommandApplication.parseOrExit[Config](args)
   val metaModel = readFromArray[io.circe.Json](
     Files.readAllBytes(Paths.get(config.schema))
   ).as[MetaModel].fold(throw _, identity)
 
   val allowedStructs: String => Boolean =
-    Set(
-      "WorkspaceFolder",
-      "Position",
-      "Range",
-      "SemanticTokensLegend",
-      "SemanticTokens",
-      "InlayHint",
-      "InlayHintLabelPart",
-      "MarkupContent",
-      "Command",
-      "TextEdit",
-      "Location",
-      "CompletionItem",
-      "CompletionItemLabelDetails",
-      "InsertReplaceEdit"
-    ).map(StructureName.apply)
+    _ => true
+    // Set(
+    // "Command",
+    //   "AnnotatedTextEdit",
+    //   "CallHierarchyOptions",
+    //   "CallHierarchyRegistrationOptions",
+    //   "ChangeAnnotation",
+    //   "ClientCapabilities",
+    //   "ClientInfo",
+    //   "CodeActionOptions",
+    //   "CodeLensOptions",
+    //   "CompletionItem",
+    //   "CompletionItemLabelDetails",
+    //   "CompletionOptions",
+    //   "ConfigurationItem",
+    //   "ConfigurationParams",
+    //   "CreateFile",
+    //   "CreateFileOptions",
+    //   "DeclarationOptions",
+    //   "DeclarationRegistrationOptions",
+    //   "DefinitionOptions",
+    //   "DeleteFile",
+    //   "DeleteFileOptions",
+    //   "DocumentColorOptions",
+    //   "DocumentColorRegistrationOptions",
+    //   "DocumentFormattingOptions",
+    //   "DocumentLink",
+    //   "DocumentLinkOptions",
+    //   "DocumentLinkParams",
+    //   "DocumentOnTypeFormattingOptions",
+    //   "FileOperationOptions",
+    //   "FileOperationRegistrationOptions",
+    //   "FoldingRange",
+    //   "FoldingRangeOptions",
+    //   "FoldingRangeParams",
+    //   "FoldingRangeRegistrationOptions",
+    //   "GeneralClientCapabilities",
+    //   "HoverInfo",
+    //   "HoverOptions",
+    //   "ImplementationOptions",
+    //   "ImplementationRegistrationOptions",
+    //   "InitializeParams",
+    //   "InitializeResult",
+    //   "InlayHint",
+    //   "InlayHintLabelPart",
+    //   "InlineValueOptions",
+    //   "InlineValueRegistrationOptions",
+    //   "InsertReplaceEdit",
+    //   "LinkedEditingRangeOptions",
+    //   "LinkedEditingRangeRegistrationOptions",
+    //   "Location",
+    //   "MarkdownClientCapabilities",
+    //   "MarkupContent",
+    //   "MonikerOptions",
+    //   "MonikerRegistrationOptions",
+    //   "NotebookDocumentClientCapabilities",
+    //   "NotebookDocumentSyncOptions",
+    //   "NotebookDocumentSyncRegistrationOptions",
+    //   "OptionalVersionedTextDocumentIdentifier",
+    //   "Position",
+    //   "Range",
+    //   "ReferenceContext",
+    //   "ReferenceOptions",
+    //   "ReferenceParams",
+    //   "RegularExpressionsClientCapabilities",
+    //   "RenameFile",
+    //   "RenameFileOptions",
+    //   "RenameOptions",
+    //   "RenameParams",
+    //   "SelectionRangeOptions",
+    //   "SelectionRangeRegistrationOptions",
+    //   "SemanticTokens",
+    //   "SemanticTokensLegend",
+    //   "SemanticTokensOptions",
+    //   "SemanticTokensRegistrationOptions",
+    //   "ServerCapabilities",
+    //   "ServerInfo",
+    //   "SignatureHelpOptions",
+    //   "TextDocumentClientCapabilities",
+    //   "TextDocumentEdit",
+    //   "TextDocumentIdentifier",
+    //   "TextDocumentRegistrationOptions",
+    //   "TextEdit",
+    //   "TypeDefinitionOptions",
+    //   "TypeDefinitionRegistrationOptions",
+    //   "TypeHierarchyOptions",
+    //   "TypeHierarchyRegistrationOptions",
+    //   "WindowClientCapabilities",
+    //   "WorkDoneProgressOptions",
+    //   "WorkspaceClientCapabilities",
+    // "WorkspaceEdit",
+    //   "WorkspaceFolder",
+    //   "WorkspaceSymbolOptions",
+    //   "_InitializeParams",
+    // "CodeAction"
+    // ).map(StructureName.apply)
+
+  val allowedMethods = (_:String) => true
+
+  // Set[String](
+  //   "completionItem/resolve",
+  //   "textDocument/rename",
+  //   "textDocument/references",
+  //   "textDocument/documentLink",
+  //   "workspace/configuration",
+  //   "textDocument/foldingRange",
+  //   "initialize"
+  // )
+
+  val allowedAliases = (_: String) => true // Set[String](
+  // "ChangeAnnotationIdentifier",
+  // "NotebookDocumentFilter",
+  // "ProgressToken",
+  // "DocumentSelector",
+  // "MarkedString",
+  // "WorkspaceDocumentDiagnosticReport",
+  // "Pattern",
+  // "GlobPattern",
+  // "TextDocumentContentChangeEvent",
+  // "LSPObject",
+  // "DocumentFilter",
+  // "TextDocumentFilter"
+
+  // )
 
   val filtered =
     metaModel
@@ -55,18 +158,26 @@ case class Config(
           .filterNot(a =>
             a.name.value == "LSPAny" || a.name.value == "LSPArray"
           )
+          .filter(a => allowedAliases(a.name.value))
       )
       .copy(structures =
         metaModel.structures.filter(s => allowedStructs(s.name.value))
       )
       .copy(
         requests =
-          metaModel.requests.filter(_.method.value == "completionItem/resolve"),
-        notifications = Vector.empty,
-        typeAliases = Vector.empty
+          metaModel.requests.filter(s => allowedMethods(s.method.value)),
+        notifications = Vector.empty
       )
 
-  println(filtered.requests.length)
+  val ignoredAliases =
+    metaModel.typeAliases.filterNot(a => allowedAliases(a.name.value))
+  scribe.warn(
+    "Ignoring aliases: " + ignoredAliases
+      .map(_.name.value)
+      .sorted
+      .mkString(", ")
+  )
+
   val mm = Manager(filtered)
   val re = Render(mm)
 
@@ -102,9 +213,9 @@ case class Config(
       re.structures(out, codecsOut)
     }
 
-    // inFile("aliases.scala") { out =>
-    //   re.aliases(out, codecsOut)
-    // }
+    inFile("aliases.scala") { out =>
+      re.aliases(out, codecsOut)
+    }
 
     inFile("enumerations.scala") { out =>
       re.enumerations(out)

@@ -16,7 +16,6 @@
 
 package tests.core
 
-import upickle.default.*
 import langoustine.lsp.*
 import jsonrpclib.Monadic
 import scala.util.*
@@ -29,17 +28,21 @@ import jsonrpclib.*
 import org.scalacheck.*
 import org.scalacheck.rng.Seed
 
-object CodecTest extends weaver.FunSuite, WeaverSnapshotsIntegration:
+import io.circe.syntax.*
 
-  given Arbitrary[String] = Arbitrary(Gen.const("randomString"))
+import com.github.plokhotnyuk.jsoniter_scala.core.*
+import com.github.plokhotnyuk.jsoniter_scala.circe.JsoniterScalaCodec.*
+import io.circe.Decoder
+
+object CodecTest extends weaver.FunSuite, WeaverSnapshotsIntegration:
 
   val SEED = 120312937L
 
-  // requestSnapshotTest(langoustine.lsp.requests.textDocument.documentLink)
+  requestSnapshotTest(langoustine.lsp.requests.textDocument.documentLink)
   // requestSnapshotTest(langoustine.lsp.requests.textDocument.foldingRange)
-  // requestSnapshotTest(langoustine.lsp.requests.workspace.configuration)
-  // requestSnapshotTest(langoustine.lsp.requests.textDocument.references)
-  // requestSnapshotTest(langoustine.lsp.requests.textDocument.rename)
+  requestSnapshotTest(langoustine.lsp.requests.workspace.configuration)
+  requestSnapshotTest(langoustine.lsp.requests.textDocument.references)
+  requestSnapshotTest(langoustine.lsp.requests.textDocument.rename)
   requestSnapshotTest(langoustine.lsp.requests.completionItem.resolve)
 
   def requestSnapshotTest[T <: LSPRequest](x: T)(using
@@ -61,7 +64,7 @@ object CodecTest extends weaver.FunSuite, WeaverSnapshotsIntegration:
       val requests = sampleN(5, arbReq).distinct
 
       forEach(requests.zipWithIndex): (request, idx) =>
-        val json         = write(request, indent = 2)
+        val json         = request.asJson.spaces4
         val printed      = safeToString(request)
         val snapshotName = x.requestMethod + s": request($idx)"
 
@@ -77,7 +80,7 @@ object CodecTest extends weaver.FunSuite, WeaverSnapshotsIntegration:
       val requests = sampleN(5, arbResp).distinct
 
       forEach(requests.zipWithIndex): (response, idx) =>
-        val json         = write(response, indent = 2)
+        val json         = response.asJson.spaces4SortKeys
         val printed      = safeToString(response)
         val snapshotName = x.requestMethod + s": response($idx)"
 
@@ -88,5 +91,9 @@ object CodecTest extends weaver.FunSuite, WeaverSnapshotsIntegration:
         )
     }
   end requestSnapshotTest
+
+  private def read[T: Decoder](contents: String) =
+    val json = readFromString(contents)
+    summon[Decoder[T]].decodeJson(json).fold(throw _, identity)
 
 end CodecTest

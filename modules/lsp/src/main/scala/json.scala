@@ -108,6 +108,36 @@ end Dec
 
 private[lsp] object Dec:
 
+  def union2[T1, T2](
+      decT1: Decoder[T1],
+      decT2: Decoder[T2]
+  ): Decoder[T1 | T2] =
+    decT1
+      .asInstanceOf[Decoder[T1 | T2]]
+      .or(decT2.asInstanceOf[Decoder[T1 | T2]])
+
+  def union3[T1, T2, T3](
+      decT1: Decoder[T1],
+      decT2: Decoder[T2],
+      decT3: Decoder[T3]
+  ): Decoder[T1 | T2 | T3] =
+    decT1
+      .asInstanceOf[Decoder[T1 | T2 | T3]]
+      .or(decT2.asInstanceOf[Decoder[T1 | T2 | T3]])
+      .or(decT3.asInstanceOf[Decoder[T1 | T2 | T3]])
+
+  def union4[T1, T2, T3, T4](
+      decT1: Decoder[T1],
+      decT2: Decoder[T2],
+      decT3: Decoder[T3],
+      decT4: Decoder[T4]
+  ): Decoder[T1 | T2 | T3 | T4] =
+    decT1
+      .asInstanceOf[Decoder[T1 | T2 | T3 | T4]]
+      .or(decT2.asInstanceOf[Decoder[T1 | T2 | T3 | T4]])
+      .or(decT3.asInstanceOf[Decoder[T1 | T2 | T3 | T4]])
+      .or(decT4.asInstanceOf[Decoder[T1 | T2 | T3 | T4]])
+
   // TODO: cache this
   def merge[T](dec1: Decoder[?], rest: Decoder[?]*): Decoder[T] =
     rest.foldLeft(dec1.asInstanceOf[Decoder[T]])((acc, el) =>
@@ -184,6 +214,37 @@ private[lsp] object Enc:
       val enc = new Enc
       f(enc, t)
       enc.result()
+
+  def union2[T1: Typeable, T2: Typeable](
+      encT1: Encoder[T1],
+      encT2: Encoder[T2]
+  ): Encoder[T1 | T2] =
+    Encoder.instance:
+      case v: T1 => encT1(v)
+      case v: T2 => encT2(v)
+
+  def union3[T1: Typeable, T2: Typeable, T3: Typeable](
+      encT1: Encoder[T1],
+      encT2: Encoder[T2],
+      encT3: Encoder[T3]
+  ): Encoder[T1 | T2 | T3] =
+    Encoder.instance:
+      case v: T1 => encT1(v)
+      case v: T2 => encT2(v)
+      case v: T3 => encT3(v)
+
+  def union4[T1: Typeable, T2: Typeable, T3: Typeable, T4: Typeable](
+      encT1: Encoder[T1],
+      encT2: Encoder[T2],
+      encT3: Encoder[T3],
+      encT4: Encoder[T4]
+  ): Encoder[T1 | T2 | T3 | T4] =
+    Encoder.instance:
+      case v: T1 => encT1(v)
+      case v: T2 => encT2(v)
+      case v: T3 => encT3(v)
+      case v: T4 => encT4(v)
+
 end Enc
 
 // private[lsp] object json:

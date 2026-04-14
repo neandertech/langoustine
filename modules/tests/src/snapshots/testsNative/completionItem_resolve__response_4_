@@ -1,0 +1,36 @@
+{
+    "detail" : "randomString",
+    "documentation" : "my-string",
+    "insertText" : "randomString",
+    "kind" : 8,
+    "label" : "randomString",
+    "labelDetails" : {
+        "description" : "randomString"
+    },
+    "preselect" : false,
+    "sortText" : "randomString",
+    "textEdit" : {
+        "insert" : {
+            "end" : {
+                "character" : 42,
+                "line" : 61
+            },
+            "start" : {
+                "character" : 72,
+                "line" : 87
+            }
+        },
+        "newText" : "newText",
+        "replace" : {
+            "end" : {
+                "character" : 24,
+                "line" : 4
+            },
+            "start" : {
+                "character" : 83,
+                "line" : 21
+            }
+        }
+    },
+    "textEditText" : "randomString"
+}

@@ -234,6 +234,8 @@ lazy val tests = projectMatrix
   .nativePlatform(V.scalaVersions)
   .settings(noPublishing)
   .settings(
+    libraryDependencies += "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-core" % V.jsoniter % Test,
+    libraryDependencies += "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-circe" % V.jsoniter % Test,
     libraryDependencies += "org.http4s" %% "http4s-jdk-http-client" % V.http4sJdkClient % Test,
     libraryDependencies += "org.typelevel" %%% "weaver-cats" % V.weaver % Test,
     libraryDependencies += "com.lihaoyi"   %%% "pprint"      % "0.9.6"  % Test,

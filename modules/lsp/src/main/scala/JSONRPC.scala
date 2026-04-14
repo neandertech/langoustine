@@ -25,30 +25,6 @@ import upickle.default.*
 import requests.*
 
 private[langoustine] object jsonrpcIntegration:
-  val nullArray = "null".getBytes()
-  // given codec[T: Reader: Writer]: Codec[T] =
-  //   new Codec[T]:
-  //     override def decode(
-  //         payload: Option[Payload]
-  //     ): Either[ProtocolError, T] =
-  //       payload
-  //         .map(_.stripNull.map(_.array).getOrElse(nullArray))
-  //         .toRight(ProtocolError.InvalidParams("missing payload"))
-  //         .flatMap: arr =>
-  //           Try(read[T](arr, trace = true)).toEither.left.map {
-  //             case te: TraceException =>
-  //               val e = te.getCause()
-  //               ProtocolError.InvalidParams(
-  //                 s"invalid payload at ${te.jsonPath}: " + e.getMessage
-  //               )
-
-  //             case e =>
-  //               ProtocolError.InternalError("oopsie daisy: " + e.getMessage)
-  //           }
-
-  //     override def encode(a: T): Payload =
-  //       Payload(write(a).getBytes)
-
   def handlerToEndpoint[F[_]: Monadic, T <: LSPRequest](req: T)(
       f: req.In => F[req.Out]
   ): Endpoint[F] =

@@ -1,0 +1,46 @@
+{
+    "command" : {
+        "command" : "randomString",
+        "title" : "randomString"
+    },
+    "data" : {
+        "hello" : "yo"
+    },
+    "deprecated" : true,
+    "detail" : "randomString",
+    "documentation" : {
+        "kind" : "plaintext",
+        "value" : "randomString"
+    },
+    "filterText" : "randomString",
+    "insertTextMode" : 2,
+    "label" : "randomString",
+    "labelDetails" : {
+        "description" : "randomString"
+    },
+    "sortText" : "randomString",
+    "textEdit" : {
+        "insert" : {
+            "end" : {
+                "character" : 13,
+                "line" : 42
+            },
+            "start" : {
+                "character" : 21,
+                "line" : 60
+            }
+        },
+        "newText" : "newText",
+        "replace" : {
+            "end" : {
+                "character" : 55,
+                "line" : 51
+            },
+            "start" : {
+                "character" : 13,
+                "line" : 50
+            }
+        }
+    },
+    "textEditText" : "randomString"
+}

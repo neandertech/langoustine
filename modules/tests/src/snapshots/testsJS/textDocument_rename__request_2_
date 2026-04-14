@@ -1,0 +1,10 @@
+{
+    "newName" : "randomString",
+    "position" : {
+        "character" : 39,
+        "line" : 86
+    },
+    "textDocument" : {
+        "uri" : "file1"
+    }
+}
