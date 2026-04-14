@@ -16,18 +16,12 @@
 
 package langoustine.tracer
 
-enum SnapshotItem:
+enum SnapshotItem derives io.circe.Codec.AsObject:
   case Message(rm: ReceivedMessage)
-  case Log(msg: LogMessage.Stderr)
+  case Log(msg: LogMessage)
 
   def timestamp: Long =
     this match
-      case Message(rm)                   => rm.timestamp
-      case Log(LogMessage.Stderr(_, ts)) => ts
+      case Message(rm) => rm.timestamp
+      case Log(lm)     => lm.timestamp
 end SnapshotItem
-
-import com.github.plokhotnyuk.jsoniter_scala.core.*
-import com.github.plokhotnyuk.jsoniter_scala.macros.*
-
-object SnapshotItem:
-  given JsonValueCodec[SnapshotItem] = JsonCodecMaker.make

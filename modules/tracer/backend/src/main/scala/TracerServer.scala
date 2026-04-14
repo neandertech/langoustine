@@ -72,7 +72,7 @@ class TracerServer private (
           state.logBuf.update { lines =>
             lines ++
               chunk.value.toVector
-                .map(LogMessage.Stderr(_, chunk.timestamp))
+                .map(LogMessage(_, LogMessageStream.Stderr, chunk.timestamp))
           }
         }
       }

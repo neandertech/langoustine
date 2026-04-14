@@ -16,12 +16,9 @@
 
 package langoustine.tracer
 
-import com.github.plokhotnyuk.jsoniter_scala.core.*
-import com.github.plokhotnyuk.jsoniter_scala.macros.*
 import jsonrpclib.CallId
-import jsonrpclib.InputMessage.*
 
-enum LspMessage(val id: CallId):
+enum LspMessage(val id: CallId) derives io.circe.Codec.AsObject:
   case Request(
       method: String,
       override val id: CallId,
@@ -48,7 +45,6 @@ enum LspMessage(val id: CallId):
 end LspMessage
 
 object LspMessage:
-  given JsonValueCodec[LspMessage] = JsonCodecMaker.make
 
   def from(
       raw: RawMessage,

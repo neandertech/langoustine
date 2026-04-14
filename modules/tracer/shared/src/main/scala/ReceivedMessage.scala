@@ -16,15 +16,11 @@
 
 package langoustine.tracer
 
-import com.github.plokhotnyuk.jsoniter_scala.core.*
-import com.github.plokhotnyuk.jsoniter_scala.macros.*
 import jsonrpclib.InputMessage.*
 
 case class ReceivedMessage(
     timestamp: Long,
     raw: RawMessage,
     decoded: LspMessage
-)
+) derives io.circe.Codec.AsObject
 
-object ReceivedMessage:
-  given JsonValueCodec[ReceivedMessage] = JsonCodecMaker.make

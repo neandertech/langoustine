@@ -198,9 +198,9 @@ lazy val tests = projectMatrix
   .defaultAxes(V.default*)
   .settings(enableSnapshots)
   .jvmPlatform(
-    V.scalaVersions
-      // Seq.empty,
-      // _.dependsOn(tracer.jvm(V.scala))
+    V.scalaVersions,
+    Seq.empty,
+    _.dependsOn(tracer.jvm(V.scala))
   )
   .jsPlatform(V.scalaVersions)
   .nativePlatform(V.scalaVersions)
@@ -270,6 +270,7 @@ lazy val tracer = projectMatrix
     libraryDependencies += "co.fs2"       %%% "fs2-io"              % V.fs2,
     libraryDependencies += "org.http4s"   %%% "http4s-ember-server" % V.http4s,
     libraryDependencies += "org.http4s"   %%% "http4s-dsl"          % V.http4s,
+    libraryDependencies += "org.http4s"   %%% "http4s-circe"          % V.http4s,
     libraryDependencies += "com.monovore" %%% "decline"             % V.decline,
     libraryDependencies += "com.outr"     %%% "scribe-cats"         % V.scribe,
     libraryDependencies += "com.indoorvivants.detective" %% "platform" % V.detective,
@@ -342,10 +343,12 @@ lazy val tracerFrontend = projectMatrix
 lazy val tracerShared = projectMatrix
   .in(file("modules/tracer/shared"))
   .defaultAxes(V.default*)
-  // .dependsOn(jsonrpclib)
   .settings(enableSnapshots)
   .settings(
-    name := "langoustine-tracer-shared",
+    name                                   := "langoustine-tracer-shared",
+    libraryDependencies += "tech.neander" %%% "jsonrpclib-core" % V.jsonrpclib,
+    libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2"  % V.jsonrpclib,
+    libraryDependencies += "io.circe"     %%% "circe-core"   % V.circe,
     libraryDependencies ++= Seq(
       "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-core" % V.jsoniter,
       "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-macros" % V.jsoniter % "compile-internal"

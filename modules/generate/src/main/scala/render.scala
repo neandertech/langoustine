@@ -16,7 +16,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     inline def line: Config ?=> Appender = to(out)
     line(s"package $packageName")
     line(s"package codecs")
-    // line("import upickle.default.*")
     line("import io.circe.{Decoder, Encoder, KeyDecoder, KeyEncoder, Json}")
     line("import aliases.*")
     line("import enumerations.*")
@@ -30,11 +29,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line(s"package $packageName")
     line(s"package all")
     line("")
-
-    // export runtime.DocumentUri
-// export runtime.Uri
-// export runtime.uinteger
-// export runtime.Opt
 
     line("// Structures")
     manager.structures
@@ -94,7 +88,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line(s"package requests")
     line("")
     line("import langoustine.*")
-    line("import upickle.default.*")
     // line("import json.{*, given}")
     line("import io.circe.{Decoder, Encoder}")
     line("import runtime.{*, given}")
@@ -345,7 +338,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
                       s"Decoder.decodeOption(${decoderReference(tpe)})"
                     )
                   else codecsLine(decoderReference(tpe))
-                  // upickleReader1(req.result, "Out").write(codecsOut)
                 case Some(s) =>
                   codecsLine(s"$path.${s.name.value}.fromJson")
             }
@@ -503,8 +495,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line(s"package structures")
     line("")
     line("import langoustine.*")
-    line("import upickle.default.*")
-    // line("import json.{*, given}")
     line("import runtime.{*, given}")
     line("")
 
@@ -762,28 +752,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
             case Nil   =>
             case scope =>
               codecsLine(s"import ${scope.mkString(".")}.*")
-          // allUnions.distinct.zipWithIndex.foreach {
-          //   case (NullableType(_), _) =>
-          //   case (ot, idx)            =>
-          //     val union = renderType(ot)
-          //     codecsLine(
-          //       s"private given rd$idx: Reader[$union] = "
-          //     )
-          //     nest {
-          //       upickleReader1(ot, union).write(codecsOut)
-          //     }
-          //     codecsLine(s"private given wt$idx: Writer[$union] = ")
-          //     nest {
-          //       upickleWriter(ot, Some(union)).write(codecsOut)
-          //     }
-
-          // }
-          // codecsLine(
-          //   s"${codecPublicity}given reader: Reader[$fqf] = Pickle.macroR"
-          // )
-          // codecsLine(
-          //   s"${codecPublicity}given writer: Writer[$fqf] = upickle.default.macroW"
-          // )
 
           val propsWithCorrectTypes = properties.zip(propTypes.result()).map {
             case (p, t) => p.copy(`type` = t)
@@ -1093,74 +1061,74 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     }
   end circeDecoderForStruct
 
-  def upickleReader1(t: Type, widen: String, cast: Option[String] = None)(using
-      Context,
-      Config
-  ): WriterDefinition =
-    import WriterDefinition.*
-    import Type.*
-    val asInst = cast.map(s => s".asInstanceOf[Reader[$s]]").getOrElse("")
-    t match
-      case ot: OrType =>
-        val constituents = ot.items.map(upickleReader(_))
+  // def upickleReader1(t: Type, widen: String, cast: Option[String] = None)(using
+  //     Context,
+  //     Config
+  // ): WriterDefinition =
+  //   import WriterDefinition.*
+  //   import Type.*
+  //   val asInst = cast.map(s => s".asInstanceOf[Reader[$s]]").getOrElse("")
+  //   t match
+  //     case ot: OrType =>
+  //       val constituents = ot.items.map(upickleReader(_))
 
-        Definition { out =>
-          inline def line: Config ?=> Appender = to(out)
-          val allOrs                           = collectOrTypes(ot).distinct
-          allOrs.filterNot(_ == ot).map { tpe =>
-            line(s"given Reader[${renderType(tpe)}] = ??? / ")
-            nest {
-              upickleReader1(tpe, renderType(tpe)).write(out)
-            }
-          }
+  //       Definition { out =>
+  //         inline def line: Config ?=> Appender = to(out)
+  //         val allOrs                           = collectOrTypes(ot).distinct
+  //         allOrs.filterNot(_ == ot).map { tpe =>
+  //           line(s"given Reader[${renderType(tpe)}] = ??? / ")
+  //           nest {
+  //             upickleReader1(tpe, renderType(tpe)).write(out)
+  //           }
+  //         }
 
-          line(constituents.mkString(s"badMerge[$widen](", ", ", s")$asInst"))
-        }
-      case BaseType(BaseTypes.NULL)    => Expression("nullReadWriter")
-      case BaseType(BaseTypes.string)  => Expression(s"stringCodec$asInst")
-      case BaseType(BaseTypes.integer) => Expression(s"intCodec$asInst")
-      case rt @ ReferenceType(ref) if ref.value == "LSPAny" =>
-        Expression("jsReader")
-      case rt @ ReferenceType(ref) =>
-        Expression(summon[Context].resolve(rt).value + s".reader$asInst")
-      case _: AndType    => Expression(s"??? /* TODO: $t  */")
-      case at: ArrayType =>
-        Definition { out =>
-          inline def line: Config ?=> Appender = to(out)
-          val allOrs                           = collectOrTypes(at).distinct
-          allOrs.map { tpe =>
-            line(s"given Reader[${renderType(tpe)}] = ")
-            nest {
-              upickleReader1(tpe, renderType(tpe)).write(out)
-            }
-          }
+  //         line(constituents.mkString(s"badMerge[$widen](", ", ", s")$asInst"))
+  //       }
+  //     case BaseType(BaseTypes.NULL)    => Expression("nullReadWriter")
+  //     case BaseType(BaseTypes.string)  => Expression(s"stringCodec$asInst")
+  //     case BaseType(BaseTypes.integer) => Expression(s"intCodec$asInst")
+  //     case rt @ ReferenceType(ref) if ref.value == "LSPAny" =>
+  //       Expression("jsReader")
+  //     case rt @ ReferenceType(ref) =>
+  //       Expression(summon[Context].resolve(rt).value + s".reader$asInst")
+  //     case _: AndType    => Expression(s"??? /* TODO: $t  */")
+  //     case at: ArrayType =>
+  //       Definition { out =>
+  //         inline def line: Config ?=> Appender = to(out)
+  //         val allOrs                           = collectOrTypes(at).distinct
+  //         allOrs.map { tpe =>
+  //           line(s"given Reader[${renderType(tpe)}] = ")
+  //           nest {
+  //             upickleReader1(tpe, renderType(tpe)).write(out)
+  //           }
+  //         }
 
-          line(s"vectorReader[${renderType(at.element)}]$asInst")
-        }
-      case t => Expression(s"upickle.default.reader[${renderType(t)}]$asInst")
-    end match
-  end upickleReader1
+  //         line(s"vectorReader[${renderType(at.element)}]$asInst")
+  //       }
+  //     case t => Expression(s"upickle.default.reader[${renderType(t)}]$asInst")
+  //   end match
+  // end upickleReader1
 
-  def upickleReader(t: Type, widen: Option[String] = None)(using
-      Context
-  ): String =
-    import Type.*
-    t match
-      case ot: OrType =>
-        val w            = widen.map(a => s".widen[${a}]").getOrElse("")
-        val constituents = ot.items.map(upickleReader(_)).map(_ + w)
-        constituents.mkString(s"badMerge(", ", ", ")")
-      case BaseType(BaseTypes.NULL)                         => "nullReadWriter"
-      case BaseType(BaseTypes.string)                       => "stringCodec"
-      case BaseType(BaseTypes.integer)                      => "intCodec"
-      case rt @ ReferenceType(ref) if ref.value == "LSPAny" =>
-        "jsReader"
-      case rt @ ReferenceType(ref) =>
-        summon[Context].resolve(rt).value + ".reader"
-      case _: AndType => s"??? /* TODO: $t  */"
-      case t          => s"upickle.default.reader[${renderType(t)}]"
-    end match
-  end upickleReader
+  // def upickleReader(t: Type, widen: Option[String] = None)(using
+  //     Context
+  // ): String =
+  //   import Type.*
+  //   t match
+  //     case ot: OrType =>
+  //       val w            = widen.map(a => s".widen[${a}]").getOrElse("")
+  //       val constituents = ot.items.map(upickleReader(_)).map(_ + w)
+  //       constituents.mkString(s"badMerge(", ", ", ")")
+  //     case BaseType(BaseTypes.NULL)                         => "nullReadWriter"
+  //     case BaseType(BaseTypes.string)                       => "stringCodec"
+  //     case BaseType(BaseTypes.integer)                      => "intCodec"
+  //     case rt @ ReferenceType(ref) if ref.value == "LSPAny" =>
+  //       "jsReader"
+  //     case rt @ ReferenceType(ref) =>
+  //       summon[Context].resolve(rt).value + ".reader"
+  //     case _: AndType => s"??? /* TODO: $t  */"
+  //     case t          => s"upickle.default.reader[${renderType(t)}]"
+  //   end match
+  // end upickleReader
 
   enum WriterDefinition:
     case Expression(str: String)
@@ -1171,108 +1139,108 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         case Expression(str) => to(out)(str)
         case Definition(f)   => f(out)
 
-  def upickleWriter(
-      t: Type,
-      widen: Option[String] = None,
-      cast: Option[String] = None
-  )(using
-      Context,
-      Config
-  ): WriterDefinition =
-    import Type.*
-    val asInst = cast.map(s => s".asInstanceOf[Writer[$s]]").getOrElse("")
-    import WriterDefinition.*
-    t match
-      case BaseType(BaseTypes.NULL)    => Expression("nullReadWriter")
-      case BaseType(BaseTypes.string)  => Expression(s"stringCodec$asInst")
-      case BaseType(BaseTypes.integer) => Expression(s"intCodec$asInst")
-      case rt @ ReferenceType(ref) if ref.value == "LSPAny" =>
-        Expression("jsWriter")
-      case rt: ReferenceType =>
-        Expression(summon[Context].resolve(rt).value + s".writer$asInst")
-      case _: BaseType | _: BooleanLiteralType | _: StringLiteralType =>
-        Expression(s"upickle.default.writer[${renderType(t)}]$asInst")
-      case other =>
-        val allOrs = collectOrTypes(other).distinct
-        other match
-          case ot: OrType =>
-            Definition { out =>
-              inline def line: Config ?=> Appender = to(out)
-              allOrs.filterNot(_ == ot).map { tpe =>
-                line(s"given Writer[${renderType(tpe)}] = ")
-                nest {
-                  upickleWriter(tpe).write(out)
-                }
-              }
+  // def upickleWriter(
+  //     t: Type,
+  //     widen: Option[String] = None,
+  //     cast: Option[String] = None
+  // )(using
+  //     Context,
+  //     Config
+  // ): WriterDefinition =
+  //   import Type.*
+  //   val asInst = cast.map(s => s".asInstanceOf[Writer[$s]]").getOrElse("")
+  //   import WriterDefinition.*
+  //   t match
+  //     case BaseType(BaseTypes.NULL)    => Expression("nullReadWriter")
+  //     case BaseType(BaseTypes.string)  => Expression(s"stringCodec$asInst")
+  //     case BaseType(BaseTypes.integer) => Expression(s"intCodec$asInst")
+  //     case rt @ ReferenceType(ref) if ref.value == "LSPAny" =>
+  //       Expression("jsWriter")
+  //     case rt: ReferenceType =>
+  //       Expression(summon[Context].resolve(rt).value + s".writer$asInst")
+  //     case _: BaseType | _: BooleanLiteralType | _: StringLiteralType =>
+  //       Expression(s"upickle.default.writer[${renderType(t)}]$asInst")
+  //     case other =>
+  //       val allOrs = collectOrTypes(other).distinct
+  //       other match
+  //         case ot: OrType =>
+  //           Definition { out =>
+  //             inline def line: Config ?=> Appender = to(out)
+  //             allOrs.filterNot(_ == ot).map { tpe =>
+  //               line(s"given Writer[${renderType(tpe)}] = ")
+  //               nest {
+  //                 upickleWriter(tpe).write(out)
+  //               }
+  //             }
 
-              val w = widen.map(a => s"[$a]").getOrElse("")
-              line(s"upickle.default.writer[ujson.Value].comap$w { _v => ")
-              nest {
-                line("(_v: @unchecked) match ")
-                nest {
-                  val (vectors, nonVectors) = ot.items.partition {
-                    case at: ArrayType => true
-                    case _             => false
-                  }
+  //             val w = widen.map(a => s"[$a]").getOrElse("")
+  //             line(s"upickle.default.writer[ujson.Value].comap$w { _v => ")
+  //             nest {
+  //               line("(_v: @unchecked) match ")
+  //               nest {
+  //                 val (vectors, nonVectors) = ot.items.partition {
+  //                   case at: ArrayType => true
+  //                   case _             => false
+  //                 }
 
-                  vectors.collect { case at: ArrayType => at }.toList match
-                    case Nil       =>
-                    case at :: Nil =>
-                      val typeName = renderType(at)
-                      line(
-                        s"case v: Vector[?] => writeJs[$typeName](v.asInstanceOf[$typeName])"
-                      )
-                    case many @ (at :: _) =>
-                      val first = renderType(at)
-                      line("case v: Vector[?] => ")
-                      nest {
-                        line("v.headOption match")
-                        nest {
-                          line(
-                            s"case None => writeJs[$first](v.asInstanceOf[$first])"
-                          )
-                          many.foreach { arrayType =>
-                            val rendered        = renderType(arrayType)
-                            val renderedElement = renderType(arrayType.element)
-                            line(
-                              s"case Some(_: $renderedElement) => writeJs[$rendered](v.asInstanceOf[$rendered])"
-                            )
-                          }
-                        }
-                      }
-                  end match
+  //                 vectors.collect { case at: ArrayType => at }.toList match
+  //                   case Nil       =>
+  //                   case at :: Nil =>
+  //                     val typeName = renderType(at)
+  //                     line(
+  //                       s"case v: Vector[?] => writeJs[$typeName](v.asInstanceOf[$typeName])"
+  //                     )
+  //                   case many @ (at :: _) =>
+  //                     val first = renderType(at)
+  //                     line("case v: Vector[?] => ")
+  //                     nest {
+  //                       line("v.headOption match")
+  //                       nest {
+  //                         line(
+  //                           s"case None => writeJs[$first](v.asInstanceOf[$first])"
+  //                         )
+  //                         many.foreach { arrayType =>
+  //                           val rendered        = renderType(arrayType)
+  //                           val renderedElement = renderType(arrayType.element)
+  //                           line(
+  //                             s"case Some(_: $renderedElement) => writeJs[$rendered](v.asInstanceOf[$rendered])"
+  //                           )
+  //                         }
+  //                       }
+  //                     }
+  //                 end match
 
-                  nonVectors.map {
-                    case BaseType(BaseTypes.NULL) =>
-                      line("case a if a == Opt.empty => ujson.Null")
-                    case t =>
-                      line(
-                        s"case v: ${renderType(t)} => writeJs[${renderType(t)}](v)"
-                      )
-                  }
-                }
-              }
+  //                 nonVectors.map {
+  //                   case BaseType(BaseTypes.NULL) =>
+  //                     line("case a if a == Opt.empty => ujson.Null")
+  //                   case t =>
+  //                     line(
+  //                       s"case v: ${renderType(t)} => writeJs[${renderType(t)}](v)"
+  //                     )
+  //                 }
+  //               }
+  //             }
 
-              line(s"}$asInst")
+  //             line(s"}$asInst")
 
-            }
-          case ot: ArrayType =>
-            Definition { out =>
-              inline def line: Config ?=> Appender = to(out)
+  //           }
+  //         case ot: ArrayType =>
+  //           Definition { out =>
+  //             inline def line: Config ?=> Appender = to(out)
 
-              allOrs.filterNot(_ == ot).map { tpe =>
-                line(s"given Writer[${renderType(tpe)}] = ")
-                nest {
-                  upickleWriter(tpe).write(out)
-                }
-              }
+  //             allOrs.filterNot(_ == ot).map { tpe =>
+  //               line(s"given Writer[${renderType(tpe)}] = ")
+  //               nest {
+  //                 upickleWriter(tpe).write(out)
+  //               }
+  //             }
 
-              line(s"vectorWriter[${renderType(ot.element)}]$asInst")
-            }
-          case _ => Expression("???")
-        end match
-    end match
-  end upickleWriter
+  //             line(s"vectorWriter[${renderType(ot.element)}]$asInst")
+  //           }
+  //         case _ => Expression("???")
+  //       end match
+  //   end match
+  // end upickleWriter
 
   def aliases(
       out: LineBuilder,
@@ -1552,6 +1520,19 @@ object Render:
   def to(sb: LineBuilder)(using config: Config): Appender =
     import LineBuilder.*
     line => sb.appendLine(indent(using config) + line)
+
+
+  // case class RenderingStreams():
+  //   private val streams = collection.mutable.Map.empty[String, LineBuilder]
+  //   def get(name: String) =
+  //     streams.getOrElseUpdate(name, LineBuilder())
+
+  //   def in(name: String)(f: Config ?=> Unit) =
+  //     get(name).use(f)
+
+  //   def renderMapping() =
+  //     streams.toMap.map((k, v) => k -> v.result)
+  // end RenderingStreams
 
   type Appender = Config ?=> String => Unit
 end Render

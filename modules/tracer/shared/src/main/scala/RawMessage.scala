@@ -16,7 +16,6 @@
 
 package langoustine.tracer
 
-import com.github.plokhotnyuk.jsoniter_scala.core.*
 import jsonrpclib.CallId
 import jsonrpclib.ErrorPayload
 import jsonrpclib.InputMessage.*
@@ -31,7 +30,7 @@ case class RawMessage(
     error: Option[ErrorPayload] = None,
     params: Option[Payload] = None,
     id: Option[CallId] = None
-):
+) derives io.circe.Codec.AsObject:
   def toMessage: Option[Message] =
     id match
       // notification
@@ -54,10 +53,6 @@ case class RawMessage(
 end RawMessage
 
 object RawMessage:
-  import com.github.plokhotnyuk.jsoniter_scala.macros.*
-
-  given JsonValueCodec[RawMessage] = JsonCodecMaker.make
-
   def create(
       method: Option[String] = None,
       result: Option[Payload] = None,

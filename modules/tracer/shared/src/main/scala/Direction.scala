@@ -18,7 +18,7 @@ package langoustine.tracer
 
 import jsonrpclib.InputMessage.*
 
-enum Direction:
+enum Direction derives io.circe.Codec.AsObject:
   case ToServer, ToClient
 
   def reverse: Direction = this match

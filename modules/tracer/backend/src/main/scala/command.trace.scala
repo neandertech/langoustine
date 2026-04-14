@@ -30,7 +30,7 @@ extension (s: fs2.Stream[IO, Payload])
   def debugAs(name: String) =
     s.evalTap(el =>
       Logging.debug(
-        s"[$name (payload)]: ${el.stripNull.map(a => new String(a.array)).getOrElse("null")}"
+        s"[$name (payload)]: ${el.stripNull.map(_.data.noSpaces).getOrElse("null")}"
       )
     )
 
@@ -212,7 +212,7 @@ def Trace(
                         langoustine.lsp.enumerations.MessageType.Info,
                         message =
                           s"Langoustine tracer has started on $serverUri, what would you like to do?",
-                        actions = Opt(
+                        actions = Option(
                           Vector(
                             open,
                             nothing
@@ -222,7 +222,7 @@ def Trace(
                     )
                     .flatTap { out =>
                       Logging.info(out.toString) >> {
-                        if out == Opt(open) then
+                        if out == Some(open) then
                           openBrowser(serverUri).attempt
                             .flatMap(r => Logging.info(r.toString))
                         else IO.unit
