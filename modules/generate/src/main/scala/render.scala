@@ -1635,7 +1635,11 @@ object Types:
     val typeName = renderType(tpe)
     if p.optional == IsOptional.Yes && NullableType.unapply(tpe).isEmpty then
       s"${sanitise(name.value)}: Option[$typeName] = None"
-    else s"${sanitise(name.value)}: $typeName"
+    else 
+      tpe match 
+        case NullableType(nt) => 
+          s"${sanitise(name.value)}: Option[${renderType(nt)}] = None"
+        case _ => s"${sanitise(name.value)}: $typeName"
 
   def sanitise(name: String) =
     val prohibited =
