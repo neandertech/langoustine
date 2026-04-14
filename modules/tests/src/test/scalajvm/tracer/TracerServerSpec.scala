@@ -29,6 +29,8 @@ import scala.concurrent.duration.*
 import weaver.*
 import jsonrpclib.Payload
 
+import io.circe.*
+
 object TracerServerSpec extends ServerSpec:
 
   test("Records incoming requests") { serv =>
@@ -64,7 +66,7 @@ object TracerServerSpec extends ServerSpec:
 
       clientResp1 = RawMessage.create(
         id = id,
-        result = Some(Payload("{}".getBytes()))
+        result = Some(Payload(Json.obj()))
       )
       _ <- serv.send(_.in, clientResp1)
 
@@ -82,10 +84,10 @@ object TracerServerSpec extends ServerSpec:
   test("Records outgoing responses") { serv =>
     for
       msg1 <- serv.genId.map(id =>
-        RawMessage.create(id = id, result = Some(Payload("{}".getBytes())))
+        RawMessage.create(id = id, result = Some(Payload(Json.obj())))
       )
       msg2 <- serv.genId.map(id =>
-        RawMessage.create(id = id, result = Some(Payload("{}".getBytes())))
+        RawMessage.create(id = id, result = Some(Payload(Json.obj())))
       )
 
       _ <- serv.send(_.out, msg1)

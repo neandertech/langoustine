@@ -41,7 +41,7 @@ case class Feed(
     genId: IO[Option[CallId]]
 ):
   def send(f: this.type => Topic[IO, Message], rm: RawMessage) =
-    val ser = writeToStringReentrant(rm)
+    // val ser = writeToStringReentrant(rm)
 
     rm.toMessage match
       case None =>
