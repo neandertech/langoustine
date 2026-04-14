@@ -46,6 +46,27 @@ sealed abstract class LSPNotification(val notificationMethod: String):
 
   def apply(in: In): PreparedNotification[this.type] = PreparedNotification(this,in)
 
+object $DOLLAR:
+  object cancelRequest extends LSPNotification("$/cancelRequest") with codecs.notifications_$_cancelRequest:
+    type In = structures.CancelParams
+    
+    override def apply(in: structures.CancelParams): PreparedNotification[this.type] = super.apply(in)
+  
+  object logTrace extends LSPNotification("$/logTrace") with codecs.notifications_$_logTrace:
+    type In = structures.LogTraceParams
+    
+    override def apply(in: structures.LogTraceParams): PreparedNotification[this.type] = super.apply(in)
+  
+  object progress extends LSPNotification("$/progress") with codecs.notifications_$_progress:
+    type In = structures.ProgressParams
+    
+    override def apply(in: structures.ProgressParams): PreparedNotification[this.type] = super.apply(in)
+  
+  object setTrace extends LSPNotification("$/setTrace") with codecs.notifications_$_setTrace:
+    type In = structures.SetTraceParams
+    
+    override def apply(in: structures.SetTraceParams): PreparedNotification[this.type] = super.apply(in)
+  
 object callHierarchy:
   /**
    *  A request to resolve the incoming calls for a given `CallHierarchyItem`.
@@ -137,6 +158,15 @@ object documentLink:
     override def apply(in: structures.DocumentLink): PreparedRequest[this.type] = super.apply(in)
   
 /**
+ *  The exit event is sent from the client to the server to
+ *  ask the server to exit its process.
+ */
+object exit extends LSPNotification("exit") with codecs.notifications_exit:
+  type In = Unit
+  
+  override def apply(in: Unit): PreparedNotification[this.type] = super.apply(in)
+
+/**
  *  The initialize request is sent from the client to the server.
  *  It is sent once as the request after starting up the server.
  *  The requests parameter is of type {@link InitializeParams}
@@ -148,6 +178,16 @@ object initialize extends LSPRequest("initialize") with codecs.requests_initiali
   type Out = structures.InitializeResult
   
   override def apply(in: structures.InitializeParams): PreparedRequest[this.type] = super.apply(in)
+
+/**
+ *  The initialized notification is sent from the client to the
+ *  server after the client is fully initialized and the server
+ *  is allowed to send requests from the server to the client.
+ */
+object initialized extends LSPNotification("initialized") with codecs.notifications_initialized:
+  type In = structures.InitializedParams
+  
+  override def apply(in: structures.InitializedParams): PreparedNotification[this.type] = super.apply(in)
 
 object inlayHint:
   /**
@@ -163,6 +203,42 @@ object inlayHint:
     
     override def apply(in: structures.InlayHint): PreparedRequest[this.type] = super.apply(in)
   
+object notebookDocument:
+  object didChange extends LSPNotification("notebookDocument/didChange") with codecs.notifications_notebookDocument_didChange:
+    type In = structures.DidChangeNotebookDocumentParams
+    
+    override def apply(in: structures.DidChangeNotebookDocumentParams): PreparedNotification[this.type] = super.apply(in)
+  
+  /**
+   *  A notification sent when a notebook closes.
+   *  
+   *  @since 3.17.0
+   */
+  object didClose extends LSPNotification("notebookDocument/didClose") with codecs.notifications_notebookDocument_didClose:
+    type In = structures.DidCloseNotebookDocumentParams
+    
+    override def apply(in: structures.DidCloseNotebookDocumentParams): PreparedNotification[this.type] = super.apply(in)
+  
+  /**
+   *  A notification sent when a notebook opens.
+   *  
+   *  @since 3.17.0
+   */
+  object didOpen extends LSPNotification("notebookDocument/didOpen") with codecs.notifications_notebookDocument_didOpen:
+    type In = structures.DidOpenNotebookDocumentParams
+    
+    override def apply(in: structures.DidOpenNotebookDocumentParams): PreparedNotification[this.type] = super.apply(in)
+  
+  /**
+   *  A notification sent when a notebook document is saved.
+   *  
+   *  @since 3.17.0
+   */
+  object didSave extends LSPNotification("notebookDocument/didSave") with codecs.notifications_notebookDocument_didSave:
+    type In = structures.DidSaveNotebookDocumentParams
+    
+    override def apply(in: structures.DidSaveNotebookDocumentParams): PreparedNotification[this.type] = super.apply(in)
+  
 /**
  *  A shutdown request is sent from the client to the server.
  *  It is sent once when the client decides to shutdown the
@@ -175,6 +251,16 @@ object shutdown extends LSPRequest("shutdown") with codecs.requests_shutdown:
   
   override def apply(in: Unit): PreparedRequest[this.type] = super.apply(in)
 
+object telemetry:
+  /**
+   *  The telemetry event notification is sent from the server to the client to ask
+   *  the client to log telemetry data.
+   */
+  object event extends LSPNotification("telemetry/event") with codecs.notifications_telemetry_event:
+    type In = io.circe.Json
+    
+    override def apply(in: io.circe.Json): PreparedNotification[this.type] = super.apply(in)
+  
 object textDocument:
   /**
    *  A request to provide commands for the given text document and range.
@@ -257,6 +343,53 @@ object textDocument:
     type Out = aliases.DocumentDiagnosticReport
     
     override def apply(in: structures.DocumentDiagnosticParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  The document change notification is sent from the client to the server to signal
+   *  changes to a text document.
+   */
+  object didChange extends LSPNotification("textDocument/didChange") with codecs.notifications_textDocument_didChange:
+    type In = structures.DidChangeTextDocumentParams
+    
+    override def apply(in: structures.DidChangeTextDocumentParams): PreparedNotification[this.type] = super.apply(in)
+  
+  /**
+   *  The document close notification is sent from the client to the server when
+   *  the document got closed in the client. The document's truth now exists where
+   *  the document's uri points to (e.g. if the document's uri is a file uri the
+   *  truth now exists on disk). As with the open notification the close notification
+   *  is about managing the document's content. Receiving a close notification
+   *  doesn't mean that the document was open in an editor before. A close
+   *  notification requires a previous open notification to be sent.
+   */
+  object didClose extends LSPNotification("textDocument/didClose") with codecs.notifications_textDocument_didClose:
+    type In = structures.DidCloseTextDocumentParams
+    
+    override def apply(in: structures.DidCloseTextDocumentParams): PreparedNotification[this.type] = super.apply(in)
+  
+  /**
+   *  The document open notification is sent from the client to the server to signal
+   *  newly opened text documents. The document's truth is now managed by the client
+   *  and the server must not try to read the document's truth using the document's
+   *  uri. Open in this sense means it is managed by the client. It doesn't necessarily
+   *  mean that its content is presented in an editor. An open notification must not
+   *  be sent more than once without a corresponding close notification send before.
+   *  This means open and close notification must be balanced and the max open count
+   *  is one.
+   */
+  object didOpen extends LSPNotification("textDocument/didOpen") with codecs.notifications_textDocument_didOpen:
+    type In = structures.DidOpenTextDocumentParams
+    
+    override def apply(in: structures.DidOpenTextDocumentParams): PreparedNotification[this.type] = super.apply(in)
+  
+  /**
+   *  The document save notification is sent from the client to the server when
+   *  the document got saved in the client.
+   */
+  object didSave extends LSPNotification("textDocument/didSave") with codecs.notifications_textDocument_didSave:
+    type In = structures.DidSaveTextDocumentParams
+    
+    override def apply(in: structures.DidSaveTextDocumentParams): PreparedNotification[this.type] = super.apply(in)
   
   /**
    *  A request to list all color symbols found in a given text document. The request's
@@ -439,6 +572,15 @@ object textDocument:
     override def apply(in: structures.TypeHierarchyPrepareParams): PreparedRequest[this.type] = super.apply(in)
   
   /**
+   *  Diagnostics notification are sent from the server to the client to signal
+   *  results of validation runs.
+   */
+  object publishDiagnostics extends LSPNotification("textDocument/publishDiagnostics") with codecs.notifications_textDocument_publishDiagnostics:
+    type In = structures.PublishDiagnosticsParams
+    
+    override def apply(in: structures.PublishDiagnosticsParams): PreparedNotification[this.type] = super.apply(in)
+  
+  /**
    *  A request to format a range in a document.
    */
   object rangeFormatting extends LSPRequest("textDocument/rangeFormatting") with codecs.requests_textDocument_rangeFormatting:
@@ -526,6 +668,15 @@ object textDocument:
     override def apply(in: structures.TypeDefinitionParams): PreparedRequest[this.type] = super.apply(in)
   
   /**
+   *  A document will save notification is sent from the client to the server before
+   *  the document is actually saved.
+   */
+  object willSave extends LSPNotification("textDocument/willSave") with codecs.notifications_textDocument_willSave:
+    type In = structures.WillSaveTextDocumentParams
+    
+    override def apply(in: structures.WillSaveTextDocumentParams): PreparedNotification[this.type] = super.apply(in)
+  
+  /**
    *  A document will save request is sent from the client to the server before
    *  the document is actually saved. The request can return an array of TextEdits
    *  which will be applied to the text document before it is saved. Please note that
@@ -564,6 +715,15 @@ object typeHierarchy:
   
 object window:
   /**
+   *  The log message notification is sent from the server to the client to ask
+   *  the client to log a particular message.
+   */
+  object logMessage extends LSPNotification("window/logMessage") with codecs.notifications_window_logMessage:
+    type In = structures.LogMessageParams
+    
+    override def apply(in: structures.LogMessageParams): PreparedNotification[this.type] = super.apply(in)
+  
+  /**
    *  A request to show a document. This request might open an
    *  external program depending on the value of the URI to open.
    *  For example a request to open `https://code.visualstudio.com/`
@@ -578,6 +738,15 @@ object window:
     override def apply(in: structures.ShowDocumentParams): PreparedRequest[this.type] = super.apply(in)
   
   /**
+   *  The show message notification is sent from a server to a client to ask
+   *  the client to display a particular message in the user interface.
+   */
+  object showMessage extends LSPNotification("window/showMessage") with codecs.notifications_window_showMessage:
+    type In = structures.ShowMessageParams
+    
+    override def apply(in: structures.ShowMessageParams): PreparedNotification[this.type] = super.apply(in)
+  
+  /**
    *  The show message request is sent from the server to the client to show a message
    *  and a set of options actions to the user.
    */
@@ -588,6 +757,15 @@ object window:
     override def apply(in: structures.ShowMessageRequestParams): PreparedRequest[this.type] = super.apply(in)
   
   object workDoneProgress:
+    /**
+     *  The `window/workDoneProgress/cancel` notification is sent from  the client to the server to cancel a progress
+     *  initiated on the server side.
+     */
+    object cancel extends LSPNotification("window/workDoneProgress/cancel") with codecs.notifications_window_workDoneProgress_cancel:
+      type In = structures.WorkDoneProgressCancelParams
+      
+      override def apply(in: structures.WorkDoneProgressCancelParams): PreparedNotification[this.type] = super.apply(in)
+    
     /**
      *  The `window/workDoneProgress/create` request is sent from the server to the client to initiate progress
      *  reporting from the server.
@@ -657,6 +835,67 @@ object workspace:
       
       override def apply(in: Unit): PreparedRequest[this.type] = super.apply(in)
     
+  /**
+   *  The configuration change notification is sent from the client to the server
+   *  when the client's configuration has changed. The notification contains
+   *  the changed configuration as defined by the language client.
+   */
+  object didChangeConfiguration extends LSPNotification("workspace/didChangeConfiguration") with codecs.notifications_workspace_didChangeConfiguration:
+    type In = structures.DidChangeConfigurationParams
+    
+    override def apply(in: structures.DidChangeConfigurationParams): PreparedNotification[this.type] = super.apply(in)
+  
+  /**
+   *  The watched files notification is sent from the client to the server when
+   *  the client detects changes to file watched by the language client.
+   */
+  object didChangeWatchedFiles extends LSPNotification("workspace/didChangeWatchedFiles") with codecs.notifications_workspace_didChangeWatchedFiles:
+    type In = structures.DidChangeWatchedFilesParams
+    
+    override def apply(in: structures.DidChangeWatchedFilesParams): PreparedNotification[this.type] = super.apply(in)
+  
+  /**
+   *  The `workspace/didChangeWorkspaceFolders` notification is sent from the client to the server when the workspace
+   *  folder configuration changes.
+   */
+  object didChangeWorkspaceFolders extends LSPNotification("workspace/didChangeWorkspaceFolders") with codecs.notifications_workspace_didChangeWorkspaceFolders:
+    type In = structures.DidChangeWorkspaceFoldersParams
+    
+    override def apply(in: structures.DidChangeWorkspaceFoldersParams): PreparedNotification[this.type] = super.apply(in)
+  
+  /**
+   *  The did create files notification is sent from the client to the server when
+   *  files were created from within the client.
+   *  
+   *  @since 3.16.0
+   */
+  object didCreateFiles extends LSPNotification("workspace/didCreateFiles") with codecs.notifications_workspace_didCreateFiles:
+    type In = structures.CreateFilesParams
+    
+    override def apply(in: structures.CreateFilesParams): PreparedNotification[this.type] = super.apply(in)
+  
+  /**
+   *  The will delete files request is sent from the client to the server before files are actually
+   *  deleted as long as the deletion is triggered from within the client.
+   *  
+   *  @since 3.16.0
+   */
+  object didDeleteFiles extends LSPNotification("workspace/didDeleteFiles") with codecs.notifications_workspace_didDeleteFiles:
+    type In = structures.DeleteFilesParams
+    
+    override def apply(in: structures.DeleteFilesParams): PreparedNotification[this.type] = super.apply(in)
+  
+  /**
+   *  The did rename files notification is sent from the client to the server when
+   *  files were renamed from within the client.
+   *  
+   *  @since 3.16.0
+   */
+  object didRenameFiles extends LSPNotification("workspace/didRenameFiles") with codecs.notifications_workspace_didRenameFiles:
+    type In = structures.RenameFilesParams
+    
+    override def apply(in: structures.RenameFilesParams): PreparedNotification[this.type] = super.apply(in)
+  
   /**
    *  A request send from the client to the server to execute a command. The request might return
    *  a workspace edit which the client will apply to the workspace.

@@ -19,9 +19,9 @@ def myLSP(files: Ref[IO, Set[String]]) =
         IO {
           InitializeResult(
             capabilities = ServerCapabilities(textDocumentSync =
-              Opt(TextDocumentSyncKind.Full)
+              Some(TextDocumentSyncKind.Full)
             ),
-            serverInfo = Opt(InitializeResult.ServerInfo("My first LSP!"))
+            serverInfo = Some(InitializeResult.ServerInfo("My first LSP!"))
           )
         }
     }
