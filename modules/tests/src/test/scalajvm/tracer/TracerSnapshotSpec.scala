@@ -22,8 +22,10 @@ import fs2.concurrent.Channel as Chan
 import cats.effect.*
 import cats.syntax.all.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
+import com.github.plokhotnyuk.jsoniter_scala.circe.JsoniterScalaCodec.*
 import java.util.Base64
 import weaver.*
+import io.circe.*
 
 object TracerSnapshotSpec extends ServerSpec:
   import scala.concurrent.duration.*
@@ -38,7 +40,7 @@ object TracerSnapshotSpec extends ServerSpec:
         .flatMap(_.content)
         .through(fs2.text.utf8.decode)
         .through(fs2.text.lines)
-        .evalMap(l => IO(readFromString[SnapshotItem](l)))
+        .evalMap(l => IO.fromEither(readFromString[Json](l).as[SnapshotItem]))
         .compile
         .toVector
         .map { s =>

@@ -30,7 +30,8 @@ import org.http4s.client.*
 import TracerServer.{*, given}
 import org.http4s.Uri
 import org.http4s.client.websocket.*
-import langoustine.tracer.codecs.given
+
+import org.http4s.circe.CirceEntityCodec._
 
 import org.http4s.dsl.io.*
 import org.http4s.client.dsl.io.*
