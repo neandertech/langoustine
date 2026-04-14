@@ -24,7 +24,6 @@ import jsonrpclib.Message
 import org.http4s.HttpApp
 import org.http4s.HttpRoutes
 import org.http4s.ember.server.EmberServerBuilder
-import org.http4s.server
 import org.http4s.server.middleware.ErrorHandling
 import org.http4s.server.websocket.WebSocketBuilder2
 

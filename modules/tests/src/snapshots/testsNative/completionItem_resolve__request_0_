@@ -1,19 +1,19 @@
 {
-    "command" : {
-        "arguments" : [
-        ],
-        "command" : "randomString",
-        "title" : "randomString"
-    },
-    "commitCharacters" : [
-    ],
+    "label" : "randomString",
     "detail" : "randomString",
     "documentation" : {
         "kind" : "plaintext",
-        "value" : "newText"
+        "value" : "randomString"
     },
-    "label" : "randomString",
     "preselect" : false,
     "sortText" : "randomString",
-    "textEditText" : "randomString"
+    "textEditText" : "randomString",
+    "commitCharacters" : [
+    ],
+    "command" : {
+        "title" : "randomString",
+        "command" : "randomString",
+        "arguments" : [
+        ]
+    }
 }

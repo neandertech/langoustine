@@ -19,7 +19,6 @@ package langoustine.lsp.app
 import scala.concurrent.duration.*
 
 import cats.effect.IO
-import fs2.Chunk
 
 import scalanative.posix
 

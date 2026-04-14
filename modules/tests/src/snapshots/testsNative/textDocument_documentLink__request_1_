@@ -1,7 +1,7 @@
 {
-  "textDocument": {
-    "uri": "file1"
-  },
-  "workDoneToken": 25,
-  "partialResultToken": "stringToken"
+    "textDocument" : {
+        "uri" : "file1"
+    },
+    "workDoneToken" : 25,
+    "partialResultToken" : "stringToken"
 }

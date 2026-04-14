@@ -17,7 +17,6 @@
 package langoustine.lsp.app
 
 import jsonrpclib.CallId
-import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
 import jsonrpclib.fs2.CancelTemplate
 
 private case class LSPCancelRequest(id: CallId) derives io.circe.Codec.AsObject

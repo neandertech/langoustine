@@ -1,26 +1,46 @@
 [
-  {
-    "range": {
-      "start": {
-        "line": 52,
-        "character": 1
-      },
-      "end": {
-        "line": 58,
-        "character": 82
-      }
+    {
+        "range" : {
+            "end" : {
+                "character" : 62,
+                "line" : 22
+            },
+            "start" : {
+                "character" : 19,
+                "line" : 65
+            }
+        },
+        "tooltip" : "randomString"
+    },
+    {
+        "data" : {
+            "hello" : "yo"
+        },
+        "range" : {
+            "end" : {
+                "character" : 98,
+                "line" : 71
+            },
+            "start" : {
+                "character" : 15,
+                "line" : 20
+            }
+        },
+        "target" : "uri2"
+    },
+    {
+        "data" : {
+            "hello" : "yo"
+        },
+        "range" : {
+            "end" : {
+                "character" : 55,
+                "line" : 60
+            },
+            "start" : {
+                "character" : 100,
+                "line" : 97
+            }
+        }
     }
-  },
-  {
-    "range": {
-      "start": {
-        "line": 13,
-        "character": 34
-      },
-      "end": {
-        "line": 5,
-        "character": 12
-      }
-    }
-  }
 ]

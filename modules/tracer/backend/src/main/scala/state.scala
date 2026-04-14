@@ -19,16 +19,15 @@ package langoustine.tracer
 import cats.effect.*
 import cats.effect.std.*
 import fs2.concurrent.*
+import io.circe.Json
 import jsonrpclib.CallId
 import jsonrpclib.InputMessage.NotificationMessage
 import jsonrpclib.InputMessage.RequestMessage
 import jsonrpclib.Message
 import jsonrpclib.OutputMessage.ErrorMessage
 import jsonrpclib.OutputMessage.ResponseMessage
-import jsonrpclib.Payload
 import langoustine.lsp.enumerations
 import langoustine.lsp.requests.window
-import io.circe.Json
 
 case class State(
     ch: Channel[IO, String],
@@ -104,21 +103,26 @@ case class State(
                         .map(LspMessage.Response(id, _, direction))
 
                   case notif: LspMessage.Notification =>
-                    import langoustine.lsp.jsonrpcIntegration.given
 
                     val special =
                       if notif.method == "window/logMessage" then
                         IO
                           .fromEither(
                             window.logMessage.inputFromJson.decodeJson(
-                              rawMessage.value.params.map(_.data).getOrElse(Json.Null)
+                              rawMessage.value.params
+                                .map(_.data)
+                                .getOrElse(Json.Null)
                             )
                           )
                           .flatMap(Received.capture(_))
                           .flatMap { case Received(ts, lmp) =>
                             if lmp.`type` == enumerations.MessageType.Log then
                               logBuf.update(
-                                _ :+ LogMessage(lmp.message, LogMessageStream.Window, ts)
+                                _ :+ LogMessage(
+                                  lmp.message,
+                                  LogMessageStream.Window,
+                                  ts
+                                )
                               )
                             else IO.unit
                           }

@@ -1,5 +1,6 @@
 {
     "textDocument" : {
-        "uri" : "file2"
-    }
+        "uri" : "file1"
+    },
+    "workDoneToken" : "stringToken"
 }

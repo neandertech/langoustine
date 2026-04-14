@@ -18,7 +18,6 @@ package langoustine.tracer
 
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 import com.github.plokhotnyuk.jsoniter_scala.macros.*
-import jsonrpclib.InputMessage.*
 
 enum TracerEvent:
   case LogLines(lines: Vector[LogMessage])

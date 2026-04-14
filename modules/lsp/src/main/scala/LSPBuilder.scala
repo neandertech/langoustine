@@ -57,7 +57,7 @@ trait LSPBuilder[F[_]]:
     val endpoints = build(communicate)
 
     endpoints match
-      case Nil => Fm.doPure(channel)
+      case Nil    => Fm.doPure(channel)
       case h :: t =>
         var curr = channel.mountEndpoint(h)
         t.foreach { e =>

@@ -17,8 +17,8 @@
 package langoustine.tracer
 
 import com.raquo.laminar.api.L.*
-import jsonrpclib.*
 import io.circe.Encoder
+import jsonrpclib.*
 
 def jsonViewer(
     showing: Var[Option[LspMessage]],
@@ -216,6 +216,3 @@ def displayJson[T: Encoder](
   )
 
 end displayJson
-
-import com.raquo.laminar.nodes.ReactiveHtmlElement
-import io.circe.Codec

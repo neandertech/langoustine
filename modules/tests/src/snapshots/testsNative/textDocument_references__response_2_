@@ -1,0 +1,15 @@
+[
+    {
+        "range" : {
+            "end" : {
+                "character" : 38,
+                "line" : 23
+            },
+            "start" : {
+                "character" : 83,
+                "line" : 62
+            }
+        },
+        "uri" : "file1"
+    }
+]

@@ -16,8 +16,6 @@
 
 package langoustine.tracer
 
-import jsonrpclib.InputMessage.*
-
 enum LogMessageStream derives io.circe.Codec.AsObject:
   case Window, Stderr
 

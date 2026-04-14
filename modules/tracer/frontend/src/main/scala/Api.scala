@@ -21,17 +21,14 @@ import scala.concurrent.Future
 import scala.scalajs.js
 import scala.scalajs.js.Thenable.Implicits.*
 
+import io.circe.Decoder
+import io.circe.scalajs.decodeJs
 import org.scalajs.dom
 import org.scalajs.dom.Fetch.fetch
-import io.circe.Decoder
-import io.circe.Json
-
-import io.circe.scalajs.decodeJs
 
 object Api:
 
-
-  def read[T: Decoder](s: js.Any) = decodeJs[T](s).fold(throw _ , identity)
+  def read[T: Decoder](s: js.Any) = decodeJs[T](s).fold(throw _, identity)
 
   def all: Future[Vector[LspMessage]] =
     fetch("/api/all")

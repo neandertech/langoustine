@@ -37,7 +37,7 @@ def listenToWebsockets(
         case event: MessageEvent =>
           val data = event.data.toString
           readFromStringReentrant[TracerEvent](data) match
-            case TracerEvent.Update => bus.emit(Date.now())
+            case TracerEvent.Update      => bus.emit(Date.now())
             case TracerEvent.LogLines(l) =>
               logs.update(v => v.drop(v.length + l.length - 1000) ++ l)
   )
