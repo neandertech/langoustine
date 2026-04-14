@@ -158,16 +158,16 @@ case class Config(
           .filterNot(a =>
             a.name.value == "LSPAny" || a.name.value == "LSPArray"
           )
-          .filter(a => allowedAliases(a.name.value))
+          // .filter(a => allowedAliases(a.name.value))
       )
-      .copy(structures =
-        metaModel.structures.filter(s => allowedStructs(s.name.value))
-      )
-      .copy(
-        requests =
-          metaModel.requests.filter(s => allowedMethods(s.method.value)),
-        notifications = Vector.empty
-      )
+      // .copy(structures =
+      //   metaModel.structures.filter(s => allowedStructs(s.name.value))
+      // )
+      // .copy(
+      //   requests =
+      //     metaModel.requests.filter(s => allowedMethods(s.method.value)),
+      //   // notifications = Vector.empty
+      // )
 
   val ignoredAliases =
     metaModel.typeAliases.filterNot(a => allowedAliases(a.name.value))

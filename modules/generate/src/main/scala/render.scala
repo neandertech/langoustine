@@ -289,10 +289,9 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
                     case ParamsType.None =>
                       WriterDefinition.Expression("Decoder.const(())")
                     case ParamsType.Single(t) =>
-                      // TODO: handle unions
                       WriterDefinition.Expression(decoderReference(t))
                     case ParamsType.Many(t) =>
-                      WriterDefinition.Expression("Pickle.macroR")
+                      WriterDefinition.Expression(decoderReference(OrType(t)))
                 case Some(s) =>
                   WriterDefinition.Expression(s"$path.${s.name.value}.fromJson")
 
@@ -322,18 +321,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
             nest {
               outStruct match
                 case None =>
-                  // upickleWriter(req.result, Some("Out")).write(codecsOut)
-                  // req.result match
-                  //   case OrType(items) =>
-                  //     val (isOption, simplified) =
-                  //       val (nullType, rest) =
-                  //         items.partition(_ == BaseType(BaseTypes.NULL))
-                  //       (nullType.nonEmpty, rest)
-
-                  //     codecsLine(s"??? //$simplified")
-                  //   case other =>
-                  //     codecsLine(encoderReference(other))
-                  //
                   val (isOption, tpe) = simplifyOrType(req.result)
                   if isOption then
                     codecsLine(
@@ -410,25 +397,38 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
             codecsLine(s"import $path.In")
 
             val reader =
-              req.params match
-                case ParamsType.None =>
-                  WriterDefinition.Expression("unitReader")
-                case ParamsType.Single(t) => upickleReader1(t, "In")
-                case ParamsType.Many(t)   =>
-                  WriterDefinition.Expression("Pickle.macroR")
+              // inStruct match
+              //   case None =>
+                  req.params match
+                    case ParamsType.None =>
+                      WriterDefinition.Expression("Decoder.const(())")
+                    case ParamsType.Single(t) =>
+                      WriterDefinition.Expression(decoderReference(t))
+                    case ParamsType.Many(t) =>
+                      WriterDefinition.Expression(decoderReference(OrType(t)))
+                // case Some(s) =>
+                //   WriterDefinition.Expression(s"$path.${s.name.value}.fromJson")
 
-            codecsLine(s"given inputReader: Reader[In] = ")
+            codecsLine(s"given inputFromJson: Decoder[In] = ")
             nest {
               reader.write(codecsOut)
             }
-            codecsLine(s"given inputWriter: Writer[In] = ")
+
+            codecsLine(s"given inputToJson: Encoder[In] = ")
             nest {
-              req.params match
-                case ParamsType.None      => codecsLine("Decoder.const(())")
-                case ParamsType.Single(t) =>
-                  upickleWriter(t, Some("In")).write(codecsOut)
-                case ParamsType.Many(t) => codecsLine("Pickle.macroR")
+              // inStruct match
+              //   case None =>
+                  req.params match
+                    case ParamsType.None => codecsLine("Encoder.encodeUnit")
+                    case ParamsType.Single(t) =>
+                      codecsLine(encoderReference(t))
+                    case ParamsType.Many(t) =>
+                      codecsLine(encoderReference(OrType(t)))
+
+                // case Some(s) =>
+                //   codecsLine(s"$path.${s.name.value}.toJson")
             }
+
           }
         }
       }

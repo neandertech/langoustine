@@ -7,6 +7,38 @@ import enumerations.*
 import structures.*
 import runtime.{*, given}
 
+
+private[lsp] trait notifications_$_cancelRequest:
+  import requests.$DOLLAR.cancelRequest.In
+  given inputFromJson: Decoder[In] = 
+    structures.CancelParams.fromJson
+  given inputToJson: Encoder[In] = 
+    structures.CancelParams.toJson
+
+
+private[lsp] trait notifications_$_logTrace:
+  import requests.$DOLLAR.logTrace.In
+  given inputFromJson: Decoder[In] = 
+    structures.LogTraceParams.fromJson
+  given inputToJson: Encoder[In] = 
+    structures.LogTraceParams.toJson
+
+
+private[lsp] trait notifications_$_progress:
+  import requests.$DOLLAR.progress.In
+  given inputFromJson: Decoder[In] = 
+    structures.ProgressParams.fromJson
+  given inputToJson: Encoder[In] = 
+    structures.ProgressParams.toJson
+
+
+private[lsp] trait notifications_$_setTrace:
+  import requests.$DOLLAR.setTrace.In
+  given inputFromJson: Decoder[In] = 
+    structures.SetTraceParams.fromJson
+  given inputToJson: Encoder[In] = 
+    structures.SetTraceParams.toJson
+
 private[lsp] trait requests_callHierarchy_incomingCalls:
   import requests.callHierarchy.incomingCalls.{In, Out}
   given inputFromJson: Decoder[In] = 
@@ -119,6 +151,14 @@ private[lsp] trait requests_documentLink_resolve:
   given outputFromJson: Decoder[Out] =
     structures.DocumentLink.fromJson
 
+
+private[lsp] trait notifications_exit:
+  import requests.exit.In
+  given inputFromJson: Decoder[In] = 
+    Decoder.const(())
+  given inputToJson: Encoder[In] = 
+    Encoder.encodeUnit
+
 private[lsp] trait requests_initialize:
   import requests.initialize.{In, Out}
   given inputFromJson: Decoder[In] = 
@@ -132,6 +172,14 @@ private[lsp] trait requests_initialize:
   
   given outputFromJson: Decoder[Out] =
     structures.InitializeResult.fromJson
+
+
+private[lsp] trait notifications_initialized:
+  import requests.initialized.In
+  given inputFromJson: Decoder[In] = 
+    structures.InitializedParams.fromJson
+  given inputToJson: Encoder[In] = 
+    structures.InitializedParams.toJson
 
 private[lsp] trait requests_inlayHint_resolve:
   import requests.inlayHint.resolve.{In, Out}
@@ -147,6 +195,38 @@ private[lsp] trait requests_inlayHint_resolve:
   given outputFromJson: Decoder[Out] =
     structures.InlayHint.fromJson
 
+
+private[lsp] trait notifications_notebookDocument_didChange:
+  import requests.notebookDocument.didChange.In
+  given inputFromJson: Decoder[In] = 
+    structures.DidChangeNotebookDocumentParams.fromJson
+  given inputToJson: Encoder[In] = 
+    structures.DidChangeNotebookDocumentParams.toJson
+
+
+private[lsp] trait notifications_notebookDocument_didClose:
+  import requests.notebookDocument.didClose.In
+  given inputFromJson: Decoder[In] = 
+    structures.DidCloseNotebookDocumentParams.fromJson
+  given inputToJson: Encoder[In] = 
+    structures.DidCloseNotebookDocumentParams.toJson
+
+
+private[lsp] trait notifications_notebookDocument_didOpen:
+  import requests.notebookDocument.didOpen.In
+  given inputFromJson: Decoder[In] = 
+    structures.DidOpenNotebookDocumentParams.fromJson
+  given inputToJson: Encoder[In] = 
+    structures.DidOpenNotebookDocumentParams.toJson
+
+
+private[lsp] trait notifications_notebookDocument_didSave:
+  import requests.notebookDocument.didSave.In
+  given inputFromJson: Decoder[In] = 
+    structures.DidSaveNotebookDocumentParams.fromJson
+  given inputToJson: Encoder[In] = 
+    structures.DidSaveNotebookDocumentParams.toJson
+
 private[lsp] trait requests_shutdown:
   import requests.shutdown.{In, Out}
   given inputFromJson: Decoder[In] = 
@@ -160,6 +240,14 @@ private[lsp] trait requests_shutdown:
   
   given outputFromJson: Decoder[Out] =
     Decoder.const[Null](null)
+
+
+private[lsp] trait notifications_telemetry_event:
+  import requests.telemetry.event.In
+  given inputFromJson: Decoder[In] = 
+    Decoder.decodeJson
+  given inputToJson: Encoder[In] = 
+    Encoder.encodeJson
 
 private[lsp] trait requests_textDocument_codeAction:
   import requests.textDocument.codeAction.{In, Out}
@@ -258,6 +346,38 @@ private[lsp] trait requests_textDocument_diagnostic:
   
   given outputFromJson: Decoder[Out] =
     aliases.DocumentDiagnosticReport.fromJson
+
+
+private[lsp] trait notifications_textDocument_didChange:
+  import requests.textDocument.didChange.In
+  given inputFromJson: Decoder[In] = 
+    structures.DidChangeTextDocumentParams.fromJson
+  given inputToJson: Encoder[In] = 
+    structures.DidChangeTextDocumentParams.toJson
+
+
+private[lsp] trait notifications_textDocument_didClose:
+  import requests.textDocument.didClose.In
+  given inputFromJson: Decoder[In] = 
+    structures.DidCloseTextDocumentParams.fromJson
+  given inputToJson: Encoder[In] = 
+    structures.DidCloseTextDocumentParams.toJson
+
+
+private[lsp] trait notifications_textDocument_didOpen:
+  import requests.textDocument.didOpen.In
+  given inputFromJson: Decoder[In] = 
+    structures.DidOpenTextDocumentParams.fromJson
+  given inputToJson: Encoder[In] = 
+    structures.DidOpenTextDocumentParams.toJson
+
+
+private[lsp] trait notifications_textDocument_didSave:
+  import requests.textDocument.didSave.In
+  given inputFromJson: Decoder[In] = 
+    structures.DidSaveTextDocumentParams.fromJson
+  given inputToJson: Encoder[In] = 
+    structures.DidSaveTextDocumentParams.toJson
 
 private[lsp] trait requests_textDocument_documentColor:
   import requests.textDocument.documentColor.{In, Out}
@@ -483,6 +603,14 @@ private[lsp] trait requests_textDocument_prepareTypeHierarchy:
   given outputFromJson: Decoder[Out] =
     Decoder.decodeOption(Decoder.decodeVector(structures.TypeHierarchyItem.fromJson))
 
+
+private[lsp] trait notifications_textDocument_publishDiagnostics:
+  import requests.textDocument.publishDiagnostics.In
+  given inputFromJson: Decoder[In] = 
+    structures.PublishDiagnosticsParams.fromJson
+  given inputToJson: Encoder[In] = 
+    structures.PublishDiagnosticsParams.toJson
+
 private[lsp] trait requests_textDocument_rangeFormatting:
   import requests.textDocument.rangeFormatting.{In, Out}
   given inputFromJson: Decoder[In] = 
@@ -609,6 +737,14 @@ private[lsp] trait requests_textDocument_typeDefinition:
   given outputFromJson: Decoder[Out] =
     Decoder.decodeOption(Dec.union2[aliases.Definition, Vector[aliases.DefinitionLink]](aliases.Definition.fromJson,Decoder.decodeVector(aliases.DefinitionLink.fromJson)))
 
+
+private[lsp] trait notifications_textDocument_willSave:
+  import requests.textDocument.willSave.In
+  given inputFromJson: Decoder[In] = 
+    structures.WillSaveTextDocumentParams.fromJson
+  given inputToJson: Encoder[In] = 
+    structures.WillSaveTextDocumentParams.toJson
+
 private[lsp] trait requests_textDocument_willSaveWaitUntil:
   import requests.textDocument.willSaveWaitUntil.{In, Out}
   given inputFromJson: Decoder[In] = 
@@ -651,6 +787,14 @@ private[lsp] trait requests_typeHierarchy_supertypes:
   given outputFromJson: Decoder[Out] =
     Decoder.decodeOption(Decoder.decodeVector(structures.TypeHierarchyItem.fromJson))
 
+
+private[lsp] trait notifications_window_logMessage:
+  import requests.window.logMessage.In
+  given inputFromJson: Decoder[In] = 
+    structures.LogMessageParams.fromJson
+  given inputToJson: Encoder[In] = 
+    structures.LogMessageParams.toJson
+
 private[lsp] trait requests_window_showDocument:
   import requests.window.showDocument.{In, Out}
   given inputFromJson: Decoder[In] = 
@@ -665,6 +809,14 @@ private[lsp] trait requests_window_showDocument:
   given outputFromJson: Decoder[Out] =
     structures.ShowDocumentResult.fromJson
 
+
+private[lsp] trait notifications_window_showMessage:
+  import requests.window.showMessage.In
+  given inputFromJson: Decoder[In] = 
+    structures.ShowMessageParams.fromJson
+  given inputToJson: Encoder[In] = 
+    structures.ShowMessageParams.toJson
+
 private[lsp] trait requests_window_showMessageRequest:
   import requests.window.showMessageRequest.{In, Out}
   given inputFromJson: Decoder[In] = 
@@ -678,6 +830,14 @@ private[lsp] trait requests_window_showMessageRequest:
   
   given outputFromJson: Decoder[Out] =
     Decoder.decodeOption(structures.MessageActionItem.fromJson)
+
+
+private[lsp] trait notifications_window_workDoneProgress_cancel:
+  import requests.window.workDoneProgress.cancel.In
+  given inputFromJson: Decoder[In] = 
+    structures.WorkDoneProgressCancelParams.fromJson
+  given inputToJson: Encoder[In] = 
+    structures.WorkDoneProgressCancelParams.toJson
 
 private[lsp] trait requests_window_workDoneProgress_create:
   import requests.window.workDoneProgress.create.{In, Out}
@@ -762,6 +922,54 @@ private[lsp] trait requests_workspace_diagnostic_refresh:
   
   given outputFromJson: Decoder[Out] =
     Decoder.const[Null](null)
+
+
+private[lsp] trait notifications_workspace_didChangeConfiguration:
+  import requests.workspace.didChangeConfiguration.In
+  given inputFromJson: Decoder[In] = 
+    structures.DidChangeConfigurationParams.fromJson
+  given inputToJson: Encoder[In] = 
+    structures.DidChangeConfigurationParams.toJson
+
+
+private[lsp] trait notifications_workspace_didChangeWatchedFiles:
+  import requests.workspace.didChangeWatchedFiles.In
+  given inputFromJson: Decoder[In] = 
+    structures.DidChangeWatchedFilesParams.fromJson
+  given inputToJson: Encoder[In] = 
+    structures.DidChangeWatchedFilesParams.toJson
+
+
+private[lsp] trait notifications_workspace_didChangeWorkspaceFolders:
+  import requests.workspace.didChangeWorkspaceFolders.In
+  given inputFromJson: Decoder[In] = 
+    structures.DidChangeWorkspaceFoldersParams.fromJson
+  given inputToJson: Encoder[In] = 
+    structures.DidChangeWorkspaceFoldersParams.toJson
+
+
+private[lsp] trait notifications_workspace_didCreateFiles:
+  import requests.workspace.didCreateFiles.In
+  given inputFromJson: Decoder[In] = 
+    structures.CreateFilesParams.fromJson
+  given inputToJson: Encoder[In] = 
+    structures.CreateFilesParams.toJson
+
+
+private[lsp] trait notifications_workspace_didDeleteFiles:
+  import requests.workspace.didDeleteFiles.In
+  given inputFromJson: Decoder[In] = 
+    structures.DeleteFilesParams.fromJson
+  given inputToJson: Encoder[In] = 
+    structures.DeleteFilesParams.toJson
+
+
+private[lsp] trait notifications_workspace_didRenameFiles:
+  import requests.workspace.didRenameFiles.In
+  given inputFromJson: Decoder[In] = 
+    structures.RenameFilesParams.fromJson
+  given inputToJson: Encoder[In] = 
+    structures.RenameFilesParams.toJson
 
 private[lsp] trait requests_workspace_executeCommand:
   import requests.workspace.executeCommand.{In, Out}

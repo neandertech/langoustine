@@ -398,3 +398,8 @@ export requests.codeAction
 export requests.workspaceSymbol
 export requests.codeLens
 export requests.documentLink
+export requests.notebookDocument
+export requests.initialized
+export requests.exit
+export requests.telemetry
+export requests.$DOLLAR
