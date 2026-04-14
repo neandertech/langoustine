@@ -1,5 +1,5 @@
 {
-  "textDocument": {
-    "uri": "file2"
-  }
+    "textDocument" : {
+        "uri" : "file2"
+    }
 }

@@ -58,7 +58,7 @@ object ChildProcess:
           Async[F].evalOn(fa, scala.concurrent.ExecutionContext.global)
 
       val cp = new ChildProcess[F]:
-        def terminate = terminator
+        def terminate                      = terminator
         def stdin: fs2.Pipe[F, Byte, Unit] =
           writeOutputStreamFlushingChunks[F](
             Sync[F].interruptible(p.getOutputStream()),

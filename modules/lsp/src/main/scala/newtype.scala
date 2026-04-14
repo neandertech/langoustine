@@ -30,7 +30,7 @@ private[lsp] trait TotalWrapper[Newtype, Impl](using ev: Newtype =:= Impl):
     def reverse(a: Newtype) = ev(a)
 
   extension (a: Newtype)
-    inline def value = raw(a)
+    inline def value                                           = raw(a)
     inline def into[X](inline other: TotalWrapper[X, Impl]): X =
       other.apply(raw(a))
     inline def map(inline f: Impl => Impl): Newtype = apply(f(raw(a)))

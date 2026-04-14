@@ -16,8 +16,6 @@
 
 package langoustine.tracer
 
-import jsonrpclib.InputMessage.*
-
 enum Direction derives io.circe.Codec.AsObject:
   case ToServer, ToClient
 

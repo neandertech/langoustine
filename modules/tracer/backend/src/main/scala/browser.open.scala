@@ -32,7 +32,7 @@ def openBrowser(url: Uri): IO[Unit] =
   def cmd(args: String*) =
     Try(sys.process.Process.apply(args).!!)
 
-  val mac = cmd("open", stringUri)
+  val mac   = cmd("open", stringUri)
   val linux =
     cmd("xdg-open", stringUri)
       .orElse(cmd("gnome-open", stringUri))

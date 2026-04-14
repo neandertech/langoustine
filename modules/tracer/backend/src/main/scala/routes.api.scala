@@ -18,10 +18,12 @@ package langoustine.tracer
 
 import cats.effect.*
 import cats.syntax.all.*
-// import com.github.plokhotnyuk.jsoniter_scala.core.*
-// import com.github.plokhotnyuk.jsoniter_scala.macros.*
+import com.github.plokhotnyuk.jsoniter_scala.core.*
+import io.circe.*
+import io.circe.syntax.*
 import jsonrpclib.CallId
 import org.http4s.*
+import org.http4s.circe.CirceEntityCodec.*
 import org.http4s.dsl.io.*
 import org.http4s.headers.*
 import org.http4s.server.*
@@ -30,14 +32,6 @@ import org.http4s.websocket.*
 import org.typelevel.ci.*
 
 import concurrent.duration.*
-
-import com.github.plokhotnyuk.jsoniter_scala.core.*
-import com.github.plokhotnyuk.jsoniter_scala.circe.JsoniterScalaCodec.*
-import io.circe.*
-import io.circe.syntax.*
-
-import org.http4s.circe.CirceEntityCodec.*
-
 
 object SnapshotNameMatcher
     extends OptionalQueryParamDecoderMatcher[String]("name")
@@ -120,8 +114,9 @@ def api(
               rm.copy(decoded = resp.copy(method = None))
         }.map(SnapshotItem.Message.apply))
 
-      val logs = logBuf.get.map(_.collect { case log if log.stream == LogMessageStream.Stderr =>
-        SnapshotItem.Log(log)
+      val logs = logBuf.get.map(_.collect {
+        case log if log.stream == LogMessageStream.Stderr =>
+          SnapshotItem.Log(log)
       })
 
       lspMessages.product(logs).map(_ ++ _).map(_.sortBy(_.timestamp)).flatMap {

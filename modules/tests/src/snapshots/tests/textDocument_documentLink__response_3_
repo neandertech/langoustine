@@ -1,0 +1,74 @@
+[
+    {
+        "range" : {
+            "end" : {
+                "character" : 25,
+                "line" : 91
+            },
+            "start" : {
+                "character" : 45,
+                "line" : 47
+            }
+        },
+        "target" : "uri1",
+        "tooltip" : "randomString"
+    },
+    {
+        "range" : {
+            "end" : {
+                "character" : 61,
+                "line" : 82
+            },
+            "start" : {
+                "character" : 54,
+                "line" : 25
+            }
+        },
+        "target" : "uri2",
+        "tooltip" : "randomString"
+    },
+    {
+        "data" : {
+            "hello" : "yo"
+        },
+        "range" : {
+            "end" : {
+                "character" : 24,
+                "line" : 35
+            },
+            "start" : {
+                "character" : 31,
+                "line" : 77
+            }
+        }
+    },
+    {
+        "range" : {
+            "end" : {
+                "character" : 42,
+                "line" : 21
+            },
+            "start" : {
+                "character" : 60,
+                "line" : 55
+            }
+        },
+        "target" : "uri1"
+    },
+    {
+        "data" : {
+            "hello" : "yo"
+        },
+        "range" : {
+            "end" : {
+                "character" : 12,
+                "line" : 73
+            },
+            "start" : {
+                "character" : 86,
+                "line" : 62
+            }
+        },
+        "tooltip" : "randomString"
+    }
+]

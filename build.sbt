@@ -1,3 +1,4 @@
+import java.nio.file.Files
 Global / excludeLintKeys += logManager
 Global / excludeLintKeys += scalaJSUseMainModuleInitializer
 Global / excludeLintKeys += scalaJSLinkerConfig
@@ -270,7 +271,7 @@ lazy val tracer = projectMatrix
     libraryDependencies += "co.fs2"       %%% "fs2-io"              % V.fs2,
     libraryDependencies += "org.http4s"   %%% "http4s-ember-server" % V.http4s,
     libraryDependencies += "org.http4s"   %%% "http4s-dsl"          % V.http4s,
-    libraryDependencies += "org.http4s"   %%% "http4s-circe"          % V.http4s,
+    libraryDependencies += "org.http4s"   %%% "http4s-circe"        % V.http4s,
     libraryDependencies += "com.monovore" %%% "decline"             % V.decline,
     libraryDependencies += "com.outr"     %%% "scribe-cats"         % V.scribe,
     libraryDependencies += "com.indoorvivants.detective" %% "platform" % V.detective,
@@ -284,19 +285,19 @@ lazy val tracer = projectMatrix
           (ThisBuild / baseDirectory).value / "modules" / "tracer" / "frontend" / "index.html"
         val outDir = (Compile / resourceManaged).value / "assets"
 
-        // val indexFileContents = {
-        //   val lines = IO.readLines(indexFile)
+        val indexFileContents = {
+          val lines = Files.readAllLines(indexFile.toPath).toArray.toList.asInstanceOf[List[String]]
 
-        //   val newLines = lines.collect {
-        //     case l if l.contains("<!-- REPLACE -->") =>
-        //       """<script type="text/javascript" src="/assets/main.js"></script>"""
-        //     case l => l
-        //   }
+          val newLines = lines.collect {
+            case l if l.contains("<!-- REPLACE -->") =>
+              """<script type="text/javascript" src="/assets/main.js"></script>"""
+            case l => l
+          }
 
-        //   newLines.mkString(System.lineSeparator())
-        // }
+          newLines.mkString(System.lineSeparator())
+        }
 
-        // IO.write(outDir / "index.html", indexFileContents)
+        Files.writeString((outDir / "index.html").toPath, indexFileContents)
 
         IO.listFiles(location).toList.map { file =>
           val (name, ext) = file.baseAndExt
@@ -348,7 +349,7 @@ lazy val tracerShared = projectMatrix
     name                                   := "langoustine-tracer-shared",
     libraryDependencies += "tech.neander" %%% "jsonrpclib-core" % V.jsonrpclib,
     libraryDependencies += "tech.neander" %%% "jsonrpclib-fs2"  % V.jsonrpclib,
-    libraryDependencies += "io.circe"     %%% "circe-core"   % V.circe,
+    libraryDependencies += "io.circe"     %%% "circe-core"      % V.circe,
     libraryDependencies ++= Seq(
       "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-core" % V.jsoniter,
       "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-macros" % V.jsoniter % "compile-internal"

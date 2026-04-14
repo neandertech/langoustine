@@ -16,11 +16,8 @@
 
 package langoustine.tracer
 
-import jsonrpclib.InputMessage.*
-
 case class ReceivedMessage(
     timestamp: Long,
     raw: RawMessage,
     decoded: LspMessage
 ) derives io.circe.Codec.AsObject
-

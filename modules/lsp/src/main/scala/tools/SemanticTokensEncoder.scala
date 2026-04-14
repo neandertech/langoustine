@@ -56,7 +56,7 @@ class SemanticTokensEncoder private (
 
     try
       v.foldLeft(State(0, 0)) { case (State(prevLine, prevChar), tok) =>
-        val deltaLine = tok.position.line.value - prevLine
+        val deltaLine      = tok.position.line.value - prevLine
         val deltaStartChar =
           if tok.position.line.value == prevLine then
             tok.position.character.value - prevChar

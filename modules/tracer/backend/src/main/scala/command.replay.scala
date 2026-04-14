@@ -17,11 +17,11 @@
 package langoustine.tracer
 
 import cats.effect.*
-import com.github.plokhotnyuk.jsoniter_scala.core.*
 import com.github.plokhotnyuk.jsoniter_scala.circe.JsoniterScalaCodec.*
-import io.circe.Json
+import com.github.plokhotnyuk.jsoniter_scala.core.*
 import fs2.*
 import fs2.concurrent.*
+import _root_.io.circe.Json
 import jsonrpclib.Message
 
 def Replay(

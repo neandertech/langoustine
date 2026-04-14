@@ -80,7 +80,7 @@ object Config:
         }
         .withDefault(Defaults.host)
 
-    val lspOpt = Opts.arguments[String]("lspCommand")
+    val lspOpt  = Opts.arguments[String]("lspCommand")
     val pathOpt = Opts.argument[String]("tracer snapshot file").map { raw =>
       fs2.io.file.Path(raw)
     }

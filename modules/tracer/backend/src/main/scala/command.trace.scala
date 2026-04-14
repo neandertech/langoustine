@@ -59,7 +59,6 @@ def Trace(
     langoustine.ChildProcess
       .spawn[IO](traceConfig.cmd.toList*)
       .flatMap { child =>
-
         def log(msg: String) =
           errBytes.publish1(Chunk.array(("[tracer] " + msg + "\n").getBytes))
 

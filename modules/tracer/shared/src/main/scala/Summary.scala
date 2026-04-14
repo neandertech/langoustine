@@ -16,9 +16,6 @@
 
 package langoustine.tracer
 
-import jsonrpclib.InputMessage.*
-
 enum Summary derives io.circe.Codec.AsObject:
   case Trace(workingFolder: String, serverCommand: List[String])
   case Replay(file: String)
-
