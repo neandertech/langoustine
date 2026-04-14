@@ -4,18 +4,20 @@ import langoustine.meta.*
 import langoustine.generate.StructureRenderConfig.PrivateCodecs
 import cats.syntax.all
 import langoustine.meta.Type.OrType
+import scala.util.boundary
 
 class Render(manager: Manager, packageName: String = "langoustine.lsp"):
   private val INDENT = "  "
   import Render.*
   import Types.*
+  import Type.*
 
   def codecsPrelude(out: LineBuilder)(using Config): Unit =
     inline def line: Config ?=> Appender = to(out)
     line(s"package $packageName")
     line(s"package codecs")
     // line("import upickle.default.*")
-    line("import io.circe.{Decoder, Encoder}")
+    line("import io.circe.{Decoder, Encoder, KeyDecoder, KeyEncoder, Json}")
     line("import aliases.*")
     line("import enumerations.*")
     line("import structures.*")
@@ -321,7 +323,23 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
               outStruct match
                 case None =>
                   // upickleWriter(req.result, Some("Out")).write(codecsOut)
-                  codecsLine(encoderReference(req.result))
+                  // req.result match
+                  //   case OrType(items) =>
+                  //     val (isOption, simplified) =
+                  //       val (nullType, rest) =
+                  //         items.partition(_ == BaseType(BaseTypes.NULL))
+                  //       (nullType.nonEmpty, rest)
+
+                  //     codecsLine(s"??? //$simplified")
+                  //   case other =>
+                  //     codecsLine(encoderReference(other))
+                  //
+                  val (isOption, tpe) = simplifyOrType(req.result)
+                  if isOption then
+                    codecsLine(
+                      s"Encoder.encodeOption(${encoderReference(tpe)})"
+                    )
+                  else codecsLine(encoderReference(tpe))
                 case Some(s) =>
                   codecsLine(s"$path.${s.name.value}.toJson")
             }
@@ -334,7 +352,12 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
             nest {
               outStruct match
                 case None =>
-                  codecsLine(decoderReference(req.result))
+                  val (isOption, tpe) = simplifyOrType(req.result)
+                  if isOption then
+                    codecsLine(
+                      s"Decoder.decodeOption(${decoderReference(tpe)})"
+                    )
+                  else codecsLine(decoderReference(tpe))
                   // upickleReader1(req.result, "Out").write(codecsOut)
                 case Some(s) =>
                   codecsLine(s"$path.${s.name.value}.fromJson")
@@ -630,9 +653,11 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
         structure.`extends`.flatMap(refProperties) ++
         structure.mixins.flatMap(refProperties)).filterNot(_.proposed)
 
+    val properties = deduplicateProperties(allProperties)
+
     val propTypes = Vector.newBuilder[Type]
 
-    deduplicateProperties(allProperties).foreach { p =>
+    properties.foreach { p =>
       p.tpe match
         case stl: Type.StructureLiteralType =>
           val newTypeName                 = p.name.value.capitalize
@@ -760,16 +785,20 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
           //   s"${codecPublicity}given writer: Writer[$fqf] = upickle.default.macroW"
           // )
 
+          val propsWithCorrectTypes = properties.zip(propTypes.result()).map {
+            case (p, t) => p.copy(`type` = t)
+          }
+
           codecsLine(s"given fromJson: Decoder[${structure.name}] = ")
           nest {
-            circeDecoderForStruct(structure.name, allProperties).write(
+            circeDecoderForStruct(structure.name, propsWithCorrectTypes).write(
               codecsOut
             )
           }
 
           codecsLine(s"given toJson: Encoder[${structure.name}] = ")
           nest {
-            circeEncoderForStruct(structure.name, allProperties).write(
+            circeEncoderForStruct(structure.name, propsWithCorrectTypes).write(
               codecsOut
             )
           }
@@ -795,46 +824,119 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     }
   end structure
 
-  def encoderReference(t: Type)(using context: Context): String =
-    import Type.*, BaseTypes.*
+  def encoderReference(
+      t: Type,
+      refTypeOverride: ReferenceType => Option[String] = _ => None
+  )(using context: Context): String =
     t match
-      case BaseType(BaseTypes.string)                => "Encoder.encodeString"
-      case BaseType(BaseTypes.boolean)               => "Encoder.encodeBoolean"
-      case BaseType(BaseTypes.uinteger)              => "uinteger.toJson"
-      case BaseType(BaseTypes.Uri)                   => "Uri.toJson"
-      case BaseType(BaseTypes.DocumentUri)           => "DocumentUri.toJson"
+      case BaseType(BaseTypes.string)      => "Encoder.encodeString"
+      case BaseType(BaseTypes.boolean)     => "Encoder.encodeBoolean"
+      case BaseType(BaseTypes.uinteger)    => "uinteger.toJson"
+      case BaseType(BaseTypes.integer)     => "Encoder.encodeInt"
+      case BaseType(BaseTypes.decimal)     => "Encoder.encodeFloat"
+      case BaseType(BaseTypes.Uri)         => "Uri.toJson"
+      case BaseType(BaseTypes.DocumentUri) => "DocumentUri.toJson"
+      case BaseType(BaseTypes.NULL) => "Encoder.instance[Null](_ => Json.Null)"
+      case TupleType(items) =>
+        s"Encoder.encodeTuple${items.length}(${items.map(encoderReference(_, refTypeOverride)).mkString(", ")})"
+
+      case StringLiteralType(value)        =>
+        s"Encoder.encodeLiteralString[\"$value\"]"
       case ReferenceType(tn) if tn.value == "LSPAny" =>
         s"Encoder.encodeJson"
-      case rt: ReferenceType => s"${context.resolve(rt).value}.toJson"
-      case OrType(ts)        =>
-        sys.error(s"Cannot provide an encoder reference for OR type: $ts")
-        // s"Dec.merge[${renderType(t)}]($head, ${rest.mkString(", ")})"
+      case rt: ReferenceType =>
+        refTypeOverride(rt).getOrElse(
+          s"${context.resolve(rt).value}.toJson"
+        )
+      case OrType(ts) =>
+        val (isOption, simplified) =
+          val (nullType, rest) =
+            ts.partition(_ == BaseType(BaseTypes.NULL))
+          (nullType.nonEmpty, rest)
+
+        val len         = simplified.length
+        val encoders    = simplified.map(encoderReference(_, refTypeOverride))
+        val types       = simplified.map(renderType(_)).mkString(", ")
+        val encodersStr =
+          if encoders.tail.nonEmpty then encoders.tail.mkString(",", ", ", "")
+          else ""
+
+        s"Enc.union$len[$types](${encoders.head}$encodersStr)"
+      case MapType(BaseType(BaseTypes.string), ReferenceType(TypeName("LSPAny"))) =>
+        s"Encoder.encodeMap(KeyEncoder.encodeKeyString, Encoder.encodeJson)"
+      case MapType(rt: ReferenceType, tn) =>
+        s"Encoder.encodeMap(KeyEncoder.encodeKeyString.contramap(_.value), ${encoderReference(tn, refTypeOverride)})"
+      case MapType(BaseType(BaseTypes.DocumentUri), tn) =>
+        s"Encoder.encodeMap(KeyEncoder.encodeKeyString.contramap(_.value), ${encoderReference(tn, refTypeOverride)})"
+
       case ArrayType(tpe) =>
-        s"Encoder.encodeVector(${encoderReference(tpe)})"
+        s"Encoder.encodeVector(${encoderReference(tpe, refTypeOverride)})"
       case _ => s"??? /*$t*/"
     end match
   end encoderReference
 
-  def decoderReference(t: Type)(using context: Context): String =
+  def decoderReference(
+      t: Type,
+      refTypeOverride: ReferenceType => Option[String] = _ => None
+  )(using context: Context): String =
     import Type.*, BaseTypes.*
     t match
-      case BaseType(BaseTypes.string)                => "Decoder.decodeString"
-      case BaseType(BaseTypes.boolean)               => "Decoder.decodeBoolean"
-      case BaseType(BaseTypes.uinteger)              => "uinteger.fromJson"
-      case BaseType(BaseTypes.Uri)                   => "Uri.fromJson"
-      case BaseType(BaseTypes.DocumentUri)           => "DocumentUri.fromJson"
+      case BaseType(BaseTypes.string)      => "Decoder.decodeString"
+      case BaseType(BaseTypes.boolean)     => "Decoder.decodeBoolean"
+      case BaseType(BaseTypes.uinteger)    => "uinteger.fromJson"
+      case BaseType(BaseTypes.integer)     => "Decoder.decodeInt"
+      case BaseType(BaseTypes.Uri)         => "Uri.fromJson"
+      case BaseType(BaseTypes.DocumentUri) => "DocumentUri.fromJson"
+      case BaseType(BaseTypes.decimal)     => "Decoder.decodeFloat"
+      case BaseType(BaseTypes.NULL)    => "Decoder.const[Null](null)"
+      case TupleType(items) =>
+        s"Decoder.decodeTuple${items.length}(${items.map(decoderReference(_, refTypeOverride)).mkString(", ")})"
+
+      case StringLiteralType(value)        =>
+        s"Decoder.decodeLiteralString[\"$value\"]"
       case ReferenceType(tn) if tn.value == "LSPAny" =>
         s"Decoder.decodeJson"
-      case rt: ReferenceType => s"${context.resolve(rt).value}.fromJson"
-      case OrType(ts)        =>
-        val head = decoderReference(ts.head)
-        val rest = ts.tail.map(decoderReference)
-        s"Dec.merge[${renderType(t)}]($head, ${rest.mkString(", ")})"
+      case rt: ReferenceType =>
+        refTypeOverride(rt).getOrElse(
+          s"${context.resolve(rt).value}.fromJson"
+        )
+      case MapType(BaseType(BaseTypes.string), ReferenceType(TypeName("LSPAny"))) =>
+        s"Decoder.decodeMap(KeyDecoder.decodeKeyString, Decoder.decodeJson)"
+      case MapType(rt: ReferenceType, tn) =>
+        s"Decoder.decodeMap(KeyDecoder.decodeKeyString.map(${context.resolve(rt).value}.apply), ${decoderReference(tn, refTypeOverride)})"
+      case MapType(BaseType(BaseTypes.DocumentUri), tn) =>
+        s"Decoder.decodeMap(KeyDecoder.decodeKeyString.map(runtime.DocumentUri.apply), ${decoderReference(tn, refTypeOverride)})"
+      case OrType(ts) =>
+        val (isOption, simplified) =
+          val (nullType, rest) =
+            ts.partition(_ == BaseType(BaseTypes.NULL))
+          (nullType.nonEmpty, rest)
+
+        val len         = simplified.length
+        val decoders    = simplified.map(decoderReference(_, refTypeOverride))
+        val types       = simplified.map(renderType(_)).mkString(", ")
+        val decodersStr =
+          if decoders.tail.nonEmpty then decoders.tail.mkString(",", ", ", "")
+          else ""
+
+        s"Dec.union$len[$types](${decoders.head}$decodersStr)"
+
       case ArrayType(tpe) =>
-        s"Decoder.decodeVector(${decoderReference(tpe)})"
+        s"Decoder.decodeVector(${decoderReference(tpe, refTypeOverride)})"
       case _ => s"??? /*$t*/"
     end match
   end decoderReference
+
+  def simplifyOrType(t: Type) =
+    t match
+      case OrType(items) =>
+        val (nullType, rest) =
+          items.partition(_ == BaseType(BaseTypes.NULL))
+        (
+          nullType.nonEmpty,
+          if rest.length == 1 then rest.head else OrType(rest)
+        )
+      case _ => (false, t)
 
   def circeEncoderForStruct(name: StructureName, props: Vector[Property])(using
       Context,
@@ -847,43 +949,75 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
 
       def encode(prop: Property, value: String)(using Config) =
         line(
-          s"enc.field(\"${prop.name}\", $value, ${encoderReference(prop.tpe)})"
+          s"enc.field(\"${prop.name}\", $value, encode_${prop.name})"
         )
 
-      line("Enc.toJsonObject: (enc, a) =>")
-      nest {
-        props.foreach { prop =>
-          prop.tpe match
-            case OrType(items) =>
-              val len      = items.length
-              val encoders = items.map(encoderReference)
-              val types    = items.map(renderType(_)).mkString(", ")
+      val simplifiedProps = props.map(simplifyProp)
+
+      if simplifiedProps.isEmpty then line("Encoder.instance(_ => Json.obj())")
+      else
+        val recursiveProps =
+          simplifiedProps.filter: prop =>
+            util.boundary[Boolean]:
+              prop.tpe.traverse:
+                case rt @ ReferenceType(nm) if nm.value == name.value =>
+                  boundary.break(summon[Context].resolve(rt).value.startsWith("structures."))
+                  TypeTraversal.Skip
+                case _ => TypeTraversal.Skip
+              false
+
+        line(
+          "// cache all encoders for this type when toJson first initialised"
+        )
+
+        if recursiveProps.nonEmpty then
+          line(s"Encoder.recursive: encode_${name} => ")
+          nest {
+          renderProps:
+            case ReferenceType(nm) if nm.value == name.value => Some(s"encode_${name}")
+            case _ => None
+            }
+        else
+          renderProps(_ => None)
+
+        // def cacheEncoders(props: Vector[Property], refTypeOverride: ReferenceType => Option[String])(using Config) = {
+        //   props.foreach { prop =>
+        //     line(
+        //       s"val encode_${prop.name}: Encoder[${renderType(prop.tpe)}] = ${encoderReference(prop.tpe, refTypeOverride)}"
+        //     )
+        //   }
+        // }
+
+        def renderProps(refTypeOverride: ReferenceType => Option[String])(using Config) =
+          simplifiedProps.foreach { prop =>
+            line(
+              s"val encode_${prop.name}: Encoder[${renderType(prop.tpe)}] = ${encoderReference(prop.tpe, refTypeOverride)}"
+            )
+          }
+
+          line("Enc.toJsonObject: (enc, a) =>")
+          nest {
+            simplifiedProps.foreach { prop =>
               if prop.optional.yes then
-                line(s"a.${prop.name}.foreach: v =>")
-                nest {
-                  line(
-                    s"""  enc.union$len[$types](\"${prop.name}\", v, ${encoders
-                        .mkString(", ")})  """.trim
-                  )
-                }
-              else
-                line(
-                  s"""  enc.union$len[$types](\"${prop.name}\", a.${prop.name}, ${encoders
-                      .mkString(", ")})  """.trim
-                )
-              end if
-            case _ =>
-              if prop.optional.yes then
-                line(s"a.${prop.name}.foreach: v =>")
+                line(s"a.${sanitise(prop.name.value)}.foreach: v =>")
                 nest {
                   encode(prop, "v")
                 }
-              else encode(prop, "a." + prop.name)
+              else encode(prop, "a." + sanitise(prop.name.value))
 
-        }
-      }
+            }
+          }
+        end renderProps
+      end if
     }
   end circeEncoderForStruct
+
+  def simplifyProp(prop: Property) =
+    val (isOption, simplified) = simplifyOrType(prop.`type`)
+    prop.copy(
+      `type` = simplified,
+      optional = IsOptional(prop.optional.yes || isOption)
+    )
 
   def circeDecoderForStruct(name: StructureName, props: Vector[Property])(using
       Context,
@@ -894,39 +1028,67 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     Definition { out =>
       inline def line: Config ?=> Appender = to(out)
 
-      line("Dec.fromJsonObject: dec =>")
-      nest {
-        line("for")
-        nest {
-          props.foreach { prop =>
-            val func  = if prop.optional.yes then "getOpt" else "get"
-            val codec = decoderReference(prop.tpe)
-            codec match
-              case s: String =>
-                line(
-                  s"${sanitise(prop.name.value)} <- dec.$func(\"${prop.name}\", $codec)"
-                )
-              // case vec: Seq[Type] =>
-              //   val l        = vec.length
-              //   val types    = vec.map(renderType).mkString(", ")
-              //   val fallback =
-              //     if prop.optional.yes then ".map(Some(_)).orElse(Right(None))"
-              //     else ""
-              //   line(
-              //     s"${sanitise(prop.name.value)} <- dec.getUnion$l[$types](\"${prop.name}\", ${vec.map(decoderReference(_)).mkString(", ")})$fallback"
-              //   )
-            end match
+      val simplifiedProps = props.map(simplifyProp)
 
+      if simplifiedProps.isEmpty then line(s"Decoder.const(${name}())")
+      else
+        val recursiveProps =
+          simplifiedProps.filter: prop =>
+            util.boundary[Boolean]:
+              prop.tpe.traverse:
+                case rt @ ReferenceType(nm) if nm.value == name.value =>
+                  boundary.break(summon[Context].resolve(rt).value.startsWith("structures."))
+                  TypeTraversal.Skip
+                case _ => TypeTraversal.Skip
+              false
+
+        line(
+          "// cache all decoders for this type when fromJson first initialised"
+        )
+
+        if recursiveProps.nonEmpty then
+          line(s"Decoder.recursive: decode_${name} => ")
+          nest {
+          renderProps:
+            case ReferenceType(nm) if nm.value == name.value => Some(s"decode_${name}")
+            case _ => None
+            }
+        else
+          renderProps(_ => None)
+
+        def renderProps(refTypeOverride: ReferenceType => Option[String])(using Config) =
+          simplifiedProps.foreach { prop =>
+            line(
+              s"val decode_${prop.name}: Decoder[${renderType(prop.tpe)}] = ${decoderReference(prop.tpe, refTypeOverride)}"
+            )
           }
-        }
-        line(s"yield $name(")
-        nest {
-          props.foreach { prop =>
-            line(s"${sanitise(prop.name.value)},")
+
+          line("Dec.fromJsonObject: dec =>")
+          nest {
+            line("for")
+            nest {
+              simplifiedProps.foreach { prop =>
+                val func  = if prop.optional.yes then "getOpt" else "get"
+                val codec = s"decode_${prop.name}"
+                codec match
+                  case s: String =>
+                    line(
+                      s"${sanitise(prop.name.value)} <- dec.$func(\"${prop.name}\", $codec)"
+                    )
+                end match
+
+              }
+            }
+            line(s"yield $name(")
+            nest {
+              props.foreach { prop =>
+                line(s"${sanitise(prop.name.value)},")
+              }
+            }
+            line(")")
           }
-        }
-        line(")")
-      }
+        end renderProps
+      end if
 
     }
   end circeDecoderForStruct
@@ -1123,7 +1285,7 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line("import langoustine.*")
     // line("import json.{*, given}")
     line("import runtime.{*, given}")
-    // line("import upickle.default.*")
+    line("import io.circe.*")
     line("import scala.reflect.*")
     line("")
 
@@ -1176,24 +1338,24 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
             nest {
               codecsLine("")
 
-              codecsLine(s"given reader: Reader[${alias.name}] = ")
+              codecsLine(s"given fromJson: Decoder[${alias.name}] = ")
               nest {
-                upickleReader1(
-                  newType,
-                  alias.name.value,
-                  cast = Some(alias.name.value)
-                ).write(codecsOut)
+                codecsLine(
+                  decoderReference(
+                    newType
+                  ) + s".asInstanceOf[Decoder[${alias.name}]]"
+                )
               }
 
               codecsLine("")
 
-              codecsLine(s"given writer: Writer[${alias.name}] =")
+              codecsLine(s"given toJson: Encoder[${alias.name}] =")
               nest {
-                upickleWriter(
-                  newType,
-                  Some(alias.name.value),
-                  cast = Some(alias.name.value)
-                ).write(codecsOut)
+                codecsLine(
+                  encoderReference(
+                    newType
+                  ) + s".asInstanceOf[Encoder[${alias.name}]]"
+                )
               }
             }
           }
@@ -1210,6 +1372,12 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
                 s"inline def apply(v: ${renderType(tpe)}): ${alias.name} = v"
               )
             }
+
+            line("")
+
+            line(
+              s"extension (v: ${alias.name}) inline def value: ${renderType(newType)} = v"
+            )
 
             line("")
 
@@ -1453,8 +1621,10 @@ object Types:
           .value
       case rt: ArrayType    => s"Vector[${renderType(rt.element)}]"
       case NullableType(nt) => s"Option[${renderType(nt)}]"
-      case rt: OrType       =>
+      case rt: OrType if rt.items.length > 1 =>
         "(" + rt.items.map(renderType).mkString(" | ") + ")"
+      case rt: OrType if rt.items.length == 1 =>
+        renderType(rt.items.head)
       case tt: TupleType =>
         tt.items.map(renderType(_)).mkString("(", ", ", ")")
       case mt: MapType =>
@@ -1482,7 +1652,7 @@ object Types:
   def property(p: Property)(using Context) =
     import p.*
     val typeName = renderType(tpe)
-    if p.optional == IsOptional.Yes then
+    if p.optional == IsOptional.Yes && NullableType.unapply(tpe).isEmpty then
       s"${sanitise(name.value)}: Option[$typeName] = None"
     else s"${sanitise(name.value)}: $typeName"
 

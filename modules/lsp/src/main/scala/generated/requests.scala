@@ -46,6 +46,72 @@ sealed abstract class LSPNotification(val notificationMethod: String):
 
   def apply(in: In): PreparedNotification[this.type] = PreparedNotification(this,in)
 
+object callHierarchy:
+  /**
+   *  A request to resolve the incoming calls for a given `CallHierarchyItem`.
+   *  
+   *  since 3.16.0
+   */
+  object incomingCalls extends LSPRequest("callHierarchy/incomingCalls") with codecs.requests_callHierarchy_incomingCalls:
+    type In = structures.CallHierarchyIncomingCallsParams
+    type Out = Option[Vector[structures.CallHierarchyIncomingCall]]
+    
+    override def apply(in: structures.CallHierarchyIncomingCallsParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A request to resolve the outgoing calls for a given `CallHierarchyItem`.
+   *  
+   *  since 3.16.0
+   */
+  object outgoingCalls extends LSPRequest("callHierarchy/outgoingCalls") with codecs.requests_callHierarchy_outgoingCalls:
+    type In = structures.CallHierarchyOutgoingCallsParams
+    type Out = Option[Vector[structures.CallHierarchyOutgoingCall]]
+    
+    override def apply(in: structures.CallHierarchyOutgoingCallsParams): PreparedRequest[this.type] = super.apply(in)
+  
+object client:
+  /**
+   *  The `client/registerCapability` request is sent from the server to the client to register a new capability
+   *  handler on the client side.
+   */
+  object registerCapability extends LSPRequest("client/registerCapability") with codecs.requests_client_registerCapability:
+    type In = structures.RegistrationParams
+    type Out = Null
+    
+    override def apply(in: structures.RegistrationParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  The `client/unregisterCapability` request is sent from the server to the client to unregister a previously registered capability
+   *  handler on the client side.
+   */
+  object unregisterCapability extends LSPRequest("client/unregisterCapability") with codecs.requests_client_unregisterCapability:
+    type In = structures.UnregistrationParams
+    type Out = Null
+    
+    override def apply(in: structures.UnregistrationParams): PreparedRequest[this.type] = super.apply(in)
+  
+object codeAction:
+  /**
+   *  Request to resolve additional information for a given code action.The request's
+   *  parameter is of type {@link CodeAction} the response
+   *  is of type {@link CodeAction} or a Thenable that resolves to such.
+   */
+  object resolve extends LSPRequest("codeAction/resolve") with codecs.requests_codeAction_resolve:
+    type In = structures.CodeAction
+    type Out = structures.CodeAction
+    
+    override def apply(in: structures.CodeAction): PreparedRequest[this.type] = super.apply(in)
+  
+object codeLens:
+  /**
+   *  A request to resolve a command for a given code lens.
+   */
+  object resolve extends LSPRequest("codeLens/resolve") with codecs.requests_codeLens_resolve:
+    type In = structures.CodeLens
+    type Out = structures.CodeLens
+    
+    override def apply(in: structures.CodeLens): PreparedRequest[this.type] = super.apply(in)
+  
 object completionItem:
   /**
    *  Request to resolve additional information for a given completion item.The request's
@@ -57,4 +123,655 @@ object completionItem:
     type Out = structures.CompletionItem
     
     override def apply(in: structures.CompletionItem): PreparedRequest[this.type] = super.apply(in)
+  
+object documentLink:
+  /**
+   *  Request to resolve additional information for a given document link. The request's
+   *  parameter is of type {@link DocumentLink} the response
+   *  is of type {@link DocumentLink} or a Thenable that resolves to such.
+   */
+  object resolve extends LSPRequest("documentLink/resolve") with codecs.requests_documentLink_resolve:
+    type In = structures.DocumentLink
+    type Out = structures.DocumentLink
+    
+    override def apply(in: structures.DocumentLink): PreparedRequest[this.type] = super.apply(in)
+  
+/**
+ *  The initialize request is sent from the client to the server.
+ *  It is sent once as the request after starting up the server.
+ *  The requests parameter is of type {@link InitializeParams}
+ *  the response if of type {@link InitializeResult} of a Thenable that
+ *  resolves to such.
+ */
+object initialize extends LSPRequest("initialize") with codecs.requests_initialize:
+  type In = structures.InitializeParams
+  type Out = structures.InitializeResult
+  
+  override def apply(in: structures.InitializeParams): PreparedRequest[this.type] = super.apply(in)
+
+object inlayHint:
+  /**
+   *  A request to resolve additional properties for an inlay hint.
+   *  The request's parameter is of type {@link InlayHint}, the response is
+   *  of type {@link InlayHint} or a Thenable that resolves to such.
+   *  
+   *  since 3.17.0
+   */
+  object resolve extends LSPRequest("inlayHint/resolve") with codecs.requests_inlayHint_resolve:
+    type In = structures.InlayHint
+    type Out = structures.InlayHint
+    
+    override def apply(in: structures.InlayHint): PreparedRequest[this.type] = super.apply(in)
+  
+/**
+ *  A shutdown request is sent from the client to the server.
+ *  It is sent once when the client decides to shutdown the
+ *  server. The only notification that is sent after a shutdown request
+ *  is the exit event.
+ */
+object shutdown extends LSPRequest("shutdown") with codecs.requests_shutdown:
+  type In = Unit
+  type Out = Null
+  
+  override def apply(in: Unit): PreparedRequest[this.type] = super.apply(in)
+
+object textDocument:
+  /**
+   *  A request to provide commands for the given text document and range.
+   */
+  object codeAction extends LSPRequest("textDocument/codeAction") with codecs.requests_textDocument_codeAction:
+    type In = structures.CodeActionParams
+    type Out = Option[Vector[(structures.Command | structures.CodeAction)]]
+    
+    override def apply(in: structures.CodeActionParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A request to provide code lens for the given text document.
+   */
+  object codeLens extends LSPRequest("textDocument/codeLens") with codecs.requests_textDocument_codeLens:
+    type In = structures.CodeLensParams
+    type Out = Option[Vector[structures.CodeLens]]
+    
+    override def apply(in: structures.CodeLensParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A request to list all presentation for a color. The request's
+   *  parameter is of type {@link ColorPresentationParams} the
+   *  response is of type {@link ColorInformation ColorInformation[]} or a Thenable
+   *  that resolves to such.
+   */
+  object colorPresentation extends LSPRequest("textDocument/colorPresentation") with codecs.requests_textDocument_colorPresentation:
+    type In = structures.ColorPresentationParams
+    type Out = Vector[structures.ColorPresentation]
+    
+    override def apply(in: structures.ColorPresentationParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  Request to request completion at a given text document position. The request's
+   *  parameter is of type {@link TextDocumentPosition} the response
+   *  is of type {@link CompletionItem CompletionItem[]} or {@link CompletionList}
+   *  or a Thenable that resolves to such.
+   *  
+   *  The request can delay the computation of the {@link CompletionItem.detail `detail`}
+   *  and {@link CompletionItem.documentation `documentation`} properties to the `completionItem/resolve`
+   *  request. However, properties that are needed for the initial sorting and filtering, like `sortText`,
+   *  `filterText`, `insertText`, and `textEdit`, must not be changed during resolve.
+   */
+  object completion extends LSPRequest("textDocument/completion") with codecs.requests_textDocument_completion:
+    type In = structures.CompletionParams
+    type Out = Option[(Vector[structures.CompletionItem] | structures.CompletionList)]
+    
+    override def apply(in: structures.CompletionParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A request to resolve the type definition locations of a symbol at a given text
+   *  document position. The request's parameter is of type {@link TextDocumentPositionParams}
+   *  the response is of type {@link Declaration} or a typed array of {@link DeclarationLink}
+   *  or a Thenable that resolves to such.
+   */
+  object declaration extends LSPRequest("textDocument/declaration") with codecs.requests_textDocument_declaration:
+    type In = structures.DeclarationParams
+    type Out = Option[(aliases.Declaration | Vector[aliases.DeclarationLink])]
+    
+    override def apply(in: structures.DeclarationParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A request to resolve the definition location of a symbol at a given text
+   *  document position. The request's parameter is of type {@link TextDocumentPosition}
+   *  the response is of either type {@link Definition} or a typed array of
+   *  {@link DefinitionLink} or a Thenable that resolves to such.
+   */
+  object definition extends LSPRequest("textDocument/definition") with codecs.requests_textDocument_definition:
+    type In = structures.DefinitionParams
+    type Out = Option[(aliases.Definition | Vector[aliases.DefinitionLink])]
+    
+    override def apply(in: structures.DefinitionParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  The document diagnostic request definition.
+   *  
+   *  since 3.17.0
+   */
+  object diagnostic extends LSPRequest("textDocument/diagnostic") with codecs.requests_textDocument_diagnostic:
+    type In = structures.DocumentDiagnosticParams
+    type Out = aliases.DocumentDiagnosticReport
+    
+    override def apply(in: structures.DocumentDiagnosticParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A request to list all color symbols found in a given text document. The request's
+   *  parameter is of type {@link DocumentColorParams} the
+   *  response is of type {@link ColorInformation ColorInformation[]} or a Thenable
+   *  that resolves to such.
+   */
+  object documentColor extends LSPRequest("textDocument/documentColor") with codecs.requests_textDocument_documentColor:
+    type In = structures.DocumentColorParams
+    type Out = Vector[structures.ColorInformation]
+    
+    override def apply(in: structures.DocumentColorParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  Request to resolve a {@link DocumentHighlight} for a given
+   *  text document position. The request's parameter is of type {@link TextDocumentPosition}
+   *  the request response is an array of type {@link DocumentHighlight}
+   *  or a Thenable that resolves to such.
+   */
+  object documentHighlight extends LSPRequest("textDocument/documentHighlight") with codecs.requests_textDocument_documentHighlight:
+    type In = structures.DocumentHighlightParams
+    type Out = Option[Vector[structures.DocumentHighlight]]
+    
+    override def apply(in: structures.DocumentHighlightParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A request to provide document links
+   */
+  object documentLink extends LSPRequest("textDocument/documentLink") with codecs.requests_textDocument_documentLink:
+    type In = structures.DocumentLinkParams
+    type Out = Option[Vector[structures.DocumentLink]]
+    
+    override def apply(in: structures.DocumentLinkParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A request to list all symbols found in a given text document. The request's
+   *  parameter is of type {@link TextDocumentIdentifier} the
+   *  response is of type {@link SymbolInformation SymbolInformation[]} or a Thenable
+   *  that resolves to such.
+   */
+  object documentSymbol extends LSPRequest("textDocument/documentSymbol") with codecs.requests_textDocument_documentSymbol:
+    type In = structures.DocumentSymbolParams
+    type Out = Option[(Vector[structures.SymbolInformation] | Vector[structures.DocumentSymbol])]
+    
+    override def apply(in: structures.DocumentSymbolParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A request to provide folding ranges in a document. The request's
+   *  parameter is of type {@link FoldingRangeParams}, the
+   *  response is of type {@link FoldingRangeList} or a Thenable
+   *  that resolves to such.
+   */
+  object foldingRange extends LSPRequest("textDocument/foldingRange") with codecs.requests_textDocument_foldingRange:
+    type In = structures.FoldingRangeParams
+    type Out = Option[Vector[structures.FoldingRange]]
+    
+    override def apply(in: structures.FoldingRangeParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A request to format a whole document.
+   */
+  object formatting extends LSPRequest("textDocument/formatting") with codecs.requests_textDocument_formatting:
+    type In = structures.DocumentFormattingParams
+    type Out = Option[Vector[structures.TextEdit]]
+    
+    override def apply(in: structures.DocumentFormattingParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  Request to request hover information at a given text document position. The request's
+   *  parameter is of type {@link TextDocumentPosition} the response is of
+   *  type {@link Hover} or a Thenable that resolves to such.
+   */
+  object hover extends LSPRequest("textDocument/hover") with codecs.requests_textDocument_hover:
+    type In = structures.HoverParams
+    type Out = Option[structures.Hover]
+    
+    override def apply(in: structures.HoverParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A request to resolve the implementation locations of a symbol at a given text
+   *  document position. The request's parameter is of type {@link TextDocumentPositionParams}
+   *  the response is of type {@link Definition} or a Thenable that resolves to such.
+   */
+  object implementation extends LSPRequest("textDocument/implementation") with codecs.requests_textDocument_implementation:
+    type In = structures.ImplementationParams
+    type Out = Option[(aliases.Definition | Vector[aliases.DefinitionLink])]
+    
+    override def apply(in: structures.ImplementationParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A request to provide inlay hints in a document. The request's parameter is of
+   *  type {@link InlayHintsParams}, the response is of type
+   *  {@link InlayHint InlayHint[]} or a Thenable that resolves to such.
+   *  
+   *  since 3.17.0
+   */
+  object inlayHint extends LSPRequest("textDocument/inlayHint") with codecs.requests_textDocument_inlayHint:
+    type In = structures.InlayHintParams
+    type Out = Option[Vector[structures.InlayHint]]
+    
+    override def apply(in: structures.InlayHintParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A request to provide inline values in a document. The request's parameter is of
+   *  type {@link InlineValueParams}, the response is of type
+   *  {@link InlineValue InlineValue[]} or a Thenable that resolves to such.
+   *  
+   *  since 3.17.0
+   */
+  object inlineValue extends LSPRequest("textDocument/inlineValue") with codecs.requests_textDocument_inlineValue:
+    type In = structures.InlineValueParams
+    type Out = Option[Vector[aliases.InlineValue]]
+    
+    override def apply(in: structures.InlineValueParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A request to provide ranges that can be edited together.
+   *  
+   *  since 3.16.0
+   */
+  object linkedEditingRange extends LSPRequest("textDocument/linkedEditingRange") with codecs.requests_textDocument_linkedEditingRange:
+    type In = structures.LinkedEditingRangeParams
+    type Out = Option[structures.LinkedEditingRanges]
+    
+    override def apply(in: structures.LinkedEditingRangeParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A request to get the moniker of a symbol at a given text document position.
+   *  The request parameter is of type {@link TextDocumentPositionParams}.
+   *  The response is of type {@link Moniker Moniker[]} or `null`.
+   */
+  object moniker extends LSPRequest("textDocument/moniker") with codecs.requests_textDocument_moniker:
+    type In = structures.MonikerParams
+    type Out = Option[Vector[structures.Moniker]]
+    
+    override def apply(in: structures.MonikerParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A request to format a document on type.
+   */
+  object onTypeFormatting extends LSPRequest("textDocument/onTypeFormatting") with codecs.requests_textDocument_onTypeFormatting:
+    type In = structures.DocumentOnTypeFormattingParams
+    type Out = Option[Vector[structures.TextEdit]]
+    
+    override def apply(in: structures.DocumentOnTypeFormattingParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A request to result a `CallHierarchyItem` in a document at a given position.
+   *  Can be used as an input to an incoming or outgoing call hierarchy.
+   *  
+   *  since 3.16.0
+   */
+  object prepareCallHierarchy extends LSPRequest("textDocument/prepareCallHierarchy") with codecs.requests_textDocument_prepareCallHierarchy:
+    type In = structures.CallHierarchyPrepareParams
+    type Out = Option[Vector[structures.CallHierarchyItem]]
+    
+    override def apply(in: structures.CallHierarchyPrepareParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A request to test and perform the setup necessary for a rename.
+   *  
+   *  since 3.16 - support for default behavior
+   */
+  object prepareRename extends LSPRequest("textDocument/prepareRename") with codecs.requests_textDocument_prepareRename:
+    type In = structures.PrepareRenameParams
+    type Out = Option[aliases.PrepareRenameResult]
+    
+    override def apply(in: structures.PrepareRenameParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A request to result a `TypeHierarchyItem` in a document at a given position.
+   *  Can be used as an input to a subtypes or supertypes type hierarchy.
+   *  
+   *  since 3.17.0
+   */
+  object prepareTypeHierarchy extends LSPRequest("textDocument/prepareTypeHierarchy") with codecs.requests_textDocument_prepareTypeHierarchy:
+    type In = structures.TypeHierarchyPrepareParams
+    type Out = Option[Vector[structures.TypeHierarchyItem]]
+    
+    override def apply(in: structures.TypeHierarchyPrepareParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A request to format a range in a document.
+   */
+  object rangeFormatting extends LSPRequest("textDocument/rangeFormatting") with codecs.requests_textDocument_rangeFormatting:
+    type In = structures.DocumentRangeFormattingParams
+    type Out = Option[Vector[structures.TextEdit]]
+    
+    override def apply(in: structures.DocumentRangeFormattingParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A request to resolve project-wide references for the symbol denoted
+   *  by the given text document position. The request's parameter is of
+   *  type {@link ReferenceParams} the response is of type
+   *  {@link Location Location[]} or a Thenable that resolves to such.
+   */
+  object references extends LSPRequest("textDocument/references") with codecs.requests_textDocument_references:
+    type In = structures.ReferenceParams
+    type Out = Option[Vector[structures.Location]]
+    
+    override def apply(in: structures.ReferenceParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A request to rename a symbol.
+   */
+  object rename extends LSPRequest("textDocument/rename") with codecs.requests_textDocument_rename:
+    type In = structures.RenameParams
+    type Out = Option[structures.WorkspaceEdit]
+    
+    override def apply(in: structures.RenameParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A request to provide selection ranges in a document. The request's
+   *  parameter is of type {@link SelectionRangeParams}, the
+   *  response is of type {@link SelectionRange SelectionRange[]} or a Thenable
+   *  that resolves to such.
+   */
+  object selectionRange extends LSPRequest("textDocument/selectionRange") with codecs.requests_textDocument_selectionRange:
+    type In = structures.SelectionRangeParams
+    type Out = Option[Vector[structures.SelectionRange]]
+    
+    override def apply(in: structures.SelectionRangeParams): PreparedRequest[this.type] = super.apply(in)
+  
+  object semanticTokens:
+    /**
+     *  since 3.16.0
+     */
+    object full extends LSPRequest("textDocument/semanticTokens/full") with codecs.requests_textDocument_semanticTokens_full:
+      type In = structures.SemanticTokensParams
+      type Out = Option[structures.SemanticTokens]
+      
+      override def apply(in: structures.SemanticTokensParams): PreparedRequest[this.type] = super.apply(in)
+    
+      /**
+       *  since 3.16.0
+       */
+      object delta extends LSPRequest("textDocument/semanticTokens/full/delta") with codecs.requests_textDocument_semanticTokens_full_delta:
+        type In = structures.SemanticTokensDeltaParams
+        type Out = Option[(structures.SemanticTokens | structures.SemanticTokensDelta)]
+        
+        override def apply(in: structures.SemanticTokensDeltaParams): PreparedRequest[this.type] = super.apply(in)
+      
+    /**
+     *  since 3.16.0
+     */
+    object range extends LSPRequest("textDocument/semanticTokens/range") with codecs.requests_textDocument_semanticTokens_range:
+      type In = structures.SemanticTokensRangeParams
+      type Out = Option[structures.SemanticTokens]
+      
+      override def apply(in: structures.SemanticTokensRangeParams): PreparedRequest[this.type] = super.apply(in)
+    
+  object signatureHelp extends LSPRequest("textDocument/signatureHelp") with codecs.requests_textDocument_signatureHelp:
+    type In = structures.SignatureHelpParams
+    type Out = Option[structures.SignatureHelp]
+    
+    override def apply(in: structures.SignatureHelpParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A request to resolve the type definition locations of a symbol at a given text
+   *  document position. The request's parameter is of type {@link TextDocumentPositionParams}
+   *  the response is of type {@link Definition} or a Thenable that resolves to such.
+   */
+  object typeDefinition extends LSPRequest("textDocument/typeDefinition") with codecs.requests_textDocument_typeDefinition:
+    type In = structures.TypeDefinitionParams
+    type Out = Option[(aliases.Definition | Vector[aliases.DefinitionLink])]
+    
+    override def apply(in: structures.TypeDefinitionParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A document will save request is sent from the client to the server before
+   *  the document is actually saved. The request can return an array of TextEdits
+   *  which will be applied to the text document before it is saved. Please note that
+   *  clients might drop results if computing the text edits took too long or if a
+   *  server constantly fails on this request. This is done to keep the save fast and
+   *  reliable.
+   */
+  object willSaveWaitUntil extends LSPRequest("textDocument/willSaveWaitUntil") with codecs.requests_textDocument_willSaveWaitUntil:
+    type In = structures.WillSaveTextDocumentParams
+    type Out = Option[Vector[structures.TextEdit]]
+    
+    override def apply(in: structures.WillSaveTextDocumentParams): PreparedRequest[this.type] = super.apply(in)
+  
+object typeHierarchy:
+  /**
+   *  A request to resolve the subtypes for a given `TypeHierarchyItem`.
+   *  
+   *  since 3.17.0
+   */
+  object subtypes extends LSPRequest("typeHierarchy/subtypes") with codecs.requests_typeHierarchy_subtypes:
+    type In = structures.TypeHierarchySubtypesParams
+    type Out = Option[Vector[structures.TypeHierarchyItem]]
+    
+    override def apply(in: structures.TypeHierarchySubtypesParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  A request to resolve the supertypes for a given `TypeHierarchyItem`.
+   *  
+   *  since 3.17.0
+   */
+  object supertypes extends LSPRequest("typeHierarchy/supertypes") with codecs.requests_typeHierarchy_supertypes:
+    type In = structures.TypeHierarchySupertypesParams
+    type Out = Option[Vector[structures.TypeHierarchyItem]]
+    
+    override def apply(in: structures.TypeHierarchySupertypesParams): PreparedRequest[this.type] = super.apply(in)
+  
+object window:
+  /**
+   *  A request to show a document. This request might open an
+   *  external program depending on the value of the URI to open.
+   *  For example a request to open `https://code.visualstudio.com/`
+   *  will very likely open the URI in a WEB browser.
+   *  
+   *  since 3.16.0
+   */
+  object showDocument extends LSPRequest("window/showDocument") with codecs.requests_window_showDocument:
+    type In = structures.ShowDocumentParams
+    type Out = structures.ShowDocumentResult
+    
+    override def apply(in: structures.ShowDocumentParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  The show message request is sent from the server to the client to show a message
+   *  and a set of options actions to the user.
+   */
+  object showMessageRequest extends LSPRequest("window/showMessageRequest") with codecs.requests_window_showMessageRequest:
+    type In = structures.ShowMessageRequestParams
+    type Out = Option[structures.MessageActionItem]
+    
+    override def apply(in: structures.ShowMessageRequestParams): PreparedRequest[this.type] = super.apply(in)
+  
+  object workDoneProgress:
+    /**
+     *  The `window/workDoneProgress/create` request is sent from the server to the client to initiate progress
+     *  reporting from the server.
+     */
+    object create extends LSPRequest("window/workDoneProgress/create") with codecs.requests_window_workDoneProgress_create:
+      type In = structures.WorkDoneProgressCreateParams
+      type Out = Null
+      
+      override def apply(in: structures.WorkDoneProgressCreateParams): PreparedRequest[this.type] = super.apply(in)
+    
+object workspace:
+  /**
+   *  A request sent from the server to the client to modified certain resources.
+   */
+  object applyEdit extends LSPRequest("workspace/applyEdit") with codecs.requests_workspace_applyEdit:
+    type In = structures.ApplyWorkspaceEditParams
+    type Out = structures.ApplyWorkspaceEditResult
+    
+    override def apply(in: structures.ApplyWorkspaceEditParams): PreparedRequest[this.type] = super.apply(in)
+  
+  object codeLens:
+    /**
+     *  A request to refresh all code actions
+     *  
+     *  since 3.16.0
+     */
+    object refresh extends LSPRequest("workspace/codeLens/refresh") with codecs.requests_workspace_codeLens_refresh:
+      type In = Unit
+      type Out = Null
+      
+      override def apply(in: Unit): PreparedRequest[this.type] = super.apply(in)
+    
+  /**
+   *  The 'workspace/configuration' request is sent from the server to the client to fetch a certain
+   *  configuration setting.
+   *  
+   *  This pull model replaces the old push model where the client signaled configuration change via an
+   *  event. If the server still needs to react to configuration changes (since the server caches the
+   *  result of `workspace/configuration` requests) the server should register for an empty configuration
+   *  change event and empty the cache if such an event is received.
+   */
+  object configuration extends LSPRequest("workspace/configuration") with codecs.requests_workspace_configuration:
+    type In = structures.ConfigurationParams
+    type Out = Vector[io.circe.Json]
+    
+    override def apply(in: structures.ConfigurationParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  The workspace diagnostic request definition.
+   *  
+   *  since 3.17.0
+   */
+  object diagnostic extends LSPRequest("workspace/diagnostic") with codecs.requests_workspace_diagnostic:
+    type In = structures.WorkspaceDiagnosticParams
+    type Out = structures.WorkspaceDiagnosticReport
+    
+    override def apply(in: structures.WorkspaceDiagnosticParams): PreparedRequest[this.type] = super.apply(in)
+  
+    /**
+     *  The diagnostic refresh request definition.
+     *  
+     *  since 3.17.0
+     */
+    object refresh extends LSPRequest("workspace/diagnostic/refresh") with codecs.requests_workspace_diagnostic_refresh:
+      type In = Unit
+      type Out = Null
+      
+      override def apply(in: Unit): PreparedRequest[this.type] = super.apply(in)
+    
+  /**
+   *  A request send from the client to the server to execute a command. The request might return
+   *  a workspace edit which the client will apply to the workspace.
+   */
+  object executeCommand extends LSPRequest("workspace/executeCommand") with codecs.requests_workspace_executeCommand:
+    type In = structures.ExecuteCommandParams
+    type Out = Option[io.circe.Json]
+    
+    override def apply(in: structures.ExecuteCommandParams): PreparedRequest[this.type] = super.apply(in)
+  
+  object inlayHint:
+    /**
+     *  since 3.17.0
+     */
+    object refresh extends LSPRequest("workspace/inlayHint/refresh") with codecs.requests_workspace_inlayHint_refresh:
+      type In = Unit
+      type Out = Null
+      
+      override def apply(in: Unit): PreparedRequest[this.type] = super.apply(in)
+    
+  object inlineValue:
+    /**
+     *  since 3.17.0
+     */
+    object refresh extends LSPRequest("workspace/inlineValue/refresh") with codecs.requests_workspace_inlineValue_refresh:
+      type In = Unit
+      type Out = Null
+      
+      override def apply(in: Unit): PreparedRequest[this.type] = super.apply(in)
+    
+  object semanticTokens:
+    /**
+     *  since 3.16.0
+     */
+    object refresh extends LSPRequest("workspace/semanticTokens/refresh") with codecs.requests_workspace_semanticTokens_refresh:
+      type In = Unit
+      type Out = Null
+      
+      override def apply(in: Unit): PreparedRequest[this.type] = super.apply(in)
+    
+  /**
+   *  A request to list project-wide symbols matching the query string given
+   *  by the {@link WorkspaceSymbolParams}. The response is
+   *  of type {@link SymbolInformation SymbolInformation[]} or a Thenable that
+   *  resolves to such.
+   *  
+   *  since 3.17.0 - support for WorkspaceSymbol in the returned data. Clients
+   *   need to advertise support for WorkspaceSymbols via the client capability
+   *   `workspace.symbol.resolveSupport`.
+   */
+  object symbol extends LSPRequest("workspace/symbol") with codecs.requests_workspace_symbol:
+    type In = structures.WorkspaceSymbolParams
+    type Out = Option[(Vector[structures.SymbolInformation] | Vector[structures.WorkspaceSymbol])]
+    
+    override def apply(in: structures.WorkspaceSymbolParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  The will create files request is sent from the client to the server before files are actually
+   *  created as long as the creation is triggered from within the client.
+   *  
+   *  The request can return a `WorkspaceEdit` which will be applied to workspace before the
+   *  files are created. Hence the `WorkspaceEdit` can not manipulate the content of the file
+   *  to be created.
+   *  
+   *  since 3.16.0
+   */
+  object willCreateFiles extends LSPRequest("workspace/willCreateFiles") with codecs.requests_workspace_willCreateFiles:
+    type In = structures.CreateFilesParams
+    type Out = Option[structures.WorkspaceEdit]
+    
+    override def apply(in: structures.CreateFilesParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  The did delete files notification is sent from the client to the server when
+   *  files were deleted from within the client.
+   *  
+   *  since 3.16.0
+   */
+  object willDeleteFiles extends LSPRequest("workspace/willDeleteFiles") with codecs.requests_workspace_willDeleteFiles:
+    type In = structures.DeleteFilesParams
+    type Out = Option[structures.WorkspaceEdit]
+    
+    override def apply(in: structures.DeleteFilesParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  The will rename files request is sent from the client to the server before files are actually
+   *  renamed as long as the rename is triggered from within the client.
+   *  
+   *  since 3.16.0
+   */
+  object willRenameFiles extends LSPRequest("workspace/willRenameFiles") with codecs.requests_workspace_willRenameFiles:
+    type In = structures.RenameFilesParams
+    type Out = Option[structures.WorkspaceEdit]
+    
+    override def apply(in: structures.RenameFilesParams): PreparedRequest[this.type] = super.apply(in)
+  
+  /**
+   *  The `workspace/workspaceFolders` is sent from the server to the client to fetch the open workspace folders.
+   */
+  object workspaceFolders extends LSPRequest("workspace/workspaceFolders") with codecs.requests_workspace_workspaceFolders:
+    type In = Unit
+    type Out = Option[Vector[structures.WorkspaceFolder]]
+    
+    override def apply(in: Unit): PreparedRequest[this.type] = super.apply(in)
+  
+object workspaceSymbol:
+  /**
+   *  A request to resolve the range inside the workspace
+   *  symbol's location.
+   *  
+   *  since 3.17.0
+   */
+  object resolve extends LSPRequest("workspaceSymbol/resolve") with codecs.requests_workspaceSymbol_resolve:
+    type In = structures.WorkspaceSymbol
+    type Out = structures.WorkspaceSymbol
+    
+    override def apply(in: structures.WorkspaceSymbol): PreparedRequest[this.type] = super.apply(in)
   

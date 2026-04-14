@@ -1,0 +1,17 @@
+{
+    "commitCharacters" : [
+        "randomString",
+        "randomString",
+        "randomString"
+    ],
+    "documentation" : "my-string",
+    "filterText" : "randomString",
+    "insertText" : "randomString",
+    "insertTextMode" : 2,
+    "kind" : 13,
+    "label" : "randomString",
+    "labelDetails" : {
+        "description" : "randomString"
+    },
+    "textEditText" : "randomString"
+}

@@ -77,18 +77,6 @@ object LangoustineApp:
           def apply[T](fut: => Future[T]): IO[T] = IO.fromFuture(IO(fut))
 
         (endpoints: @unchecked)
-          // .map {
-          //   case n @ NotificationEndpoint[Future, Any](method, run, inCodec) =>
-          //     n.copy(run = (msg, in) => IO.fromFuture(IO(n.run(msg, in))))
-          //   case r @ RequestResponseEndpoint[Future, Any, Any, Any](
-          //         method,
-          //         run,
-          //         inCodec,
-          //         errCodec,
-          //         outCodec
-          //       ) =>
-          //     r.copy(run = (msg, in) => IO.fromFuture(IO(r.run(msg, in))))
-          // }
           .map { e =>
             e.mapK(pf)
           }

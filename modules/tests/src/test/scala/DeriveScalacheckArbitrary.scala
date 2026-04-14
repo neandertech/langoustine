@@ -20,9 +20,12 @@ import langoustine.lsp.runtime.*
 import langoustine.lsp.Bijection
 import langoustine.lsp.aliases.*
 import langoustine.lsp.structures.*
+import langoustine.lsp.enumerations.*
 
 import org.scalacheck.*
 import shapeless3.deriving.*
+
+given Arbitrary[String] = Arbitrary(Gen.const("randomString"))
 
 given [A](using inst: => K0.ProductInstances[Arbitrary, A]): Arbitrary[A] =
   val x: Gen[A] = Gen.delay(
@@ -36,13 +39,25 @@ given [A](using inst: => K0.ProductInstances[Arbitrary, A]): Arbitrary[A] =
   Arbitrary.apply(x)
 end given
 
-given optGen[A](using inst: => Arbitrary[A]): Arbitrary[Opt[A]] = Arbitrary(
-  Gen
-    .oneOf(true, false)
-    .flatMap:
-      case true  => inst.arbitrary.map(Opt.apply)
-      case false => Gen.const(Opt.empty)
-)
+given optionGen[A](using inst: => Arbitrary[A]): Arbitrary[Option[A]] =
+  Arbitrary(
+    Gen
+      .oneOf(true, false)
+      .flatMap:
+        case true  => inst.arbitrary.map(Option.apply)
+        case false => Gen.const(Option.empty)
+  )
+// given genMarkupContent: Arbitrary[MarkupContent] =
+//   Arbitrary(
+//     for
+//       someString <- Gen.const("newText")
+//       someKind   <- Gen.oneOf(MarkupKind.PlainText, MarkupKind.Markdown)
+//     yield MarkupContent(someKind, someString)
+//   )
+
+val constStringGen: Arbitrary[String] = Arbitrary(Gen.const("my-string"))
+
+given Arbitrary[String | MarkupContent] = genUnion2[String, MarkupContent]
 
 given Arbitrary[DocumentUri] = Arbitrary(
   Gen.oneOf("file1", "file2").map(DocumentUri.apply(_))
@@ -62,6 +77,85 @@ given deriveUintegerEnum[A](using bi: Bijection[A, uinteger]): Arbitrary[A] =
 
 given deriveIntegerEnum[A](using bi: Bijection[A, Int]): Arbitrary[A] =
   Arbitrary(Gen.oneOf(bi.domain))
+
+given Arbitrary[io.circe.Json] = Arbitrary(
+  Gen.const(io.circe.Json.obj("hello" -> io.circe.Json.fromString("yo")))
+)
+
+given genEdit: Arbitrary[TextEdit] =
+  Arbitrary:
+    for
+      someString <- Gen.const("newText")
+      someRange  <- Arbitrary.arbitrary[Range]
+    yield TextEdit(someRange, someString)
+
+given genInsertReplaceEdit: Arbitrary[InsertReplaceEdit] =
+  Arbitrary:
+    for
+      someString     <- Gen.const("newText")
+      someRange      <- Arbitrary.arbitrary[Range]
+      someOtherRange <- Arbitrary.arbitrary[Range]
+    yield InsertReplaceEdit(someString, someRange, someOtherRange)
+
+given gen1: Arbitrary[
+  langoustine.lsp.structures.TextDocumentEdit |
+    langoustine.lsp.structures.CreateFile |
+    langoustine.lsp.structures.RenameFile |
+    langoustine.lsp.structures.DeleteFile
+] =
+  genUnion4[
+    langoustine.lsp.structures.TextDocumentEdit,
+    langoustine.lsp.structures.CreateFile,
+    langoustine.lsp.structures.RenameFile,
+    langoustine.lsp.structures.DeleteFile
+  ]
+
+def genUnion4[T1: Arbitrary, T2: Arbitrary, T3: Arbitrary, T4: Arbitrary]
+    : Arbitrary[T1 | T2 | T3 | T4] =
+  Arbitrary:
+    for
+      t1   <- Arbitrary.arbitrary[T1]
+      t2   <- Arbitrary.arbitrary[T2]
+      t3   <- Arbitrary.arbitrary[T3]
+      t4   <- Arbitrary.arbitrary[T4]
+      edit <- Gen.oneOf(t1, t2, t3, t4)
+    yield edit
+
+def genUnion2[T1: Arbitrary, T2: Arbitrary]: Arbitrary[T1 | T2] =
+  Arbitrary:
+    for
+      t1   <- Arbitrary.arbitrary[T1]
+      t2   <- Arbitrary.arbitrary[T2]
+      edit <- Gen.oneOf(t1, t2)
+    yield edit
+
+given genEditUnion: Arbitrary[TextEdit | InsertReplaceEdit] =
+  genUnion2[TextEdit, InsertReplaceEdit]
+
+given genEditBla: Arbitrary[TextEdit | AnnotatedTextEdit] =
+  genUnion2[TextEdit, AnnotatedTextEdit]
+
+given [L <: String](using ValueOf[L]): Arbitrary[L] =
+  Arbitrary(Gen.const(valueOf[L]))
+
+given genVector[T](using Arbitrary[T]): Arbitrary[Vector[T]] =
+  Arbitrary:
+    for
+      length <- Gen.chooseNum(0, 5)
+      vector <- Gen.listOfN(length, Arbitrary.arbitrary[T])
+    yield vector.toVector
+
+given Arbitrary[ChangeAnnotationIdentifier] = Arbitrary(
+  Arbitrary.arbitrary[String].map(ChangeAnnotationIdentifier.apply)
+)
+
+given genMap[K, V](using Arbitrary[K], Arbitrary[V]): Arbitrary[Map[K, V]] =
+  Arbitrary:
+    for
+      length <- Gen.chooseNum(0, 5)
+      keys   <- Gen.listOfN(length, Arbitrary.arbitrary[K])
+      values <- Gen.listOfN(length, Arbitrary.arbitrary[V])
+    yield keys.zip(values).toMap
 
 // given Arbitrary[ProgressToken] =
 //   Arbitrary:
@@ -92,6 +186,7 @@ end given
 //   Arbitrary(either)
 
 import io.github.irevive.union.derivation.{IsUnion, UnionDerivation}
+import langoustine.lsp.enumerations.MarkupKind
 
 inline given derivedUnion[A](using IsUnion[A]): Arbitrary[A] =
   UnionDerivation.derive[Arbitrary, A]

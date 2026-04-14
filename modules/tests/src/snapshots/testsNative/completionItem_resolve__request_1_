@@ -1,0 +1,43 @@
+{
+    "data" : {
+        "hello" : "yo"
+    },
+    "deprecated" : true,
+    "detail" : "randomString",
+    "documentation" : {
+        "kind" : "plaintext",
+        "value" : "newText"
+    },
+    "insertTextFormat" : 1,
+    "kind" : 21,
+    "label" : "randomString",
+    "preselect" : true,
+    "sortText" : "randomString",
+    "tags" : [
+        1
+    ],
+    "textEdit" : {
+        "insert" : {
+            "end" : {
+                "character" : 98,
+                "line" : 71
+            },
+            "start" : {
+                "character" : 15,
+                "line" : 20
+            }
+        },
+        "newText" : "newText",
+        "replace" : {
+            "end" : {
+                "character" : 77,
+                "line" : 62
+            },
+            "start" : {
+                "character" : 28,
+                "line" : 55
+            }
+        }
+    },
+    "textEditText" : "randomString"
+}

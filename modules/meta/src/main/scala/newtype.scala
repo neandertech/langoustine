@@ -24,7 +24,8 @@ trait TotalWrapper[Newtype, Impl](using ev: Newtype =:= Impl):
   def raw(a: Newtype): Impl   = ev.apply(a)
   def apply(s: Impl): Newtype = ev.flip.apply(s)
 
-  inline def unapply(s: Impl): Newtype = apply(s)
+  inline def unapply(s: Newtype): Option[Impl] = Some(s.value)
+
   given BasicallyTheSame[Impl, Newtype] with
     def apply(a: Impl)      = ev.flip(a)
     def reverse(a: Newtype) = ev(a)
