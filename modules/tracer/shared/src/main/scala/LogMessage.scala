@@ -16,16 +16,10 @@
 
 package langoustine.tracer
 
-import com.github.plokhotnyuk.jsoniter_scala.core.*
-import com.github.plokhotnyuk.jsoniter_scala.macros.*
 import jsonrpclib.InputMessage.*
 
-enum LogMessage(val value: String):
-  case Window(override val value: String, timestamp: Long)
-      extends LogMessage(value)
-  case Stderr(override val value: String, timestamp: Long)
-      extends LogMessage(value)
+enum LogMessageStream derives io.circe.Codec.AsObject:
+  case Window, Stderr
 
-object LogMessage:
-  given JsonValueCodec[LogMessage]         = JsonCodecMaker.make
-  given JsonValueCodec[Vector[LogMessage]] = JsonCodecMaker.make
+case class LogMessage(value: String, stream: LogMessageStream, timestamp: Long)
+    derives io.circe.Codec.AsObject

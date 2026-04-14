@@ -18,6 +18,8 @@ package langoustine.tracer
 
 import cats.effect.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
+import com.github.plokhotnyuk.jsoniter_scala.circe.JsoniterScalaCodec.*
+import io.circe.Json
 import fs2.*
 import fs2.concurrent.*
 import jsonrpclib.Message
@@ -54,7 +56,7 @@ def Replay(
         .through(fs2.text.utf8.decode)
         .through(fs2.text.lines)
         .evalMap { line =>
-          IO(readFromStringReentrant[SnapshotItem](line))
+          IO.fromEither(readFromString[Json](line).as[SnapshotItem])
         }
         .evalMap {
           case SnapshotItem.Message(msg) =>
@@ -86,9 +88,12 @@ def Replay(
                   case Direction.ToClient => redirect(outBytes)
             end match
           case SnapshotItem.Log(msg) =>
-            msg match
-              case LogMessage.Stderr(value, timestamp) =>
-                errBytes.publish1(Chunk.array((value + "\n").getBytes))
+            msg.stream match
+              case LogMessageStream.Stderr =>
+                errBytes.publish1(Chunk.array((msg.value + "\n").getBytes))
+              case LogMessageStream.Window =>
+                // TODO: figure out what this is for
+                IO.unit
 
         }
   fs2.Stream.eval(IO.deferred[Boolean]).flatMap { latch =>

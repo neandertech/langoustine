@@ -16,12 +16,9 @@
 
 package langoustine.tracer
 
-import scala.scalajs.js.JSON
-
-import com.github.plokhotnyuk.jsoniter_scala.core.*
-import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 import com.raquo.laminar.api.L.*
 import jsonrpclib.*
+import io.circe.Encoder
 
 def jsonViewer(
     showing: Var[Option[LspMessage]],
@@ -63,8 +60,6 @@ def jsonViewer(
       displayJson(ep, mode.signal, modalBus)
     )
 
-  given JsonValueCodec[Option[Payload]] = JsonCodecMaker.make
-
   def displayPayload(name: String, op: Option[Payload]) =
     div(
       bar(b(color := "lightgreen", name)),
@@ -91,7 +86,7 @@ def jsonViewer(
           .fromFuture(Api.response(cid(req.id)))
           .map(_.flatten)
           .map {
-            case None => i("...")
+            case None      => i("...")
             case Some(raw) =>
               def makeResult(
                   rm: RawMessage
@@ -111,10 +106,10 @@ def jsonViewer(
           .fromFuture(Api.notification(cid(cm.generatedId)))
           .map(_.flatten)
           .map {
-            case None => i("...")
+            case None      => i("...")
             case Some(raw) =>
               (raw.params, raw.error) match
-                case (None, None) => i("no error or payload")
+                case (None, None)   => i("no error or payload")
                 case (_, Some(err)) =>
                   displayErr(err)
                 case (p, None) =>
@@ -129,21 +124,13 @@ def jsonViewer(
   )
 end jsonViewer
 
-def displayJson[T: JsonValueCodec](
+def displayJson[T: Encoder](
     rmsg: T,
     mode: Signal[JsonMode],
     modalBus: EventBus[ModalCommand]
 ) =
-  val js = io.circe.scalajs
-    .decodeJs[io.circe.Json](
-      JSON.parse(
-        writeToString[T](
-          rmsg,
-          WriterConfig.withIndentionStep(0)
-        )
-      )
-    )
-    .fold(throw _, identity)
+  import io.circe.syntax.*
+  val js = rmsg.asJson
 
   org.scalajs.dom.console.log(js)
 
@@ -231,3 +218,4 @@ def displayJson[T: JsonValueCodec](
 end displayJson
 
 import com.raquo.laminar.nodes.ReactiveHtmlElement
+import io.circe.Codec

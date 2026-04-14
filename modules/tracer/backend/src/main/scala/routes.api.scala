@@ -18,8 +18,8 @@ package langoustine.tracer
 
 import cats.effect.*
 import cats.syntax.all.*
-import com.github.plokhotnyuk.jsoniter_scala.core.*
-import com.github.plokhotnyuk.jsoniter_scala.macros.*
+// import com.github.plokhotnyuk.jsoniter_scala.core.*
+// import com.github.plokhotnyuk.jsoniter_scala.macros.*
 import jsonrpclib.CallId
 import org.http4s.*
 import org.http4s.dsl.io.*
@@ -31,25 +31,31 @@ import org.typelevel.ci.*
 
 import concurrent.duration.*
 
+import com.github.plokhotnyuk.jsoniter_scala.core.*
+import com.github.plokhotnyuk.jsoniter_scala.circe.JsoniterScalaCodec.*
+import io.circe.*
+import io.circe.syntax.*
+
+import org.http4s.circe.CirceEntityCodec.*
+
+
 object SnapshotNameMatcher
     extends OptionalQueryParamDecoderMatcher[String]("name")
 
-object codecs:
-  given msgCodec: JsonValueCodec[Vector[LspMessage]] = JsonCodecMaker.make
-  given rawCodec: JsonValueCodec[Vector[RawMessage]] = JsonCodecMaker.make
+// object codecs:
+//   given jsonEncoder[T: Encoder]: EntityEncoder[IO, T] =
+//     EntityEncoder
+//       .byteArrayEncoder[IO]
+//       .contramap((data: T) => data.asJson.noSpaces.getBytes())
+//       .withContentType(
+//         `Content-Type`(MediaType.application.json, Some(Charset.`UTF-8`))
+//       )
 
-  given JsonValueCodec[Vector[String]] = JsonCodecMaker.make
-  given jsonEncoder[T: JsonValueCodec]: EntityEncoder[IO, T] =
-    EntityEncoder
-      .byteArrayEncoder[IO]
-      .contramap((data: T) => writeToArray(data))
-      .withContentType(
-        `Content-Type`(MediaType.application.json, Some(Charset.`UTF-8`))
-      )
-
-  given jsonDecoder[T: JsonValueCodec]: EntityDecoder[IO, T] =
-    EntityDecoder.byteArrayDecoder[IO].map(readFromArray[T](_))
-end codecs
+//   given jsonDecoder[T: Decoder]: EntityDecoder[IO, T] =
+//     EntityDecoder
+//       .byteArrayDecoder[IO]
+//       .      (r => IO.fromEither(readFromArray[io.circe.Json](r).as[T]))
+// end codecs
 
 def api(
     wbs: WebSocketBuilder2[IO],
@@ -57,7 +63,6 @@ def api(
     summary: Summary
 ) =
   import state.*
-  import codecs.given
   val apiRoutes = HttpRoutes.of[IO] {
     case GET -> Root / "summary" =>
       Ok(summary)
@@ -96,7 +101,6 @@ def api(
       messages.get.map(_.sortBy(_.timestamp).map(_.raw)).flatMap(Ok(_))
 
     case GET -> Root / "snapshot" :? SnapshotNameMatcher(nameMaybe) =>
-      given JsonValueCodec[Vector[ReceivedMessage]] = JsonCodecMaker.make
 
       val filename = nameMaybe
         .getOrElse("langoustine-tracer-snapshot")
@@ -116,7 +120,7 @@ def api(
               rm.copy(decoded = resp.copy(method = None))
         }.map(SnapshotItem.Message.apply))
 
-      val logs = logBuf.get.map(_.collect { case log: LogMessage.Stderr =>
+      val logs = logBuf.get.map(_.collect { case log if log.stream == LogMessageStream.Stderr =>
         SnapshotItem.Log(log)
       })
 
@@ -125,7 +129,7 @@ def api(
           val bytes = fs2.Stream
             .emits(received)
             .covary[IO]
-            .evalMap(m => IO(writeToStringReentrant[SnapshotItem](m)))
+            .evalMap(m => IO(m.asJson.noSpaces))
             .intersperse("\n")
             .through(fs2.text.utf8.encode)
             .through(fs2.compression.Compression[IO].gzip())

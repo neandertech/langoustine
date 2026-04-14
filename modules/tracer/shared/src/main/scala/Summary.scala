@@ -16,13 +16,9 @@
 
 package langoustine.tracer
 
-import com.github.plokhotnyuk.jsoniter_scala.core.*
-import com.github.plokhotnyuk.jsoniter_scala.macros.*
 import jsonrpclib.InputMessage.*
 
-enum Summary:
+enum Summary derives io.circe.Codec.AsObject:
   case Trace(workingFolder: String, serverCommand: List[String])
   case Replay(file: String)
 
-object Summary:
-  given JsonValueCodec[Summary] = JsonCodecMaker.make

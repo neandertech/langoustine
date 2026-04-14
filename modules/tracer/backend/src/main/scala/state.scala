@@ -20,7 +20,6 @@ import cats.effect.*
 import cats.effect.std.*
 import fs2.concurrent.*
 import jsonrpclib.CallId
-import jsonrpclib.Codec
 import jsonrpclib.InputMessage.NotificationMessage
 import jsonrpclib.InputMessage.RequestMessage
 import jsonrpclib.Message
@@ -29,6 +28,7 @@ import jsonrpclib.OutputMessage.ResponseMessage
 import jsonrpclib.Payload
 import langoustine.lsp.enumerations
 import langoustine.lsp.requests.window
+import io.circe.Json
 
 case class State(
     ch: Channel[IO, String],
@@ -80,7 +80,6 @@ case class State(
             LspMessage
               .from(rawMessage.value, direction, generatedId)
               .map { lspMessage =>
-
                 val withUpdatedMapping = lspMessage match
 
                   case LspMessage.Request(method, id, _, _) =>
@@ -111,15 +110,15 @@ case class State(
                       if notif.method == "window/logMessage" then
                         IO
                           .fromEither(
-                            Codec.decode[window.logMessage.In](
-                              rawMessage.value.params
+                            window.logMessage.inputFromJson.decodeJson(
+                              rawMessage.value.params.map(_.data).getOrElse(Json.Null)
                             )
                           )
                           .flatMap(Received.capture(_))
                           .flatMap { case Received(ts, lmp) =>
                             if lmp.`type` == enumerations.MessageType.Log then
                               logBuf.update(
-                                _ :+ LogMessage.Window(lmp.message, ts)
+                                _ :+ LogMessage(lmp.message, LogMessageStream.Window, ts)
                               )
                             else IO.unit
                           }

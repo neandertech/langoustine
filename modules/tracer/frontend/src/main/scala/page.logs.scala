@@ -39,7 +39,7 @@ def logsTracer(logs: Var[Vector[LogMessage]], logFilter: Var[Option[String]]) =
                   )
               }
               .map(_.map {
-                case LogMessage.Stderr(value, _) =>
+                case LogMessage(value, LogMessageStream.Stderr, _) =>
                   div(
                     Styles.logTracer.messagesContainer,
                     div(Styles.logTracer.logTypeStderr, "STDERR"),
@@ -49,7 +49,7 @@ def logsTracer(logs: Var[Vector[LogMessage]], logFilter: Var[Option[String]]) =
                       )
                     )
                   )
-                case LogMessage.Window(value, _) =>
+                case LogMessage(value, LogMessageStream.Window, _) =>
                   div(
                     Styles.logTracer.messagesContainer,
                     div(Styles.logTracer.logTypeWindow, "window"),

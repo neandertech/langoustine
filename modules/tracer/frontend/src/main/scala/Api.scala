@@ -21,38 +21,40 @@ import scala.concurrent.Future
 import scala.scalajs.js
 import scala.scalajs.js.Thenable.Implicits.*
 
-import com.github.plokhotnyuk.jsoniter_scala.core.*
-import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
 import org.scalajs.dom
 import org.scalajs.dom.Fetch.fetch
+import io.circe.Decoder
+import io.circe.Json
+
+import io.circe.scalajs.decodeJs
 
 object Api:
 
-  given JsonValueCodec[Vector[LspMessage]]     = JsonCodecMaker.make
-  given rw: JsonValueCodec[Vector[RawMessage]] = JsonCodecMaker.make
+
+  def read[T: Decoder](s: js.Any) = decodeJs[T](s).fold(throw _ , identity)
 
   def all: Future[Vector[LspMessage]] =
     fetch("/api/all")
-      .flatMap(_.text())
-      .map(str => readFromStringReentrant[Vector[LspMessage]](str))
+      .flatMap(_.json())
+      .map(read[Vector[LspMessage]])
 
   def summary: Future[Summary] =
     fetch("/api/summary")
-      .flatMap(_.text())
-      .map(str => readFromStringReentrant[Summary](str))
+      .flatMap(_.json())
+      .map(read[Summary])
 
   def rawAll: Future[Vector[RawMessage]] =
     fetch("/api/raw/all")
-      .flatMap(_.text())
-      .map(str => readFromStringReentrant[Vector[RawMessage]](str))
+      .flatMap(_.json())
+      .map(read[Vector[RawMessage]])
 
   def request(id: String): Future[Option[RawMessage]] =
     fetch(s"/api/raw/request/$id")
       .flatMap(resp =>
         if resp.status == 200 then
           resp
-            .text()
-            .map(readFromStringReentrant[RawMessage](_))
+            .json()
+            .map(read[RawMessage])
             .map(Option.apply)
         else Future.successful(None)
       )
@@ -61,8 +63,8 @@ object Api:
       .flatMap(resp =>
         if resp.status == 200 then
           resp
-            .text()
-            .map(readFromStringReentrant[RawMessage](_))
+            .json()
+            .map(read[RawMessage])
             .map(Option.apply)
         else Future.successful(None)
       )
@@ -72,8 +74,8 @@ object Api:
       .flatMap(resp =>
         if resp.status == 200 then
           resp
-            .text()
-            .map(readFromStringReentrant[RawMessage](_))
+            .json()
+            .map(read[RawMessage])
             .map(Option.apply)
         else Future.successful(None)
       )

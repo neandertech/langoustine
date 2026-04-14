@@ -157,14 +157,14 @@ given genMap[K, V](using Arbitrary[K], Arbitrary[V]): Arbitrary[Map[K, V]] =
       values <- Gen.listOfN(length, Arbitrary.arbitrary[V])
     yield keys.zip(values).toMap
 
-// given Arbitrary[ProgressToken] =
-//   Arbitrary:
-//     for
-//       someString <- Gen.const("stringToken").map(ProgressToken.apply)
-//       someInt    <- Gen.const(25).map(ProgressToken.apply)
+given Arbitrary[ProgressToken] =
+  Arbitrary:
+    for
+      someString <- Gen.const("stringToken").map(ProgressToken.apply)
+      someInt    <- Gen.const(25).map(ProgressToken.apply)
 
-//       progressToken <- Gen.oneOf(someString, someInt)
-//     yield progressToken
+      progressToken <- Gen.oneOf(someString, someInt)
+    yield progressToken
 
 given Arbitrary[ujson.Value] =
   import ujson.*
