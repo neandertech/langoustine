@@ -119,7 +119,6 @@ lazy val meta = projectMatrix
 
 lazy val lsp = projectMatrix
   .in(file("modules/lsp"))
-  // .dependsOn(jsonrpclib)
   .defaultAxes(V.default*)
   .settings(enableSnapshots)
   .disablePlugins(ScalafixPlugin)
@@ -146,33 +145,6 @@ lazy val lsp = projectMatrix
     tastyMiMaPreviousArtifacts += {
       organization.value %% name.value % "0.0.21"
     }
-  )
-
-lazy val jsonrpclib = projectMatrix
-  .in(file("modules/jsonrpclib"))
-  .defaultAxes(V.default*)
-  .settings(enableSnapshots)
-  .settings(
-    testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
-    name                                    := "langoustine-jsonrpclib",
-    libraryDependencies += "org.typelevel" %%% "weaver-cats" % V.weaver % Test,
-    libraryDependencies += "co.fs2"        %%% "fs2-core"    % V.fs2,
-    libraryDependencies += "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-core" % V.jsoniter,
-    libraryDependencies += "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-macros" % V.jsoniter,
-    scalacOptions ++= commonScalacOptions
-  )
-  .jvmPlatform(
-    V.scalaVersions,
-    Test / unmanagedSourceDirectories ++= Seq(
-      (projectMatrixBaseDirectory.value / "src" / "test" / "scalajvm-native").getAbsoluteFile
-    )
-  )
-  .jsPlatform(V.scalaVersions)
-  .nativePlatform(
-    V.scalaVersions,
-    Test / unmanagedSourceDirectories ++= Seq(
-      (projectMatrixBaseDirectory.value / "src" / "test" / "scalajvm-native").getAbsoluteFile
-    )
   )
 
 lazy val app = projectMatrix
@@ -370,7 +342,7 @@ lazy val tracerFrontend = projectMatrix
 lazy val tracerShared = projectMatrix
   .in(file("modules/tracer/shared"))
   .defaultAxes(V.default*)
-  .dependsOn(jsonrpclib)
+  // .dependsOn(jsonrpclib)
   .settings(enableSnapshots)
   .settings(
     name := "langoustine-tracer-shared",
