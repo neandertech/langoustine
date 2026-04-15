@@ -117,7 +117,10 @@ object LSPTests extends weaver.SimpleIOSuite:
               )
             )
           )
-          nots <- probe.waitForNotifications(window.showMessage, 2)
+          nots <- probe.waitForNotifications(
+            window.showMessage,
+            2
+          )
           (first, second) = (nots.head, nots.tail.head)
         yield expect.same(
           ShowMessageParams(
