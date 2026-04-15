@@ -401,14 +401,14 @@ generateLSP := Def.inputTaskDyn {
           .toTask(
             s" --out $out --files $generatedFiles --schema $schema"
           )
+      },
+      Def.taskDyn {
+        (protocolJVM / Compile / headerCreate)
+      },
+      Def.taskDyn {
+        val files = IO.readLines(generatedFiles)
+        (Compile / task).toTask(s" ${files.mkString(" ")}")
       }
-      // Def.taskDyn {
-      //   (protocolJVM / Compile / headerCreate)
-      // },
-      // Def.taskDyn {
-      //   val files = IO.readLines(generatedFiles)
-      //   (Compile / task).toTask(s" ${files.mkString(" ")}")
-      // }
   )
 
 }.evaluated
