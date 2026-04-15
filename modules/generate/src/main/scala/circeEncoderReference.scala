@@ -32,14 +32,31 @@ def circeEncoderReference(
           ts.partition(_ == BaseType(BaseTypes.NULL))
         (nullType.nonEmpty, rest)
 
-      val len         = simplified.length
-      val encoders    = simplified.map(circeEncoderReference(_, refTypeOverride))
-      val types       = simplified.map(renderType(_)).mkString(", ")
-      val encodersStr =
-        if encoders.tail.nonEmpty then encoders.tail.mkString(",", ", ", "")
-        else ""
+      // this helps disambiguate types like Vector[T1] | Vector[T2] where we need to take
+      // a look at the head element
+      if ts.forall(_.isInstanceOf[ArrayType]) then
+        val unwrapped = simplified.map { case ArrayType(underlying) =>
+          underlying
+        }
 
-      s"Enc.union$len[$types](${encoders.head}$encodersStr)"
+        val len      = unwrapped.length
+        val encoders = unwrapped.map(circeEncoderReference(_, refTypeOverride))
+        val types    = unwrapped.map(renderType(_)).mkString(", ")
+        val encodersStr =
+          if encoders.tail.nonEmpty then encoders.tail.mkString(",", ", ", "")
+          else ""
+
+        s"Enc.unionVec$len[$types](${encoders.head}$encodersStr)"
+      else
+        val len      = simplified.length
+        val encoders = simplified.map(circeEncoderReference(_, refTypeOverride))
+        val types    = simplified.map(renderType(_)).mkString(", ")
+        val encodersStr =
+          if encoders.tail.nonEmpty then encoders.tail.mkString(",", ", ", "")
+          else ""
+
+        s"Enc.union$len[$types](${encoders.head}$encodersStr)"
+      end if
     case MapType(
           BaseType(BaseTypes.string),
           ReferenceType(TypeName("LSPAny"))
