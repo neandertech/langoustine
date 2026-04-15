@@ -217,7 +217,8 @@ lazy val tests = projectMatrix
     snapshotsPackageName    := "tests.core",
     snapshotsForceOverwrite := !sys.env.contains("CI"),
     scalacOptions += "-Yretain-trees",
-    scalacOptions ++= commonScalacOptions
+    scalacOptions ++= commonScalacOptions,
+    nativeConfig ~= { (_).withMultithreading(true) }
   )
   .enablePlugins(SnapshotsPlugin)
 

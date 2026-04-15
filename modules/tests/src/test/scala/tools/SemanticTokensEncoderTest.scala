@@ -16,14 +16,11 @@
 
 package tests.lsp
 
-import langoustine.lsp.tools.SemanticTokensEncoder
-import langoustine.lsp.enumerations.{
-  SemanticTokenTypes as T,
-  SemanticTokenModifiers as M
-}
-
 import langoustine.lsp.all.*
+import langoustine.lsp.enumerations.SemanticTokenModifiers as M
+import langoustine.lsp.enumerations.SemanticTokenTypes as T
 import langoustine.lsp.tools.SemanticToken
+import langoustine.lsp.tools.SemanticTokensEncoder
 
 object SemanticTokensEncoderTest extends weaver.FunSuite:
   test("legend") {

@@ -33,7 +33,6 @@ import jsonrpclib.{fs2 as _, *}
 import langoustine.lsp.*
 import langoustine.lsp.all.*
 
-
 class Probe(
     messagesFromServer: SignallingRef[IO, Vector[Message]],
     send: Message => IO[Unit],

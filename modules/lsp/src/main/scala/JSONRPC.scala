@@ -19,8 +19,6 @@ package langoustine.lsp
 import scala.util.Try
 
 import jsonrpclib.*
-import upickle.core.TraceVisitor.TraceException
-import upickle.default.*
 
 import requests.*
 

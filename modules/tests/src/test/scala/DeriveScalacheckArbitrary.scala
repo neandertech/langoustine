@@ -16,12 +16,11 @@
 
 package tests.core
 
-import langoustine.lsp.runtime.*
 import langoustine.lsp.Bijection
 import langoustine.lsp.aliases.*
-import langoustine.lsp.structures.*
 import langoustine.lsp.enumerations.*
-
+import langoustine.lsp.runtime.*
+import langoustine.lsp.structures.*
 import org.scalacheck.*
 import shapeless3.deriving.*
 

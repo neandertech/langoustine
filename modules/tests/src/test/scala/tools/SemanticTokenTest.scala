@@ -16,12 +16,6 @@
 
 package tests.lsp
 
-import langoustine.lsp.tools.SemanticTokensEncoder
-import langoustine.lsp.enumerations.{
-  SemanticTokenTypes as T,
-  SemanticTokenModifiers as M
-}
-
 import langoustine.lsp.all.*
 import langoustine.lsp.tools.SemanticToken
 

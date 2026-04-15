@@ -26,8 +26,6 @@ import langoustine.lsp.all.*
 import langoustine.lsp.structures.InitializeParams.ClientInfo
 import langoustine.lsp.structures.InitializeResult.ServerInfo
 
-
-
 object LSPTests extends weaver.SimpleIOSuite:
 
   def serverTest(tn: weaver.TestName)(

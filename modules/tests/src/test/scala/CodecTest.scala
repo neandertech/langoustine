@@ -16,23 +16,14 @@
 
 package tests.core
 
+import com.github.plokhotnyuk.jsoniter_scala.circe.JsoniterScalaCodec.*
+import com.github.plokhotnyuk.jsoniter_scala.core.*
+import io.circe.Decoder
+import io.circe.syntax.*
 import langoustine.lsp.*
-import jsonrpclib.Monadic
-import scala.util.*
-import cats.MonadThrow
-
 import langoustine.lsp.all.*
-import cats.Monad
-
-import jsonrpclib.*
 import org.scalacheck.*
 import org.scalacheck.rng.Seed
-
-import io.circe.syntax.*
-
-import com.github.plokhotnyuk.jsoniter_scala.core.*
-import com.github.plokhotnyuk.jsoniter_scala.circe.JsoniterScalaCodec.*
-import io.circe.Decoder
 
 object CodecTest extends weaver.FunSuite, WeaverSnapshotsIntegration:
 
