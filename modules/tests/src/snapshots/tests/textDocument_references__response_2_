@@ -1,15 +1,15 @@
 [
-    {
-        "range" : {
-            "end" : {
-                "character" : 38,
-                "line" : 23
-            },
-            "start" : {
-                "character" : 83,
-                "line" : 62
-            }
-        },
-        "uri" : "file1"
+  {
+    "uri" : "file1",
+    "range" : {
+      "start" : {
+        "line" : 62,
+        "character" : 83
+      },
+      "end" : {
+        "line" : 23,
+        "character" : 38
+      }
     }
+  }
 ]

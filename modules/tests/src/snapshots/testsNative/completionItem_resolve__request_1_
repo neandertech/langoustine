@@ -1,43 +1,43 @@
 {
-    "label" : "randomString",
-    "kind" : 21,
-    "tags" : [
-        1
-    ],
-    "detail" : "randomString",
-    "documentation" : {
-        "kind" : "plaintext",
-        "value" : "randomString"
+  "label" : "randomString",
+  "kind" : 21,
+  "tags" : [
+    1
+  ],
+  "detail" : "randomString",
+  "documentation" : {
+    "kind" : "plaintext",
+    "value" : "randomString"
+  },
+  "deprecated" : true,
+  "preselect" : true,
+  "sortText" : "randomString",
+  "insertTextFormat" : 1,
+  "textEdit" : {
+    "newText" : "newText",
+    "insert" : {
+      "start" : {
+        "line" : 20,
+        "character" : 15
+      },
+      "end" : {
+        "line" : 71,
+        "character" : 98
+      }
     },
-    "deprecated" : true,
-    "preselect" : true,
-    "sortText" : "randomString",
-    "insertTextFormat" : 1,
-    "textEdit" : {
-        "newText" : "newText",
-        "insert" : {
-            "start" : {
-                "line" : 20,
-                "character" : 15
-            },
-            "end" : {
-                "line" : 71,
-                "character" : 98
-            }
-        },
-        "replace" : {
-            "start" : {
-                "line" : 55,
-                "character" : 28
-            },
-            "end" : {
-                "line" : 62,
-                "character" : 77
-            }
-        }
-    },
-    "textEditText" : "randomString",
-    "data" : {
-        "hello" : "yo"
+    "replace" : {
+      "start" : {
+        "line" : 55,
+        "character" : 28
+      },
+      "end" : {
+        "line" : 62,
+        "character" : 77
+      }
     }
+  },
+  "textEditText" : "randomString",
+  "data" : {
+    "hello" : "yo"
+  }
 }

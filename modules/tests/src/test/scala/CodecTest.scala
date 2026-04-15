@@ -39,7 +39,7 @@ object CodecTest extends weaver.FunSuite, WeaverSnapshotsIntegration:
   val SEED = 120312937L
 
   requestSnapshotTest(langoustine.lsp.requests.textDocument.documentLink)
-  // requestSnapshotTest(langoustine.lsp.requests.textDocument.foldingRange)
+  requestSnapshotTest(langoustine.lsp.requests.textDocument.foldingRange)
   requestSnapshotTest(langoustine.lsp.requests.workspace.configuration)
   requestSnapshotTest(langoustine.lsp.requests.textDocument.references)
   requestSnapshotTest(langoustine.lsp.requests.textDocument.rename)
@@ -51,7 +51,7 @@ object CodecTest extends weaver.FunSuite, WeaverSnapshotsIntegration:
   ) =
     def safeToString[T](x: T | Null) =
       x match
-        case Opt.empty => "Opt.empty"
+        case null => "Opt.empty"
         case _         => x.toString()
 
     def sampleN[T](n: Int, arb: Arbitrary[T]) =
@@ -64,7 +64,7 @@ object CodecTest extends weaver.FunSuite, WeaverSnapshotsIntegration:
       val requests = sampleN(5, arbReq).distinct
 
       forEach(requests.zipWithIndex): (request, idx) =>
-        val json         = request.asJson.spaces4
+        val json         = request.asJson.spaces2
         val printed      = safeToString(request)
         val snapshotName = x.requestMethod + s": request($idx)"
 
@@ -80,7 +80,7 @@ object CodecTest extends weaver.FunSuite, WeaverSnapshotsIntegration:
       val requests = sampleN(5, arbResp).distinct
 
       forEach(requests.zipWithIndex): (response, idx) =>
-        val json         = response.asJson.spaces4SortKeys
+        val json         = response.asJson.spaces2
         val printed      = safeToString(response)
         val snapshotName = x.requestMethod + s": response($idx)"
 

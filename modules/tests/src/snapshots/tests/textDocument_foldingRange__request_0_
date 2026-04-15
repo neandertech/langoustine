@@ -1,6 +1,6 @@
 {
-  "textDocument": {
-    "uri": "file1"
+  "textDocument" : {
+    "uri" : "file1"
   },
-  "workDoneToken": "stringToken"
+  "workDoneToken" : "stringToken"
 }

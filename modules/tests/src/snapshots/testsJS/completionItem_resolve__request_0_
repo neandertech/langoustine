@@ -1,19 +1,19 @@
 {
-    "label" : "randomString",
-    "detail" : "randomString",
-    "documentation" : {
-        "kind" : "plaintext",
-        "value" : "randomString"
-    },
-    "preselect" : false,
-    "sortText" : "randomString",
-    "textEditText" : "randomString",
-    "commitCharacters" : [
-    ],
-    "command" : {
-        "title" : "randomString",
-        "command" : "randomString",
-        "arguments" : [
-        ]
-    }
+  "label" : "randomString",
+  "detail" : "randomString",
+  "documentation" : {
+    "kind" : "plaintext",
+    "value" : "randomString"
+  },
+  "preselect" : false,
+  "sortText" : "randomString",
+  "textEditText" : "randomString",
+  "commitCharacters" : [
+  ],
+  "command" : {
+    "title" : "randomString",
+    "command" : "randomString",
+    "arguments" : [
+    ]
+  }
 }

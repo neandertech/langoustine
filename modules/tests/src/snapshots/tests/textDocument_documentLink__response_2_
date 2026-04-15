@@ -1,46 +1,46 @@
 [
-    {
-        "range" : {
-            "end" : {
-                "character" : 62,
-                "line" : 22
-            },
-            "start" : {
-                "character" : 19,
-                "line" : 65
-            }
-        },
-        "tooltip" : "randomString"
+  {
+    "range" : {
+      "start" : {
+        "line" : 65,
+        "character" : 19
+      },
+      "end" : {
+        "line" : 22,
+        "character" : 62
+      }
     },
-    {
-        "data" : {
-            "hello" : "yo"
-        },
-        "range" : {
-            "end" : {
-                "character" : 98,
-                "line" : 71
-            },
-            "start" : {
-                "character" : 15,
-                "line" : 20
-            }
-        },
-        "target" : "uri2"
+    "tooltip" : "randomString"
+  },
+  {
+    "range" : {
+      "start" : {
+        "line" : 20,
+        "character" : 15
+      },
+      "end" : {
+        "line" : 71,
+        "character" : 98
+      }
     },
-    {
-        "data" : {
-            "hello" : "yo"
-        },
-        "range" : {
-            "end" : {
-                "character" : 55,
-                "line" : 60
-            },
-            "start" : {
-                "character" : 100,
-                "line" : 97
-            }
-        }
+    "target" : "uri2",
+    "data" : {
+      "hello" : "yo"
     }
+  },
+  {
+    "range" : {
+      "start" : {
+        "line" : 97,
+        "character" : 100
+      },
+      "end" : {
+        "line" : 60,
+        "character" : 55
+      }
+    },
+    "data" : {
+      "hello" : "yo"
+    }
+  }
 ]

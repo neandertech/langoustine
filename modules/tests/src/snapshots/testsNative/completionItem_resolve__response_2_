@@ -1,46 +1,46 @@
 {
-    "command" : {
-        "command" : "randomString",
-        "title" : "randomString"
+  "label" : "randomString",
+  "labelDetails" : {
+    "description" : "randomString"
+  },
+  "detail" : "randomString",
+  "documentation" : {
+    "kind" : "plaintext",
+    "value" : "randomString"
+  },
+  "deprecated" : true,
+  "sortText" : "randomString",
+  "filterText" : "randomString",
+  "insertTextMode" : 2,
+  "textEdit" : {
+    "newText" : "newText",
+    "insert" : {
+      "start" : {
+        "line" : 60,
+        "character" : 21
+      },
+      "end" : {
+        "line" : 42,
+        "character" : 13
+      }
     },
-    "data" : {
-        "hello" : "yo"
-    },
-    "deprecated" : true,
-    "detail" : "randomString",
-    "documentation" : {
-        "kind" : "plaintext",
-        "value" : "randomString"
-    },
-    "filterText" : "randomString",
-    "insertTextMode" : 2,
-    "label" : "randomString",
-    "labelDetails" : {
-        "description" : "randomString"
-    },
-    "sortText" : "randomString",
-    "textEdit" : {
-        "insert" : {
-            "end" : {
-                "character" : 13,
-                "line" : 42
-            },
-            "start" : {
-                "character" : 21,
-                "line" : 60
-            }
-        },
-        "newText" : "newText",
-        "replace" : {
-            "end" : {
-                "character" : 55,
-                "line" : 51
-            },
-            "start" : {
-                "character" : 13,
-                "line" : 50
-            }
-        }
-    },
-    "textEditText" : "randomString"
+    "replace" : {
+      "start" : {
+        "line" : 50,
+        "character" : 13
+      },
+      "end" : {
+        "line" : 51,
+        "character" : 55
+      }
+    }
+  },
+  "textEditText" : "randomString",
+  "command" : {
+    "title" : "randomString",
+    "command" : "randomString"
+  },
+  "data" : {
+    "hello" : "yo"
+  }
 }
