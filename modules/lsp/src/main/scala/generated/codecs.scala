@@ -509,11 +509,9 @@ private[lsp] trait requests_textDocument_documentSymbol:
 
   given outputToJson: Encoder[Out] =
     Encoder.encodeOption(
-      Enc.union2[Vector[structures.SymbolInformation], Vector[
-        structures.DocumentSymbol
-      ]](
-        Encoder.encodeVector(structures.SymbolInformation.toJson),
-        Encoder.encodeVector(structures.DocumentSymbol.toJson)
+      Enc.unionVec2[structures.SymbolInformation, structures.DocumentSymbol](
+        structures.SymbolInformation.toJson,
+        structures.DocumentSymbol.toJson
       )
     )
 
@@ -1203,11 +1201,9 @@ private[lsp] trait requests_workspace_symbol:
 
   given outputToJson: Encoder[Out] =
     Encoder.encodeOption(
-      Enc.union2[Vector[structures.SymbolInformation], Vector[
-        structures.WorkspaceSymbol
-      ]](
-        Encoder.encodeVector(structures.SymbolInformation.toJson),
-        Encoder.encodeVector(structures.WorkspaceSymbol.toJson)
+      Enc.unionVec2[structures.SymbolInformation, structures.WorkspaceSymbol](
+        structures.SymbolInformation.toJson,
+        structures.WorkspaceSymbol.toJson
       )
     )
 
