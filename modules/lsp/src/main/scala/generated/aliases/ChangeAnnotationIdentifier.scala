@@ -23,6 +23,8 @@ import runtime.{*, given}
 import io.circe.*
 import scala.reflect.*
 
+/** An identifier to refer to a change annotation stored with a workspace edit.
+  */
 opaque type ChangeAnnotationIdentifier = String
 object ChangeAnnotationIdentifier
     extends codecs.aliases_ChangeAnnotationIdentifier:

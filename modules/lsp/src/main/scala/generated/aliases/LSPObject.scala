@@ -23,6 +23,9 @@ import runtime.{*, given}
 import io.circe.*
 import scala.reflect.*
 
+/** LSP object definition.
+  * @since 3.17.0
+  */
 opaque type LSPObject = Map[String, io.circe.Json]
 object LSPObject extends codecs.aliases_LSPObject:
   inline def apply(v: Map[String, io.circe.Json]): LSPObject = v

@@ -23,6 +23,10 @@ import runtime.{*, given}
 import io.circe.*
 import scala.reflect.*
 
+/** A workspace diagnostic document report.
+  *
+  * @since 3.17.0
+  */
 opaque type WorkspaceDocumentDiagnosticReport =
   (structures.WorkspaceFullDocumentDiagnosticReport |
     structures.WorkspaceUnchangedDocumentDiagnosticReport)

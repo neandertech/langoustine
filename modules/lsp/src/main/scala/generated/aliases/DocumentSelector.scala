@@ -23,6 +23,13 @@ import runtime.{*, given}
 import io.circe.*
 import scala.reflect.*
 
+/** A document selector is the combination of one or many document filters.
+  *
+  * @sample
+  *   `let sel:DocumentSelector = [{ language: 'typescript' }, { language: 'json', pattern: '**∕tsconfig.json' }]`;
+  *
+  * The use of a string as a document filter is deprecated @since 3.16.0.
+  */
 opaque type DocumentSelector = Vector[aliases.DocumentFilter]
 object DocumentSelector extends codecs.aliases_DocumentSelector:
   inline def apply(v: Vector[aliases.DocumentFilter]): DocumentSelector = v

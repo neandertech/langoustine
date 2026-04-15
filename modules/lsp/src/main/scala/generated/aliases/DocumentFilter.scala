@@ -23,6 +23,11 @@ import runtime.{*, given}
 import io.circe.*
 import scala.reflect.*
 
+/**  A document filter describes a top level text document or
+  *  a notebook cell document.
+  *
+  *  @since 3.17.0 - proposed support for NotebookCellTextDocumentFilter.
+  */
 opaque type DocumentFilter =
   (aliases.TextDocumentFilter | structures.NotebookCellTextDocumentFilter)
 object DocumentFilter extends codecs.aliases_DocumentFilter:
