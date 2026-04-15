@@ -29,7 +29,6 @@ inThisBuild(
 val V = new {
   val scala           = "3.3.7"
   val scribe          = "3.19.0"
-  val upickle         = "4.4.3"
   val cats            = "2.13.0"
   val jsonrpclib      = "0.1.1"
   val fs2             = "3.13.0"
@@ -112,7 +111,6 @@ lazy val meta = projectMatrix
       "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-circe" % V.jsoniter % "compile-internal"
     ),
     libraryDependencies += "com.outr"      %%% "scribe"    % V.scribe,
-    libraryDependencies += "com.lihaoyi"   %%% "upickle"   % V.upickle,
     libraryDependencies += "org.typelevel" %%% "cats-core" % V.cats,
     test                                    := {},
     scalacOptions ++= commonScalacOptions
@@ -133,7 +131,6 @@ lazy val lsp = projectMatrix
     libraryDependencies += "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-core" % V.jsoniter,
     libraryDependencies += "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-circe" % V.jsoniter,
     libraryDependencies += "com.outr"      %%% "scribe"          % V.scribe,
-    libraryDependencies += "com.lihaoyi"   %%% "upickle"         % V.upickle,
     libraryDependencies += "org.typelevel" %%% "cats-core"       % V.cats,
     libraryDependencies += "tech.neander"  %%% "jsonrpclib-core" % V.jsonrpclib,
     libraryDependencies += "tech.neander"  %%% "jsonrpclib-fs2"  % V.jsonrpclib,

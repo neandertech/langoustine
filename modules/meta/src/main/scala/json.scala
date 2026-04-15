@@ -39,12 +39,8 @@ given Decoder[BaseTypes] = Decoder.decodeString.map {
   case "null"        => BaseTypes.NULL
 }
 
-// extension [X <: ujson.Value](js: X)
-//   def as[T](using cr: Reader[T]) = read[T](js)
-
 given Decoder[ParamsType] = Decoder.decodeJson.flatMap { js =>
   js.asObject match
-    // js.objOpt match
     case None    => Decoder[Vector[Type]].map(ParamsType.Many(_))
     case Some(o) => Decoder[Type].map(ParamsType.Single(_))
 }
