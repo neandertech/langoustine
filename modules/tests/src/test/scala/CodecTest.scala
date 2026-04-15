@@ -52,7 +52,7 @@ object CodecTest extends weaver.FunSuite, WeaverSnapshotsIntegration:
     def safeToString[T](x: T | Null) =
       x match
         case null => "Opt.empty"
-        case _         => x.toString()
+        case _    => x.toString()
 
     def sampleN[T](n: Int, arb: Arbitrary[T]) =
       Gen

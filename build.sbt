@@ -286,7 +286,11 @@ lazy val tracer = projectMatrix
         val outDir = (Compile / resourceManaged).value / "assets"
 
         val indexFileContents = {
-          val lines = Files.readAllLines(indexFile.toPath).toArray.toList.asInstanceOf[List[String]]
+          val lines = Files
+            .readAllLines(indexFile.toPath)
+            .toArray
+            .toList
+            .asInstanceOf[List[String]]
 
           val newLines = lines.collect {
             case l if l.contains("<!-- REPLACE -->") =>
@@ -404,13 +408,13 @@ generateLSP := Def.inputTaskDyn {
             s" --out $out --files $generatedFiles --schema $schema"
           )
       },
-      Def.taskDyn {
-        (protocolJVM / Compile / headerCreate)
-      },
-      Def.taskDyn {
-        val files = IO.readLines(generatedFiles)
-        (Compile / task).toTask(s" ${files.mkString(" ")}")
-      }
+    Def.taskDyn {
+      (protocolJVM / Compile / headerCreate)
+    },
+    Def.taskDyn {
+      val files = IO.readLines(generatedFiles)
+      (Compile / task).toTask(s" ${files.mkString(" ")}")
+    }
   )
 
 }.evaluated
