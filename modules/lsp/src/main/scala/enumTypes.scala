@@ -18,7 +18,6 @@ package langoustine.lsp
 
 import scala.reflect.*
 
-import upickle.default.*
 import io.circe.*
 
 import runtime.*
@@ -29,10 +28,6 @@ trait Bijection[A, T]:
   def domain: Set[A]
 
 private[lsp] trait IntEnum[T](using ev: T =:= Int):
-  private val intCodec    = upickle.default.readwriter[Int]
-  given reader: Reader[T] = intCodec.asInstanceOf[Reader[T]]
-  given writer: Writer[T] = intCodec.asInstanceOf[Writer[T]]
-
   given fromJson: Decoder[T] =
     io.circe.Decoder.decodeInt.asInstanceOf[Decoder[T]]
   given toJson: Encoder[T] =
@@ -60,10 +55,6 @@ private[lsp] trait IntEnum[T](using ev: T =:= Int):
 end IntEnum
 
 private[lsp] trait StringEnum[T](using ev: T =:= String):
-  private val stringCodec = upickle.default.readwriter[String]
-  given reader: Reader[T] = stringCodec.asInstanceOf[Reader[T]]
-  given writer: Writer[T] = stringCodec.asInstanceOf[Writer[T]]
-
   given fromJson: Decoder[T] =
     io.circe.Decoder.decodeString.asInstanceOf[Decoder[T]]
   given toJson: Encoder[T] =
@@ -90,11 +81,6 @@ private[lsp] trait StringEnum[T](using ev: T =:= String):
 end StringEnum
 
 private[lsp] trait UIntEnum[T](using ev: T =:= uinteger):
-  private val intCodec = upickle.default.readwriter[Int]
-
-  given reader: Reader[T] = intCodec.asInstanceOf[Reader[T]]
-  given writer: Writer[T] = intCodec.asInstanceOf[Writer[T]]
-
   given fromJson: Decoder[T] =
     io.circe.Decoder.decodeInt.asInstanceOf[Decoder[T]]
   given toJson: Encoder[T] =

@@ -21,7 +21,6 @@ import langoustine.lsp.all.*
 import weaver.*
 
 import com.github.plokhotnyuk.jsoniter_scala.core.*
-import upickle.default.ReadWriter
 import cats.effect.IO
 import scala.sys.process.ProcessIO
 import concurrent.duration.*
@@ -172,7 +171,7 @@ transparent inline def asNotification[T <: LSPNotification](
     p   <- o("params")
     res <- t.inputFromJson
       .decodeJson(p)
-      .toOption // scala.util.Try(upickle.default.read[t.In](p)).toOption
+      .toOption
     meth <- o("method").flatMap(_.asString)
     if meth == t.notificationMethod
   yield res
@@ -188,7 +187,7 @@ transparent inline def asResponse[T <: LSPRequest](
     p   <- o("result")
     res <- t.outputFromJson
       .decodeJson(p)
-      .toOption // scala.util.Try(upickle.default.read[t.Out](p)).toOption
+      .toOption
     id <- o("id").flatMap(_.asNumber)
     if id.toInt.contains(1)
   yield res
