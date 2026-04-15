@@ -1,0 +1,48 @@
+/*
+ * Copyright 2022 Neandertech
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package langoustine.lsp
+package enumerations
+
+import runtime.{*, given}
+import io.circe.*
+import scala.reflect.Typeable
+import scala.annotation.switch
+
+/** The moniker kind.
+  *
+  * @since 3.16.0
+  */
+opaque type MonikerKind = String
+object MonikerKind extends StringEnum[MonikerKind]:
+  /** The moniker represent a symbol that is imported into a project
+    */
+  val `import` = entry("import")
+
+  /** The moniker represents a symbol that is exported from a project
+    */
+  val `export` = entry("export")
+
+  /** The moniker represents a symbol that is local to a project (e.g. a local
+    * variable of a function, a class not visible outside the project, ...)
+    */
+  val local        = entry("local")
+  override def ALL = Set(
+    `import`,
+    `export`,
+    local
+  )
+end MonikerKind

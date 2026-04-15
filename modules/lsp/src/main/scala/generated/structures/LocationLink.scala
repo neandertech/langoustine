@@ -1,0 +1,53 @@
+/*
+ * Copyright 2022 Neandertech
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// format:off
+package langoustine.lsp
+package structures
+
+import langoustine.*
+import runtime.{*, given}
+
+/** Represents the connection of two locations. Provides additional metadata
+  * over normal {@link Location locations}, including an origin range.
+  *
+  * @param originSelectionRange
+  *   Span of the origin of this link.
+  *
+  * Used as the underlined span for mouse interaction. Defaults to the word
+  * range at the definition position.
+  *
+  * @param targetUri
+  *   The target resource identifier of this link.
+  *
+  * @param targetRange
+  *   The full target range of this link. If the target for example is a symbol
+  *   then target range is the range enclosing this symbol not including
+  *   leading/trailing whitespace but everything else like comments. This
+  *   information is typically used to highlight the range in the editor.
+  *
+  * @param targetSelectionRange
+  *   The range that should be selected and revealed when this link is being
+  *   followed, e.g the name of a function. Must be contained by the
+  *   `targetRange`. See also `DocumentSymbol#range`
+  */
+case class LocationLink(
+    originSelectionRange: Option[structures.Range] = None,
+    targetUri: runtime.DocumentUri,
+    targetRange: structures.Range,
+    targetSelectionRange: structures.Range
+)
+object LocationLink extends codecs.structures_LocationLinkCodec
