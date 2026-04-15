@@ -23,6 +23,9 @@ import runtime.{*, given}
 import io.circe.*
 import scala.reflect.*
 
+/** An event describing a change to a text document. If only a text is provided
+  * it is considered to be the full content of the document.
+  */
 opaque type TextDocumentContentChangeEvent =
   (TextDocumentContentChangeEvent.S0 | TextDocumentContentChangeEvent.S1)
 object TextDocumentContentChangeEvent

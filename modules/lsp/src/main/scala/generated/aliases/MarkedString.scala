@@ -23,6 +23,22 @@ import runtime.{*, given}
 import io.circe.*
 import scala.reflect.*
 
+/** MarkedString can be used to render human readable text. It is either a
+  * markdown string or a code-block that provides a language and a code snippet.
+  * The language identifier is semantically equal to the optional language
+  * identifier in fenced code blocks in GitHub issues. See
+  * https://help.github.com/articles/creating-and-highlighting-code-blocks/#syntax-highlighting
+  *
+  * The pair of a language and a value is an equivalent to markdown:
+  * ```${language}
+  * ${value}
+  * ```
+  *
+  * Note that markdown strings will be sanitized - that means html will be
+  * escaped.
+  * @deprecated
+  *   use MarkupContent instead.
+  */
 opaque type MarkedString = (String | MarkedString.S0)
 object MarkedString extends codecs.aliases_MarkedString:
   inline def apply(v: String): MarkedString          = v

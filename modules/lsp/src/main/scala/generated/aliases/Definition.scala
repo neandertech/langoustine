@@ -23,6 +23,13 @@ import runtime.{*, given}
 import io.circe.*
 import scala.reflect.*
 
+/** The definition of a symbol represented as one or many
+  * {@link Location locations}. For most programming languages there is only one
+  * location at which a symbol is defined.
+  *
+  * Servers should prefer returning `DefinitionLink` over `Definition` if
+  * supported by the client.
+  */
 opaque type Definition = (structures.Location | Vector[structures.Location])
 object Definition extends codecs.aliases_Definition:
   inline def apply(v: structures.Location): Definition         = v

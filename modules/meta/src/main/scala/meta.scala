@@ -134,7 +134,8 @@ object TypeAliasName extends OpaqueString[TypeAliasName]
 case class TypeAlias(
     name: TypeAliasName,
     `type`: Type,
-    proposed: Boolean = false
+    proposed: Boolean = false,
+    documentation: Opt[StructureDescription] = Opt.empty
 )
 
 case class StructureLiteral(

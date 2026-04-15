@@ -23,6 +23,10 @@ import runtime.{*, given}
 import io.circe.*
 import scala.reflect.*
 
+/** The glob pattern. Either a string pattern or a relative pattern.
+  *
+  * @since 3.17.0
+  */
 opaque type GlobPattern = (aliases.Pattern | structures.RelativePattern)
 object GlobPattern extends codecs.aliases_GlobPattern:
   inline def apply(v: aliases.Pattern): GlobPattern            = v

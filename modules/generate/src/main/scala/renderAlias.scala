@@ -8,11 +8,16 @@ import scala.util.boundary
 
 import Types.*
 
-def renderAlias(manager: Manager, out: LineBuilder, codecsOut: LineBuilder, packageName: String, alias: TypeAlias)(using
+def renderAlias(
+    manager: Manager,
+    out: LineBuilder,
+    codecsOut: LineBuilder,
+    packageName: String,
+    alias: TypeAlias
+)(using
     Config
 )(using ctx: Context): Unit =
   inline def line: Config ?=> Appender = to(out)
-
 
   val inlineStructures =
     Map
@@ -38,6 +43,11 @@ def renderAlias(manager: Manager, out: LineBuilder, codecsOut: LineBuilder, pack
     case other => TypeTraversal.Skip
   }
 
+  alias.documentation.toOption.foreach { d =>
+    commentWriter(out) { cw =>
+      cw.commentLine(d.value)
+    }
+  }
   if alias.name.value == "LSPArray" then
     line(s"case class LSPArray(elements: ${renderType(newType)})")
   else line(s"opaque type ${alias.name} = ${renderType(newType)}")

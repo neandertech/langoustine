@@ -23,6 +23,9 @@ import runtime.{*, given}
 import io.circe.*
 import scala.reflect.*
 
+/** The declaration of a symbol representation as one or many
+  * {@link Location locations}.
+  */
 opaque type Declaration = (structures.Location | Vector[structures.Location])
 object Declaration extends codecs.aliases_Declaration:
   inline def apply(v: structures.Location): Declaration         = v

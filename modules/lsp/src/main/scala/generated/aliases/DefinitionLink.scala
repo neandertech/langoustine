@@ -23,6 +23,11 @@ import runtime.{*, given}
 import io.circe.*
 import scala.reflect.*
 
+/** Information about where a symbol is defined.
+  *
+  * Provides additional metadata over normal {@link Location location}
+  * definitions, including the range of the defining symbol
+  */
 opaque type DefinitionLink = structures.LocationLink
 object DefinitionLink extends codecs.aliases_DefinitionLink:
   inline def apply(v: structures.LocationLink): DefinitionLink = v
