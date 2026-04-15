@@ -33,16 +33,16 @@ type Opt[+A] = Option[A]
 )
 val Opt = Option
 
-extension [A](o: Opt.type) 
-  
+extension [A](o: Opt.type)
+
   @deprecated(
     "Opt no longer exists in Langoustine - use Option instead. This forwarder is left for convenience and will be removed in 0.1.0",
     "0.1.0"
   )
   inline def fromOption(opt: Option[A]) = opt
-extension [A](o: Opt[A]) 
+extension [A](o: Opt[A])
   @deprecated(
     "Opt no longer exists in Langoustine - use Option instead. This forwarder is left for convenience and will be removed in 0.1.0",
     "0.1.0"
   )
-  inline def toOption                     = o
+  inline def toOption = o
