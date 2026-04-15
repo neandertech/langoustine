@@ -15,18 +15,18 @@ Most of the code is generated directly from the recently published LSP specifica
 **SBT** 
 
 ```scala sc:nocompile
-libraryDependencies += "tech.neander" %% "langoustine-lsp" % "{{projectVersion}}"
+libraryDependencies += "tech.neander" %% "langoustine-app" % "{{projectVersion}}"
 ```
 
 **Mill**
 ```scala sc:nocompile
-    ivy"tech.neander::langoustine-lsp::{{projectVersion}}"
+    ivy"tech.neander::langoustine-app::{{projectVersion}}"
 ```
 
 [**Scala CLI**](https://scala-cli.virtuslab.org) 
 
 ```scala sc:nocompile
-//> using lib "tech.neander::langoustine-lsp::{{projectVersion}}"
+//> using lib "tech.neander::langoustine-app::{{projectVersion}}"
 ```
 
 In all of those, [don't forget to add an extra % or : if targeting a non-JVM artifact](https://youforgotapercentagesignoracolon.com)

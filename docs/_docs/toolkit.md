@@ -57,10 +57,10 @@ Using that `encoder`, you can produce the `SemanticTokensLegend` required as as 
 ```scala sc:nocompile
 ServerCapabilities(
   //...
-  semanticTokensProvider = Opt(
+  semanticTokensProvider = Some(
     SemanticTokensOptions(
       legend = encoder.legend,
-      full = Opt(true)
+      full = Some(true)
     )
   ),
   //...
