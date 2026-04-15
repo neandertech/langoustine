@@ -297,6 +297,8 @@ lazy val tracer = projectMatrix
           newLines.mkString(System.lineSeparator())
         }
 
+        Files.createDirectories(outDir.toPath)
+
         Files.writeString((outDir / "index.html").toPath, indexFileContents)
 
         IO.listFiles(location).toList.map { file =>

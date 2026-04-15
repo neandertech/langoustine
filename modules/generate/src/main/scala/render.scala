@@ -1381,7 +1381,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line(s"package enumerations")
     line("")
     line("import runtime.{*, given}")
-    // line("import json.{*, given}")
     line("import io.circe.*")
     line("import scala.reflect.Typeable")
     line("import scala.annotation.switch")
@@ -1394,7 +1393,6 @@ class Render(manager: Manager, packageName: String = "langoustine.lsp"):
     line(s"private val intCodecU = upickle.default.readwriter[Int]")
     line(s"private val stringCodec = Decoder.decodeString")
     line(s"private val intCodec = Decoder.decodeInt")
-    // line("import upickle.{default => up}")
     line("")
 
     manager.enumerations.filterNot(_.proposed).foreach { a =>
