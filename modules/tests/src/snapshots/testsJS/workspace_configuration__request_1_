@@ -1,11 +1,11 @@
 {
-    "items" : [
-        {
-            "scopeUri" : "uri1",
-            "section" : "randomString"
-        },
-        {
-            "scopeUri" : "uri2"
-        }
-    ]
+  "items" : [
+    {
+      "scopeUri" : "uri1",
+      "section" : "randomString"
+    },
+    {
+      "scopeUri" : "uri2"
+    }
+  ]
 }

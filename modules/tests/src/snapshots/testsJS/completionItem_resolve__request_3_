@@ -1,17 +1,17 @@
 {
-    "label" : "randomString",
-    "labelDetails" : {
-        "description" : "randomString"
-    },
-    "kind" : 13,
-    "documentation" : "randomString",
-    "filterText" : "randomString",
-    "insertText" : "randomString",
-    "insertTextMode" : 2,
-    "textEditText" : "randomString",
-    "commitCharacters" : [
-        "randomString",
-        "randomString",
-        "randomString"
-    ]
+  "label" : "randomString",
+  "labelDetails" : {
+    "description" : "randomString"
+  },
+  "kind" : 13,
+  "documentation" : "randomString",
+  "filterText" : "randomString",
+  "insertText" : "randomString",
+  "insertTextMode" : 2,
+  "textEditText" : "randomString",
+  "commitCharacters" : [
+    "randomString",
+    "randomString",
+    "randomString"
+  ]
 }

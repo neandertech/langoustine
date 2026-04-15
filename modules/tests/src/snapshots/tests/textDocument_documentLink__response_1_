@@ -1,32 +1,32 @@
 [
-    {
-        "data" : {
-            "hello" : "yo"
-        },
-        "range" : {
-            "end" : {
-                "character" : 99,
-                "line" : 12
-            },
-            "start" : {
-                "character" : 62,
-                "line" : 60
-            }
-        },
-        "target" : "uri2",
-        "tooltip" : "randomString"
+  {
+    "range" : {
+      "start" : {
+        "line" : 60,
+        "character" : 62
+      },
+      "end" : {
+        "line" : 12,
+        "character" : 99
+      }
     },
-    {
-        "range" : {
-            "end" : {
-                "character" : 10,
-                "line" : 38
-            },
-            "start" : {
-                "character" : 23,
-                "line" : 83
-            }
-        },
-        "target" : "uri1"
+    "target" : "uri2",
+    "tooltip" : "randomString",
+    "data" : {
+      "hello" : "yo"
     }
+  },
+  {
+    "range" : {
+      "start" : {
+        "line" : 83,
+        "character" : 23
+      },
+      "end" : {
+        "line" : 38,
+        "character" : 10
+      }
+    },
+    "target" : "uri1"
+  }
 ]

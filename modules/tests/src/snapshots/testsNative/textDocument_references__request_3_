@@ -1,13 +1,13 @@
 {
-    "context" : {
-        "includeDeclaration" : false
-    },
-    "textDocument" : {
-        "uri" : "file2"
-    },
-    "position" : {
-        "line" : 87,
-        "character" : 58
-    },
-    "partialResultToken" : 25
+  "context" : {
+    "includeDeclaration" : false
+  },
+  "textDocument" : {
+    "uri" : "file2"
+  },
+  "position" : {
+    "line" : 87,
+    "character" : 58
+  },
+  "partialResultToken" : 25
 }

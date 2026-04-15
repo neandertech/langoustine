@@ -1,6 +1,6 @@
 {
-  "textDocument": {
-    "uri": "file1"
+  "textDocument" : {
+    "uri" : "file1"
   },
-  "partialResultToken": 25
+  "partialResultToken" : 25
 }

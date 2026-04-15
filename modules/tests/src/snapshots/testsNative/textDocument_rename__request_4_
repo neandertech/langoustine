@@ -1,10 +1,10 @@
 {
-    "textDocument" : {
-        "uri" : "file2"
-    },
-    "position" : {
-        "line" : 83,
-        "character" : 23
-    },
-    "newName" : "randomString"
+  "textDocument" : {
+    "uri" : "file2"
+  },
+  "position" : {
+    "line" : 83,
+    "character" : 23
+  },
+  "newName" : "randomString"
 }

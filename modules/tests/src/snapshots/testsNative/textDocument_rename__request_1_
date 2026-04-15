@@ -1,11 +1,11 @@
 {
-    "textDocument" : {
-        "uri" : "file1"
-    },
-    "position" : {
-        "line" : 86,
-        "character" : 39
-    },
-    "newName" : "randomString",
-    "workDoneToken" : "stringToken"
+  "textDocument" : {
+    "uri" : "file1"
+  },
+  "position" : {
+    "line" : 86,
+    "character" : 39
+  },
+  "newName" : "randomString",
+  "workDoneToken" : "stringToken"
 }

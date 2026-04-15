@@ -1,28 +1,28 @@
 [
-    {
-        "range" : {
-            "end" : {
-                "character" : 3,
-                "line" : 89
-            },
-            "start" : {
-                "character" : 39,
-                "line" : 86
-            }
-        },
-        "uri" : "file1"
-    },
-    {
-        "range" : {
-            "end" : {
-                "character" : 12,
-                "line" : 62
-            },
-            "start" : {
-                "character" : 60,
-                "line" : 86
-            }
-        },
-        "uri" : "file2"
+  {
+    "uri" : "file1",
+    "range" : {
+      "start" : {
+        "line" : 86,
+        "character" : 39
+      },
+      "end" : {
+        "line" : 89,
+        "character" : 3
+      }
     }
+  },
+  {
+    "uri" : "file2",
+    "range" : {
+      "start" : {
+        "line" : 86,
+        "character" : 60
+      },
+      "end" : {
+        "line" : 62,
+        "character" : 12
+      }
+    }
+  }
 ]
