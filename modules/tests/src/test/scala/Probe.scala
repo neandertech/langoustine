@@ -20,7 +20,6 @@ import scala.concurrent.duration.*
 
 import _root_.fs2.*
 import _root_.fs2.concurrent.SignallingRef
-import _root_.fs2.concurrent.Topic
 import cats.effect.Deferred
 import cats.effect.IO
 import cats.effect.Ref
@@ -98,7 +97,7 @@ class Probe(
 
     send(msg) *> pendingRequests.get.flatMap(
       _.get(callId)
-        .map(_.get.timeout(2.seconds).flatMap { msg =>
+        .map(_.get.timeout(timeouts.waitForResponse).flatMap { msg =>
           msg match
             case ResponseMessage(callId, data) =>
               IO.fromEither(t.outputFromJson.decodeJson(data.data))
@@ -119,8 +118,8 @@ class Probe(
 end Probe
 
 case class Timeouts(
-    waitForNotifications: Duration = 2.seconds,
-    waitForResponse: Duration = 2.seconds
+    waitForNotifications: Duration = 5.seconds,
+    waitForResponse: Duration = 5.seconds
 )
 
 object Timeouts:
@@ -139,9 +138,9 @@ object Probe:
       ch <- FS2Channel
         .resource[IO]()
         .flatMap(ch => ch.withEndpoints(builder.build(Communicate.channel(ch))))
-      input <- Topic[IO, Message]().toResource
-      _     <- input
-        .subscribe(1)
+      _     <- log.info("wut").toResource
+      input <- fs2.concurrent.Channel.synchronous[IO, Message].toResource
+      _     <- input.stream
         .evalTap(msg => log.info(s"Sending message $msg"))
         .through(ch.input)
         .compile
@@ -170,14 +169,15 @@ object Probe:
         .drain
         .background
       send = (msg: Message) =>
-        msg.maybeCallId
-          .map(cid =>
-            IO.deferred[Message]
-              .flatMap(dfr => pendingRequests.update(_ + (cid -> dfr)))
-          )
-          .getOrElse(IO.unit) *>
+        log.info(s"Sending message $msg") *>
+          msg.maybeCallId
+            .map(cid =>
+              IO.deferred[Message]
+                .flatMap(dfr => pendingRequests.update(_ + (cid -> dfr)))
+            )
+            .getOrElse(IO.unit) *>
           input
-            .publish1(msg)
+            .send(msg)
             .flatMap(
               _.fold(
                 _ => IO.raiseError(RuntimeException("channel already closed")),
