@@ -20,8 +20,6 @@ package runtime
 import scala.reflect.TypeTest
 
 import langoustine.*
-// import langoustine.lsp.json.*
-import upickle.default.*
 import io.circe.*
 
 opaque type DocumentUri = String
@@ -43,7 +41,6 @@ end DocumentUri
 
 opaque type Uri = String
 object Uri extends OpaqueString[Uri]:
-  // given ReadWriter[Uri]         = stringCodec.asInstanceOf[ReadWriter[Uri]]
   private val codec: Codec[Uri] =
     Codec.from(Decoder.decodeString, Encoder.encodeString)
   given fromJson: Decoder[Uri] = Decoder.decodeString.map(Uri.apply)
@@ -57,7 +54,6 @@ end Uri
 
 opaque type uinteger = Int
 object uinteger extends OpaqueInt[uinteger]:
-  // given ReadWriter[uinteger] = intCodec.asInstanceOf[ReadWriter[uinteger]]
   private val codec: Codec[uinteger] =
     Codec.from(Decoder.decodeInt, Encoder.encodeInt)
 

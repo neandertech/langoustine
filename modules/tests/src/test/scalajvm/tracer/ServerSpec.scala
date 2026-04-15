@@ -17,15 +17,13 @@
 package tests.tracer
 
 import cats.effect.*
-import cats.effect.syntax.all.*
-import jsonrpclib.Payload
-import fs2.concurrent.Topic
 import cats.syntax.all.*
 import fs2.Chunk
+import fs2.concurrent.Topic
+import jsonrpclib.CallId
+import jsonrpclib.Message
 import langoustine.tracer.*
 import org.http4s.Uri
-import jsonrpclib.Message
-import jsonrpclib.CallId
 
 abstract class ServerSpec extends weaver.IOSuite:
   type Res = Feed

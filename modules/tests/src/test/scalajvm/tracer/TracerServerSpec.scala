@@ -16,20 +16,16 @@
 
 package tests.tracer
 
-import langoustine.tracer.*
-import TracerServer.{*, given}
+import scala.concurrent.duration.*
+
 import cats.effect.*
 import cats.syntax.all.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
-import java.util.Base64
-import org.http4s.Uri
-import org.http4s.client.*
-import org.http4s.client.websocket.*
-import scala.concurrent.duration.*
-import weaver.*
-import jsonrpclib.Payload
-
 import io.circe.*
+import jsonrpclib.Payload
+import langoustine.tracer.*
+import org.http4s.client.websocket.*
+import weaver.*
 
 object TracerServerSpec extends ServerSpec:
 

@@ -16,11 +16,8 @@
 
 package tests.tracer
 
-import langoustine.tracer.*
-import cats.effect.IO
 import cats.data.NonEmptyList
-
-import com.comcast.ip4s.*
+import langoustine.tracer.*
 import langoustine.tracer.Config.Defaults
 
 object TracerCLISpec extends weaver.SimpleIOSuite:

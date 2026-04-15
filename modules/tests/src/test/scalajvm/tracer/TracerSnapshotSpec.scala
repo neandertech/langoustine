@@ -16,19 +16,14 @@
 
 package tests.tracer
 
-import langoustine.tracer.*
-import TracerServer.{*, given}
-import fs2.concurrent.Channel as Chan
 import cats.effect.*
-import cats.syntax.all.*
-import com.github.plokhotnyuk.jsoniter_scala.core.*
 import com.github.plokhotnyuk.jsoniter_scala.circe.JsoniterScalaCodec.*
-import java.util.Base64
-import weaver.*
+import com.github.plokhotnyuk.jsoniter_scala.core.*
 import io.circe.*
+import langoustine.tracer.*
+import weaver.*
 
 object TracerSnapshotSpec extends ServerSpec:
-  import scala.concurrent.duration.*
 
   test("Serves a snapshot with correct information") { serv =>
     serv.sendLine(_.err, "hello") *>

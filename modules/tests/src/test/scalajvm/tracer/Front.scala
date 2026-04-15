@@ -16,25 +16,16 @@
 
 package tests.tracer
 
-import weaver.*
 import cats.effect.*
 import jsonrpclib.*
-import java.util.Base64
-import langoustine.tracer.RawMessage
-import _root_.fs2.concurrent.Channel as Chan
-import _root_.fs2.*
-import cats.syntax.all.*
 import langoustine.tracer.*
-import com.github.plokhotnyuk.jsoniter_scala.core.*
-import org.http4s.client.*
-import TracerServer.{*, given}
+import langoustine.tracer.RawMessage
 import org.http4s.Uri
-import org.http4s.client.websocket.*
-
 import org.http4s.circe.CirceEntityCodec.*
-
-import org.http4s.dsl.io.*
+import org.http4s.client.*
 import org.http4s.client.dsl.io.*
+import org.http4s.client.websocket.*
+import org.http4s.dsl.io.*
 
 case class Front(client: Client[IO], base: Uri, ws: WSClient[IO]):
   val wsBase = base.copy(scheme = Some(Uri.Scheme.unsafeFromString("ws")))
