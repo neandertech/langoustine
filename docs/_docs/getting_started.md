@@ -72,9 +72,9 @@ def myLSP(files: Ref[IO, Set[String]]) =
         IO {
           InitializeResult(
             capabilities = ServerCapabilities(textDocumentSync =
-              Opt(TextDocumentSyncKind.Full)
+              Some(TextDocumentSyncKind.Full)
             ),
-            serverInfo = Opt(InitializeResult.ServerInfo("My first LSP!"))
+            serverInfo = Some(InitializeResult.ServerInfo("My first LSP!"))
           )
         }
     }
@@ -106,7 +106,7 @@ def sendMessage(back: Communicate[IO], msg: String) =
    storage of unique document URIs
 
 3. When we respond to the `initialize` request, we also inform the client that 
-   we're happy to receive document syncing notifications by setting `textDocumentSync = Opt(TextDocumentSyncKind.Full)`
+   we're happy to receive document syncing notifications by setting `textDocumentSync = Some(TextDocumentSyncKind.Full)`
    in the response.
 
    Without this, clients won't be sending `textDocument/didOpen` notifications that we need.
@@ -149,9 +149,9 @@ def myFutureLSP(
       Future {
         InitializeResult(
           capabilities = ServerCapabilities(textDocumentSync =
-            Opt(TextDocumentSyncKind.Full)
+            Some(TextDocumentSyncKind.Full)
           ),
-          serverInfo = Opt(InitializeResult.ServerInfo("My first LSP!"))
+          serverInfo = Some(InitializeResult.ServerInfo("My first LSP!"))
         )
       }
     }
