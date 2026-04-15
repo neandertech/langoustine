@@ -13,14 +13,14 @@ import java.nio.file.Files
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 import com.github.plokhotnyuk.jsoniter_scala.circe.JsoniterScalaCodec.*
 
-case class Config(
+case class CLI(
     out: String,
     schema: String,
     @decline_derive.Name("files") filesOut: Option[String] = None
 ) derives CommandApplication
 
 @main def run(args: String*) =
-  val config    = CommandApplication.parseOrExit[Config](args)
+  val config    = CommandApplication.parseOrExit[CLI](args)
   val metaModel = readFromArray[io.circe.Json](
     Files.readAllBytes(Paths.get(config.schema))
   ).as[MetaModel].fold(throw _, identity)
@@ -37,16 +37,15 @@ case class Config(
   val mm = Manager(filtered)
   val re = Render(mm)
 
-  import Render.*
-
-  given Render.Config(indents = Indentation(0), indentSize = IndentationSize(2))
+  given Config(indents = Indentation(0), indentSize = IndentationSize(2))
 
   val files = List.newBuilder[Path]
 
   def inFile(s: String)(f: LineBuilder => Unit) =
-    val out = Render.LineBuilder()
+    val out = LineBuilder()
 
     val path = Paths.get(config.out, s)
+    Files.createDirectories(path.getParent())
 
     out.appendLine("// format:off")
 
@@ -58,6 +57,19 @@ case class Config(
     files += path
   end inFile
 
+  def writeFile(s: String, out: LineBuilder) = 
+    val path = Paths.get(config.out, s)
+
+    Files.createDirectories(path.getParent())
+
+    Using.resource(new FileWriter(path.toFile())) { fw =>
+      fw.write(out.result)
+    }
+
+    files += path
+  end writeFile
+
+
   inFile("codecs.scala") { codecsOut =>
     re.codecsPrelude(codecsOut)
 
@@ -65,17 +77,11 @@ case class Config(
       re.requests(out, codecsOut)
     }
 
-    inFile("structures.scala") { out =>
-      re.structures(out, codecsOut)
-    }
+    re.structures(codecsOut).foreach(writeFile)
 
-    inFile("aliases.scala") { out =>
-      re.aliases(out, codecsOut)
-    }
+    re.aliases(codecsOut).foreach(writeFile)
 
-    inFile("enumerations.scala") { out =>
-      re.enumerations(out)
-    }
+    re.enumerations().foreach(writeFile)
 
     inFile("all.scala") { out =>
       re.exports(out)
