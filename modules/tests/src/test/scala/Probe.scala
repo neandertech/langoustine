@@ -37,7 +37,8 @@ class Probe(
     messagesFromServer: SignallingRef[IO, Vector[Message]],
     send: Message => IO[Unit],
     pendingRequests: Ref[IO, Map[CallId, Deferred[IO, Message]]],
-    log: weaver.Log[IO]
+    log: weaver.Log[IO],
+    timeouts: Timeouts
 ):
 
   def notification[T <: LSPNotification](t: T, params: t.In): IO[Unit] =
@@ -73,25 +74,19 @@ class Probe(
             s"Waiting for ${count} notifications with [${t.notificationMethod}]: collected ${matching.length} on startup"
           )
 
-          sizes = _root_.fs2.Stream
-            .repeatEval(ref.get.map(_.length))
-            .metered(50.millis)
-
-          _ <- messagesFromServer.discrete
+          _ <- (fs2.Stream.emit(matching.length) ++ messagesFromServer.discrete
             .evalMap { vec =>
               vec.traverseCollect(collect).flatMap { selected =>
                 ref.set(selected).as(selected.length)
               }
             }
-            .takeWhile(_ != count)
-            .compile
-            .drain
+            .takeWhile(_ != count)).compile.drain
 
           all <- ref.get
         yield all
         end for
       }
-      .timeout(2.second)
+      .timeout(timeouts.waitForNotifications)
   end waitForNotifications
 
   def request[T <: LSPRequest](callId: CallId, t: T, params: t.In): IO[t.Out] =
@@ -123,8 +118,23 @@ class Probe(
   end request
 end Probe
 
+case class Timeouts(
+    waitForNotifications: Duration = 2.seconds,
+    waitForResponse: Duration = 2.seconds
+)
+
+object Timeouts:
+  def fromEnv(env: Map[String, String]) =
+    if env.contains("CI") then Timeouts(10.seconds, 10.seconds)
+    else Timeouts()
+
 object Probe:
-  def create(builder: LSPBuilder[IO], log: weaver.Log[IO]) =
+
+  def create(
+      builder: LSPBuilder[IO],
+      log: weaver.Log[IO],
+      timeouts: Timeouts = Timeouts.fromEnv(sys.env)
+  ) =
     for
       ch <- FS2Channel
         .resource[IO]()
@@ -174,5 +184,5 @@ object Probe:
                 _ => IO.unit
               )
             )
-    yield Probe(messagesFromServer, send, pendingRequests, log)
+    yield Probe(messagesFromServer, send, pendingRequests, log, timeouts)
 end Probe
