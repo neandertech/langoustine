@@ -2,14 +2,14 @@
 
 ... and use them with Javascript, JVM, or even native libraries
 
-**Status as of August 3rd, 2022**: active, but very unstable, use (don't) at your own risk
+**Status as of April 15th, 2026**: updated to latest and greatest, API is stabilising
 
 [![langoustine-lsp Scala version support](https://index.scala-lang.org/neandertech/langoustine/langoustine-lsp/latest.svg)](https://index.scala-lang.org/neandertech/langoustine/langoustine-lsp)
 
 * [API documentation](https://neandertech.github.io/langoustine/)
-* **SBT:** `libraryDependencies += "tech.neander" %% "langoustine-app" % "0.0.21"`
-* **Mill**: `ivy"tech.neander::langoustine-app::0.0.21"`
-* [**Scala CLI**](https://scala-cli.virtuslab.org) `//> using lib "tech.neander::langoustine-app::0.0.21"`
+* **SBT:** `libraryDependencies += "tech.neander" %%% "langoustine-app" % "0.1.0"`
+* **Mill**: `ivy"tech.neander::langoustine-app::0.1.0"`
+* [**Scala CLI**](https://scala-cli.virtuslab.org) `//> using lib "tech.neander::langoustine-app::0.1.0"`
 
 ## What is it? 
 
@@ -61,50 +61,8 @@ an immeasurable impact on your productivity.
 
 Depends on how amazing you want the UX to be really, but if you're a lazy sloth like we are, head over the following list : 
 
-* [neovim](https://neovim.io/doc/user/lsp.html), if you hate rodents 
-* [vscode](https://marketplace.visualstudio.com/items?itemName=neandertech.langoustine-vscode), if you like rodents (provided by yours truly) 
+* [neovim](https://neovim.io/doc/user/lsp.html)
+* [vscode](https://marketplace.visualstudio.com/items?itemName=neandertech.langoustine-vscode)
 * [intellij](https://github.com/gtache/intellij-lsp) (no commits in a few years, will need a brave soul to step-up) 
-* [emacs](https://emacs-lsp.github.io/lsp-mode/), if you have 20 fingers on each of your 8 hands 
-* [sublime](https://lsp.sublimetext.io/guides/client_configuration/), if you're a decent person who pays for software 
-
-## Should I use it?
-
-Please refer to this helpful diagram:
-
-```text 
-┌──────────────┐                                                     
-│  YAS KWEEEN  │                                                     
-│     area     │                           .───────────.             
-└──────────────┘                       _.─'             `──.         
-        │                           ,─'                     '─.      
-        │                          ╱                           ╲     
-        │                        ,'      People who enjoy       `.   
-        │                       ╱          using Scala 3          ╲  
-        │       .───────────.  ;                                   : 
-        │   _.─'             `─;.                                  : 
-        └────────────────────────────┐                              :
-        ╱                     │     ╲│     .───────────.            │
-      ,'                      │      │._.─'             `──.        │
-     ╱                        :     ,┼'╲                    '─.     ;
-    ;                          :   ╱ │  :                      ╲   ; 
-    ;                          : ,'  │  :                       `. ; 
-   ;                            ╱    │   :                        ╲  
-   │                           ; ╲   ▼   │                       ╱ : 
-   │     People who enjoy      ;  `.     │                     ,'  : 
-   :     creating Language    ;     ╲    ;                    ╱     :
-    :         Servers         │      '─.;                  ,─'      │
-    :                         │         `──.           _.─'         │
-     ╲                        :        ╱    `─────────'             ;
-      ╲                        :      ╱                            ; 
-       `.                      :    ,'      People who are         ; 
-         ╲                      ╲  ╱           ready for          ╱  
-          '─.                   ,╲'         disappointment       ╱   
-             `──.           _.─'  `.                           ,'    
-                 `─────────'        ╲                         ╱      
-                                     '─.                   ,─'       
-                                        `──.           _.─'          
-                                            `─────────'              
-```
-
-If you are in the YAS KWEEN area - welcome and let's have some fun!
-
+* [emacs](https://emacs-lsp.github.io/lsp-mode/)
+* [sublime](https://lsp.sublimetext.io/guides/client_configuration/)
