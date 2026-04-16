@@ -19,13 +19,10 @@ package langoustine.lsp.app
 import jsonrpclib.CallId
 import jsonrpclib.fs2.CancelTemplate
 
-private case class LSPCancelRequest(id: CallId) derives io.circe.Codec.AsObject
+private[langoustine] case class LSPCancelRequest(id: CallId)
+    derives io.circe.Codec.AsObject
 
-object LSPCancelRequest:
-  // import com.github.plokhotnyuk.jsoniter_scala.macros.*
-  // given JsonValueCodec[LSPCancelRequest] = JsonCodecMaker.make[LSPCancelRequest]
-  // given Codec[LSPCancelRequest] = Codec.fromJsonCodec
-
+private[langoustine] object LSPCancelRequest:
   val cancelTemplate: CancelTemplate = CancelTemplate
     .make[LSPCancelRequest](
       "$/cancelRequest",
