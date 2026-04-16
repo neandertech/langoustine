@@ -18,6 +18,8 @@ package tests.core
 
 import scala.concurrent.duration.*
 
+import langoustine.testkit.*
+
 import cats.effect.IO
 import jsonrpclib.fs2.catsMonadic
 import jsonrpclib.{fs2 as _, *}
@@ -25,6 +27,7 @@ import langoustine.lsp.*
 import langoustine.lsp.all.*
 import langoustine.lsp.structures.InitializeParams.ClientInfo
 import langoustine.lsp.structures.InitializeResult.ServerInfo
+import cats.syntax.all.*
 
 object LSPTests extends weaver.SimpleIOSuite:
 
@@ -138,6 +141,56 @@ object LSPTests extends weaver.SimpleIOSuite:
 
   }
 
+  serverTest("cancellation") { log =>
+    import requests.*
+
+    val NumParallelCalls = 5
+
+    IO.ref(Set.empty[CallId.StringId])
+      .parProduct(cats.effect.std.CountDownLatch[IO](NumParallelCalls))
+      .flatMap: (cancelled, latch) =>
+        val server = basicServer.handleRequest(textDocument.documentSymbol) {
+          in =>
+            log.info(s"in handler for ${in.params.textDocument.uri}") *>
+              IO.never
+                .onCancel(
+                  log.info(
+                    s"Cancelled ${in.params.textDocument.uri}"
+                  ) *>
+                    cancelled.update(
+                      _ + CallId.StringId(in.params.textDocument.uri.value)
+                    ) *>
+                    latch.release
+                )
+                .as(None)
+        }
+
+        Probe
+          .create(server, log)
+          .use: probe =>
+            val requests = List.tabulate(NumParallelCalls): i =>
+              val callID = CallId.StringId(s"document $i")
+              probe
+                .requestAndForget(
+                  callID,
+                  textDocument.documentSymbol,
+                  DocumentSymbolParams(
+                    TextDocumentIdentifier(
+                      uri = DocumentUri(callID.string)
+                    )
+                  )
+                )
+                .as(callID)
+
+            for
+              callIds      <- requests.parSequence
+              _            <- callIds.parTraverse(probe.cancel)
+              _            <- latch.await.timeout(5.seconds)
+              allCancelled <- cancelled.get
+            yield expect.same(callIds.toSet, allCancelled)
+            end for
+  }
+
   serverTest("documentSymbol") { log =>
     val symbols: Option[Vector[DocumentSymbol]] =
       Option(
@@ -190,51 +243,3 @@ end LSPTests
 
 def basicServer =
   LSPBuilder.create[IO]
-
-//   test("textDocument/documentSymbol") {
-//     import requests.*
-
-//     val symbols: Option[Vector[DocumentSymbol]] =
-//       Opt(
-//         Vector(
-//           DocumentSymbol(
-//             name = "root",
-//             kind = SymbolKind.Array,
-//             range = Range(Position(0, 0), Position(0, 5)),
-//             selectionRange = Range(Position(0, 0), Position(0, 5)),
-//             children = Opt(
-//               Vector(
-//                 DocumentSymbol(
-//                   name = "child",
-//                   kind = SymbolKind.String,
-//                   range = Range(Position(1, 0), Position(1, 5)),
-//                   selectionRange = Range(Position(1, 0), Position(1, 5))
-//                 )
-//               )
-//             )
-//           )
-//         )
-//       )
-
-//     val server = basicServer[Try].handleRequest(textDocument.documentSymbol) {
-//       in =>
-//         Try {
-//           symbols
-//         }
-//     }
-
-//     val (response, _) = request(
-//       server,
-//       CallId.StringId("resp1"),
-//       textDocument.documentSymbol,
-//       DocumentSymbolParams(
-//         TextDocumentIdentifier(DocumentUri("/home/bla.txt"))
-//       )
-//     ).get
-
-//     expect.same(
-//       response,
-//       symbols
-//     )
-//   }
-// end LSPTests

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package tests.core
+package langoustine.testkit
 
 import scala.concurrent.duration.*
 
@@ -31,6 +31,8 @@ import jsonrpclib.fs2.catsMonadic
 import jsonrpclib.{fs2 as _, *}
 import langoustine.lsp.*
 import langoustine.lsp.all.*
+import _root_.io.circe.syntax.*
+import langoustine.lsp.app.LSPCancelRequest
 
 class Probe(
     messagesFromServer: SignallingRef[IO, Vector[Message]],
@@ -39,6 +41,13 @@ class Probe(
     log: weaver.Log[IO],
     timeouts: Timeouts
 ):
+
+  def cancel(callId: CallId) =
+    val msg = InputMessage.NotificationMessage(
+      "$/cancelRequest",
+      Some(Payload(LSPCancelRequest(callId).asJson))
+    )
+    send(msg)
 
   def notification[T <: LSPNotification](t: T, params: t.In): IO[Unit] =
     val msg = InputMessage.NotificationMessage(
@@ -88,6 +97,20 @@ class Probe(
       .timeout(timeouts.waitForNotifications)
   end waitForNotifications
 
+  def requestAndForget[T <: LSPRequest](
+      callId: CallId,
+      t: T,
+      params: t.In
+  ): IO[Unit] =
+    val msg = InputMessage.RequestMessage(
+      method = t.requestMethod,
+      callId = callId,
+      params = Some(Payload(t.inputToJson.apply(params)))
+    )
+
+    send(msg)
+  end requestAndForget
+
   def request[T <: LSPRequest](callId: CallId, t: T, params: t.In): IO[t.Out] =
     val msg = InputMessage.RequestMessage(
       method = t.requestMethod,
@@ -136,7 +159,7 @@ object Probe:
   ) =
     for
       ch <- FS2Channel
-        .resource[IO]()
+        .resource[IO](cancelTemplate = Some(LSPCancelRequest.cancelTemplate))
         .flatMap(ch => ch.withEndpoints(builder.build(Communicate.channel(ch))))
       _     <- log.info("wut").toResource
       input <- fs2.concurrent.Channel.synchronous[IO, Message].toResource
