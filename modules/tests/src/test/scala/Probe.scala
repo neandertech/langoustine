@@ -31,7 +31,7 @@ import jsonrpclib.fs2.catsMonadic
 import jsonrpclib.{fs2 as _, *}
 import langoustine.lsp.*
 import langoustine.lsp.all.*
-import _root_.io.circe.Json
+import _root_.io.circe.syntax.*
 import langoustine.lsp.app.LSPCancelRequest
 
 class Probe(
@@ -45,7 +45,7 @@ class Probe(
   def cancel(callId: CallId) =
     val msg = InputMessage.NotificationMessage(
       "$/cancelRequest",
-      Some(Payload(Json.obj("id" -> CallId.codec(callId))))
+      Some(Payload(LSPCancelRequest(callId).asJson))
     )
     send(msg)
 
